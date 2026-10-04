@@ -11,12 +11,12 @@
     <meta name="author" content="Aymen Essouyah" />
     <meta
       name="theme-color"
-      content="#f4f5fa"
+      content="#f9f1e3"
       media="(prefers-color-scheme: light)"
     />
     <meta
       name="theme-color"
-      content="#0b0d16"
+      content="#0d1526"
       media="(prefers-color-scheme: dark)"
     />
     <meta
@@ -29,6 +29,20 @@
     />
     <meta property="og:type" content="website" />
     <link rel="icon" href="assets/icons/STI_by_AE.ico" />
+    <link
+      rel="apple-touch-icon"
+      href="assets/icons/sti-icon-192.png"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+    <meta
+      name="apple-mobile-web-app-title"
+      content="STI by AE"
+    />
     <link rel="stylesheet" href="assets/fonts/fonts.css" />
     <script>
       /* Initialise le thème + la classe JS avant le rendu (évite tout flash) */
@@ -2420,6 +2434,14 @@
             <a href="#cours" class="btn btn-ghost"
               >Voir les cours &amp; exercices</a
             >
+            <button
+              type="button"
+              class="btn btn-ghost"
+              id="installBtn"
+              hidden
+            >
+              ⤓ Installer STI by AE
+            </button>
           </div>
         </div>
 
@@ -3022,7 +3044,7 @@
         <div class="footer-bottom">
           <p>© 2026 Aymen.Essouyah — Plateforme STI</p>
           <p class="stack">
-            <a href="https://aymen528.github.io/STi-By-Ae1.3/" target="_blank" rel="noopener">aymen528.github.io/STi-By-Ae1.3</a>
+            <a href="https://aymenessouyah.github.io/STi/" target="_blank" rel="noopener">aymenessouyah.github.io/STi</a>
             ·
             <a href="mailto:aymenessouyah@gmail.com">aymenessouyah@gmail.com</a>
           </p>
@@ -3907,6 +3929,72 @@
             }, 2200);
           }
         }, 45);
+      })();
+    </script>
+
+    <!-- ================= PWA : installation + hors-ligne ================= -->
+    <script>
+      (function () {
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker.register("./sw.js").catch(function () {});
+          });
+        }
+        var btn = document.getElementById("installBtn");
+        var differe = null;
+        var dejaInstallee =
+          window.matchMedia &&
+          matchMedia("(display-mode: standalone)").matches;
+
+        function setBtn(vis, label) {
+          if (!btn) return;
+          btn.hidden = !vis;
+          if (label) btn.textContent = label;
+        }
+
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          differe = e;
+          setBtn(true);
+        });
+
+        if (btn) {
+          btn.addEventListener("click", function () {
+            if (differe) {
+              differe.prompt();
+              differe.userChoice.then(function () {
+                differe = null;
+                setBtn(false);
+              });
+              return;
+            }
+            var estIos =
+              /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === "MacIntel" &&
+                navigator.maxTouchPoints > 1);
+            window.alert(
+              estIos
+                ? "Sur iPhone / iPad : appuyez sur le bouton Partager ⬆️ du navigateur, puis « Sur l'écran d'accueil »."
+                : "L'installation est aussi proposée par l'icône ⤓ à droite de la barre d'adresse du navigateur."
+            );
+          });
+        }
+
+        window.addEventListener("appinstalled", function () {
+          setBtn(false);
+        });
+        if (dejaInstallee) setBtn(false);
+
+        /* iPhone : pas d'événement beforeinstallprompt → on affiche quand
+           même le bouton, son clic expliquera la marche à suivre. */
+        if (
+          btn &&
+          btn.hidden &&
+          !dejaInstallee &&
+          /iPad|iPhone|iPod/.test(navigator.userAgent)
+        ) {
+          setBtn(true, "⤓ Installer STI by AE (Partager →)");
+        }
       })();
     </script>
   </body>
