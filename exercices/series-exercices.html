@@ -768,7 +768,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('html-css/TP1-css.pdf', 'TP 1 — Structure & Balises sémantiques')"
+                onclick="openPdfModal('html-css/TP1-css.pdf.html', 'TP 1 — Structure & Balises sémantiques')"
               >
                 Énoncé
               </button>
@@ -784,7 +784,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('html-css/TP2-css.pdf', 'TP 2 — Layout & Menu de navigation')"
+                onclick="openPdfModal('html-css/TP2-css.pdf.html', 'TP 2 — Layout & Menu de navigation')"
               >
                 Énoncé
               </button>
@@ -806,7 +806,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('html-css/TP3-css.pdf', 'TP 3 — Page d\'accueil interactive (Ariana)')"
+                onclick="openPdfModal('html-css/TP3-css.pdf.html', 'TP 3 — Page d\'accueil interactive (Ariana)')"
               >
                 Énoncé
               </button>
@@ -835,7 +835,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('html-css/activite1-2-position-animation-css3.pdf', 'CSS3 — POSITIONNEMENT FLOTTANT & CENTRAGE ABSOLU ')"
+                onclick="openPdfModal('html-css/activite1-2-position-animation-css3.pdf.html', 'CSS3 — POSITIONNEMENT FLOTTANT & CENTRAGE ABSOLU ')"
               >
                 Énoncé
               </button>
@@ -849,7 +849,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf', 'CSS3 — Projet Fleurs 1')"
+                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf.html', 'CSS3 — Projet Fleurs 1')"
               >
                 Énoncé
               </button>
@@ -868,7 +868,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf', 'CSS3 — Projet 2')"
+                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf.html', 'CSS3 — Projet 2')"
               >
                 Énoncé
               </button>
@@ -1055,7 +1055,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf', 'CSS3 — Projet Fleurs 1')"
+                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf.html', 'CSS3 — Projet Fleurs 1')"
               >
                 Énoncé
               </button>
@@ -1074,7 +1074,7 @@
             <div class="exo-actions">
               <button
                 class="enonce"
-                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf', 'CSS3 — Projet 2')"
+                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf.html', 'CSS3 — Projet 2')"
               >
                 Énoncé
               </button>
@@ -1431,6 +1431,7 @@
 
       function modePourUrl(url) {
         var u = String(url).toLowerCase();
+        if (/\.pdf\.html($|[?#])/.test(u)) return "mode-doc"; // feuille A4 convertie en page
         if (/\.pdf($|[?#])/.test(u)) return "mode-pdf"; // document PDF (A4)
         if (/^pdf\//.test(u)) return "mode-doc"; // énoncés & corrigés de séries
         if (/enonce/.test(u)) return "mode-doc"; // énoncé d'un projet
