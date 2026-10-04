@@ -1765,6 +1765,8 @@
         .cursor {
           animation: none;
         }
+        /* exception assumée : l'effet machine à écrire de la barre est
+           voulu en toutes circonstances par l'auteur du site */
         .brand-mark::before,
         .brand-mark::after,
         .wordmark em {
@@ -4014,10 +4016,10 @@
         var tag = document.querySelector(".topbar .wordmark small");
         if (!tag || !tag.textContent) return;
         var full = tag.textContent;
-        var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduce) return; /* accessibilité : texte statique si l'utilisateur demande moins de mouvement */
-        /* machine à écrire en BOUCLE INFINIE : frappe, retient, efface,
-           recommence — le texte « tourne » en permanence dans la barre */
+        /* machine à écrire en BOUCLE INFINIE — volontairement inarrêtable :
+           frappe, retient, efface, recommence ; le texte « tourne » en
+           permanence dans la barre, réglage système d'animations réduit
+           compris (choix assumé de l'auteur) */
         tag.style.minWidth = tag.getBoundingClientRect().width + "px";
         var i = 0;
         function retaper() {
@@ -4040,6 +4042,11 @@
         }
         tag.textContent = "";
         retaper();
+        /* si l'onglet a été mis en pause (mobile qui met la page en
+           arrière-plan, économe de batterie), le texte repart dès le retour */
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden && !tag.textContent) retaper();
+        });
       })();
     </script>
 
