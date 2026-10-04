@@ -3755,11 +3755,12 @@ Content-Security-Policy: frame-ancestors 'self'</code></pre>
          est ouverte : on ferme alors la fenêtre et on remonte. */
       function goTop() {
         closeModal();
-        try {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        } catch (err) {
-          window.scrollTo(0, 0);
-        }
+        var de = document.documentElement,
+          pr = de.style.scrollBehavior;
+        de.style.scrollBehavior = "auto";
+        window.scrollTo(0, 0);
+        if (pr) de.style.scrollBehavior = pr;
+        else de.style.removeProperty("scroll-behavior");
       }
 
       function switchTab(sectionId, mode) {
