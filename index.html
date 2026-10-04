@@ -735,9 +735,19 @@
 
       .cursor {
         color: var(--term-prompt);
-        /* clignote quelques secondes pendant la rotation du terminal,
-           puis se fige (l'animation ne tourne plus à l'infini) */
-        animation: blink 1.1s step-end 6;
+        /* la barre du dactylo clignote SANS S'ARRÊTER, partout où elle vit */
+        animation: blink 1.1s step-end infinite;
+      }
+
+      /* pendant la frappe, le curseur reste plein (comme une vraie machine
+         à écrire) et ne reprend son clignotement qu'une fois la pose venue */
+      .cursor.solid {
+        animation: none;
+        opacity: 1;
+      }
+
+      .wordmark small .cursor {
+        margin-left: 1px;
       }
 
       @keyframes blink {
@@ -1762,9 +1772,7 @@
         .rotator-text {
           transition: none;
         }
-        .cursor {
-          animation: none;
-        }
+
         /* exception assumée : l'effet machine à écrire de la barre est
            voulu en toutes circonstances par l'auteur du site */
         .brand-mark::before,
@@ -4016,36 +4024,53 @@
         var tag = document.querySelector(".topbar .wordmark small");
         if (!tag || !tag.textContent) return;
         var full = tag.textContent;
+        /* on sépare texte et barre : le texte est un nœud que le JS met à
+           jour, la barre « ▌ » est un <span> frère qui clignote à côté */
+        var node = document.createTextNode("");
+        var bar = document.createElement("span");
+        bar.className = "cursor";
+        bar.setAttribute("aria-hidden", "true");
+        bar.textContent = "▌";
+        tag.textContent = "";
+        tag.appendChild(node);
+        tag.appendChild(bar);
         /* machine à écrire en BOUCLE INFINIE — volontairement inarrêtable :
            frappe, retient, efface, recommence ; le texte « tourne » en
            permanence dans la barre, réglage système d'animations réduit
            compris (choix assumé de l'auteur) */
-        tag.style.minWidth = tag.getBoundingClientRect().width + "px";
+        tag.style.minWidth = (function () {
+          tag.textContent = full;
+          var w = tag.getBoundingClientRect().width;
+          return w;
+        })() + "px";
         var i = 0;
         function retaper() {
+          bar.classList.add("solid");
           if (i < full.length) {
             i++;
-            tag.textContent = full.slice(0, i);
+            node.nodeValue = full.slice(0, i);
             setTimeout(retaper, 55);
           } else {
+            bar.classList.remove("solid");
             setTimeout(effacer, 2600); /* texte complet : on le retient */
           }
         }
         function effacer() {
+          bar.classList.add("solid");
           if (i > 0) {
             i = Math.max(0, i - 2);
-            tag.textContent = full.slice(0, i);
+            node.nodeValue = full.slice(0, i);
             setTimeout(effacer, 26);
           } else {
+            bar.classList.remove("solid");
             setTimeout(retaper, 900); /* à vide : une pause, et ça repart */
           }
         }
-        tag.textContent = "";
         retaper();
         /* si l'onglet a été mis en pause (mobile qui met la page en
            arrière-plan, économe de batterie), le texte repart dès le retour */
         document.addEventListener("visibilitychange", function () {
-          if (!document.hidden && !tag.textContent) retaper();
+          if (!document.hidden && !node.nodeValue && i === 0) retaper();
         });
       })();
     </script>
