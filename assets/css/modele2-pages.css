@@ -191,7 +191,7 @@ body > header.sticky {
   color: var(--m2-ink);
 }
 
-/* « brand » (vert) → accents crème/orange/navy du Modèle 2 */
+/* « brand » (vert) → accents crème/orange/navy de l'Atelier */
 .text-brand-700,
 .text-brand-600 {
   color: var(--m2-accent-dark);
