@@ -4024,8 +4024,12 @@
         var tag = document.querySelector(".topbar .wordmark small");
         if (!tag || !tag.textContent) return;
         var full = tag.textContent;
-        /* on sépare texte et barre : le texte est un nœud que le JS met à
-           jour, la barre « ▌ » est un <span> frère qui clignote à côté */
+        /* 1) figer la largeur TOUT DE SUITE, pendant que le bloc contient
+              encore le texte complet en clair : toute écriture ultérieure
+              de textContent remplacerait les enfants greffés en 2) */
+        tag.style.minWidth = tag.getBoundingClientRect().width + "px";
+        /* 2) on sépare texte et barre : le texte est un nœud que le JS met à
+              jour, la barre « ▌ » est un <span> frère qui clignote à côté */
         var node = document.createTextNode("");
         var bar = document.createElement("span");
         bar.className = "cursor";
@@ -4038,11 +4042,6 @@
            frappe, retient, efface, recommence ; le texte « tourne » en
            permanence dans la barre, réglage système d'animations réduit
            compris (choix assumé de l'auteur) */
-        tag.style.minWidth = (function () {
-          tag.textContent = full;
-          var w = tag.getBoundingClientRect().width;
-          return w;
-        })() + "px";
         var i = 0;
         function retaper() {
           bar.classList.add("solid");
