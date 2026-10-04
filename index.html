@@ -409,11 +409,6 @@
         }
       }
 
-      .wordmark,
-      .wordmark * {
-        animation: none !important;
-      }
-
       .wordmark small {
         display: block;
         font-family: "Inter", sans-serif;
@@ -4020,10 +4015,31 @@
         if (!tag || !tag.textContent) return;
         var full = tag.textContent;
         var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduce) return; /* affichage statique immédiat */
-        /* le texte reste désormais affiché tel quel : plus d'effet
-           machine à écrire (l'animation repartait à chaque retour
-           sur la page et devenait lassante) */
+        if (reduce) return; /* accessibilité : texte statique si l'utilisateur demande moins de mouvement */
+        /* machine à écrire en BOUCLE INFINIE : frappe, retient, efface,
+           recommence — le texte « tourne » en permanence dans la barre */
+        tag.style.minWidth = tag.getBoundingClientRect().width + "px";
+        var i = 0;
+        function retaper() {
+          if (i < full.length) {
+            i++;
+            tag.textContent = full.slice(0, i);
+            setTimeout(retaper, 55);
+          } else {
+            setTimeout(effacer, 2600); /* texte complet : on le retient */
+          }
+        }
+        function effacer() {
+          if (i > 0) {
+            i = Math.max(0, i - 2);
+            tag.textContent = full.slice(0, i);
+            setTimeout(effacer, 26);
+          } else {
+            setTimeout(retaper, 900); /* à vide : une pause, et ça repart */
+          }
+        }
+        tag.textContent = "";
+        retaper();
       })();
     </script>
 
