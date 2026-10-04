@@ -2711,6 +2711,68 @@
         </div>
       </section>
 
+      <!-- ======================= Documents complets (PDF) ======================= -->
+      <style id="complet-style">
+        #complet .annexes-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) }
+        #complet .annexe-card .go { cursor: pointer }
+        #complet .annexe-card.absent { opacity: 0.72; cursor: progress }
+        #complet .annexe-card.absent .go { color: var(--muted, #6b6250); font-weight: 700 }
+      </style>
+      <section class="annexes" id="complet">
+        <div class="section-head reveal">
+          <h2>Documents complets</h2>
+          <p>Un seul fichier PDF par année, pratique pour tout réviser hors ligne</p>
+        </div>
+        <div class="annexes-grid">
+          <a href="documents/complet/complet-3eme-si.pdf" class="annexe-card reveal" data-complet="3eme">
+            <div class="annexe-icon">📕</div>
+            <h4>3ème SI — tout le programme</h4>
+            <p>Cours, TP et résumés de l'année de 3ème Sciences Informatique réunis en un document.</p>
+            <span class="go"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></span>
+          </a>
+          <a href="documents/complet/complet-4eme-si.pdf" class="annexe-card reveal" data-complet="4eme">
+            <div class="annexe-icon">📗</div>
+            <h4>4ème SI — tout le programme</h4>
+            <p>L'année de 4ème Sciences Techniques Informatique au complet : HTML/CSS, JS, SQL, PHP.</p>
+            <span class="go"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></span>
+          </a>
+        </div>
+      </section>
+      <script id="complet-check">
+        (function () {
+          /* Auto-orientation du lien : page HTML convertie si elle existe,
+             sinon le PDF lui-même, sinon la carte passe en « à venir ». */
+          document.querySelectorAll('#complet [data-complet]').forEach(function (a) {
+            var pdf = a.getAttribute('href');
+            var html = pdf.replace(/\.pdf$/, '.pdf.html');
+            function probe(url, ok) {
+              return fetch(url, { method: 'HEAD' }).then(function (r) {
+                if (r.ok) { ok(url); return true; }
+                return false;
+              });
+            }
+            probe(html, function (u) {
+              a.href = u;
+              var g = a.querySelector('.go');
+              if (g) g.innerHTML = '📖 Lire en ligne ' + g.innerHTML;
+            }).then(function (trouve) {
+              if (trouve) return;
+              probe(pdf, function (u) {
+                var g = a.querySelector('.go');
+                if (g) g.innerHTML = '⤓ Ouvrir le PDF ' + g.innerHTML;
+              }).then(function (trouve2) {
+                if (trouve2) return;
+                a.classList.add('absent');
+                a.removeAttribute('href');
+                a.setAttribute('aria-disabled', 'true');
+                var g = a.querySelector('.go');
+                if (g) g.textContent = '🕒 À venir — déposer le fichier dans documents/complet/';
+              });
+            });
+          });
+        })();
+      </script>
+
       <!-- ======================= Exercices ======================= -->
       <section class="exercices" id="exercices">
         <div class="section-head reveal">
