@@ -30,7 +30,6 @@
     <meta property="og:type" content="website" />
     <link rel="icon" href="assets/icons/STI_by_AE.ico" />
     <link rel="stylesheet" href="assets/fonts/fonts.css" />
-    <link rel="stylesheet" href="assets/css/index.css" />
     <script>
       /* Initialise le thème + la classe JS avant le rendu (évite tout flash) */
       (function () {
@@ -2215,6 +2214,84 @@
         }
       }
     </style>
+    <!-- ================= Modèle 2 « L'Atelier » : styles de base =================
+         Ces quelques règles garantissent que les nouveaux éléments (bandeau de
+         sélection, badge M2, titre A→Z, bouton atelier) restent corrects même
+         quand le skin modele2.css est désactivé (Modèle 1 d'origine). -->
+    <style id="modele2-base">
+      .modele-banner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 6px 14px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+      .mb-inner {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .mb-msg {
+        display: none;
+      }
+      .mb-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--border-strong);
+        background: var(--surface);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.3;
+        cursor: pointer;
+        transition: color 0.2s ease, border-color 0.2s ease,
+          background 0.2s ease;
+        white-space: nowrap;
+      }
+      .mb-pill:hover {
+        color: var(--ink);
+        border-color: var(--accent);
+      }
+      .mb-pill svg {
+        width: 13px;
+        height: 13px;
+      }
+      .mb-pill .mb-check {
+        display: none;
+      }
+      .hero-badge-m2,
+      .h1-two,
+      .btn-atelier {
+        display: none;
+      }
+    </style>
+    <!-- Skin « Modèle 2 » (désactivable via le bandeau, cf. localStorage sti-modele) -->
+    <link
+      id="modele2-skin"
+      rel="stylesheet"
+      href="assets/css/modele2.css"
+    />
+    <script>
+      /* Applique le modèle mémorisé avant le rendu (évite le flash) */
+      (function () {
+        var m = null;
+        try {
+          m = localStorage.getItem("sti-modele");
+        } catch (e) {}
+        if (m === "1") {
+          var l = document.getElementById("modele2-skin");
+          if (l) l.disabled = true;
+          document.documentElement.setAttribute("data-modele", "1");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div class="progress" id="progress"></div>
@@ -2223,6 +2300,41 @@
       <div class="blob blob-1"></div>
       <div class="blob blob-2"></div>
       <div class="blob blob-3"></div>
+    </div>
+
+    <!-- ======================= Bandeau de sélection du modèle ======================= -->
+    <div class="modele-banner" id="modeleBanner">
+      <div class="wrap mb-inner">
+        <button class="mb-pill" id="modeleToggle" type="button">
+          <svg
+            class="mb-check"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <svg
+            class="mb-spark"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"
+            />
+          </svg>
+          <span id="modeleToggleLabel">✦ Activer le Modèle 2 — L'Atelier</span>
+        </button>
+        <p class="mb-msg">
+          Vous avez choisi l'Atelier Complet — HTML5, CSS3, JavaScript, SQL
+          &amp; PHP réunis en un seul parcours interactif.
+        </p>
+      </div>
     </div>
 
     <!-- ======================= Barre de navigation ======================= -->
@@ -2287,6 +2399,21 @@
           <a class="nav-link" href="#exercices">Exercices</a>
           <a class="nav-link" href="#modules">Quiz</a>
           <a class="nav-link" href="#conseils">Conseils</a>
+          <a class="btn btn-atelier" href="#modules">
+            Ouvrir l'Atelier
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
           <span class="sep"></span>
           <button
             class="theme-toggle"
@@ -2368,9 +2495,17 @@
             ><span class="dot"></span> Lycée Raféha · 3<sup>ème</sup> &amp;
             4<sup>ème</sup> SI</span
           >
-          <h1>
+          <span class="hero-badge hero-badge-m2">
+            <span class="dot"></span> Modèle 2 · Édition complète · HTML + CSS
+            + JS + SQL + PHP <span class="chip-ok">Confirmé</span>
+          </span>
+          <h1 class="h1-one">
             Cours, annexes, exercices, séries et projets sur le
             <span class="grad">développement web</span>, un quiz à la fois.
+          </h1>
+          <h1 class="h1-two">
+            Le web de <span class="tile tile-a">A</span> à
+            <span class="tile tile-z">Z</span>.
           </h1>
           <p class="lead">
             HTML5, CSS3, JavaScript, SQL et PHP : testez vos compétences avec
@@ -3853,6 +3988,53 @@
 
         window.addEventListener("scroll", updateScrollUI, { passive: true });
         updateScrollUI();
+      })();
+    </script>
+    <!-- ================= Modèle 2 : bascule du design ================= -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var link = document.getElementById("modele2-skin");
+        var btn = document.getElementById("modeleToggle");
+        var label = document.getElementById("modeleToggleLabel");
+        if (!link) return;
+
+        function getSaved() {
+          try {
+            return localStorage.getItem("sti-modele");
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function apply(modele) {
+          var two = modele !== "1";
+          link.disabled = !two;
+          root.setAttribute("data-modele", two ? "2" : "1");
+          if (label) {
+            label.innerHTML = two
+              ? "<b>Modèle 2</b> — sélectionné"
+              : "✦ Activer le Modèle 2 — L'Atelier";
+          }
+          if (btn) {
+            btn.title = two
+              ? "Revenir au design d'origine (Modèle 1)"
+              : "Appliquer le modèle « L'Atelier » (Modèle 2)";
+            btn.setAttribute("aria-pressed", two ? "true" : "false");
+          }
+        }
+
+        if (btn) {
+          btn.addEventListener("click", function () {
+            var want = link.disabled ? "2" : "1";
+            apply(want);
+            try {
+              localStorage.setItem("sti-modele", want);
+            } catch (e) {}
+          });
+        }
+
+        apply(getSaved() || "2");
       })();
     </script>
   </body>

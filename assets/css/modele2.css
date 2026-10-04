@@ -1,0 +1,952 @@
+/* ============================================================
+   MODÈLE 2 — « L'Atelier »  ·  skin optionnel du site STI by AE
+   Style : papier crème, grille de points, encre bleu nuit,
+   orange vif, bordures nettes 2 px et ombres dures.
+   Ce fichier complète les styles existants : il ne les casse pas
+   (tout est sur-spécifique via :root et peut être désactivé).
+   ============================================================ */
+
+/* ---------- Tokens (clair) ---------- */
+:root {
+  --bg: #f9f1e3;
+  --surface: #fffcf3;
+  --surface-2: #f6eedc;
+  --border: #e7d9bd;
+  --border-strong: #0f1726;
+  --ink: #0f1726;
+  --muted: #6b6250;
+  --accent: #f4511e;
+  --accent-2: #0f1726;
+  --accent-soft: #ffe2d2;
+  --ok: #17b26a;
+  --grad: linear-gradient(120deg, #f4511e, #f4511e 70%, #ff7a3d);
+  --topbar-bg: rgba(249, 241, 227, 0.88);
+  --term-bg: #0c1424;
+  --term-border: #20304b;
+  --term-ink: #efe3cc;
+  --term-green: #5fe3a1;
+  --term-prompt: #ffa45c;
+  --c-htmlcss: #f4511e;
+  --c-js: #c98a00;
+  --c-sql: #0e7c86;
+  --c-php: #2f4bc4;
+  --edge: #0f1726;
+  --pop-sm: 2.5px 2.5px 0 var(--edge);
+  --pop: 4px 4px 0 var(--edge);
+  --pop-lg: 7px 7px 0 var(--edge);
+  --shadow-sm: 0 1px 0 rgba(15, 23, 38, 0.08);
+  --shadow-md: var(--pop);
+  --shadow-lg: var(--pop-lg);
+  --radius: 16px;
+  --radius-sm: 11px;
+}
+
+/* ---------- Tokens (sombre) ---------- */
+:root[data-theme="dark"] {
+  --bg: #0d1526;
+  --surface: #141f35;
+  --surface-2: #18243d;
+  --border: #26344f;
+  --border-strong: #f3e9d8;
+  --ink: #f3e9d8;
+  --muted: #a79b80;
+  --accent: #ff6a2b;
+  --accent-2: #ff9a5c;
+  --accent-soft: #2a1b10;
+  --grad: linear-gradient(120deg, #ff6a2b, #ff6a2b 70%, #ffa45c);
+  --topbar-bg: rgba(13, 21, 38, 0.85);
+  --term-bg: #070d19;
+  --edge: #f3e9d8;
+  --c-htmlcss: #ff7a4d;
+  --c-js: #f2b532;
+  --c-sql: #2dd4d4;
+  --c-php: #8b93ff;
+}
+
+/* ---------- Typographie ---------- */
+:root body {
+  font-family: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI",
+    Arial, sans-serif;
+}
+
+:root h1,
+:root h2,
+:root h3,
+:root h4,
+:root h5 {
+  font-family: "Manrope", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.022em;
+}
+
+:root ::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+:root :focus-visible {
+  outline: 3px solid var(--accent);
+  border-radius: 4px;
+}
+
+/* ---------- Fond crème + grille de points ---------- */
+:root body {
+  background: var(--bg);
+}
+
+:root body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f8a86b 34%, transparent) 0%,
+    color-mix(in srgb, #f8a86b 0%, transparent) 44%
+  );
+}
+
+:root[data-theme="dark"] body::before {
+  background: radial-gradient(
+    60% 44% at 70% -8%,
+    color-mix(in srgb, var(--accent) 14%, transparent),
+    transparent 70%
+  );
+}
+
+:root .blob {
+  display: none;
+}
+
+:root .bg-decor::after {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--edge) 17%, transparent) 1.15px,
+    transparent 1.15px
+  );
+  background-size: 23px 23px;
+  opacity: 1;
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.85),
+    transparent 82%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.85),
+    transparent 82%
+  );
+}
+
+:root .progress {
+  height: 4px;
+  background: var(--accent);
+}
+
+/* ---------- Bandeau « Modèle sélectionné » ---------- */
+:root .modele-banner {
+  display: flex;
+  background: #0c1424;
+  color: #efe3cc;
+  border-bottom: 2.5px solid var(--edge);
+  padding: 10px 14px;
+}
+
+:root .mb-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+:root .mb-msg {
+  display: block;
+  margin: 0;
+  font-size: 0.84em;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #efe3cc;
+  max-width: 58ch;
+}
+
+:root .mb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #fbf4e6;
+  color: #0c1424;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 17px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.3;
+  font-family: "Manrope", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+:root .mb-pill:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+:root .mb-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+:root .mb-pill b {
+  font-weight: 900;
+}
+
+:root .mb-pill .mb-check {
+  display: inline;
+}
+
+:root .mb-pill .mb-spark {
+  display: none;
+}
+
+/* ---------- Barre de navigation ---------- */
+:root .topbar {
+  background: var(--topbar-bg);
+  border-bottom: 2.5px solid var(--edge);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+:root .topbar-inner {
+  padding: 12px 0;
+  gap: 14px;
+}
+
+/* Logo : pastille pleine, anneau dégradé désactivé */
+:root .brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+:root .brand-mark svg {
+  border-radius: 12px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .brand-mark svg rect {
+  fill: var(--ink);
+}
+
+:root .brand-mark svg text {
+  fill: var(--bg);
+  font-weight: 800;
+}
+
+:root .brand-mark::before,
+:root .brand-mark::after {
+  display: none;
+}
+
+:root .brand-mark img {
+  display: none;
+}
+
+:root .brand-menu-caret {
+  display: none;
+}
+
+:root .wordmark {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 1.08em;
+  letter-spacing: -0.02em;
+}
+
+:root .wordmark em {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: var(--accent);
+  color: var(--accent);
+  animation: none;
+}
+
+:root .wordmark small {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 0.62em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: line-through;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2.5px;
+}
+
+/* Liens de nav en pilules */
+:root .nav a.nav-link {
+  font-weight: 700;
+  font-size: 0.78em;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  padding: 7px 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease, background 0.15s ease;
+}
+
+:root .nav a.nav-link:hover {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--edge);
+  box-shadow: var(--pop-sm);
+  transform: translate(-1px, -1px);
+}
+
+:root .nav .sep {
+  background: var(--edge);
+  opacity: 0.25;
+  height: 24px;
+}
+
+/* Bouton central « Ouvrir l'Atelier » (visible en Modèle 2) */
+:root .btn-atelier {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: var(--bg);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-weight: 800;
+  font-size: 0.8em;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow: 3.5px 3.5px 0 var(--accent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+:root .btn-atelier:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 5px 5px 0 var(--accent);
+}
+
+:root .btn-atelier:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1.5px 1.5px 0 var(--accent);
+}
+
+:root .btn-atelier svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Bouton thème : carré bordé façon hamburger */
+:root .theme-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid var(--edge);
+  background: var(--surface);
+  box-shadow: var(--pop-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+:root .theme-toggle:hover {
+  transform: translate(-1px, -1px) rotate(0deg);
+  border-color: var(--edge);
+  box-shadow: 4px 4px 0 var(--edge);
+}
+
+:root .theme-toggle:active {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 0.5px 0.5px 0 var(--edge);
+}
+
+/* Menu mobile déroulant */
+:root .mobile-logo-menu {
+  background: var(--surface);
+  border-bottom: 2.5px solid var(--edge);
+}
+
+:root .mobile-menu-link {
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-weight: 800;
+  box-shadow: var(--pop-sm);
+}
+
+:root .mobile-menu-pill {
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 800;
+}
+
+/* ---------- Hero ---------- */
+:root .hero {
+  padding: 92px 0 70px;
+  gap: 52px;
+}
+
+/* Badge d'origine remplacé par la pilule « Modèle 2 » */
+:root .hero .hero-badge:not(.hero-badge-m2) {
+  display: none;
+}
+
+:root .hero-badge-m2 {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  background: var(--surface);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  padding: 8px 9px 8px 15px;
+  margin-bottom: 26px;
+  font-size: 0.68em;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink);
+  box-shadow: var(--pop);
+}
+
+:root .hero-badge-m2 .chip-ok {
+  background: var(--ok);
+  color: #fff;
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.95em;
+  letter-spacing: 0.06em;
+  box-shadow: var(--pop-sm);
+}
+
+:root .hero h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+:root .hero .h1-one {
+  display: none;
+}
+
+:root .hero .h1-two {
+  display: block;
+  font-size: clamp(2.9rem, 7.6vw, 5.7rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+}
+
+:root .hero .tile {
+  display: inline-block;
+  padding: 0.02em 0.16em 0.09em;
+  border-radius: 0.16em;
+  color: #fffdf6;
+  transform: translateY(0.04em);
+}
+
+:root .hero .tile-a {
+  background: var(--accent);
+}
+
+:root .hero .tile-z {
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 0.1em;
+}
+
+:root .hero p.lead {
+  color: var(--ink);
+  opacity: 0.78;
+  font-weight: 500;
+  font-size: 1.02em;
+  border-left: 4px solid var(--accent);
+  padding-left: 16px;
+  margin-bottom: 34px;
+}
+
+/* Boutons */
+:root .btn {
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.88em;
+  letter-spacing: 0.01em;
+  box-shadow: var(--pop);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.2s ease, color 0.2s ease;
+}
+
+:root .btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--edge);
+}
+
+:root .btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--edge);
+}
+
+:root .btn-primary {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--accent);
+}
+
+:root .btn-primary:hover {
+  box-shadow: 6px 6px 0 var(--accent);
+}
+
+:root .btn-primary:active {
+  box-shadow: 1px 1px 0 var(--accent);
+}
+
+:root .btn-ghost {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: var(--edge);
+  color: var(--ink);
+}
+
+:root .btn-ghost:hover {
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-color: var(--edge);
+}
+
+/* Terminal : panneau encre + ombre dure */
+:root .terminal {
+  background: var(--term-bg);
+  border: 2.5px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: var(--pop-lg);
+}
+
+:root .terminal-bar .term-title {
+  color: #8b7f63;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* ---------- Recherche & filtres ---------- */
+:root .quick-filter-bar {
+  background: var(--surface);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .search-box input {
+  background: var(--bg);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+:root .search-box input:focus {
+  border-color: var(--edge);
+  box-shadow: var(--pop-sm);
+}
+
+:root .search-kbd {
+  border: 1.5px solid var(--edge);
+  border-radius: 6px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+:root .filter-chip {
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.74em;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease, color 0.15s ease;
+}
+
+:root .filter-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--pop-sm);
+  border-color: var(--edge);
+  color: var(--ink);
+}
+
+:root .filter-chip.active {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--edge);
+  box-shadow: var(--pop-sm);
+}
+
+:root .filter-empty {
+  border: 2px dashed var(--edge);
+}
+
+/* ---------- Têtes de section ---------- */
+:root .section-head h2 {
+  font-weight: 800;
+}
+
+:root .section-head h2::before {
+  width: 7px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+:root .revision-progress {
+  background: var(--surface);
+  border: 2px solid var(--edge);
+  box-shadow: var(--pop-sm);
+  font-weight: 800;
+}
+
+:root .revision-bar {
+  border: 1.5px solid var(--edge);
+  background: var(--surface-2);
+}
+
+:root .revision-bar-fill {
+  background: var(--accent);
+}
+
+/* ---------- Cartes de cours ---------- */
+:root .annexe-card {
+  background: var(--surface);
+  border: 2px solid var(--edge);
+  border-radius: 14px;
+  box-shadow: 0 0 0 transparent;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+:root .annexe-card::after {
+  display: none;
+}
+
+:root .annexe-card:hover {
+  transform: translate(-3px, -3px);
+  border-color: var(--edge);
+  box-shadow: 6px 6px 0 var(--edge);
+}
+
+:root .annexe-icon {
+  background: var(--accent-soft);
+  border: 2px solid var(--edge);
+  border-radius: 10px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .annexe-card h4 {
+  font-weight: 800;
+}
+
+:root .annexe-card .go {
+  opacity: 1;
+  transform: none;
+  background: var(--ink);
+  color: var(--bg);
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid var(--edge);
+}
+
+:root .revise-toggle {
+  border: 2px solid var(--edge);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 0.66em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+}
+
+:root .revise-toggle:hover {
+  background: var(--accent-soft);
+  border-color: var(--edge);
+  color: var(--ink);
+}
+
+:root .annexe-card.revised {
+  border-color: var(--edge);
+  box-shadow: 4px 4px 0 var(--ok);
+}
+
+:root .annexe-card.revised .revise-toggle {
+  background: var(--ok);
+  border-color: var(--edge);
+  color: #fff;
+}
+
+/* ---------- Bannière Exercices ---------- */
+:root .exercice-banner {
+  background: var(--accent);
+  border: 2.5px solid var(--edge);
+  border-radius: 18px;
+  box-shadow: var(--pop-lg);
+  color: #fff7ec;
+}
+
+:root .exercice-banner::before {
+  display: none;
+}
+
+:root .exercice-banner:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 10px 10px 0 var(--edge);
+}
+
+:root .exercice-icon {
+  background: rgba(255, 247, 236, 0.2);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .exercice-tag {
+  color: #3a0f00;
+  font-weight: 900;
+}
+
+:root .exercice-body h3 {
+  color: #fff7ec;
+  font-weight: 800;
+}
+
+:root .exercice-body p {
+  color: rgba(255, 247, 236, 0.85);
+}
+
+:root .exercice-cta {
+  background: #fff7ec;
+  color: var(--ink);
+  border: 2px solid var(--edge);
+  box-shadow: var(--pop-sm);
+  font-weight: 800;
+}
+
+:root .quiz-card:hover .card-cta,
+:root .exercice-banner:hover .exercice-cta {
+  background: #fff7ec;
+  color: var(--ink);
+  border-color: var(--edge);
+}
+
+/* ---------- Cartes quiz ---------- */
+:root .quiz-card {
+  background: var(--surface);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: 0 0 0 transparent;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+:root .quiz-card::before {
+  height: 8px;
+  background: var(--card-accent);
+  border-bottom: 2px solid var(--edge);
+}
+
+:root .quiz-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 8px 8px 0 var(--edge);
+  border-color: var(--edge);
+}
+
+:root .card-icon {
+  background: var(--card-accent);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .card-badge {
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 2px solid var(--edge);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.64em;
+  padding: 6px 12px;
+}
+
+:root .card h3 {
+  font-weight: 800;
+}
+
+:root .card .tagline {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+:root .card-cta {
+  background: var(--ink);
+  color: var(--bg);
+  border: 2px solid var(--edge);
+  box-shadow: var(--pop-sm);
+  font-weight: 800;
+}
+
+/* ---------- Statistiques ---------- */
+:root .stats-strip {
+  background: var(--ink);
+  border: 2px solid var(--edge);
+  border-radius: 16px;
+  box-shadow: var(--pop);
+  color: var(--bg);
+}
+
+:root .stat {
+  border-right: 2px solid color-mix(in srgb, var(--bg) 22%, transparent);
+}
+
+:root .stat-number {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: var(--bg);
+  color: var(--bg);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+:root .stat-label {
+  color: color-mix(in srgb, var(--bg) 62%, transparent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72em;
+}
+
+/* ---------- Conseils ---------- */
+:root .tips {
+  background: var(--surface);
+  border: 2.5px solid var(--edge);
+  border-radius: 18px;
+  box-shadow: var(--pop-lg);
+}
+
+:root .tip-icon {
+  background: var(--accent-soft);
+  border: 2px solid var(--edge);
+  border-radius: 10px;
+  color: var(--ink);
+}
+
+:root .tip h4 {
+  font-weight: 800;
+}
+
+/* ---------- Pied de page ---------- */
+:root .footer {
+  background: #0c1424;
+  color: #cfc3a9;
+  border-top: 2.5px solid var(--edge);
+}
+
+:root .footer .wordmark {
+  color: #f3e9d8;
+}
+
+:root .footer .brand-mark svg rect {
+  fill: #f3e9d8;
+}
+
+:root .footer .brand-mark svg text {
+  fill: #0c1424;
+}
+
+:root .footer h5 {
+  color: #f3e9d8;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.82em;
+}
+
+:root .footer a {
+  color: #cfc3a9;
+}
+
+:root .footer a:hover {
+  color: var(--accent);
+}
+
+:root .footer-bottom {
+  border-top: 1px solid rgba(243, 233, 216, 0.16);
+}
+
+/* ---------- Boutons flottants & bot ---------- */
+:root .back-to-top-btn {
+  background: var(--ink);
+  color: var(--bg);
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: var(--pop-sm);
+}
+
+:root .bot-fab {
+  background: var(--ink);
+  color: var(--bg);
+  border: 2px solid var(--edge);
+  box-shadow: var(--pop-sm);
+}
+
+:root .bot-fab::before,
+:root .bot-fab.open::before {
+  display: none;
+}
+
+:root .bot-teaser,
+:root .bot-panel {
+  border: 2.5px solid var(--edge);
+  border-radius: 18px;
+  box-shadow: var(--pop-lg);
+}
+
+/* ---------- Ajustements responsives ---------- */
+@media (max-width: 920px) {
+  :root .btn-atelier {
+    display: none;
+  }
+
+  :root .hero {
+    padding: 64px 0 48px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root .modele-banner {
+    padding: 9px 10px;
+  }
+
+  :root .mb-msg {
+    font-size: 0.78em;
+  }
+
+  :root .hero .h1-two {
+    line-height: 1.12;
+  }
+}
