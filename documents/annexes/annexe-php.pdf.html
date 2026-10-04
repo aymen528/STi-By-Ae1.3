@@ -45,7 +45,10 @@
     box-shadow:6px 6px 0 rgba(16,23,40,.16);
   }
   @media (max-width:560px) { .barre { flex-wrap:wrap } main { padding:14px 10px 40px } }
-  @media print { .barre { display:none } main { max-width:none } img { box-shadow:none; border:none } body { background:#fff } }
+  .retour { display:flex; justify-content:center; padding:4px 16px 54px }
+  .retour .btn { font-size:13.5px; padding:12px 24px; box-shadow:3.5px 3.5px 0 var(--edge) }
+  .retour .btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--edge) }
+  @media print { .barre,.retour { display:none } main { max-width:none } img { box-shadow:none; border:none } body { background:#fff } }
 </style>
 </head>
 <body>
@@ -55,6 +58,7 @@
       <span class="nb">10 pages · document d'exercice</span>
     </div>
     <div class="outils">
+      <a class="btn plein retour-cours" href="../../cours/php.html">← Retour au cours PHP</a>
       <a class="btn" href="annexe-php.pdf" target="_blank" rel="noopener">⤓ PDF d'origine</a>
       <button class="btn plein" type="button" onclick="window.print()">🖨️ Imprimer</button>
     </div>
@@ -71,6 +75,9 @@
     <img src="annexe-php.pdf.assets/page-09.jpg" alt="Page 9 — Annexe de révision — PHP" loading="lazy">
     <img src="annexe-php.pdf.assets/page-10.jpg" alt="Page 10 — Annexe de révision — PHP" loading="lazy">
   </main>
+  <nav class="retour">
+    <a class="btn plein retour-cours" href="../../cours/php.html">← Retour au cours PHP</a>
+  </nav>
 <script>window.__APP_OK = true;</script>
 </body>
 </html>
