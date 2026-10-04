@@ -880,7 +880,7 @@
               </button>
             </div>
           </div>
-          <div class="exo-card">
+          <div class="exo-card exo-card-wide">
             <div class="exo-level">Avancé</div>
             <h3>Site Tunisie</h3>
             <p>
@@ -1441,6 +1441,40 @@
         // les espaces des noms de fichiers ("formulaire inscription.pdf") doivent
         // être encodés, sinon le navigateur cherche un fichier inexistant
         fileUrl = String(fileUrl).replace(/ /g, "%20");
+
+        /* --- PDF : les mobiles (Chrome Android) et Safari ne savent pas
+           afficher un PDF dans une iframe → cadre entièrement vide.
+           On détecte ce cas et on ouvre le document dans un nouvel onglet ;
+           si les pop-up sont bloqués, on affiche un encadré avec un lien. --- */
+        var estPdf = /\.pdf($|[?#])/i.test(fileUrl);
+        var visionneuseAbsente =
+          navigator.pdfViewerEnabled === false ||
+          (typeof navigator.pdfViewerEnabled === "undefined" &&
+            /Safari/.test(navigator.userAgent) &&
+            !/(Chrome|Chromium|Edg|OPR|Firefox|CriOS|FxiOS|EdgiOS)/.test(
+              navigator.userAgent
+            ));
+        if (estPdf && visionneuseAbsente) {
+          var urlPdf = new URL(fileUrl, window.location.href).href;
+          var ongletPdf = window.open(urlPdf, "_blank");
+          if (ongletPdf) return;
+          modalUrl = fileUrl;
+          document.getElementById("modalTitle").textContent = title;
+          masquerAlerte();
+          setModalExpanded(false);
+          setModalMode("mode-doc");
+          document.getElementById("pdfFrame").src = "about:blank";
+          document.getElementById("pdfModal").classList.add("open");
+          document.body.style.overflow = "hidden";
+          afficherAlerte(
+            "Votre navigateur ne peut pas afficher les PDF dans la page. " +
+              '<a href="' +
+              urlPdf +
+              '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;margin-left:6px">📄 Ouvrir l\'énoncé dans un nouvel onglet</a>'
+          );
+          return;
+        }
+
         modalUrl = fileUrl;
         modalChargee = false;
 

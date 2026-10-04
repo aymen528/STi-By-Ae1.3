@@ -373,3 +373,14 @@ header.topbar {
 #to-top:focus-visible {
   outline-color: var(--m2-accent);
 }
+
+/* --- Cartes exercices : les boutons peuvent maintenant passer à la ligne
+       (5 boutons dans « Site Tunisie », ça débordait sur mobile aussi) --- */
+.exo-actions {
+  flex-wrap: wrap;
+}
+
+/* « Site Tunisie » occupe toute la largeur pour contenir ses 5 boutons */
+.exo-card-wide {
+  grid-column: 1 / -1;
+}
