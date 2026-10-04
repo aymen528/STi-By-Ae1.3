@@ -2384,6 +2384,9 @@
               >
               <a class="mobile-menu-pill" href="cours/sql.html">🗄️ SQL</a>
               <a class="mobile-menu-pill" href="cours/php.html">🐘 PHP</a>
+              <a class="mobile-menu-pill" href="#" onclick="return window.__stiInstall()"
+                >⤓ Installer</a
+              >
             </div>
           </div>
         </div>
@@ -4011,10 +4014,37 @@
     <!-- ================= PWA : installation + hors-ligne ================= -->
     <script>
       (function () {
+        var regSW = null;
         if ("serviceWorker" in navigator) {
           window.addEventListener("load", function () {
-            navigator.serviceWorker.register("./sw.js").catch(function () {});
+            navigator.serviceWorker
+              .register("./sw.js")
+              .then(function (reg) {
+                regSW = reg;
+              })
+              .catch(function () {});
+            /* le nouveau service worker contient skipWaiting : dès qu'il est
+               prêt il prend le contrôle et on recharge la page UNE fois pour
+               afficher la version fraîche (sinon le visiteur gardait l'ancienne
+               jusqu'à la prochaine ouverture) */
+            navigator.serviceWorker.addEventListener(
+              "controllerchange",
+              function () {
+                try {
+                  if (sessionStorage.getItem("sti-sw-reload") === "1") return;
+                  sessionStorage.setItem("sti-sw-reload", "1");
+                } catch (e) {}
+                location.reload();
+              }
+            );
           });
+          document.addEventListener("visibilitychange", function () {
+            if (!document.hidden && regSW)
+              regSW.update().catch(function () {});
+          });
+          setInterval(function () {
+            if (regSW) regSW.update().catch(function () {});
+          }, 900000); /* 15 min */
         }
         var btn = document.getElementById("installBtn");
         var differe = null;
@@ -4075,29 +4105,53 @@
     </script>
   
     <script id="sti-install-fab">
-      /* Sur mobile, la bannière du hero est souvent sous la ligne de
-         flottaison : on propose aussi une pastille « Installer », en bas à
-         gauche (loin de l'assistant), avec croix de fermeture définitive. */
+      /* Installateur universel : pastille flottante sur mobile + fonction
+         window.__stiInstall() appelée aussi par la pilule « Installer » du
+         menu mobile. Android : vraie boîte de dialogue ; iOS/fallback :
+         consigne claire. Standalone : rien ne s'affiche. */
       (function () {
-        var mobile =
-          matchMedia("(max-width: 860px), (pointer: coarse)").matches;
+        var estIos =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
         var standalone =
           (window.matchMedia &&
             matchMedia("(display-mode: standalone)").matches) ||
           navigator.standalone;
-        if (!mobile || standalone) return;
-        try {
-          if (localStorage.getItem("sti-install-fab") === "off") return;
-        } catch (e) {}
-
-        var estIos =
-          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
         var differe = null;
+        var f = null;
+
         window.addEventListener("beforeinstallprompt", function (e) {
           e.preventDefault();
           differe = e;
         });
+
+        window.__stiInstall = function () {
+          if (standalone) {
+            window.alert("STI by AE est déjà installée sur cet appareil 🎉");
+            return false;
+          }
+          if (differe) {
+            differe.prompt();
+            differe.userChoice.then(function () {
+              differe = null;
+              if (f) f.remove();
+            });
+            return false;
+          }
+          window.alert(
+            estIos
+              ? "Sur iPhone / iPad : appuyez sur le bouton Partager ⬆️ du navigateur, puis « Sur l'écran d'accueil »."
+              : "Dans le menu ⋮ du navigateur, touchez « Installer l'application » (ou « Ajouter à l'écran d'accueil »)."
+          );
+          return false;
+        };
+
+        if (standalone) return;
+        try {
+          if (localStorage.getItem("sti-install-fab") === "off") return;
+        } catch (e) {}
+        if (!matchMedia("(max-width: 860px), (pointer: coarse)").matches)
+          return;
 
         var style = document.createElement("style");
         style.textContent =
@@ -4109,7 +4163,7 @@
           "#sti-fab .x:hover{opacity:1}";
         document.head.appendChild(style);
 
-        var f = document.createElement("div");
+        f = document.createElement("div");
         f.id = "sti-fab";
         f.innerHTML =
           "📲 <span id='sti-fab-txt'>Installer l'appli du cours</span> " +
@@ -4124,19 +4178,7 @@
           } catch (e) {}
         });
         f.querySelector("#sti-fab-go").addEventListener("click", function () {
-          if (differe) {
-            differe.prompt();
-            differe.userChoice.then(function () {
-              f.remove();
-            });
-          } else if (estIos) {
-            document.getElementById("sti-fab-txt").textContent =
-              "Partagez ⬆️ puis « Sur l'écran d'accueil »";
-            f.querySelector("#sti-fab-go").remove();
-          } else {
-            document.getElementById("sti-fab-txt").textContent =
-              "Menu ⋮ du navigateur → « Installer l'application »";
-          }
+          window.__stiInstall();
         });
         window.addEventListener("appinstalled", function () {
           f.remove();
