@@ -3950,7 +3950,9 @@
 
         if (backToTopBtn) {
           backToTopBtn.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            /* immédiat : sur mobile le scroll doux est tué par l'inertie
+               du balayage et la page restait bloquée à mi-chemin */
+            window.scrollTo(0, 0);
           });
         }
 
