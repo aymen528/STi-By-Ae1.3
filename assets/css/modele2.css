@@ -282,9 +282,28 @@
   font-size: 0.62em;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-decoration: line-through;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 2.5px;
+}
+
+/* Effet « dactylo » : la tagline se tape caractère par caractère
+   (JS dans index.html), avec un curseur clignotant le temps de la frappe */
+:root .wordmark small.is-typing {
+  border-right: 2.5px solid var(--accent);
+  padding-right: 3px;
+  animation: m2-caret 0.85s step-end infinite;
+  min-height: 1.1em;
+}
+
+@keyframes m2-caret {
+  50% {
+    border-right-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .wordmark small.is-typing {
+    animation: none;
+    border-right-color: var(--accent);
+  }
 }
 
 /* Liens de nav en pilules */

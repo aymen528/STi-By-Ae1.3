@@ -3999,6 +3999,47 @@
         var label = document.getElementById("modeleToggleLabel");
         if (!link) return;
 
+        /* --- Tagline « dactylo » (Modèle 2 uniquement) --- */
+        var tag = document.querySelector(".topbar .wordmark small");
+        var tagFull = tag ? tag.textContent : "";
+        var tagTimer = null;
+        var tagCaret = null;
+
+        function typeTagline(active) {
+          if (!tag) return;
+          if (tagTimer) {
+            clearInterval(tagTimer);
+            tagTimer = null;
+          }
+          if (tagCaret) {
+            clearTimeout(tagCaret);
+            tagCaret = null;
+          }
+          if (!active) {
+            tag.textContent = tagFull;
+            tag.classList.remove("is-typing");
+            tag.style.minWidth = "";
+            return;
+          }
+          /* on réserve la largeur finale pour éviter tout saut de mise en page */
+          tag.style.minWidth = tag.getBoundingClientRect().width + "px";
+          var i = 0;
+          tag.textContent = "";
+          tag.classList.add("is-typing");
+          tagTimer = setInterval(function () {
+            i++;
+            tag.textContent = tagFull.slice(0, i);
+            if (i >= tagFull.length) {
+              clearInterval(tagTimer);
+              tagTimer = null;
+              /* le curseur continue de clignoter un instant, puis disparaît */
+              tagCaret = setTimeout(function () {
+                tag.classList.remove("is-typing");
+              }, 2200);
+            }
+          }, 45);
+        }
+
         function getSaved() {
           try {
             return localStorage.getItem("sti-modele");
@@ -4022,6 +4063,7 @@
               : "Appliquer le modèle « L'Atelier » (Modèle 2)";
             btn.setAttribute("aria-pressed", two ? "true" : "false");
           }
+          typeTagline(two);
         }
 
         if (btn) {
