@@ -84,3 +84,4 @@ Site statique : ouvrir `index.html` dans un navigateur, ou servir le dossier ave
 n'importe quel serveur web (GitHub Pages, Netlify, Apache, Nginx…).
 Les fichiers `.php` du projet `fleurs` nécessitent un serveur PHP + MySQL.
 "# STI-By-AE-Version1.2" 
+"# STi-By-Ae1.3" 

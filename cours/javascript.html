@@ -1,48 +1,1250 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
   <head>
-    <meta charset="UTF-8" /> <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <meta charset="UTF-8" />
+    <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Annexe JS — 4ème SI</title>
-    <link rel="stylesheet" href="../assets/fonts/fonts.css" />
-    <link rel="stylesheet" href="assets/fonts/fonts.css" />
+    <meta name="color-scheme" content="dark" />
+    <title>Annexe JavaScript — Cours · 3ème/4ème SI</title>
+
+    <!-- Prism en mode manuel : la coloration est lancée après préparation des blocs <pre> -->
+    <script>
+      window.Prism = window.Prism || {};
+      window.Prism.manual = true;
+    </script>
+    <!-- PrismJS : coloration des extraits de code (intégré, identique au quiz) -->
+    <script>
+      /* PrismJS 1.29.0 — intégré */
+      var _self =
+          "undefined" != typeof window
+            ? window
+            : "undefined" != typeof WorkerGlobalScope &&
+              self instanceof WorkerGlobalScope
+            ? self
+            : {},
+        Prism = (function (l) {
+          var n = /(?:^|\s)lang(?:uage)?-([\w-]+)(?=\s|$)/i,
+            t = 0,
+            e = {},
+            j = {
+              manual: l.Prism && l.Prism.manual,
+              disableWorkerMessageHandler:
+                l.Prism && l.Prism.disableWorkerMessageHandler,
+              util: {
+                encode: function e(t) {
+                  return t instanceof C
+                    ? new C(t.type, e(t.content), t.alias)
+                    : Array.isArray(t)
+                    ? t.map(e)
+                    : t
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/\u00a0/g, " ");
+                },
+                type: function (e) {
+                  return Object.prototype.toString.call(e).slice(8, -1);
+                },
+                objId: function (e) {
+                  return (
+                    e.__id || Object.defineProperty(e, "__id", { value: ++t }),
+                    e.__id
+                  );
+                },
+                clone: function n(e, a) {
+                  var r, t;
+                  switch (((a = a || {}), j.util.type(e))) {
+                    case "Object":
+                      if (((t = j.util.objId(e)), a[t])) return a[t];
+                      for (var s in ((r = {}), (a[t] = r), e))
+                        e.hasOwnProperty(s) && (r[s] = n(e[s], a));
+                      return r;
+                    case "Array":
+                      return ((t = j.util.objId(e)), a[t])
+                        ? a[t]
+                        : ((r = []),
+                          (a[t] = r),
+                          e.forEach(function (e, t) {
+                            r[t] = n(e, a);
+                          }),
+                          r);
+                    default:
+                      return e;
+                  }
+                },
+                getLanguage: function (e) {
+                  for (; e; ) {
+                    var t = n.exec(e.className);
+                    if (t) return t[1].toLowerCase();
+                    e = e.parentElement;
+                  }
+                  return "none";
+                },
+                setLanguage: function (e, t) {
+                  (e.className = e.className.replace(RegExp(n, "gi"), "")),
+                    e.classList.add("language-" + t);
+                },
+                currentScript: function () {
+                  if ("undefined" == typeof document) return null;
+                  if ("currentScript" in document)
+                    return document.currentScript;
+                  try {
+                    throw new Error();
+                  } catch (e) {
+                    var t = (/at [^(\r\n]*\((.*):[^:]+:[^:]+\)$/i.exec(
+                      e.stack
+                    ) || [])[1];
+                    if (t) {
+                      var n,
+                        a = document.getElementsByTagName("script");
+                      for (n in a) if (a[n].src == t) return a[n];
+                    }
+                    return null;
+                  }
+                },
+                isActive: function (e, t, n) {
+                  for (var a = "no-" + t; e; ) {
+                    var r = e.classList;
+                    if (r.contains(t)) return !0;
+                    if (r.contains(a)) return !1;
+                    e = e.parentElement;
+                  }
+                  return !!n;
+                },
+              },
+              languages: {
+                plain: e,
+                plaintext: e,
+                text: e,
+                txt: e,
+                extend: function (e, t) {
+                  var n,
+                    a = j.util.clone(j.languages[e]);
+                  for (n in t) a[n] = t[n];
+                  return a;
+                },
+                insertBefore: function (n, e, t, a) {
+                  var r,
+                    s = (a = a || j.languages)[n],
+                    i = {};
+                  for (r in s)
+                    if (s.hasOwnProperty(r)) {
+                      if (r == e)
+                        for (var o in t) t.hasOwnProperty(o) && (i[o] = t[o]);
+                      t.hasOwnProperty(r) || (i[r] = s[r]);
+                    }
+                  var l = a[n];
+                  return (
+                    (a[n] = i),
+                    j.languages.DFS(j.languages, function (e, t) {
+                      t === l && e != n && (this[e] = i);
+                    }),
+                    i
+                  );
+                },
+                DFS: function e(t, n, a, r) {
+                  r = r || {};
+                  var s,
+                    i,
+                    o,
+                    l = j.util.objId;
+                  for (s in t)
+                    t.hasOwnProperty(s) &&
+                      (n.call(t, s, t[s], a || s),
+                      (i = t[s]),
+                      "Object" !== (o = j.util.type(i)) || r[l(i)]
+                        ? "Array" !== o ||
+                          r[l(i)] ||
+                          ((r[l(i)] = !0), e(i, n, s, r))
+                        : ((r[l(i)] = !0), e(i, n, null, r)));
+                },
+              },
+              plugins: {},
+              highlightAll: function (e, t) {
+                j.highlightAllUnder(document, e, t);
+              },
+              highlightAllUnder: function (e, t, n) {
+                var a = {
+                  callback: n,
+                  container: e,
+                  selector:
+                    'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code',
+                };
+                j.hooks.run("before-highlightall", a),
+                  (a.elements = Array.prototype.slice.apply(
+                    a.container.querySelectorAll(a.selector)
+                  )),
+                  j.hooks.run("before-all-elements-highlight", a);
+                for (var r, s = 0; (r = a.elements[s++]); )
+                  j.highlightElement(r, !0 === t, a.callback);
+              },
+              highlightElement: function (e, t, n) {
+                var a = j.util.getLanguage(e),
+                  r = j.languages[a],
+                  s = (j.util.setLanguage(e, a), e.parentElement);
+                s &&
+                  "pre" === s.nodeName.toLowerCase() &&
+                  j.util.setLanguage(s, a);
+                var i = {
+                  element: e,
+                  language: a,
+                  grammar: r,
+                  code: e.textContent,
+                };
+                function o(e) {
+                  (i.highlightedCode = e),
+                    j.hooks.run("before-insert", i),
+                    (i.element.innerHTML = i.highlightedCode),
+                    j.hooks.run("after-highlight", i),
+                    j.hooks.run("complete", i),
+                    n && n.call(i.element);
+                }
+                if (
+                  (j.hooks.run("before-sanity-check", i),
+                  (s = i.element.parentElement) &&
+                    "pre" === s.nodeName.toLowerCase() &&
+                    !s.hasAttribute("tabindex") &&
+                    s.setAttribute("tabindex", "0"),
+                  !i.code)
+                )
+                  return (
+                    j.hooks.run("complete", i), void (n && n.call(i.element))
+                  );
+                j.hooks.run("before-highlight", i),
+                  i.grammar
+                    ? t && l.Worker
+                      ? (((a = new Worker(j.filename)).onmessage = function (
+                          e
+                        ) {
+                          o(e.data);
+                        }),
+                        a.postMessage(
+                          JSON.stringify({
+                            language: i.language,
+                            code: i.code,
+                            immediateClose: !0,
+                          })
+                        ))
+                      : o(j.highlight(i.code, i.grammar, i.language))
+                    : o(j.util.encode(i.code));
+              },
+              highlight: function (e, t, n) {
+                e = { code: e, grammar: t, language: n };
+                if ((j.hooks.run("before-tokenize", e), e.grammar))
+                  return (
+                    (e.tokens = j.tokenize(e.code, e.grammar)),
+                    j.hooks.run("after-tokenize", e),
+                    C.stringify(j.util.encode(e.tokens), e.language)
+                  );
+                throw new Error(
+                  'The language "' + e.language + '" has no grammar.'
+                );
+              },
+              tokenize: function (e, t) {
+                var n = t.rest;
+                if (n) {
+                  for (var a in n) t[a] = n[a];
+                  delete t.rest;
+                }
+                for (
+                  var r = new u(),
+                    s =
+                      (z(r, r.head, e),
+                      !(function e(t, n, a, r, s, i) {
+                        for (var o in a)
+                          if (a.hasOwnProperty(o) && a[o]) {
+                            var l = a[o];
+                            l = Array.isArray(l) ? l : [l];
+                            for (var u = 0; u < l.length; ++u) {
+                              if (i && i.cause == o + "," + u) return;
+                              for (
+                                var g,
+                                  c = l[u],
+                                  d = c.inside,
+                                  p = !!c.lookbehind,
+                                  m = !!c.greedy,
+                                  h = c.alias,
+                                  f =
+                                    (m &&
+                                      !c.pattern.global &&
+                                      ((g = c.pattern
+                                        .toString()
+                                        .match(/[imsuy]*$/)[0]),
+                                      (c.pattern = RegExp(
+                                        c.pattern.source,
+                                        g + "g"
+                                      ))),
+                                    c.pattern || c),
+                                  b = r.next,
+                                  y = s;
+                                b !== n.tail && !(i && y >= i.reach);
+                                y += b.value.length, b = b.next
+                              ) {
+                                var v = b.value;
+                                if (n.length > t.length) return;
+                                if (!(v instanceof C)) {
+                                  var F,
+                                    x = 1;
+                                  if (m) {
+                                    if (
+                                      !(F = L(f, y, t, p)) ||
+                                      F.index >= t.length
+                                    )
+                                      break;
+                                    var k = F.index,
+                                      w = F.index + F[0].length,
+                                      A = y;
+                                    for (A += b.value.length; A <= k; )
+                                      (b = b.next), (A += b.value.length);
+                                    if (
+                                      ((A -= b.value.length),
+                                      (y = A),
+                                      b.value instanceof C)
+                                    )
+                                      continue;
+                                    for (
+                                      var P = b;
+                                      P !== n.tail &&
+                                      (A < w || "string" == typeof P.value);
+                                      P = P.next
+                                    )
+                                      x++, (A += P.value.length);
+                                    x--, (v = t.slice(y, A)), (F.index -= y);
+                                  } else if (!(F = L(f, 0, v, p))) continue;
+                                  var k = F.index,
+                                    $ = F[0],
+                                    S = v.slice(0, k),
+                                    E = v.slice(k + $.length),
+                                    v = y + v.length,
+                                    _ =
+                                      (i && v > i.reach && (i.reach = v),
+                                      b.prev),
+                                    S =
+                                      (S && ((_ = z(n, _, S)), (y += S.length)),
+                                      O(n, _, x),
+                                      new C(o, d ? j.tokenize($, d) : $, h, $));
+                                  (b = z(n, _, S)),
+                                    E && z(n, b, E),
+                                    1 < x &&
+                                      (($ = { cause: o + "," + u, reach: v }),
+                                      e(t, n, a, b.prev, y, $),
+                                      i &&
+                                        $.reach > i.reach &&
+                                        (i.reach = $.reach));
+                                }
+                              }
+                            }
+                          }
+                      })(e, r, t, r.head, 0),
+                      r),
+                    i = [],
+                    o = s.head.next;
+                  o !== s.tail;
+
+                )
+                  i.push(o.value), (o = o.next);
+                return i;
+              },
+              hooks: {
+                all: {},
+                add: function (e, t) {
+                  var n = j.hooks.all;
+                  (n[e] = n[e] || []), n[e].push(t);
+                },
+                run: function (e, t) {
+                  var n = j.hooks.all[e];
+                  if (n && n.length) for (var a, r = 0; (a = n[r++]); ) a(t);
+                },
+              },
+              Token: C,
+            };
+          function C(e, t, n, a) {
+            (this.type = e),
+              (this.content = t),
+              (this.alias = n),
+              (this.length = 0 | (a || "").length);
+          }
+          function L(e, t, n, a) {
+            e.lastIndex = t;
+            t = e.exec(n);
+            return (
+              t &&
+                a &&
+                t[1] &&
+                ((e = t[1].length), (t.index += e), (t[0] = t[0].slice(e))),
+              t
+            );
+          }
+          function u() {
+            var e = { value: null, prev: null, next: null },
+              t = { value: null, prev: e, next: null };
+            (e.next = t), (this.head = e), (this.tail = t), (this.length = 0);
+          }
+          function z(e, t, n) {
+            var a = t.next,
+              n = { value: n, prev: t, next: a };
+            return (t.next = n), (a.prev = n), e.length++, n;
+          }
+          function O(e, t, n) {
+            for (var a = t.next, r = 0; r < n && a !== e.tail; r++) a = a.next;
+            ((t.next = a).prev = t), (e.length -= r);
+          }
+          if (
+            ((l.Prism = j),
+            (C.stringify = function t(e, n) {
+              if ("string" == typeof e) return e;
+              var a;
+              if (Array.isArray(e))
+                return (
+                  (a = ""),
+                  e.forEach(function (e) {
+                    a += t(e, n);
+                  }),
+                  a
+                );
+              var r,
+                s = {
+                  type: e.type,
+                  content: t(e.content, n),
+                  tag: "span",
+                  classes: ["token", e.type],
+                  attributes: {},
+                  language: n,
+                },
+                e = e.alias,
+                i =
+                  (e &&
+                    (Array.isArray(e)
+                      ? Array.prototype.push.apply(s.classes, e)
+                      : s.classes.push(e)),
+                  j.hooks.run("wrap", s),
+                  "");
+              for (r in s.attributes)
+                i +=
+                  " " +
+                  r +
+                  '="' +
+                  (s.attributes[r] || "").replace(/"/g, "&quot;") +
+                  '"';
+              return (
+                "<" +
+                s.tag +
+                ' class="' +
+                s.classes.join(" ") +
+                '"' +
+                i +
+                ">" +
+                s.content +
+                "</" +
+                s.tag +
+                ">"
+              );
+            }),
+            !l.document)
+          )
+            return (
+              l.addEventListener &&
+                (j.disableWorkerMessageHandler ||
+                  l.addEventListener(
+                    "message",
+                    function (e) {
+                      var e = JSON.parse(e.data),
+                        t = e.language,
+                        n = e.code,
+                        e = e.immediateClose;
+                      l.postMessage(j.highlight(n, j.languages[t], t)),
+                        e && l.close();
+                    },
+                    !1
+                  )),
+              j
+            );
+          var a,
+            e = j.util.currentScript();
+          function r() {
+            j.manual || j.highlightAll();
+          }
+          return (
+            e &&
+              ((j.filename = e.src),
+              e.hasAttribute("data-manual") && (j.manual = !0)),
+            j.manual ||
+              ("loading" === (a = document.readyState) ||
+              ("interactive" === a && e && e.defer)
+                ? document.addEventListener("DOMContentLoaded", r)
+                : window.requestAnimationFrame
+                ? window.requestAnimationFrame(r)
+                : window.setTimeout(r, 16)),
+            j
+          );
+        })(_self);
+      "undefined" != typeof module &&
+        module.exports &&
+        (module.exports = Prism),
+        "undefined" != typeof global && (global.Prism = Prism),
+        (Prism.languages.markup = {
+          comment: { pattern: /<!--(?:(?!<!--)[\s\S])*?-->/, greedy: !0 },
+          prolog: { pattern: /<\?[\s\S]+?\?>/, greedy: !0 },
+          doctype: {
+            pattern:
+              /<!DOCTYPE(?:[^>"'[\]]|"[^"]*"|'[^']*')+(?:\[(?:[^<"'\]]|"[^"]*"|'[^']*'|<(?!!--)|<!--(?:[^-]|-(?!->))*-->)*\]\s*)?>/i,
+            greedy: !0,
+            inside: {
+              "internal-subset": {
+                pattern: /(^[^\[]*\[)[\s\S]+(?=\]>$)/,
+                lookbehind: !0,
+                greedy: !0,
+                inside: null,
+              },
+              string: { pattern: /"[^"]*"|'[^']*'/, greedy: !0 },
+              punctuation: /^<!|>$|[[\]]/,
+              "doctype-tag": /^DOCTYPE/i,
+              name: /[^\s<>'"]+/,
+            },
+          },
+          cdata: { pattern: /<!\[CDATA\[[\s\S]*?\]\]>/i, greedy: !0 },
+          tag: {
+            pattern:
+              /<\/?(?!\d)[^\s>\/=$<%]+(?:\s(?:\s*[^\s>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+(?=[\s>]))|(?=[\s/>])))+)?\s*\/?>/,
+            greedy: !0,
+            inside: {
+              tag: {
+                pattern: /^<\/?[^\s>\/]+/,
+                inside: { punctuation: /^<\/?/, namespace: /^[^\s>\/:]+:/ },
+              },
+              "special-attr": [],
+              "attr-value": {
+                pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+)/,
+                inside: {
+                  punctuation: [
+                    { pattern: /^=/, alias: "attr-equals" },
+                    { pattern: /^(\s*)["']|["']$/, lookbehind: !0 },
+                  ],
+                },
+              },
+              punctuation: /\/?>/,
+              "attr-name": {
+                pattern: /[^\s>\/]+/,
+                inside: { namespace: /^[^\s>\/:]+:/ },
+              },
+            },
+          },
+          entity: [
+            { pattern: /&[\da-z]{1,8};/i, alias: "named-entity" },
+            /&#x?[\da-f]{1,8};/i,
+          ],
+        }),
+        (Prism.languages.markup.tag.inside["attr-value"].inside.entity =
+          Prism.languages.markup.entity),
+        (Prism.languages.markup.doctype.inside["internal-subset"].inside =
+          Prism.languages.markup),
+        Prism.hooks.add("wrap", function (e) {
+          "entity" === e.type &&
+            (e.attributes.title = e.content.replace(/&amp;/, "&"));
+        }),
+        Object.defineProperty(Prism.languages.markup.tag, "addInlined", {
+          value: function (e, t) {
+            var n = {},
+              n =
+                ((n["language-" + t] = {
+                  pattern: /(^<!\[CDATA\[)[\s\S]+?(?=\]\]>$)/i,
+                  lookbehind: !0,
+                  inside: Prism.languages[t],
+                }),
+                (n.cdata = /^<!\[CDATA\[|\]\]>$/i),
+                {
+                  "included-cdata": {
+                    pattern: /<!\[CDATA\[[\s\S]*?\]\]>/i,
+                    inside: n,
+                  },
+                }),
+              t =
+                ((n["language-" + t] = {
+                  pattern: /[\s\S]+/,
+                  inside: Prism.languages[t],
+                }),
+                {});
+            (t[e] = {
+              pattern: RegExp(
+                /(<__[^>]*>)(?:<!\[CDATA\[(?:[^\]]|\](?!\]>))*\]\]>|(?!<!\[CDATA\[)[\s\S])*?(?=<\/__>)/.source.replace(
+                  /__/g,
+                  function () {
+                    return e;
+                  }
+                ),
+                "i"
+              ),
+              lookbehind: !0,
+              greedy: !0,
+              inside: n,
+            }),
+              Prism.languages.insertBefore("markup", "cdata", t);
+          },
+        }),
+        Object.defineProperty(Prism.languages.markup.tag, "addAttribute", {
+          value: function (e, t) {
+            Prism.languages.markup.tag.inside["special-attr"].push({
+              pattern: RegExp(
+                /(^|["'\s])/.source +
+                  "(?:" +
+                  e +
+                  ")" +
+                  /\s*=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+(?=[\s>]))/.source,
+                "i"
+              ),
+              lookbehind: !0,
+              inside: {
+                "attr-name": /^[^\s=]+/,
+                "attr-value": {
+                  pattern: /=[\s\S]+/,
+                  inside: {
+                    value: {
+                      pattern: /(^=\s*(["']|(?!["'])))\S[\s\S]*(?=\2$)/,
+                      lookbehind: !0,
+                      alias: [t, "language-" + t],
+                      inside: Prism.languages[t],
+                    },
+                    punctuation: [
+                      { pattern: /^=/, alias: "attr-equals" },
+                      /"|'/,
+                    ],
+                  },
+                },
+              },
+            });
+          },
+        }),
+        (Prism.languages.html = Prism.languages.markup),
+        (Prism.languages.mathml = Prism.languages.markup),
+        (Prism.languages.svg = Prism.languages.markup),
+        (Prism.languages.xml = Prism.languages.extend("markup", {})),
+        (Prism.languages.ssml = Prism.languages.xml),
+        (Prism.languages.atom = Prism.languages.xml),
+        (Prism.languages.rss = Prism.languages.xml),
+        (function (e) {
+          var t =
+              /(?:"(?:\\(?:\r\n|[\s\S])|[^"\\\r\n])*"|'(?:\\(?:\r\n|[\s\S])|[^'\\\r\n])*')/,
+            t =
+              ((e.languages.css = {
+                comment: /\/\*[\s\S]*?\*\//,
+                atrule: {
+                  pattern: RegExp(
+                    "@[\\w-](?:" +
+                      /[^;{\s"']|\s+(?!\s)/.source +
+                      "|" +
+                      t.source +
+                      ")*?" +
+                      /(?:;|(?=\s*\{))/.source
+                  ),
+                  inside: {
+                    rule: /^@[\w-]+/,
+                    "selector-function-argument": {
+                      pattern:
+                        /(\bselector\s*\(\s*(?![\s)]))(?:[^()\s]|\s+(?![\s)])|\((?:[^()]|\([^()]*\))*\))+(?=\s*\))/,
+                      lookbehind: !0,
+                      alias: "selector",
+                    },
+                    keyword: {
+                      pattern: /(^|[^\w-])(?:and|not|only|or)(?![\w-])/,
+                      lookbehind: !0,
+                    },
+                  },
+                },
+                url: {
+                  pattern: RegExp(
+                    "\\burl\\((?:" +
+                      t.source +
+                      "|" +
+                      /(?:[^\\\r\n()"']|\\[\s\S])*/.source +
+                      ")\\)",
+                    "i"
+                  ),
+                  greedy: !0,
+                  inside: {
+                    function: /^url/i,
+                    punctuation: /^\(|\)$/,
+                    string: {
+                      pattern: RegExp("^" + t.source + "$"),
+                      alias: "url",
+                    },
+                  },
+                },
+                selector: {
+                  pattern: RegExp(
+                    "(^|[{}\\s])[^{}\\s](?:[^{};\"'\\s]|\\s+(?![\\s{])|" +
+                      t.source +
+                      ")*(?=\\s*\\{)"
+                  ),
+                  lookbehind: !0,
+                },
+                string: { pattern: t, greedy: !0 },
+                property: {
+                  pattern:
+                    /(^|[^-\w\xA0-\uFFFF])(?!\s)[-_a-z\xA0-\uFFFF](?:(?!\s)[-\w\xA0-\uFFFF])*(?=\s*:)/i,
+                  lookbehind: !0,
+                },
+                important: /!important\b/i,
+                function: {
+                  pattern: /(^|[^-a-z0-9])[-a-z0-9]+(?=\()/i,
+                  lookbehind: !0,
+                },
+                punctuation: /[(){};:,]/,
+              }),
+              (e.languages.css.atrule.inside.rest = e.languages.css),
+              e.languages.markup);
+          t &&
+            (t.tag.addInlined("style", "css"),
+            t.tag.addAttribute("style", "css"));
+        })(Prism),
+        (Prism.languages.clike = {
+          comment: [
+            {
+              pattern: /(^|[^\\])\/\*[\s\S]*?(?:\*\/|$)/,
+              lookbehind: !0,
+              greedy: !0,
+            },
+            { pattern: /(^|[^\\:])\/\/.*/, lookbehind: !0, greedy: !0 },
+          ],
+          string: {
+            pattern: /(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,
+            greedy: !0,
+          },
+          "class-name": {
+            pattern:
+              /(\b(?:class|extends|implements|instanceof|interface|new|trait)\s+|\bcatch\s+\()[\w.\\]+/i,
+            lookbehind: !0,
+            inside: { punctuation: /[.\\]/ },
+          },
+          keyword:
+            /\b(?:break|catch|continue|do|else|finally|for|function|if|in|instanceof|new|null|return|throw|try|while)\b/,
+          boolean: /\b(?:false|true)\b/,
+          function: /\b\w+(?=\()/,
+          number: /\b0x[\da-f]+\b|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:e[+-]?\d+)?/i,
+          operator: /[<>]=?|[!=]=?=?|--?|\+\+?|&&?|\|\|?|[?*/~^%]/,
+          punctuation: /[{}[\];(),.:]/,
+        }),
+        (Prism.languages.javascript = Prism.languages.extend("clike", {
+          "class-name": [
+            Prism.languages.clike["class-name"],
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$A-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\.(?:constructor|prototype))/,
+              lookbehind: !0,
+            },
+          ],
+          keyword: [
+            { pattern: /((?:^|\})\s*)catch\b/, lookbehind: !0 },
+            {
+              pattern:
+                /(^|[^.]|\.\.\.\s*)\b(?:as|assert(?=\s*\{)|async(?=\s*(?:function\b|\(|[$\w\xA0-\uFFFF]|$))|await|break|case|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally(?=\s*(?:\{|$))|for|from(?=\s*(?:['"]|$))|function|(?:get|set)(?=\s*(?:[#\[$\w\xA0-\uFFFF]|$))|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)\b/,
+              lookbehind: !0,
+            },
+          ],
+          function:
+            /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*(?:\.\s*(?:apply|bind|call)\s*)?\()/,
+          number: {
+            pattern: RegExp(
+              /(^|[^\w$])/.source +
+                "(?:" +
+                /NaN|Infinity/.source +
+                "|" +
+                /0[bB][01]+(?:_[01]+)*n?/.source +
+                "|" +
+                /0[oO][0-7]+(?:_[0-7]+)*n?/.source +
+                "|" +
+                /0[xX][\dA-Fa-f]+(?:_[\dA-Fa-f]+)*n?/.source +
+                "|" +
+                /\d+(?:_\d+)*n/.source +
+                "|" +
+                /(?:\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?|\.\d+(?:_\d+)*)(?:[Ee][+-]?\d+(?:_\d+)*)?/
+                  .source +
+                ")" +
+                /(?![\w$])/.source
+            ),
+            lookbehind: !0,
+          },
+          operator:
+            /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|<<=?|>>>?=?|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
+        })),
+        (Prism.languages.javascript["class-name"][0].pattern =
+          /(\b(?:class|extends|implements|instanceof|interface|new)\s+)[\w.\\]+/),
+        Prism.languages.insertBefore("javascript", "keyword", {
+          regex: {
+            pattern: RegExp(
+              /((?:^|[^$\w\xA0-\uFFFF."'\])\s]|\b(?:return|yield))\s*)/.source +
+                /\//.source +
+                "(?:" +
+                /(?:\[(?:[^\]\\\r\n]|\\.)*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}/
+                  .source +
+                "|" +
+                /(?:\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.)*\])*\])*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}v[dgimyus]{0,7}/
+                  .source +
+                ")" +
+                /(?=(?:\s|\/\*(?:[^*]|\*(?!\/))*\*\/)*(?:$|[\r\n,.;:})\]]|\/\/))/
+                  .source
+            ),
+            lookbehind: !0,
+            greedy: !0,
+            inside: {
+              "regex-source": {
+                pattern: /^(\/)[\s\S]+(?=\/[a-z]*$)/,
+                lookbehind: !0,
+                alias: "language-regex",
+                inside: Prism.languages.regex,
+              },
+              "regex-delimiter": /^\/|\/$/,
+              "regex-flags": /^[a-z]+$/,
+            },
+          },
+          "function-variable": {
+            pattern:
+              /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*[=:]\s*(?:async\s*)?(?:\bfunction\b|(?:\((?:[^()]|\([^()]*\))*\)|(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)\s*=>))/,
+            alias: "function",
+          },
+          parameter: [
+            {
+              pattern:
+                /(function(?:\s+(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)?\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\))/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$a-z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*=>)/i,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*=>)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /((?:\b|\s|^)(?!(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)(?![$\w\xA0-\uFFFF]))(?:(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*)\(\s*|\]\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*\{)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+          ],
+          constant: /\b[A-Z](?:[A-Z_]|\dx?)*\b/,
+        }),
+        Prism.languages.insertBefore("javascript", "string", {
+          hashbang: { pattern: /^#!.*/, greedy: !0, alias: "comment" },
+          "template-string": {
+            pattern:
+              /`(?:\\[\s\S]|\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}|(?!\$\{)[^\\`])*`/,
+            greedy: !0,
+            inside: {
+              "template-punctuation": { pattern: /^`|`$/, alias: "string" },
+              interpolation: {
+                pattern:
+                  /((?:^|[^\\])(?:\\{2})*)\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}/,
+                lookbehind: !0,
+                inside: {
+                  "interpolation-punctuation": {
+                    pattern: /^\$\{|\}$/,
+                    alias: "punctuation",
+                  },
+                  rest: Prism.languages.javascript,
+                },
+              },
+              string: /[\s\S]+/,
+            },
+          },
+          "string-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(["'])(?:\\(?:\r\n|[\s\S])|(?!\2)[^\\\r\n])*\2(?=\s*:)/m,
+            lookbehind: !0,
+            greedy: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.insertBefore("javascript", "operator", {
+          "literal-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*:)/m,
+            lookbehind: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.markup &&
+          (Prism.languages.markup.tag.addInlined("script", "javascript"),
+          Prism.languages.markup.tag.addAttribute(
+            /on(?:abort|blur|change|click|composition(?:end|start|update)|dblclick|error|focus(?:in|out)?|key(?:down|up)|load|mouse(?:down|enter|leave|move|out|over|up)|reset|resize|scroll|select|slotchange|submit|unload|wheel)/
+              .source,
+            "javascript"
+          )),
+        (Prism.languages.js = Prism.languages.javascript),
+        (function () {
+          var l, u, g, c, e;
+          void 0 !== Prism &&
+            "undefined" != typeof document &&
+            (Element.prototype.matches ||
+              (Element.prototype.matches =
+                Element.prototype.msMatchesSelector ||
+                Element.prototype.webkitMatchesSelector),
+            (l = {
+              js: "javascript",
+              py: "python",
+              rb: "ruby",
+              ps1: "powershell",
+              psm1: "powershell",
+              sh: "bash",
+              bat: "batch",
+              h: "c",
+              tex: "latex",
+            }),
+            (c =
+              "pre[data-src]:not([" +
+              (u = "data-src-status") +
+              '="loaded"]):not([' +
+              u +
+              '="' +
+              (g = "loading") +
+              '"])'),
+            Prism.hooks.add("before-highlightall", function (e) {
+              e.selector += ", " + c;
+            }),
+            Prism.hooks.add("before-sanity-check", function (e) {
+              var r,
+                t,
+                n,
+                a,
+                s,
+                i,
+                o = e.element;
+              o.matches(c) &&
+                ((e.code = ""),
+                o.setAttribute(u, g),
+                ((r = o.appendChild(
+                  document.createElement("CODE")
+                )).textContent = "Loading…"),
+                (t = o.getAttribute("data-src")),
+                "none" === (e = e.language) &&
+                  ((n = (/\.(\w+)$/.exec(t) || [, "none"])[1]),
+                  (e = l[n] || n)),
+                Prism.util.setLanguage(r, e),
+                Prism.util.setLanguage(o, e),
+                (n = Prism.plugins.autoloader) && n.loadLanguages(e),
+                (n = t),
+                (a = function (e) {
+                  o.setAttribute(u, "loaded");
+                  var t,
+                    n,
+                    a = (function (e) {
+                      var t, n;
+                      if (
+                        (e = /^\s*(\d+)\s*(?:(,)\s*(?:(\d+)\s*)?)?$/.exec(
+                          e || ""
+                        ))
+                      )
+                        return (
+                          (t = Number(e[1])),
+                          (n = e[2]),
+                          (e = e[3]),
+                          n ? (e ? [t, Number(e)] : [t, void 0]) : [t, t]
+                        );
+                    })(o.getAttribute("data-range"));
+                  a &&
+                    ((t = e.split(/\r\n?|\n/g)),
+                    (n = a[0]),
+                    (a = null == a[1] ? t.length : a[1]),
+                    n < 0 && (n += t.length),
+                    (n = Math.max(0, Math.min(n - 1, t.length))),
+                    a < 0 && (a += t.length),
+                    (a = Math.max(0, Math.min(a, t.length))),
+                    (e = t.slice(n, a).join("\n")),
+                    o.hasAttribute("data-start") ||
+                      o.setAttribute("data-start", String(n + 1))),
+                    (r.textContent = e),
+                    Prism.highlightElement(r);
+                }),
+                (s = function (e) {
+                  o.setAttribute(u, "failed"), (r.textContent = e);
+                }),
+                (i = new XMLHttpRequest()).open("GET", n, !0),
+                (i.onreadystatechange = function () {
+                  4 == i.readyState &&
+                    (i.status < 400 && i.responseText
+                      ? a(i.responseText)
+                      : 400 <= i.status
+                      ? s(
+                          "✖ Error " +
+                            i.status +
+                            " while fetching file: " +
+                            i.statusText
+                        )
+                      : s("✖ Error: File does not exist or is empty"));
+                }),
+                i.send(null));
+            }),
+            (e = !(Prism.plugins.fileHighlight = {
+              highlight: function (e) {
+                for (
+                  var t, n = (e || document).querySelectorAll(c), a = 0;
+                  (t = n[a++]);
+
+                )
+                  Prism.highlightElement(t);
+              },
+            })),
+            (Prism.fileHighlight = function () {
+              e ||
+                (console.warn(
+                  "Prism.fileHighlight is deprecated. Use `Prism.plugins.fileHighlight.highlight` instead."
+                ),
+                (e = !0)),
+                Prism.plugins.fileHighlight.highlight.apply(this, arguments);
+            }));
+        })();
+    </script>
+    <script>
+      /* PrismJS — grammaire JavaScript — intégrée */
+      (Prism.languages.javascript = Prism.languages.extend("clike", {
+        "class-name": [
+          Prism.languages.clike["class-name"],
+          {
+            pattern:
+              /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$A-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\.(?:constructor|prototype))/,
+            lookbehind: !0,
+          },
+        ],
+        keyword: [
+          { pattern: /((?:^|\})\s*)catch\b/, lookbehind: !0 },
+          {
+            pattern:
+              /(^|[^.]|\.\.\.\s*)\b(?:as|assert(?=\s*\{)|async(?=\s*(?:function\b|\(|[$\w\xA0-\uFFFF]|$))|await|break|case|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally(?=\s*(?:\{|$))|for|from(?=\s*(?:['"]|$))|function|(?:get|set)(?=\s*(?:[#\[$\w\xA0-\uFFFF]|$))|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)\b/,
+            lookbehind: !0,
+          },
+        ],
+        function:
+          /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*(?:\.\s*(?:apply|bind|call)\s*)?\()/,
+        number: {
+          pattern: RegExp(
+            "(^|[^\\w$])(?:NaN|Infinity|0[bB][01]+(?:_[01]+)*n?|0[oO][0-7]+(?:_[0-7]+)*n?|0[xX][\\dA-Fa-f]+(?:_[\\dA-Fa-f]+)*n?|\\d+(?:_\\d+)*n|(?:\\d+(?:_\\d+)*(?:\\.(?:\\d+(?:_\\d+)*)?)?|\\.\\d+(?:_\\d+)*)(?:[Ee][+-]?\\d+(?:_\\d+)*)?)(?![\\w$])"
+          ),
+          lookbehind: !0,
+        },
+        operator:
+          /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|<<=?|>>>?=?|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
+      })),
+        (Prism.languages.javascript["class-name"][0].pattern =
+          /(\b(?:class|extends|implements|instanceof|interface|new)\s+)[\w.\\]+/),
+        Prism.languages.insertBefore("javascript", "keyword", {
+          regex: {
+            pattern: RegExp(
+              "((?:^|[^$\\w\\xA0-\\uFFFF.\"'\\])\\s]|\\b(?:return|yield))\\s*)/(?:(?:\\[(?:[^\\]\\\\\r\n]|\\\\.)*\\]|\\\\.|[^/\\\\\\[\r\n])+/[dgimyus]{0,7}|(?:\\[(?:[^[\\]\\\\\r\n]|\\\\.|\\[(?:[^[\\]\\\\\r\n]|\\\\.|\\[(?:[^[\\]\\\\\r\n]|\\\\.)*\\])*\\])*\\]|\\\\.|[^/\\\\\\[\r\n])+/[dgimyus]{0,7}v[dgimyus]{0,7})(?=(?:\\s|/\\*(?:[^*]|\\*(?!/))*\\*/)*(?:$|[\r\n,.;:})\\]]|//))"
+            ),
+            lookbehind: !0,
+            greedy: !0,
+            inside: {
+              "regex-source": {
+                pattern: /^(\/)[\s\S]+(?=\/[a-z]*$)/,
+                lookbehind: !0,
+                alias: "language-regex",
+                inside: Prism.languages.regex,
+              },
+              "regex-delimiter": /^\/|\/$/,
+              "regex-flags": /^[a-z]+$/,
+            },
+          },
+          "function-variable": {
+            pattern:
+              /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*[=:]\s*(?:async\s*)?(?:\bfunction\b|(?:\((?:[^()]|\([^()]*\))*\)|(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)\s*=>))/,
+            alias: "function",
+          },
+          parameter: [
+            {
+              pattern:
+                /(function(?:\s+(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)?\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\))/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$a-z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*=>)/i,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*=>)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /((?:\b|\s|^)(?!(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)(?![$\w\xA0-\uFFFF]))(?:(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*)\(\s*|\]\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*\{)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+          ],
+          constant: /\b[A-Z](?:[A-Z_]|\dx?)*\b/,
+        }),
+        Prism.languages.insertBefore("javascript", "string", {
+          hashbang: { pattern: /^#!.*/, greedy: !0, alias: "comment" },
+          "template-string": {
+            pattern:
+              /`(?:\\[\s\S]|\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}|(?!\$\{)[^\\`])*`/,
+            greedy: !0,
+            inside: {
+              "template-punctuation": { pattern: /^`|`$/, alias: "string" },
+              interpolation: {
+                pattern:
+                  /((?:^|[^\\])(?:\\{2})*)\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}/,
+                lookbehind: !0,
+                inside: {
+                  "interpolation-punctuation": {
+                    pattern: /^\$\{|\}$/,
+                    alias: "punctuation",
+                  },
+                  rest: Prism.languages.javascript,
+                },
+              },
+              string: /[\s\S]+/,
+            },
+          },
+          "string-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(["'])(?:\\(?:\r\n|[\s\S])|(?!\2)[^\\\r\n])*\2(?=\s*:)/m,
+            lookbehind: !0,
+            greedy: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.insertBefore("javascript", "operator", {
+          "literal-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*:)/m,
+            lookbehind: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.markup &&
+          (Prism.languages.markup.tag.addInlined("script", "javascript"),
+          Prism.languages.markup.tag.addAttribute(
+            "on(?:abort|blur|change|click|composition(?:end|start|update)|dblclick|error|focus(?:in|out)?|key(?:down|up)|load|mouse(?:down|enter|leave|move|out|over|up)|reset|resize|scroll|select|slotchange|submit|unload|wheel)",
+            "javascript"
+          )),
+        (Prism.languages.js = Prism.languages.javascript);
+    </script>
+
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700;800&display=swap");
+
+      /* ==== Thème Prism « tomorrow » (intégré) ==== */
+      code[class*="language-"],
+      pre[class*="language-"] {
+        color: #ccc;
+        background: 0 0;
+        font-family: "Fira Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono",
+          monospace;
+        font-size: 1em;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+      }
+      .token.block-comment,
+      .token.cdata,
+      .token.comment,
+      .token.doctype,
+      .token.prolog {
+        color: #999;
+      }
+      .token.punctuation {
+        color: #ccc;
+      }
+      .token.attr-name,
+      .token.deleted,
+      .token.namespace,
+      .token.tag {
+        color: #e2777a;
+      }
+      .token.function-name {
+        color: #6196cc;
+      }
+      .token.boolean,
+      .token.function,
+      .token.number {
+        color: #f08d49;
+      }
+      .token.class-name,
+      .token.constant,
+      .token.property,
+      .token.symbol {
+        color: #f8c555;
+      }
+      .token.atrule,
+      .token.builtin,
+      .token.important,
+      .token.keyword,
+      .token.selector {
+        color: #cc99cd;
+      }
+      .token.attr-value,
+      .token.char,
+      .token.regex,
+      .token.string,
+      .token.variable {
+        color: #7ec699;
+      }
+      .token.entity,
+      .token.operator,
+      .token.url {
+        color: #67cdcc;
+      }
+      .token.bold,
+      .token.important {
+        font-weight: 700;
+      }
+      .token.italic {
+        font-style: italic;
+      }
+      .token.entity {
+        cursor: help;
+      }
+      .token.inserted {
+        color: green;
+      }
+
+      /* ==== Variables du thème « Arène JavaScript » ==== */
       :root {
-        --bg: #20233c;
-        --panel: #2a2e4d;
-        --panel2: #333965;
-        --line: #414876;
-        --text: #f2efe4;
-        --muted: #a8adcf;
-        --js: #ffe066;
-        --js-dim: #e0c34a;
-        --js-ink: #2b2410;
-        --blue: #8db8ff;
-        --green: #8de0b0;
-        --red: #ff9c9c;
-        --shadow: 0 6px 18px rgba(15, 16, 30, 0.28);
+        --js-yellow: #f7df1e;
+        --js: #f7df1e;
+        --js-ink: #0a0c14;
+        --neon-blue: #00f3ff;
+        --neon-pink: #ff2d78;
+        --neon-green: #22ff88;
+        --cyber-dark: #0a0c14;
+        --text: #e2e8f0;
+        --muted: #9ca3af;
+        --dim: #6b7280;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --code-bg: #0d1120;
+        --code-line: #1e293b;
+        --blue: #60a5fa;
+        --cyan: #22d3ee;
+        --green: #34d399;
+        --red: #fb7185;
+        --glass: rgba(16, 20, 34, 0.72);
+        --glass-line: rgba(255, 255, 255, 0.08);
         padding-top: env(safe-area-inset-top, 0px);
         padding-bottom: env(safe-area-inset-bottom, 0px);
-      }
-      @media (prefers-color-scheme: light) {
-        :root:not([data-theme="dark"]) {
-          --bg: #fff8e7;
-          --panel: #ffffff;
-          --panel2: #fff3d3;
-          --line: #f0dfae;
-          --text: #2b2a3a;
-          --muted: #75708f;
-          --js: #f7df1e;
-          --js-dim: #c9971f;
-          --js-ink: #2b2410;
-          --blue: #2f6fb0;
-          --green: #1f8a5b;
-          --red: #c8455a;
-          --shadow: 0 6px 18px rgba(180, 150, 60, 0.14);
-        }
       }
       * {
         box-sizing: border-box;
@@ -55,44 +1257,168 @@
         html {
           scroll-behavior: auto;
         }
+        .bg-mesh,
+        .grid-floor,
+        .title-glow,
+        .ping {
+          animation: none !important;
+        }
       }
       body {
         margin: 0;
-        background: var(--bg);
+        background-color: var(--cyber-dark);
         color: var(--text);
-        font-family: "Manrope", sans-serif;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Arial,
+          sans-serif;
         line-height: 1.55;
+        overflow-x: hidden;
+        min-height: 100vh;
       }
       code,
       .mono,
       table td code,
-      .sig {
-        font-family: "JetBrains Mono", monospace;
+      .sig,
+      .font-mono-code {
+        font-family: "Fira Code", Consolas, "Courier New", monospace;
       }
       h1,
       h2,
       h3,
-      .brand-name {
-        font-family: "Baloo 2", sans-serif;
+      .brand-name,
+      .font-heading {
+        font-family: "Orbitron", "Trebuchet MS", "Arial Black", sans-serif;
+        letter-spacing: 1px;
       }
 
-      /* ---- nav ---- */
+      /* ==== Calques de fond (identiques au quiz) ==== */
+      .bg-mesh {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(
+            ellipse 60% 50% at 15% 20%,
+            rgba(247, 223, 30, 0.08),
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 85% 80%,
+            rgba(0, 243, 255, 0.08),
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 40% 40% at 60% 10%,
+            rgba(255, 45, 120, 0.05),
+            transparent 50%
+          );
+        animation: meshDrift 16s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+      @keyframes meshDrift {
+        0% {
+          filter: hue-rotate(0deg) saturate(1);
+          transform: scale(1);
+        }
+        100% {
+          filter: hue-rotate(40deg) saturate(1.3);
+          transform: scale(1.08);
+        }
+      }
+      #particle-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .grid-floor {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 45vh;
+        z-index: 0;
+        background-image: linear-gradient(
+            rgba(0, 243, 255, 0.07) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 243, 255, 0.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        transform: perspective(420px) rotateX(62deg) scale(1.6);
+        transform-origin: bottom;
+        opacity: 0.5;
+        animation: gridScroll 3.5s linear infinite;
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        -webkit-mask-image: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.9),
+          transparent
+        );
+        pointer-events: none;
+      }
+      @keyframes gridScroll {
+        to {
+          background-position: 0 44px, 0 44px;
+        }
+      }
+      .scanlines {
+        position: relative;
+      }
+      .scanlines::before {
+        content: " ";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.22) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.02),
+            rgba(0, 255, 0, 0.01),
+            rgba(0, 0, 255, 0.02)
+          );
+        z-index: 60;
+        background-size: 100% 3px, 3px 100%;
+        pointer-events: none;
+        opacity: 0.55;
+      }
+
+      /* ==== Effet verre ==== */
+      .glass-panel,
+      .card,
+      .fn-box,
+      aside#side {
+        background: var(--glass);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--glass-line);
+        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.8),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      /* ==== Barre du haut ==== */
       nav.topbar {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 50;
         padding-top: env(safe-area-inset-top, 0px);
-        background: color-mix(in srgb, var(--bg) 88%, transparent);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--line);
+        background: rgba(13, 16, 26, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(31, 41, 55, 0.8);
       }
       .topbar-inner {
-        max-width: none;
         margin: 0 auto;
-        padding: 6px 12px;
+        padding: 10px 14px;
         display: flex;
         align-items: center;
         gap: 14px;
+      }
+      .brand-col {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
       }
       .logo {
         display: flex;
@@ -100,17 +1426,100 @@
         gap: 10px;
         text-decoration: none;
         color: var(--text);
-        flex: 1;
         min-width: 0;
       }
-      .logo svg {
+      .js-badge {
+        width: 36px;
+        height: 36px;
         flex: 0 0 auto;
-        border-radius: 9px;
-        box-shadow: var(--shadow);
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Fira Code", monospace;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        box-shadow: 0 0 16px rgba(247, 223, 30, 0.55);
+        transition: transform 0.2s;
+      }
+      .logo:hover .js-badge {
+        transform: rotate(6deg);
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        line-height: 1.25;
       }
       .brand-name {
-        font-weight: 700;
-        font-size: 1.05rem;
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #fff;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .brand-name em {
+        font-style: normal;
+        color: var(--js-yellow);
+      }
+      .ver {
+        font-family: "Fira Code", monospace;
+        font-size: 10px;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: rgba(247, 223, 30, 0.1);
+        color: var(--js-yellow);
+        border: 1px solid rgba(247, 223, 30, 0.3);
+      }
+      .brand-sub {
+        font-family: "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        padding-left: 46px;
+      }
+      .author-logo {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: 6px;
+        flex: 0 0 auto;
+      }
+      .author-mono {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        font-size: 0.6rem;
+      }
+      .author-txt {
+        font-family: "Fira Code", monospace;
+        font-weight: 600;
+        font-size: 11px;
+        color: var(--muted);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -121,95 +1530,420 @@
         flex: 0 0 auto;
       }
       .navbtn {
-        font-family: "Manrope", sans-serif;
+        font-family: "Fira Code", Consolas, monospace;
         font-weight: 600;
-        font-size: 0.88rem;
+        font-size: 0.75rem;
         text-decoration: none;
-        padding: 9px 16px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        color: var(--text);
-        background: var(--panel);
-        transition: transform 0.12s, background 0.15s;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        color: #d1d5db;
+        background: rgba(31, 41, 55, 0.8);
+        transition: all 0.2s;
         white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
       .navbtn:hover {
-        transform: translateY(-1px);
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.5);
+        transform: translateY(-2px);
       }
       .navbtn.active {
-        background: var(--js);
-        color: var(--js-ink);
-        border-color: var(--js-dim);
+        background: var(--js-yellow);
+        color: #000;
+        border-color: var(--js-yellow);
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .navbtn.active:hover {
+        background: #fde047;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.4);
+        color: #000;
+      }
+      .menu-btn {
+        display: none;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        background: rgba(31, 41, 55, 0.8);
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .menu-btn:hover {
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.5);
       }
 
+      /* ==== Bandeau de progression ==== */
+      .course-bar {
+        border-top: 1px solid rgba(31, 41, 55, 0.8);
+        background: rgba(10, 12, 20, 0.6);
+        position: relative;
+      }
+      .course-bar-inner {
+        padding: 5px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.78rem;
+        font-family: "Fira Code", monospace;
+      }
+      .course-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        flex: 1;
+      }
+      .course-level-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 243, 255, 0.08);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        padding: 2px 9px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+      .course-sep {
+        color: var(--dim);
+        flex: 0 0 auto;
+      }
+      .course-sec-step {
+        font-weight: 700;
+        font-size: 0.7rem;
+        background: var(--js-yellow);
+        color: #000;
+        padding: 1px 7px;
+        border-radius: 999px;
+        flex: 0 0 auto;
+      }
+      .course-sec-name {
+        font-weight: 600;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.72rem;
+      }
+      .course-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+      .course-mini-track {
+        width: 84px;
+        height: 6px;
+        background: var(--gray-800);
+        border: 1px solid var(--gray-700);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .course-mini-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--cyan), var(--js-yellow));
+        border-radius: 999px;
+        transition: width 0.12s ease-out;
+      }
+      .course-pct {
+        font-weight: 700;
+        font-size: 0.74rem;
+        color: var(--js-yellow);
+        min-width: 3.4ch;
+        text-align: right;
+      }
+      .course-progress-track {
+        height: 3px;
+        width: 100%;
+        background: rgba(31, 41, 55, 0.6);
+        overflow: hidden;
+      }
+      .course-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--cyan), var(--js-yellow));
+        box-shadow: 0 0 10px rgba(247, 223, 30, 0.6);
+        transition: width 0.1s ease-out;
+      }
+
+      /* ==== Mise en page ==== */
+      .layout {
+        display: flex;
+        align-items: flex-start;
+        position: relative;
+        z-index: 10;
+      }
+      .content {
+        flex: 1;
+        min-width: 0;
+      }
+      aside#side {
+        position: sticky;
+        top: var(--topbar-h, 64px);
+        flex: 0 0 210px;
+        width: 210px;
+        max-height: calc(100vh - var(--topbar-h, 64px));
+        overflow-y: auto;
+        padding: 12px 8px 20px 10px;
+        border: none;
+        border-right: 1px solid rgba(31, 41, 55, 0.8);
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      aside#side a {
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        position: relative;
+        counter-increment: side;
+      }
+      aside#side {
+        counter-reset: side;
+      }
+      aside#side a::before {
+        content: counter(side, decimal-leading-zero) " ";
+        color: var(--dim);
+        font-size: 0.68rem;
+      }
+      aside#side a:hover {
+        background: rgba(31, 41, 55, 0.6);
+        color: #fff;
+        transform: translateX(4px);
+      }
+      aside#side a.active {
+        background: rgba(247, 223, 30, 0.1);
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.3);
+        box-shadow: 0 0 14px rgba(247, 223, 30, 0.12);
+      }
+      aside#side a.active::before {
+        color: var(--js-yellow);
+      }
+
+      /* ==== En-tête de la page ==== */
       header {
-        padding: 16px 14px 8px;
+        padding: 28px 18px 10px;
         text-align: left;
-        max-width: none;
         margin: 0 auto;
       }
       .eyebrow {
-        color: var(--js-dim);
-        font-weight: 700;
-        font-size: 0.85rem;
-        letter-spacing: 0.02em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(247, 223, 30, 0.1);
+        border: 1px solid rgba(247, 223, 30, 0.3);
+        color: var(--js-yellow);
+        font-family: "Fira Code", monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .eyebrow .ping {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        position: relative;
+      }
+      .eyebrow .ping::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+      @keyframes ping {
+        75%,
+        100% {
+          transform: scale(2.4);
+          opacity: 0;
+        }
       }
       h1 {
-        font-size: clamp(2rem, 5vw, 3rem);
-        margin: 0.3em 0 0.2em;
-        font-weight: 700;
-        letter-spacing: -0.01em;
+        font-size: clamp(1.8rem, 4.5vw, 3rem);
+        margin: 0.4em 0 0.25em;
+        font-weight: 900;
+        line-height: 1.1;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(90deg, #fef08a, #fcd34d, #eab308);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .title-glow {
+        animation: titleGlow 3s ease-in-out infinite;
+      }
+      @keyframes titleGlow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 10px rgba(247, 223, 30, 0.35));
+        }
+        50% {
+          filter: drop-shadow(0 0 22px rgba(247, 223, 30, 0.6));
+        }
       }
       header p {
         color: var(--muted);
-        max-width: 60ch;
+        max-width: 64ch;
         margin: 0;
-        font-size: 1.02rem;
+        font-size: 0.98rem;
+      }
+      header p .kbd {
+        margin: 0 2px;
+      }
+      .kbd {
+        font-family: "Fira Code", Consolas, monospace;
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom-width: 3px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #d1d5db;
       }
 
       main {
-        max-width: none;
         margin: 0 auto;
-        padding: 4px 14px 40px;
+        padding: 8px 18px 48px;
       }
 
+      /* ==== Sections ==== */
       .section {
-        margin-bottom: 26px;
+        margin-bottom: 34px;
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      @keyframes popIn {
+        0% {
+          transform: scale(0.97);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
       .section h2 {
-        font-size: 1.35rem;
-        font-weight: 700;
+        font-size: 1.05rem;
+        font-weight: 800;
         margin: 0 0 14px;
-        padding: 4px 16px;
-        background: var(--panel2);
+        padding: 8px 16px 8px 14px;
+        background: rgba(16, 20, 34, 0.8);
+        border: 1px solid var(--gray-700);
+        border-left: 3px solid var(--js-yellow);
         border-radius: 10px;
         display: inline-block;
+        max-width: 100%;
+        color: #fff;
+        text-transform: uppercase;
+        line-height: 1.35;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.08);
+      }
+      .section h2::before {
+        content: "// ";
+        color: var(--js-yellow);
+        font-family: "Fira Code", monospace;
+        font-weight: 700;
+      }
+      .section h2 .note {
+        font-family: "Fira Code", monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0;
+        text-transform: none;
+        margin: 0 0 0 8px;
+        font-weight: 400;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(0, 243, 255, 0.08);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 243, 255, 0.25);
       }
       .grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-        gap: 12px;
+        gap: 14px;
       }
 
+      /* ==== Cartes ==== */
       .card {
-        background: var(--panel);
-        border: 1px solid var(--line);
         border-radius: 16px;
-        padding: 16px 20px;
+        padding: 18px 20px;
         overflow-x: auto;
-        box-shadow: var(--shadow);
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-color 0.25s, box-shadow 0.25s;
+      }
+      .card:hover {
+        border-color: rgba(247, 223, 30, 0.25);
+        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.8),
+          0 0 24px rgba(247, 223, 30, 0.06),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
       .card h3 {
         margin: 0 0 10px;
-        font-size: 0.95rem;
-        color: var(--js-dim);
+        font-size: 0.8rem;
         font-weight: 700;
+        color: var(--js-yellow);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card h3::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        box-shadow: 0 0 8px var(--js-yellow);
+        flex: 0 0 auto;
+      }
+      .card h3 code {
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--cyan);
+      }
+      .card p {
+        color: #cbd5e1;
+      }
+      .card strong {
+        color: #fff;
       }
 
+      /* ==== Tableaux ==== */
       table {
         border-collapse: collapse;
         width: 100%;
-        font-size: 0.92rem;
+        font-size: 0.9rem;
       }
       table.wide {
         min-width: 0;
@@ -217,20 +1951,31 @@
       th,
       td {
         text-align: left;
-        padding: 8px 10px;
-        border-bottom: 1px solid var(--line);
+        padding: 9px 10px;
+        border-bottom: 1px solid rgba(55, 65, 81, 0.6);
         vertical-align: top;
       }
       th {
-        color: var(--muted);
+        color: var(--dim);
         font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: none;
+        font-size: 0.72rem;
+        font-family: "Fira Code", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      td {
+        color: #cbd5e1;
       }
       td code,
-      th code {
+      th code,
+      p code,
+      li code,
+      .fn-desc code,
+      .exo-txt code,
+      .note code {
         color: var(--blue);
-        background: var(--panel2);
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
         padding: 1px 6px;
         border-radius: 6px;
         font-size: 0.85em;
@@ -238,36 +1983,74 @@
       tr:last-child td {
         border-bottom: none;
       }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
       .ok {
-        color: var(--green);
+        color: var(--neon-green);
       }
       .no {
-        color: var(--red);
+        color: var(--neon-pink);
       }
 
+      /* ==== Blocs de code (style « exercice.js » du quiz) ==== */
       pre {
-        background: var(--panel2);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 14px 16px;
+        position: relative;
+        background: var(--code-bg) !important;
+        border: 1px solid var(--code-line);
+        border-radius: 0.75rem;
+        padding: 36px 16px 14px !important;
         overflow-x: auto;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         margin: 10px 0 0;
         line-height: 1.6;
+        box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.7);
+        font-family: "Fira Code", Consolas, monospace;
+        color: #ccc;
       }
-      pre .c {
-        color: var(--muted);
+      pre::before {
+        content: "";
+        position: absolute;
+        top: 11px;
+        left: 14px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.7);
+        box-shadow: 16px 0 0 rgba(234, 179, 8, 0.7),
+          32px 0 0 rgba(34, 197, 94, 0.7);
+      }
+      pre::after {
+        content: attr(data-file);
+        position: absolute;
+        top: 7px;
+        right: 12px;
+        font-family: "Fira Code", monospace;
+        font-size: 10px;
+        color: var(--dim);
+      }
+      pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+      pre .c,
+      .token.comment {
+        color: #6b7280;
       }
       .note {
         color: var(--muted);
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         margin-top: 8px;
         font-style: italic;
       }
 
+      /* ==== Exercices ==== */
       .exo {
-        border-bottom: 1px solid var(--line);
-        padding: 11px 0;
+        border-bottom: 1px solid rgba(55, 65, 81, 0.6);
+        padding: 12px 0;
       }
       .exo:last-child {
         border-bottom: none;
@@ -279,35 +2062,50 @@
         gap: 10px;
         align-items: baseline;
         font-size: 0.92rem;
+        color: #e5e7eb;
+        padding: 6px 8px;
+        margin: -6px -8px;
+        border-radius: 10px;
+        transition: background 0.2s, transform 0.15s;
+      }
+      .exo summary:hover {
+        background: rgba(255, 255, 255, 0.03);
+        transform: translateX(5px);
       }
       .exo summary::-webkit-details-marker {
         display: none;
       }
       .exo summary::before {
         content: "▸";
-        color: var(--js-dim);
+        color: var(--js-yellow);
         flex: 0 0 auto;
         transition: transform 0.15s;
       }
       .exo[open] summary::before {
         transform: rotate(90deg);
       }
+      .exo[open] summary {
+        color: #fff;
+      }
       .exo-num {
-        color: var(--js-ink);
-        background: var(--js);
-        border-radius: 999px;
+        color: #000;
+        background: var(--js-yellow);
+        border-radius: 6px;
+        font-family: "Fira Code", monospace;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         flex: 0 0 auto;
-        min-width: 1.5em;
+        min-width: 1.8em;
         text-align: center;
-        padding: 2px 0;
+        padding: 2px 4px;
+        box-shadow: 0 0 10px rgba(247, 223, 30, 0.35);
       }
       .exo-txt {
         flex: 1;
       }
       .exo pre {
-        margin-top: 10px;
+        margin-top: 12px;
+        animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
       }
 
       .compare {
@@ -317,65 +2115,47 @@
         min-width: 0;
       }
 
-      footer {
-        max-width: none;
-        margin: 0 auto;
-        text-align: center;
-        color: var(--muted);
-        font-size: 0.88rem;
-        padding: 20px 14px 30px;
-        border-top: 1px solid var(--line);
-        margin-top: 20px;
-      }
-      footer .credit {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 10px;
-      }
-      footer .credit svg {
-        border-radius: 6px;
-      }
-
-      /* ---- boutons / boîtes extensibles ---- */
+      /* ==== Boutons / boîtes extensibles (fonctions Math, chaînes…) ==== */
       .fn-bar {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
       }
       .fnbtn {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.82rem;
-        font-weight: 500;
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
         cursor: pointer;
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        color: var(--blue);
-        transition: transform 0.12s, background 0.15s;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        background: rgba(31, 41, 55, 0.8);
+        color: var(--cyan);
+        transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s,
+          background 0.2s, color 0.2s;
       }
       .fnbtn::after {
         content: " ▾";
-        color: var(--js-dim);
+        color: var(--js-yellow);
       }
       .fnbtn:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        border-color: rgba(0, 243, 255, 0.5);
+        box-shadow: 0 0 14px rgba(0, 243, 255, 0.15);
       }
       .fnbtn:focus-visible {
-        outline: 2px solid var(--js);
+        outline: 2px solid var(--js-yellow);
         outline-offset: 2px;
       }
       .fnbtn[aria-expanded="true"] {
-        background: var(--js);
-        color: var(--js-ink);
-        border-color: var(--js-dim);
+        background: var(--js-yellow);
+        color: #000;
+        border-color: var(--js-yellow);
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.4);
       }
       .fnbtn[aria-expanded="true"]::after {
         content: " ▴";
-        color: var(--js-ink);
+        color: #000;
       }
       .fn-panel {
         display: grid;
@@ -393,85 +2173,8 @@
         min-height: 0;
       }
       .fn-box {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-left: 4px solid var(--js);
+        border-left: 4px solid var(--js-yellow);
         border-radius: 16px;
-        padding: 16px 20px;
-        box-shadow: var(--shadow);
-      }
-      .fn-box .sig {
-        color: var(--js-dim);
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 6px;
-      }
-      .fn-desc {
-        font-size: 0.92rem;
-      }
-      .fn-desc code {
-        color: var(--blue);
-        background: var(--panel2);
-        padding: 1px 6px;
-        border-radius: 6px;
-        font-size: 0.85em;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .fn-panel {
-          transition: none;
-        }
-      }
-
-      /* ---- mise en page : barre latérale + pleine largeur ---- */
-      .layout {
-        display: flex;
-        align-items: flex-start;
-      }
-      .content {
-        flex: 1;
-        min-width: 0;
-      }
-      aside#side {
-        position: sticky;
-        top: var(--topbar-h, 64px);
-        flex: 0 0 200px;
-        width: 200px;
-        max-height: calc(100vh - var(--topbar-h, 64px));
-        overflow-y: auto;
-        padding: 10px 8px 20px 10px;
-        border-right: 1px solid var(--line);
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      aside#side a {
-        font-size: 0.86rem;
-        font-weight: 600;
-        text-decoration: none;
-        color: var(--muted);
-        padding: 6px 10px;
-        border-radius: 8px;
-      }
-      aside#side a:hover {
-        background: var(--panel);
-        color: var(--text);
-      }
-      aside#side a.active {
-        background: var(--js);
-        color: var(--js-ink);
-      }
-      .menu-btn {
-        display: none;
-        font-size: 1.1rem;
-        line-height: 1;
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        color: var(--text);
-        cursor: pointer;
-      }
-      .fn-box {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
         column-gap: 24px;
@@ -484,21 +2187,126 @@
         grid-column: 1;
       }
       .fn-box .sig {
-        font-size: 1.05rem;
+        color: var(--js-yellow);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 6px;
       }
       .fn-desc {
-        font-size: 0.98rem;
+        font-size: 0.95rem;
+        color: #cbd5e1;
       }
       .fn-box pre {
         grid-column: 2;
         grid-row: 1 / span 3;
         margin: 0;
-        font-size: 0.92rem;
+        font-size: 0.88rem;
         align-self: start;
       }
       .fn-box .note {
         margin-top: 10px;
       }
+      @media (prefers-reduced-motion: reduce) {
+        .fn-panel {
+          transition: none;
+        }
+      }
+
+      /* ==== Pied de page ==== */
+      footer {
+        margin: 20px auto 0;
+        text-align: center;
+        color: var(--dim);
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        padding: 22px 14px 32px;
+        border-top: 1px solid rgba(31, 41, 55, 0.6);
+        position: relative;
+        z-index: 10;
+      }
+      footer .credit {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #d1d5db;
+        margin-bottom: 12px;
+      }
+      footer .credit .js-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+      }
+
+      /* ==== Bouton « revenir en haut » ==== */
+      .back-to-top {
+        position: fixed;
+        right: 18px;
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        z-index: 40;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 50%;
+        border: none;
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        font-size: 1.1rem;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.55);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(14px) scale(0.92);
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s,
+          background 0.15s;
+      }
+      .back-to-top span {
+        display: none;
+      }
+      .back-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+      .back-to-top:hover {
+        background: #fde047;
+        transform: translateY(-3px) scale(1.04);
+      }
+      .back-to-top:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .back-to-top:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      /* ==== Barre de défilement ==== */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0d1117;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #2a3448;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #f7df1e;
+      }
+
+      /* ==== Responsive ==== */
       @media (max-width: 900px) {
         .menu-btn {
           display: inline-block;
@@ -506,11 +2314,12 @@
         aside#side {
           position: fixed;
           left: 0;
-          z-index: 20;
-          background: var(--bg);
+          z-index: 45;
+          background: rgba(13, 16, 26, 0.96);
           transform: translateX(-105%);
           transition: transform 0.2s;
-          box-shadow: var(--shadow);
+          border-right: 1px solid var(--gray-700);
+          border-radius: 0 12px 12px 0;
         }
         aside#side.open {
           transform: none;
@@ -524,236 +2333,70 @@
           margin-top: 10px;
         }
       }
-
-      .brand-col {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .brand-col .logo {
-        flex: none;
-      }
-      .author {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        padding-left: 46px; /* 36px logo JS + 10px d'écart = début du texte « Annexe » */
-      }
-      .author-logo {
-        width: 26px;
-        height: 26px;
-        object-fit: contain;
-        border-radius: 6px;
-        flex: 0 0 auto;
-      }
-      .author-mono {
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
-        flex: 0 0 auto;
-        align-items: center;
-        justify-content: center;
-        background: var(--js);
-        color: var(--js-ink);
-        font-family: "Baloo 2", sans-serif;
-        font-weight: 700;
-        font-size: 0.7rem;
-      }
-      .author-txt {
-        font-weight: 700;
-        font-size: 0.8rem;
-        color: var(--text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      /* ---- bandeau sous le header : niveau du cours, section active & progression ---- */
-      .course-bar {
-        border-top: 1px solid var(--line);
-        background: color-mix(in srgb, var(--panel) 86%, transparent);
-        position: relative;
-      }
-      .course-bar-inner {
-        padding: 5px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        font-size: 0.8rem;
-      }
-      .course-bar-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        flex: 1;
-      }
-      .course-level-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: var(--panel2);
-        color: var(--js-dim);
-        border: 1px solid var(--line);
-        padding: 2px 9px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 0.74rem;
-        white-space: nowrap;
-        flex: 0 0 auto;
-      }
-      .course-sep {
-        color: var(--muted);
-        flex: 0 0 auto;
-      }
-      .course-sec-step {
-        font-family: "JetBrains Mono", monospace;
-        font-weight: 700;
-        font-size: 0.73rem;
-        background: var(--js);
-        color: var(--js-ink);
-        padding: 1px 7px;
-        border-radius: 999px;
-        flex: 0 0 auto;
-      }
-      .course-sec-name {
-        font-weight: 700;
-        color: var(--text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .course-bar-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex: 0 0 auto;
-      }
-      .course-mini-track {
-        width: 84px;
-        height: 6px;
-        background: var(--panel2);
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        overflow: hidden;
-      }
-      .course-mini-fill {
-        height: 100%;
-        width: 0%;
-        background: var(--js);
-        border-radius: 999px;
-        transition: width 0.12s ease-out;
-      }
-      .course-pct {
-        font-family: "JetBrains Mono", monospace;
-        font-weight: 700;
-        font-size: 0.76rem;
-        color: var(--js-dim);
-        min-width: 3.4ch;
-        text-align: right;
-      }
-      .course-progress-track {
-        height: 3px;
-        width: 100%;
-        background: color-mix(in srgb, var(--line) 55%, transparent);
-        overflow: hidden;
-      }
-      .course-progress-fill {
-        height: 100%;
-        width: 0%;
-        background: var(--js);
-        transition: width 0.1s ease-out;
-      }
-
-      /* ---- bouton flottant remonter en haut ---- */
-      .back-to-top {
-        position: fixed;
-        right: 20px;
-        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-        z-index: 30;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 10px 16px;
-        border-radius: 999px;
-        border: 2px solid var(--js-dim);
-        background: var(--js);
-        color: var(--js-ink);
-        font-family: "Baloo 2", sans-serif;
-        font-weight: 700;
-        font-size: 0.92rem;
-        line-height: 1;
-        cursor: pointer;
-        box-shadow: 0 8px 22px rgba(15, 16, 30, 0.35);
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(14px) scale(0.92);
-        pointer-events: none;
-        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s, background 0.15s;
-      }
-      .back-to-top.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0) scale(1);
-        pointer-events: auto;
-      }
-      .back-to-top:hover {
-        transform: translateY(-3px) scale(1.04);
-      }
-      .back-to-top:active {
-        transform: translateY(0) scale(0.98);
-      }
-      .back-to-top:focus-visible {
-        outline: 2px solid var(--blue);
-        outline-offset: 3px;
-      }
       @media (max-width: 600px) {
         .course-mini-track {
           display: none;
         }
-        .course-level-badge {
-          font-size: 0.7rem;
-          padding: 1px 7px;
+        .brand-sub,
+        .author {
+          display: none;
         }
         .back-to-top {
           right: 14px;
           bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-          padding: 10px 13px;
-          font-size: 0.85rem;
+        }
+        .navbtn span.lbl {
+          display: none;
+        }
+        .brand-name {
+          font-size: 0.72rem;
+          white-space: normal;
+          display: block;
+          line-height: 1.2;
+        }
+        .navbtn.active {
+          font-size: 0.65rem;
+          padding: 8px 9px;
+        }
+        .brand-name .ver {
+          display: none;
+        }
+        .section h2 {
+          font-size: 0.9rem;
+          letter-spacing: 0.5px;
+        }
+        header {
+          padding: 20px 14px 8px;
+        }
+        main {
+          padding: 8px 12px 40px;
+        }
+        .card {
+          padding: 14px 14px;
         }
       }
     </style>
   </head>
-  <body>
+  <body class="scanlines">
+    <!-- Calques de fond -->
+    <div class="bg-mesh"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="grid-floor"></div>
+
     <nav class="topbar">
       <div class="topbar-inner">
         <div class="brand-col">
           <a class="logo" href="#top">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 36 36"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect width="36" height="36" rx="9" fill="var(--js)" />
-              <text
-                x="18"
-                y="24"
-                text-anchor="middle"
-                font-family="Baloo 2, sans-serif"
-                font-weight="700"
-                font-size="15"
-                fill="var(--js-ink)"
+            <span class="js-badge">JS</span>
+            <span class="brand-text">
+              <span class="brand-name">
+                Annexe <em>JavaScript</em>
+                <span class="ver">3ème/4ème SI</span>
+              </span>
+              <span class="brand-sub"
+                >Conforme à l'Annexe JavaScript officielle</span
               >
-                JS
-              </text>
-            </svg>
-            <span class="brand-name">Annexe JS · 4ème SI</span><br />
-            <span class="brand-name">Conforme à l'Annexe JavaScript </span>
+            </span>
           </a>
           <div class="author">
             <img
@@ -783,23 +2426,30 @@
             class="navbtn"
             href="../index.html"
             title="Retourner à la page d'accueil"
-            >🏠 Accueil</a
+            >◀ <span class="lbl">Accueil</span></a
           >
           <a
             class="navbtn active"
             href="../documents/annexes/annexe-javascript.pdf"
             target="_blank"
-            >Annexe JS
-          </a>
+            >📄 ANNEXE JS</a
+          >
         </div>
       </div>
-      <div class="course-bar" role="status" aria-live="polite" aria-label="Niveau et progression du cours">
+      <div
+        class="course-bar"
+        role="status"
+        aria-live="polite"
+        aria-label="Niveau et progression du cours"
+      >
         <div class="course-bar-inner">
           <div class="course-bar-left">
-            <span class="course-level-badge">🎓 Niveau : 4ème SI</span>
+            <span class="course-level-badge">🎓 Niveau : 3ème/4ème SI</span>
             <span class="course-sep" aria-hidden="true">•</span>
             <span class="course-sec-step" id="course-sec-step">1 / 16</span>
-            <span class="course-sec-name" id="course-sec-name">Présentation</span>
+            <span class="course-sec-name" id="course-sec-name"
+              >Présentation</span
+            >
           </div>
           <div class="course-bar-right" title="Progression de lecture du cours">
             <div class="course-mini-track" aria-hidden="true">
@@ -835,11 +2485,15 @@
       </aside>
       <div class="content">
         <header id="top">
-          <div class="eyebrow">4ème SI — Web &amp; bases de données</div>
-          <h1>Annexe JavaScript</h1>
+          <div class="eyebrow">
+            <span class="ping"></span>3ème/4ème SI — Web &amp; bases de données
+          </div>
+          <h1 class="title-glow">Annexe JavaScript</h1>
           <p>
             Référence rapide : opérateurs, fonctions natives, chaînes, tableaux,
             dates et manipulation du DOM.
+            <br /><span class="kbd">CLIC</span> sur une fonction ou un énoncé
+            d'exercice pour afficher le détail.
           </p>
         </header>
 
@@ -2696,31 +4350,15 @@ function changer() {
 
         <footer>
           <div class="credit">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 36 36"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect width="36" height="36" rx="9" fill="var(--js)" />
-              <text
-                x="18"
-                y="24"
-                text-anchor="middle"
-                font-family="Baloo 2, sans-serif"
-                font-weight="700"
-                font-size="15"
-                fill="var(--js-ink)"
-              >
-                JS
-              </text>
-            </svg>
+            <span class="js-badge">JS</span>
             Travail élaboré par A. Essouyah
           </div>
           <div>
-            <a class="navbtn" href="#top" style="margin-right: 8px">🏠 Haut</a>
-            <a class="navbtn active" href="../documents/annexes/annexe-javascript.pdf"
-              >Annexe JS</a
+            <a class="navbtn" href="#top" style="margin-right: 8px">↑ HAUT</a>
+            <a
+              class="navbtn active"
+              href="../documents/annexes/annexe-javascript.pdf"
+              >📄 ANNEXE JS</a
             >
           </div>
         </footer>
@@ -2750,6 +4388,102 @@ function changer() {
       <span>Haut</span>
     </button>
 
+    <!-- ==== PARTICULES FLOTTANTES (symboles JS) ==== -->
+    <script>
+      (function () {
+        const canvas = document.getElementById("particle-canvas");
+        const ctx = canvas.getContext("2d");
+        const SYMBOLS = [
+          "let",
+          "const",
+          "var",
+          "prompt()",
+          "parseInt()",
+          "alert()",
+          "for…of",
+          "if…else",
+          "&&",
+          "===",
+          "getElementById",
+          "Math.random()",
+          "new Date()",
+          "innerHTML",
+          "toUpperCase()",
+          "push()",
+        ];
+        let particles = [];
+        let W, H;
+        function resize() {
+          W = canvas.width = window.innerWidth;
+          H = canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resize);
+        resize();
+        function makeParticle() {
+          return {
+            x: Math.random() * W,
+            y: H + 20,
+            size: 10 + Math.random() * 12,
+            speed: 0.25 + Math.random() * 0.6,
+            drift: (Math.random() - 0.5) * 0.3,
+            rot: Math.random() * Math.PI,
+            rotSpeed: (Math.random() - 0.5) * 0.005,
+            text: SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+            hue: Math.random() < 0.35 ? 52 : 190,
+            alpha: 0.06 + Math.random() * 0.14,
+          };
+        }
+        for (let i = 0; i < 26; i++) {
+          const p = makeParticle();
+          p.y = Math.random() * H;
+          particles.push(p);
+        }
+        function tick() {
+          ctx.clearRect(0, 0, W, H);
+          particles.forEach((p) => {
+            p.y -= p.speed;
+            p.x += p.drift;
+            p.rot += p.rotSpeed;
+            if (p.y < -30) Object.assign(p, makeParticle());
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.font = `${p.size}px 'Fira Code', monospace`;
+            ctx.fillStyle = `hsla(${p.hue}, 90%, 65%, ${p.alpha})`;
+            ctx.textAlign = "center";
+            ctx.fillText(p.text, 0, 0);
+            ctx.restore();
+          });
+          requestAnimationFrame(tick);
+        }
+        tick();
+      })();
+    </script>
+
+    <!-- ==== COLORATION DES EXTRAITS DE CODE (Prism) ==== -->
+    <script>
+      (function () {
+        function highlightPre(pre) {
+          var txt = pre.textContent.replace(/^\n+/, "").replace(/\s+$/, "");
+          var isHtml = /^\s*</.test(txt);
+          var lang = isHtml ? "markup" : "javascript";
+          pre.className = "language-" + lang;
+          pre.setAttribute(
+            "data-file",
+            isHtml ? "page.html · HTML" : "script.js · JavaScript"
+          );
+          var code = document.createElement("code");
+          code.className = "language-" + lang;
+          code.textContent = txt;
+          pre.innerHTML = "";
+          pre.appendChild(code);
+          if (window.Prism) Prism.highlightElement(code);
+        }
+        document.querySelectorAll("pre").forEach(highlightPre);
+        window.__highlightPre = highlightPre;
+      })();
+    </script>
+
     <script>
       try {
         var el = document.getElementById("date-demo");
@@ -2757,6 +4491,7 @@ function changer() {
           var d = new Date();
           el.textContent =
             "let d = new Date();\nd.toString(); // " + d.toString();
+          if (window.__highlightPre) window.__highlightPre(el);
         }
       } catch (e) {}
     </script>
@@ -2819,12 +4554,16 @@ function changer() {
         }
 
         function updateScrollState() {
-          var scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+          var scrollTop =
+            window.scrollY || document.documentElement.scrollTop || 0;
           var docHeight =
             document.documentElement.scrollHeight - window.innerHeight;
           var pct =
             docHeight > 0
-              ? Math.min(100, Math.max(0, Math.round((scrollTop / docHeight) * 100)))
+              ? Math.min(
+                  100,
+                  Math.max(0, Math.round((scrollTop / docHeight) * 100))
+                )
               : 0;
 
           if (pctEl) pctEl.textContent = pct + "%";
@@ -2899,6 +4638,42 @@ function changer() {
         });
 
         updateScrollState();
+      })();
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b =
+            a.contentDocument || (a.contentWindow && a.contentWindow.document);
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'a45335cf8e0e5bca',t:'MTc5MTEwNjY3MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
+          }
+        }
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
       })();
     </script>
   </body>

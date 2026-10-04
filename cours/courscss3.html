@@ -1,0 +1,4626 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <title>Fiche Récapitulative Globale & Visuelle — CSS3</title>
+    <script>
+      document.documentElement.classList.add("js-enabled");
+    </script>
+    <link rel="stylesheet" href="../assets/css/css.css" />
+  </head>
+  <body>
+    <header class="topbar" id="top">
+      <div class="topbar-inner">
+        <a
+          class="brand"
+          href="#top"
+          aria-label="Fiche Synthèse Globale CSS3 — haut de page"
+        >
+          <span class="css-badge" aria-hidden="true">CSS3</span>
+          <h1>Fiche Synthèse Globale CSS3</h1>
+        </a>
+        <button
+          type="button"
+          class="mobile-menu-toggle"
+          id="mobile-menu-toggle"
+          aria-label="Ouvrir le sommaire"
+          aria-controls="mobile-toc-nav"
+          aria-expanded="false"
+        >
+          <span class="mobile-menu-icon" aria-hidden="true"
+            ><span></span><span></span><span></span
+          ></span>
+        </button>
+        <nav
+          class="toc-nav"
+          id="mobile-toc-nav"
+          aria-label="Sommaire des points 1 à 8"
+        >
+          <ul class="toc">
+            <li>
+              <a
+                href="#point-1"
+                title="Sélecteurs"
+                aria-label="Point 1 : Sélecteurs"
+                ><b>1</b
+                ><span class="lbl"
+                  ><span class="l-long">Sélecteurs</span
+                  ><span class="l-short">Sélecteurs</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a href="#point-2" title="Texte" aria-label="Point 2 : Texte"
+                ><b>2</b
+                ><span class="lbl"
+                  ><span class="l-long">Texte</span
+                  ><span class="l-short">Texte</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-3"
+                title="Arrière-plan"
+                aria-label="Point 3 : Arrière-plan"
+                ><b>3</b
+                ><span class="lbl"
+                  ><span class="l-long">Arrière-plan</span
+                  ><span class="l-short">Fond</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-4"
+                title="Boîtes &amp; Display"
+                aria-label="Point 4 : Boîtes &amp; Display"
+                ><b>4</b
+                ><span class="lbl"
+                  ><span class="l-long">Boîtes &amp; Display</span
+                  ><span class="l-short">Boîtes</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-5"
+                title="Float, Position &amp; Flex"
+                aria-label="Point 5 : Float, Position &amp; Flex"
+                ><b>5</b
+                ><span class="lbl"
+                  ><span class="l-long">Float · Position &amp; Flex</span
+                  ><span class="l-short">Float</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-6"
+                title="Bordures"
+                aria-label="Point 6 : Bordures"
+                ><b>6</b
+                ><span class="lbl"
+                  ><span class="l-long">Bordures</span
+                  ><span class="l-short">Bordures</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-7"
+                title="Listes &amp; Tableaux"
+                aria-label="Point 7 : Listes &amp; Tableaux"
+                ><b>7</b
+                ><span class="lbl"
+                  ><span class="l-long">Listes &amp; Tableaux</span
+                  ><span class="l-short">Listes</span></span
+                ></a
+              >
+            </li>
+            <li>
+              <a
+                href="#point-8"
+                title="Transform &amp; Animations"
+                aria-label="Point 8 : Transform &amp; Animations"
+                ><b>8</b
+                ><span class="lbl"
+                  ><span class="l-long">Transform &amp; Animations</span
+                  ><span class="l-short">Animations</span></span
+                ></a
+              >
+            </li>
+          </ul>
+        </nav>
+        <div class="topbar-credit">Travail élaboré par <b>A. Essouyah</b></div>
+        <div class="header-actions">
+          <a
+            href="../index.html"
+            class="btn-nav"
+            title="Retour"
+            aria-label="Retour"
+            >🏠</a
+          >
+          <a
+            href="../documents/annexes/annexe-css3.pdf"
+            target="_blank"
+            class="btn-nav"
+            title="Annexe CSS3 PDF"
+            aria-label="Annexe CSS3 PDF"
+            >📄</a
+          >
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><i></i></div>
+    </header>
+    <aside class="css-definition" aria-labelledby="css-definition-title">
+      <div class="css-definition-heading">
+        <span class="css-definition-badge" aria-hidden="true">CSS</span>
+        <h2 class="css-definition-title" id="css-definition-title">
+          Définition
+        </h2>
+      </div>
+      <p class="css-definition-typing" id="css-definition-typing">
+        <strong>CSS</strong> (pour <i>Cascading Style Sheets</i> en anglais),
+        soit <strong>feuilles de style en cascade</strong>, est un langage de
+        <strong>feuille de style</strong>
+        utilisé pour décrire la présentation d'un document écrit en
+        <strong>HTML</strong>
+        ou
+        <strong>XML</strong>. CSS décrit la façon dont les éléments doivent être
+        affichés à l'écran, sur papier, à l'oral ou sur d'autres médias.
+      </p>
+    </aside>
+    <p
+      class="course-topics"
+      id="course-topics"
+      aria-label="Sélecteurs &amp; Priorités · Typographie · Arrière-plan · Boîtes · Float · Position &amp; Flex · Transition · Animations"
+    >
+      <span class="topic-word" style="color: #2e86de">Sélecteurs &amp; .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #d6336c">Priorités .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #8e44ad">Typographie .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #e2691a">Arrière-plan .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #0e9e86">Boîtes .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #29abe2">Float .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #6c4fe0">Position &amp; .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #2ecc91">Flex .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #ff8c42">Transition .</span>
+      <span class="topic-separator"> </span>
+      <span class="topic-word" style="color: #e84393">Animations .</span>
+    </p>
+    <script>
+      (function () {
+        var root = document.getElementById("css-definition-typing");
+        var topics = document.getElementById("course-topics");
+        var reducedMotion =
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reducedMotion) return;
+        if (topics) topics.classList.add("is-pending");
+        if (!root) return;
+
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        var nodes = [];
+        while (walker.nextNode()) {
+          var node = walker.currentNode;
+          if (node.nodeValue && node.nodeValue.trim()) nodes.push(node);
+        }
+        nodes.forEach(function (node) {
+          var fragment = document.createDocumentFragment();
+          Array.from(node.nodeValue).forEach(function (character) {
+            var letter = document.createElement("span");
+            letter.className = "typewriter-char";
+            letter.textContent = character;
+            fragment.appendChild(letter);
+          });
+          node.parentNode.replaceChild(fragment, node);
+        });
+
+        var letters = root.querySelectorAll(".typewriter-char");
+        var index = 0;
+        var caret = document.createElement("span");
+        caret.className = "typewriter-caret";
+        caret.setAttribute("aria-hidden", "true");
+        caret.textContent = "▍";
+        var caretHolder = null;
+        root.classList.add("is-typing");
+        function revealTopics() {
+          if (!topics) return;
+          var words = topics.querySelectorAll(".topic-word");
+          var wordIndex = 0;
+          function revealNextWord() {
+            if (wordIndex >= words.length) {
+              topics.classList.remove("is-pending");
+              return;
+            }
+            words[wordIndex].classList.add("is-visible");
+            wordIndex += 1;
+            window.setTimeout(revealNextWord, 140);
+          }
+          revealNextWord();
+        }
+        function typeNextCharacter() {
+          if (index >= letters.length) {
+            if (caretHolder) caretHolder.classList.remove("has-caret");
+            if (caret.parentNode) caret.parentNode.removeChild(caret);
+            root.classList.remove("is-typing");
+            revealTopics();
+            return;
+          }
+          var currentLetter = letters[index];
+          currentLetter.classList.add("is-visible", "has-caret");
+          currentLetter.appendChild(caret);
+          caretHolder = currentLetter;
+          index += 1;
+          window.setTimeout(typeNextCharacter, 12);
+        }
+        typeNextCharacter();
+      })();
+    </script>
+
+    <div class="wrap">
+      <!-- ==================== CONCEPT & PRIORITÉS CSS ==================== -->
+      <div class="section-label">
+        <div class="dot"></div>
+        <span>0. Définition &amp; Règles de Priorité (Cascading)</span>
+      </div>
+
+      <div class="grid">
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">💡</div>
+            <h2>Définition du Sélecteur</h2>
+          </div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Un <b>sélecteur CSS</b> est le motif utilisé pour cibler et désigner
+            les éléments HTML auxquels on souhaite appliquer des règles de
+            style.
+          </p>
+          <div class="demo-label">&lt;/&gt; Structure d'une règle CSS</div>
+          <div class="codebox">
+            <span class="s">sélecteur</span> {<br />
+            &nbsp;&nbsp;<span class="k">propriété</span>:
+            <span class="v">valeur</span>;<br />
+            }
+          </div>
+        </div>
+
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Priorité selon l'Emplacement</h2>
+          </div>
+          <p class="keypoints">
+            Ordre d'application du style du plus prioritaire au moins
+            prioritaire :
+          </p>
+          <div class="prio-list">
+            <div
+              class="prio-item"
+              style="background: #fceef3; border: 1px solid #f8c2d4"
+            >
+              <span class="prio-badge" style="background: #d6336c"
+                >1er (Gagne)</span
+              >
+              <span>Style en ligne : <code>style="..."</code></span>
+            </div>
+            <div
+              class="prio-item"
+              style="background: #eaf4fd; border: 1px solid #bce0fd"
+            >
+              <span class="prio-badge" style="background: #2e86de">2ème</span>
+              <span>Style interne : de></span>
+            </div>
+            <div
+              class="prio-item"
+              style="background: #efeafc; border: 1px solid #d3c5f7"
+            >
+              <span class="prio-badge" style="background: #6c4fe0">3ème</span>
+              <span>Style externe : <code>.css</code> lié</span>
+            </div>
+            <div
+              class="prio-item"
+              style="background: #f0f2f5; border: 1px solid #d8dce2"
+            >
+              <span class="prio-badge" style="background: #5b6584">4ème</span>
+              <span>Navigateur (Style par défaut)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Priorité entre Sélecteurs (Spécificité)</h2>
+          </div>
+          <ul class="keypoints" style="gap: 6px">
+            <li>
+              <span class="ico">🥇</span> <b>!important</b> : Écrase toutes les
+              autres règles.
+            </li>
+            <li>
+              <span class="ico">🥈</span> <b>ID (#id)</b> : Poids très fort
+              (100).
+            </li>
+            <li>
+              <span class="ico">🥉</span>
+              <b>Classe (.class), Pseudo-classe (:hover)</b> : Poids moyen (10).
+            </li>
+            <li>
+              <span class="ico">🔹</span> <b>Élément (h1, p, div)</b> : Poids
+              faible (1).
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ==================== 1. TYPES DES SÉLECTEURS & PSEUDO-CLASSES (ORIGINAL + AJOUTS) ==================== -->
+      <div class="section-label" id="point-1">
+        <div class="dot"></div>
+        <span>1. Types des Sélecteurs &amp; Pseudo-Classes</span>
+      </div>
+
+      <div class="grid">
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Sélecteurs de Base</h2>
+          </div>
+          <div>
+            <code>*</code>, <code>elem</code>, <code>#id</code>,
+            <code>.class</code>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>*</code> : Sélectionne tout.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>#id</code> : Élément unique par
+              identifiant.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>.class</code> : Tous les
+              éléments de cette classe.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Sélecteurs d'Attributs</h2>
+          </div>
+          <div><code>element[attr]</code></div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>[href^="#"]</code> : Commençant
+              par "#".
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>[href$=".org"]</code> :
+              Finissant par ".org".
+            </li>
+          </ul>
+        </div>
+
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">3</div>
+            <h2>Pseudo-Classes d'État</h2>
+          </div>
+          <div>
+            <code>:hover</code>, <code>:active</code>, <code>:visited</code>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>:hover</code> : État au survol
+              du pointeur.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>:active</code> : État lors du
+              clic/pression.
+            </li>
+          </ul>
+        </div>
+
+        <!-- AJOUT : Combinaison de Sélecteurs -->
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">🔗</div>
+            <h2>Combinaison de Sélecteurs</h2>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span>
+              <b><code>.cl1.cl2</code> (Sans espace)</b> : Élément possédant
+              <b>simultanément</b> les deux classes.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>.cl1 .cl2</code> (Avec espace) :
+              Descendants <code>.cl2</code> à l'intérieur de <code>.cl1</code>.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>.cl1 > .cl2</code> : Enfants
+              directs de premier niveau.
+            </li>
+          </ul>
+          <div class="codebox">
+            <span class="s">.box.active</span> { <span class="k">color</span>:
+            <span class="v">red</span>; }
+          </div>
+        </div>
+
+        <!-- AJOUT : Pseudo-Élément ::first-letter -->
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">✍️</div>
+            <h2>Pseudo-Élément <code>::first-letter</code></h2>
+          </div>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0">
+            Permet de cibler et styliser spécifiquement la
+            <b>première lettre</b> d'un bloc de texte.
+          </p>
+          <div class="codebox">
+            <span class="s">p::first-letter</span> {
+            <span class="k">font-size</span>: <span class="v">2em</span>;
+            <span class="k">color</span>: <span class="v">#2e86de</span>; }
+          </div>
+        </div>
+      </div>
+
+      <!-- LES 4 ÉTATS D'UN LIEN -->
+      <div class="section-label" style="margin-top: 26px">
+        <div class="dot"></div>
+        <span
+          >Les 4 états d'un lien — a:link, a:visited, a:hover, a:active</span
+        >
+      </div>
+
+      <div class="grid">
+        <div class="card sel-c">
+          <div class="card-head">
+            <div class="num">🔗</div>
+            <h2>Les 4 États d'un Lien <code>&lt;a&gt;</code></h2>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>a:link</code> : cible tous les
+              liens <b>non visités</b>.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>a:visited</code> : cible tous
+              les liens <b>visités</b>.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>a:hover</code> : cible l'élément
+              au moment où l'utilisateur le survole avec le pointeur de la
+              souris.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>a:active</code> : cible tous les
+              liens <b>activés</b> (pendant le clic).
+            </li>
+          </ul>
+          <div class="demo-label">
+            &lt;/&gt; Ordre d'écriture — règle « LoVe / HAte »
+          </div>
+          <div class="codebox">
+            <span class="s">a:link</span>&nbsp;&nbsp;&nbsp; {
+            <span class="k">color</span>: <span class="v">#2e86de</span>; }
+            <span class="c">/* L : non visité */</span><br />
+            <span class="s">a:visited</span> { <span class="k">color</span>:
+            <span class="v">#8e44ad</span>; }
+            <span class="c">/* V : visité */</span><br />
+            <span class="s">a:hover</span>&nbsp;&nbsp; {
+            <span class="k">color</span>: <span class="v">#e2691a</span>; }
+            <span class="c">/* H : survolé */</span><br />
+            <span class="s">a:active</span>&nbsp; {
+            <span class="k">color</span>: <span class="v">#d6336c</span>; }
+            <span class="c">/* A : cliqué */</span>
+          </div>
+          <div class="demo-label">
+            👁 Résultat interactif (survolez puis cliquez)
+          </div>
+          <div class="demo">
+            <a class="lnk-demo" href="#!">Lien de démonstration</a>
+          </div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-link-states">
+              🔍 Détails états des liens
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 2. TEXTE & POLICES ==================== -->
+      <div class="section-label" id="point-2">
+        <div class="dot"></div>
+        <span>2. Mise en Forme du Texte</span>
+      </div>
+
+      <div class="grid">
+        <div class="card txt-c">
+          <div class="card-head">
+            <div class="num">A</div>
+            <h2>Polices &amp; Styles</h2>
+          </div>
+          <div>
+            <code>font-family</code>, <code>size</code>, <code>weight</code>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> <code>font-family</code> : Définition
+              de la typographie.
+            </li>
+            <li>
+              <span class="ico">✅</span> <code>font-weight</code> : Épaisseur
+              du texte.
+            </li>
+          </ul>
+        </div>
+        <div class="card txt-c">
+          <div class="card-head">
+            <div class="num">B</div>
+            <h2>Alignement &amp; Ombres</h2>
+          </div>
+          <div><code>text-align</code>, <code>text-shadow</code></div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-text-shadow">
+              🔍 Détails text-shadow
+            </button>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> <code>text-shadow</code> : Ombre
+              portée sur le texte.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ==================== 3. ARRIÈRE-PLAN ==================== -->
+      <div class="section-label" id="point-3">
+        <div class="dot"></div>
+        <span>3. Propriétés d'Arrière-Plan</span>
+      </div>
+
+      <div
+        class="station-board"
+        role="region"
+        aria-label="Bandeau d'information CSS, style gare"
+      >
+        <marquee
+          class="bg-exception-marquee"
+          behavior="scroll"
+          direction="left"
+          scrollamount="5"
+          scrolldelay="45"
+          truespeed
+          tabindex="0"
+          aria-label="Rappels sur le fond CSS et le modèle de boîte"
+          onmouseenter="this.stop()"
+          onmouseleave="this.start()"
+          onfocus="this.stop()"
+          onblur="this.start()"
+        >
+          <span class="station-message">
+            <strong class="station-alert">INFO 01</strong>
+            Le background s’étend sous le <b>contenu + padding + border</b>,
+            mais <b>jamais sous la margin</b>.
+            <span class="station-separator">◆</span>
+            <strong class="station-alert">EXCEPTION À CONNAÎTRE</strong>
+            Le background de <code>&lt;body&gt;</code> (ou
+            <code>&lt;html&gt;</code>) est propagé à tout le canvas de la page,
+            margin comprise. C’est pourquoi la <code>margin</code> par défaut de
+            <code>body</code> semble colorée.
+          </span>
+        </marquee>
+      </div>
+
+      <div class="grid">
+        <div class="card bg-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Couleur de Fond</h2>
+          </div>
+          <div><code>background-color</code></div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-bg-color">
+              🔍 Détails background-color
+            </button>
+          </div>
+          <p class="keypoints">
+            Formats acceptés : mots-clés, Hexadécimal ou RGB/RGBA.
+          </p>
+        </div>
+        <div class="card box-c">
+          <div class="card-head">
+            <div class="num">📦</div>
+            <h2>Modèle de boîte &amp; fond</h2>
+          </div>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0">
+            <b>Contenu → padding → border → margin.</b><br />
+            Par défaut, le fond va sous la bordure, mais pas dans la marge.
+          </p>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-box-model">
+              🔍 Détails du modèle de boîte
+            </button>
+          </div>
+        </div>
+
+        <div class="card bg-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Super-propriété <code>background</code></h2>
+          </div>
+          <div><code>background</code></div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-bg-image">
+              🔍 background-image
+            </button>
+            <button type="button" class="btn-detail" data-win="win-bg-repeat">
+              🔍 background-repeat
+            </button>
+            <button type="button" class="btn-detail" data-win="win-bg-size">
+              🔍 background-size
+            </button>
+            <button type="button" class="btn-detail" data-win="win-bg-clip">
+              🔍 background-clip
+            </button>
+            <button
+              type="button"
+              class="btn-detail"
+              data-win="win-bg-shorthand"
+            >
+              🔍 Raccourci background en détail
+            </button>
+          </div>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0">
+            Regroupe les principaux réglages du fond en une seule déclaration.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="station-board background-pitfalls-board"
+        role="region"
+        aria-label="Pièges à retenir avec la propriété background"
+      >
+        <marquee
+          class="bg-exception-marquee"
+          behavior="scroll"
+          direction="left"
+          scrollamount="5"
+          scrolldelay="45"
+          truespeed
+          tabindex="0"
+          aria-label="Pièges du raccourci background"
+          onmouseenter="this.stop()"
+          onmouseleave="this.start()"
+          onfocus="this.stop()"
+          onblur="this.start()"
+        >
+          <span class="station-message">
+            <strong class="station-alert"
+              >PIÈGES À RETENIR AVEC BACKGROUND</strong
+            >
+            <span class="station-separator">◆</span>
+            Le raccourci <b>réinitialise</b> les propriétés non écrites.
+            <span class="station-separator">◆</span>
+            <code>/</code> est obligatoire entre position et taille.
+            <span class="station-separator">◆</span>
+            <code>background-color</code> uniquement dans la
+            <b>dernière couche</b>.
+            <span class="station-separator">◆</span>
+            Une couche invalide <b>annule toute la déclaration</b>.
+            <span class="station-separator">◆</span>
+            Une seule valeur de boîte s’applique à <code>origin</code>
+            <b>et</b> <code>clip</code>.
+            <span class="station-separator">◆</span>
+            Les <code>url()</code> sont relatifs au <b>fichier CSS</b>.
+          </span>
+        </marquee>
+      </div>
+
+      <!-- ==================== 4. BOÎTES & DISPLAY ==================== -->
+      <div class="section-label" id="point-4">
+        <div class="dot"></div>
+        <span>4. Modèle de Boîte &amp; Display</span>
+      </div>
+
+      <div class="grid">
+        <div class="card box-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Affichage (Display)</h2>
+          </div>
+          <div><code>inline-block</code></div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> Reste sur la ligne tout en acceptant
+              largeur/hauteur.
+            </li>
+          </ul>
+        </div>
+        <div class="card box-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Marges &amp; Padding</h2>
+          </div>
+          <div><code>margin</code>, <code>padding</code></div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>padding</code> : Marge interne.
+            </li>
+          </ul>
+        </div>
+        <div class="card box-c">
+          <div class="card-head">
+            <div class="num">3</div>
+            <h2>Débordement &amp; Opacité</h2>
+          </div>
+          <div><code>overflow</code>, <code>opacity</code></div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>overflow</code> : comportement
+              du contenu qui dépasse de la boîte (visible, hidden, scroll,
+              auto).
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>opacity</code> : transparence de
+              l'élément entier, de 0 (invisible) à 1 (opaque).
+            </li>
+          </ul>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-overflow">
+              🔍 Détails overflow
+            </button>
+            <button type="button" class="btn-detail" data-win="win-opacity">
+              🔍 Détails opacity
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. FLOAT, POSITIONNEMENT & FLEXBOX ==================== -->
+      <div class="section-label" id="point-5">
+        <div class="dot"></div>
+        <span>5. Float, Positionnement &amp; Flexbox</span>
+      </div>
+
+      <!-- RAPPEL : NATURE DES BALISES -->
+      <div class="grid">
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">A</div>
+            <h2>Nature des balises</h2>
+          </div>
+          <div><code>inline</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Éléments qui, par défaut, restent sur la même ligne que leurs
+            voisins.
+          </p>
+          <div class="demo-label">Quelques balises</div>
+          <div
+            class="demo"
+            style="justify-content: flex-start; gap: 6px; flex-wrap: wrap"
+          >
+            <code>&lt;span&gt;</code><code>&lt;a&gt;</code
+            ><code>&lt;strong&gt;</code> <code>&lt;em&gt;</code
+            ><code>&lt;b&gt;</code><code>&lt;i&gt;</code>
+            <code>&lt;img&gt;</code><code>&lt;label&gt;</code>
+          </div>
+        </div>
+
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">B</div>
+            <h2>Nature des balises</h2>
+          </div>
+          <div><code>block</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Éléments qui, par défaut, commencent sur une nouvelle ligne et
+            prennent toute la largeur.
+          </p>
+          <div class="demo-label">Quelques balises</div>
+          <div
+            class="demo"
+            style="justify-content: flex-start; gap: 6px; flex-wrap: wrap"
+          >
+            <code>&lt;div&gt;</code><code>&lt;p&gt;</code
+            ><code>&lt;section&gt;</code> <code>&lt;article&gt;</code
+            ><code>&lt;h1&gt;…&lt;h6&gt;</code>
+            <code>&lt;ul&gt; / &lt;li&gt;</code><code>&lt;form&gt;</code
+            ><code>&lt;header&gt;</code>
+          </div>
+        </div>
+      </div>
+
+      <p
+        style="
+          font-size: 12px;
+          line-height: 1.5;
+          color: #5b6584;
+          margin: 12px 2px 0;
+        "
+      >
+        ℹ️ Chaque balise HTML a une nature par défaut (inline ou bloc) définie
+        par le navigateur, mais on peut la changer avec la propriété
+        <code>display</code>.
+      </p>
+
+      <!-- RAPPEL : DISPLAY -->
+      <div class="section-label">
+        <div class="dot"></div>
+        <span>Rappel — display : inline / block / inline-block</span>
+      </div>
+
+      <div class="grid">
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Affichage</h2>
+          </div>
+          <div><code>display: inline</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            L'élément reste sur la même ligne et se dimensionne selon son
+            contenu.
+          </p>
+          <ul class="keypoints">
+            <li><span class="ico">✅</span> Pas de retour à la ligne.</li>
+            <li>
+              <span class="ico">✅</span> N'occupe que la largeur de son
+              contenu.
+            </li>
+            <li>
+              <span class="ico">❌</span> width / height ne fonctionnent pas.
+            </li>
+            <li>
+              <span class="ico">✅</span> margin-left/right fonctionnent,
+              margin-top/bottom limité.
+            </li>
+          </ul>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo" style="gap: 6px; min-height: 56px">
+            <span
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 10px;
+              "
+              >Bonjour</span
+            >
+            <span
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 6px 10px;
+                border-radius: 6px;
+                font-size: 10px;
+              "
+              >tout le monde</span
+            >
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Les deux éléments restent sur la même ligne.
+          </p>
+        </div>
+
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Affichage</h2>
+          </div>
+          <div><code>display: block</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            L'élément commence sur une nouvelle ligne et prend toute la largeur
+            disponible par défaut.
+          </p>
+          <ul class="keypoints">
+            <li><span class="ico">✅</span> Retour à la ligne automatique.</li>
+            <li>
+              <span class="ico">✅</span> Occupe toute la largeur disponible.
+            </li>
+            <li><span class="ico">✅</span> width / height fonctionnent.</li>
+            <li>
+              <span class="ico">✅</span> margin et padding fonctionnent
+              entièrement.
+            </li>
+          </ul>
+          <div class="demo-label">👁 Résultat</div>
+          <div
+            class="demo"
+            style="flex-direction: column; gap: 6px; min-height: 56px"
+          >
+            <div
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 10px;
+                width: 100%;
+                text-align: center;
+              "
+            >
+              Bloc 1
+            </div>
+            <div
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 10px;
+                width: 100%;
+                text-align: center;
+              "
+            >
+              Bloc 2
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Chaque élément commence sur une nouvelle ligne.
+          </p>
+        </div>
+
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">3</div>
+            <h2>Affichage</h2>
+          </div>
+          <div><code>display: inline-block</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Un mélange des deux : reste sur la même ligne comme inline, mais
+            accepte les dimensions comme block.
+          </p>
+          <ul class="keypoints">
+            <li><span class="ico">✅</span> Reste sur la même ligne.</li>
+            <li><span class="ico">✅</span> width / height fonctionnent.</li>
+            <li>
+              <span class="ico">✅</span> margin et padding fonctionnent
+              entièrement.
+            </li>
+            <li>
+              <span class="ico">✅</span> Très utile pour boutons, menus,
+              étiquettes.
+            </li>
+          </ul>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo" style="gap: 8px; min-height: 56px">
+            <span
+              style="
+                display: inline-block;
+                background: #d6336c;
+                color: #fff;
+                padding: 9px 15px;
+                border-radius: 6px;
+                font-size: 10px;
+              "
+              >Bouton 1</span
+            >
+            <span
+              style="
+                display: inline-block;
+                background: #d6336c;
+                color: #fff;
+                padding: 9px 15px;
+                border-radius: 6px;
+                font-size: 10px;
+              "
+              >Bouton 2</span
+            >
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Même ligne + possibilité de définir largeur et hauteur.
+          </p>
+        </div>
+      </div>
+
+      <!-- LES 6 FICHES : FLOAT + 4 POSITIONS + FLEX -->
+      <div class="section-label">
+        <div class="dot"></div>
+        <span>Les 6 fiches — Float, Position &amp; Flex</span>
+      </div>
+
+      <div class="grid">
+        <!-- RELATIVE -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">1</div>
+            <h2>Position relative</h2>
+          </div>
+          <div><code>position: relative</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            L'élément reste <b>à sa place dans le flux</b> normal, mais on peut
+            le décaler visuellement avec <code>top</code>, <code>left</code>,
+            etc. Son espace d'origine reste réservé.
+          </p>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> Reste dans le flux normal du document.
+            </li>
+            <li>
+              <span class="ico">✅</span> top / right / bottom / left le
+              déplacent visuellement.
+            </li>
+            <li>
+              <span class="ico">✅</span> Sert de repère pour un enfant en
+              <code>absolute</code>.
+            </li>
+            <li><span class="ico">✅</span> z-index fonctionne.</li>
+            <li>
+              <span class="ico">⚠️</span> L'espace d'origine reste réservé.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.box</span> {<br />
+            &nbsp;&nbsp;<span class="k">position</span>:
+            <span class="v">relative</span>;<br />
+            &nbsp;&nbsp;<span class="k">top</span>:
+            <span class="v">14px</span>;<br />
+            &nbsp;&nbsp;<span class="k">left</span>:
+            <span class="v">8px</span>;<br />
+            }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo" style="gap: 12px">
+            <div
+              style="
+                border: 1px dashed #b9c3e6;
+                color: #8590b8;
+                background: #eef1fb;
+                padding: 7px 10px;
+                border-radius: 6px;
+                font-size: 10px;
+              "
+            >
+              place d'origine
+            </div>
+            <div
+              style="
+                position: relative;
+                top: 8px;
+                left: 5px;
+                background: #d6336c;
+                color: #fff;
+                padding: 7px 12px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 700;
+              "
+            >
+              Élément
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            L'élément se déplace, mais son emplacement de départ reste réservé.
+          </p>
+        </div>
+
+        <!-- ABSOLUTE -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">2</div>
+            <h2>Position absolute</h2>
+          </div>
+          <div><code>position: absolute</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            L'élément <b>sort du flux</b> et se positionne par rapport à son
+            plus proche ancêtre
+            <i>positionné</i> (relative/absolute/fixed/sticky), sinon par
+            rapport à la page.
+          </p>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> Sort du flux : les autres éléments
+              l'ignorent.
+            </li>
+            <li>
+              <span class="ico">✅</span> Se cale sur le parent positionné le
+              plus proche.
+            </li>
+            <li>
+              <span class="ico">✅</span> top/right/bottom/left permettent de le
+              placer.
+            </li>
+            <li>
+              <span class="ico">✅</span> Idéal pour badges, tooltips et
+              superpositions.
+            </li>
+            <li>
+              <span class="ico">⚠️</span> Sans parent positionné → se cale sur
+              la page.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.carte</span> { <span class="k">position</span>:
+            <span class="v">relative</span>; }<br />
+            <span class="s">.badge</span> {<br />
+            &nbsp;&nbsp;<span class="k">position</span>:
+            <span class="v">absolute</span>;<br />
+            &nbsp;&nbsp;<span class="k">top</span>: <span class="v">-8px</span>;
+            <span class="k">right</span>: <span class="v">-8px</span>;<br />
+            }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo">
+            <div
+              style="
+                position: relative;
+                width: 100%;
+                height: 54px;
+                background: #fceef3;
+                border: 1px solid #d6336c;
+                border-radius: 8px;
+              "
+            >
+              <span
+                style="
+                  position: absolute;
+                  left: 8px;
+                  top: 8px;
+                  color: #d6336c;
+                  font-size: 9.5px;
+                  font-weight: 700;
+                "
+                >.carte (relative)</span
+              >
+              <span
+                style="
+                  position: absolute;
+                  right: -6px;
+                  top: -7px;
+                  background: #d6336c;
+                  color: #fff;
+                  padding: 4px 8px;
+                  border-radius: 6px;
+                  font-size: 9px;
+                  font-weight: 700;
+                "
+                >Badge</span
+              >
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Le badge se cale sur le coin de la carte grâce au parent
+            <code>relative</code>.
+          </p>
+        </div>
+
+        <!-- FIXED -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">3</div>
+            <h2>Position fixed</h2>
+          </div>
+          <div><code>position: fixed</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            L'élément <b>sort du flux</b> et se positionne par rapport à la
+            <b>fenêtre du navigateur</b>. Il reste visible même quand la page
+            défile.
+          </p>
+          <ul class="keypoints">
+            <li><span class="ico">✅</span> Sort du flux normal.</li>
+            <li>
+              <span class="ico">✅</span> Fixe par rapport à la fenêtre
+              (viewport), pas à la page.
+            </li>
+            <li>
+              <span class="ico">✅</span> Reste visible pendant le défilement.
+            </li>
+            <li>
+              <span class="ico">✅</span> Utile pour une barre de navigation ou
+              un bouton « haut de page ».
+            </li>
+            <li>
+              <span class="ico">⚠️</span> Un ancêtre avec
+              <code>transform</code> peut changer son repère.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.barre</span> {<br />
+            &nbsp;&nbsp;<span class="k">position</span>:
+            <span class="v">fixed</span>;<br />
+            &nbsp;&nbsp;<span class="k">bottom</span>:
+            <span class="v">10px</span>; <span class="k">right</span>:
+            <span class="v">10px</span>;<br />
+            }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo" style="height: 64px; overflow: hidden">
+            <div
+              style="
+                width: 100%;
+                height: 100%;
+                border: 1px dashed #dfe3f3;
+                border-radius: 7px;
+                padding: 7px;
+                font-size: 9.5px;
+                color: #5b6584;
+              "
+            >
+              Zone de page qui défile…
+              <br />ligne 1 · ligne 2 · ligne 3
+              <span
+                style="
+                  position: absolute;
+                  right: 18px;
+                  bottom: 9px;
+                  background: #d6336c;
+                  color: #fff;
+                  padding: 5px 9px;
+                  border-radius: 6px;
+                  font-size: 9px;
+                  font-weight: 700;
+                "
+                >📌 Fixe</span
+              >
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Dans la page réelle, l'élément reste ancré au même endroit du
+            viewport.
+          </p>
+        </div>
+
+        <!-- STICKY -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">4</div>
+            <h2>Position sticky</h2>
+          </div>
+          <div><code>position: sticky</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Un mélange de <code>relative</code> et <code>fixed</code> :
+            l'élément suit le flux normal, puis se « colle » dès qu'il atteint
+            le seuil défini.
+          </p>
+          <ul class="keypoints">
+            <li><span class="ico">✅</span> Reste dans le flux.</li>
+            <li>
+              <span class="ico">✅</span> Se comporte comme relative, puis se
+              fixe au seuil.
+            </li>
+            <li>
+              <span class="ico">✅</span> Nécessite au moins un
+              top/bottom/left/right.
+            </li>
+            <li>
+              <span class="ico">✅</span> Parfait pour en-têtes de tableau et
+              titres de section.
+            </li>
+            <li>
+              <span class="ico">⚠️</span> Limité à la zone de son conteneur
+              parent.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.entete</span> {<br />
+            &nbsp;&nbsp;<span class="k">position</span>:
+            <span class="v">sticky</span>;<br />
+            &nbsp;&nbsp;<span class="k">top</span>:
+            <span class="v">0</span>;<br />
+            }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div
+            class="demo"
+            style="height: 64px; overflow: auto; padding: 0; display: block"
+          >
+            <div
+              style="
+                position: sticky;
+                top: 0;
+                background: #d6336c;
+                color: #fff;
+                padding: 5px 8px;
+                font-size: 9.5px;
+                font-weight: 700;
+              "
+            >
+              📌 En-tête collant
+            </div>
+            <div style="padding: 5px 8px; font-size: 9.5px; color: #5b6584">
+              Ligne 1
+            </div>
+            <div style="padding: 5px 8px; font-size: 9.5px; color: #5b6584">
+              Ligne 2
+            </div>
+            <div style="padding: 5px 8px; font-size: 9.5px; color: #5b6584">
+              Ligne 3
+            </div>
+            <div style="padding: 5px 8px; font-size: 9.5px; color: #5b6584">
+              Ligne 4
+            </div>
+            <div style="padding: 5px 8px; font-size: 9.5px; color: #5b6584">
+              Ligne 5
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            L'en-tête reste visible en haut de sa zone pendant le défilement.
+          </p>
+        </div>
+
+        <!-- FLOAT -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">5</div>
+            <h2>Float &amp; clear</h2>
+          </div>
+          <div><code>float: left | right | none</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Place un élément sur le bord gauche ou droit de son conteneur ; le
+            texte s'enroule autour.
+          </p>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-float">
+              🔍 Détailler float et essayer la démo
+            </button>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> <code>float: left</code> place à
+              gauche ; <code>float: right</code> place à droite.
+            </li>
+            <li>
+              <span class="ico">✅</span> Le texte et les éléments en ligne
+              s'enroulent autour du flottant.
+            </li>
+            <li>
+              <span class="ico">✅</span> <code>clear: left</code>,
+              <code>right</code> ou <code>both</code> force le bloc suivant à
+              passer sous le flottant.
+            </li>
+            <li>
+              <span class="ico">⚠️</span> Le float sort du flux normal, mais le
+              texte l'évite — contrairement à <code>position: absolute</code>.
+            </li>
+            <li>
+              <span class="ico">⭐</span> Idéal pour habiller une image dans un
+              texte ; pour la mise en page générale, préférez Flexbox ou Grid.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.image</span> {<br />
+            &nbsp;&nbsp;<span class="k">float</span>:
+            <span class="v">left</span>;<br />
+            &nbsp;&nbsp;<span class="k">margin</span>:
+            <span class="v">0 12px 8px 0</span>;<br />
+            }<br />
+            <span class="s">.suite</span> { <span class="k">clear</span>:
+            <span class="v">both</span>; }
+          </div>
+          <div class="demo-label">👁 Résultat — texte enveloppant</div>
+          <div class="demo float-demo">
+            <div class="float-box">float:<br />left</div>
+            <p style="margin: 0">
+              Le texte passe à côté de cet élément flottant, puis occupe toute
+              la largeur disponible lorsqu'il l'a dépassé.
+            </p>
+            <p class="float-clear">
+              <code>clear: both</code> — ce bloc commence sous le flottant.
+            </p>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Pour qu'un conteneur englobe ses enfants flottants, utilisez
+            <code>display: flow-root</code>.
+          </p>
+        </div>
+
+        <!-- FLEX -->
+        <div class="card pos-c">
+          <div class="card-head">
+            <div class="num">6</div>
+            <h2>Display flex</h2>
+          </div>
+          <div><code>display: flex</code></div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Ce n'est pas une valeur de <code>position</code>, mais un
+            <b>mode d'affichage</b>
+            qui aligne et répartit les enfants sur une ligne ou une colonne.
+          </p>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">✅</span> Aligne les enfants sur une ligne ou
+              colonne.
+            </li>
+            <li>
+              <span class="ico">✅</span> <code>justify-content</code> gère
+              l'axe principal.
+            </li>
+            <li>
+              <span class="ico">✅</span> <code>align-items</code> gère l'axe
+              transversal.
+            </li>
+            <li>
+              <span class="ico">✅</span> <code>gap</code> espace les éléments
+              proprement.
+            </li>
+            <li>
+              <span class="ico">✅</span> Idéal pour menus, cartes et
+              formulaires alignés.
+            </li>
+          </ul>
+          <div class="demo-label">&lt;/&gt; Exemple CSS</div>
+          <div class="codebox">
+            <span class="s">.conteneur</span> {<br />
+            &nbsp;&nbsp;<span class="k">display</span>:
+            <span class="v">flex</span>;<br />
+            &nbsp;&nbsp;<span class="k">justify-content</span>:
+            <span class="v">space-between</span>;<br />
+            &nbsp;&nbsp;<span class="k">gap</span>:
+            <span class="v">10px</span>;<br />
+            }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo" style="gap: 8px">
+            <div
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 7px 11px;
+                border-radius: 6px;
+                font-size: 10px;
+                flex: 1;
+                text-align: center;
+              "
+            >
+              1
+            </div>
+            <div
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 7px 11px;
+                border-radius: 6px;
+                font-size: 10px;
+                flex: 1;
+                text-align: center;
+              "
+            >
+              2
+            </div>
+            <div
+              style="
+                background: #d6336c;
+                color: #fff;
+                padding: 7px 11px;
+                border-radius: 6px;
+                font-size: 10px;
+                flex: 1;
+                text-align: center;
+              "
+            >
+              3
+            </div>
+          </div>
+          <p style="font-size: 11px; color: #5b6584; margin: 0">
+            Les éléments se répartissent et s'alignent automatiquement dans le
+            conteneur.
+          </p>
+        </div>
+      </div>
+
+      <!-- TABLEAU COMPARATIF -->
+      <div class="section-label">
+        <div class="dot"></div>
+        <span>Tableau comparatif</span>
+      </div>
+
+      <div class="table-wrap">
+        <p class="table-title">⚖️ Comparaison de 6 notions CSS</p>
+        <table>
+          <thead>
+            <tr>
+              <th style="background: #233568">Critère</th>
+              <th style="background: #d6336c">relative</th>
+              <th style="background: #d6336c">absolute</th>
+              <th style="background: #d6336c">fixed</th>
+              <th style="background: #d6336c">sticky</th>
+              <th style="background: #d6336c">float</th>
+              <th style="background: #d6336c">flex</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="crit">🔀 Reste dans le flux ?</td>
+              <td>✅ Oui</td>
+              <td>❌ Non</td>
+              <td>❌ Non</td>
+              <td>✅ Oui</td>
+              <td>❌ Non*</td>
+              <td>✅ Oui</td>
+            </tr>
+            <tr>
+              <td class="crit">📍 Se positionne par rapport à…</td>
+              <td>sa position normale</td>
+              <td>parent positionné le plus proche</td>
+              <td>la fenêtre (viewport)</td>
+              <td>son conteneur + seuil de scroll</td>
+              <td>bord gauche/droit du conteneur</td>
+              <td>— (organise ses enfants)</td>
+            </tr>
+            <tr>
+              <td class="crit">📐 Nécessite top/right/bottom/left ?</td>
+              <td>Optionnel</td>
+              <td>Selon le placement</td>
+              <td>Selon le placement</td>
+              <td>✅ Oui (au moins un)</td>
+              <td>❌ Non</td>
+              <td>❌ Non</td>
+            </tr>
+            <tr>
+              <td class="crit">📌 Reste visible au défilement ?</td>
+              <td>❌ Non</td>
+              <td>❌ Non</td>
+              <td>✅ Oui</td>
+              <td>✅ Oui, une fois collé</td>
+              <td>❌ Non</td>
+              <td>— Non concerné</td>
+            </tr>
+            <tr>
+              <td class="crit">🧱 z-index utile ?</td>
+              <td>✅ Oui</td>
+              <td>✅ Oui</td>
+              <td>✅ Oui</td>
+              <td>✅ Oui</td>
+              <td>❌ Non*</td>
+              <td>— Non concerné</td>
+            </tr>
+            <tr>
+              <td class="crit">🎯 Cas d'usage typique</td>
+              <td>léger décalage, repère pour absolute</td>
+              <td>badges, tooltips, superposition</td>
+              <td>barre de navigation fixe</td>
+              <td>en-tête de tableau, titre collant</td>
+              <td>image avec texte qui l'entoure</td>
+              <td>menus, cartes, formulaires alignés</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="footnote">
+          ℹ️ * Un élément <code>float</code> est retiré du flux normal sans être
+          « positionné » : les lignes de texte le contournent, mais
+          <code>z-index</code> ne s'y applique pas. <code>clear</code> force un
+          bloc à passer dessous. <code>float</code> sert surtout à habiller une
+          image avec du texte. <code>flex</code> n'est pas une valeur de
+          <code>position</code>, mais de <code>display</code> : elle organise
+          les enfants d'un conteneur.
+        </p>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="retenir">
+          <p class="box-title">🎯 À retenir</p>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">1️⃣</span><b>RELATIVE</b> → reste dans le flux,
+              avec décalage possible.
+            </li>
+            <li>
+              <span class="ico">2️⃣</span><b>ABSOLUTE</b> → sort du flux, par
+              rapport au parent positionné.
+            </li>
+            <li>
+              <span class="ico">3️⃣</span><b>FIXED</b> → sort du flux, par
+              rapport à la fenêtre.
+            </li>
+            <li>
+              <span class="ico">4️⃣</span><b>STICKY</b> → reste dans le flux puis
+              se colle au seuil.
+            </li>
+            <li>
+              <span class="ico">5️⃣</span><b>FLOAT</b> → place un élément à
+              gauche/droite et laisse le texte l'entourer.
+            </li>
+            <li>
+              <span class="ico">6️⃣</span><b>FLEX</b> → organise et aligne les
+              enfants.
+            </li>
+          </ul>
+        </div>
+        <div class="astuce">
+          <p class="box-title">⭐ Astuces mnémotechniques</p>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0 0 8px">
+            <b>sticky</b> = relative jusqu'au seuil + comportement collant après
+            le seuil.
+          </p>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0 0 8px">
+            <b>absolute</b> = pense d'abord au parent positionné, souvent
+            <b>relative</b>.
+          </p>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0 0 8px">
+            <b>float</b> = le texte contourne l'élément ;
+            <code>clear</code> fait commencer le bloc suivant en dessous.
+          </p>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0">
+            <b>flex</b> = organisation des enfants, pas une position de
+            l'élément lui-même.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="station-board choice-board"
+        role="region"
+        aria-label="Récapitulatif : quel choix faire pour positionner ou disposer un élément ?"
+      >
+        <marquee
+          class="bg-exception-marquee"
+          behavior="scroll"
+          direction="left"
+          scrollamount="5"
+          scrolldelay="45"
+          truespeed
+          tabindex="0"
+          aria-label="Conseils de choix entre relative, absolute, fixed, sticky, float, Flexbox et Grid"
+          onmouseenter="this.stop()"
+          onmouseleave="this.start()"
+          onfocus="this.stop()"
+          onblur="this.start()"
+        >
+          <span class="station-message">
+            <strong class="station-alert">QUEL CHOIX FAIRE ?</strong>
+            <span class="station-separator">◆</span>
+            Placer un petit élément <b>dans</b> un conteneur (badge, icône) →
+            <code>relative</code> + <code>absolute</code>
+            <span class="station-separator">◆</span>
+            Barre toujours visible à l’écran → <code>fixed</code>
+            <span class="station-separator">◆</span>
+            En-tête qui colle au défilement → <code>sticky</code>
+            <span class="station-separator">◆</span>
+            Texte autour d’une image → <code>float</code>
+            <span class="station-separator">◆</span>
+            Disposition de page → <b>Flexbox / Grid</b>, pas de positionnement
+          </span>
+        </marquee>
+      </div>
+
+      <!-- ==================== 6. BORDURES & BORDER-RADIUS (AVEC CAS DE 3 VALEURS) ==================== -->
+      <div class="section-label" id="point-6">
+        <div class="dot"></div>
+        <span
+          >6. Bordures, Ombrages &amp; Border-Radius (Cas de 3 valeurs)</span
+        >
+      </div>
+
+      <div class="grid">
+        <div class="card bdr-c">
+          <div class="card-head">
+            <div class="num">🔲</div>
+            <h2>Exemples de <code>border-radius</code> (1 à 4 valeurs)</h2>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <b>1 valeur</b> : Applique l'arrondi
+              aux 4 coins.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <b>2 valeurs</b> :
+              Haut-gauche/Bas-droite et Haut-droite/Bas-gauche.
+            </li>
+            <li>
+              <span class="ico">⭐</span> <b>3 valeurs</b> : 1er =
+              <b>Haut-gauche</b>, 2ème = <b>Haut-droite et Bas-gauche</b>, 3ème
+              = <b>Bas-droite</b>.
+            </li>
+            <li>
+              <span class="ico">🔹</span> <b>4 valeurs</b> : Sens horaire
+              complet.
+            </li>
+          </ul>
+          <div class="codebox">
+            <span class="s">.box-radius-3</span> {
+            <span class="k">border-radius</span>:
+            <span class="v">40px 20px 10px</span>; }
+          </div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-radius">
+              🔍 Détails border-radius
+            </button>
+          </div>
+          <div class="demo-label">👁 Résultat visuel</div>
+          <div class="demo">
+            <div
+              style="
+                width: 80px;
+                height: 50px;
+                background: #29abe2;
+                border-radius: 40px 20px 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 9px;
+                font-weight: bold;
+              "
+            >
+              40|20|10px
+            </div>
+          </div>
+        </div>
+
+        <div class="card bdr-c">
+          <div class="card-head">
+            <div class="num">✨</div>
+            <h2>Ombres Portées</h2>
+          </div>
+          <div><code>box-shadow</code></div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-box-shadow">
+              🔍 Détails box-shadow
+            </button>
+          </div>
+          <div class="codebox">
+            <span class="s">.shd</span> { <span class="k">box-shadow</span>:
+            <span class="v">0 6px 14px rgba(0,0,0,0.18)</span>; }
+          </div>
+          <div class="demo-label">👁 Résultat</div>
+          <div class="demo">
+            <div class="demo-shadow-box">Box Shadow</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 7. LISTES & TABLEAUX ==================== -->
+      <div class="section-label" id="point-7">
+        <div class="dot"></div>
+        <span>7. Listes &amp; Tableaux Avancés</span>
+      </div>
+
+      <div class="section-label" style="margin-top: 4px">
+        <div class="dot"></div>
+        <span>7.1 Tableaux — layout, bordures &amp; couleurs des cellules</span>
+      </div>
+
+      <div class="grid">
+        <div class="card tbl-c">
+          <div class="card-head">
+            <div class="num">📊</div>
+            <h2>Table Layout &amp; Border Collapse</h2>
+          </div>
+          <div class="win-btns">
+            <button
+              type="button"
+              class="btn-detail"
+              data-win="win-table-layout"
+            >
+              🔍 Détails table-layout
+            </button>
+            <button type="button" class="btn-detail" data-win="win-collapse">
+              🔍 Détails border-collapse
+            </button>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">⭐</span> <code>table-layout: fixed;</code> :
+              Largeurs strictes.
+            </li>
+            <li>
+              <span class="ico">🔹</span>
+              <code>border-collapse: collapse;</code> : Fusion des bordures.
+            </li>
+            <li>
+              <span class="ico">🎨</span>
+              <code>border-collapse: separate;</code> +
+              <code>border-spacing</code> : crée un espace coloré entre les
+              cellules.
+            </li>
+          </ul>
+          <div class="demo-label">
+            👁 Couleurs entre les cellules (separate + border-spacing)
+          </div>
+          <div class="demo" style="display: block">
+            <table class="tbl-demo tbl-sep">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Prix</th>
+                  <th>Qté</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Clavier</td>
+                  <td>25 DT</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td>Souris</td>
+                  <td>12 DT</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>Écran</td>
+                  <td>240 DT</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="demo-label" style="margin-top: 8px">
+            👁 Bordures fusionnées (collapse)
+          </div>
+          <div class="demo" style="display: block">
+            <table class="tbl-demo tbl-col">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Prix</th>
+                  <th>Qté</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Clavier</td>
+                  <td>25 DT</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td>Souris</td>
+                  <td>12 DT</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>Écran</td>
+                  <td>240 DT</td>
+                  <td>2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top: 26px">
+        <div class="dot"></div>
+        <span>7.2 Listes — puces &amp; numérotation (list-style)</span>
+      </div>
+
+      <div class="grid">
+        <div class="card tbl-c">
+          <div class="card-head">
+            <div class="num">🔢</div>
+            <h2>Forme des puces — <code>list-style-type</code></h2>
+          </div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Définit la forme de la puce d'une liste non ordonnée
+            (<code>ul</code>) ou le style de numérotation d'une liste ordonnée
+            (<code>ol</code>).
+          </p>
+          <div class="demo-label">👁 Quelques valeurs</div>
+          <div class="demo" style="display: block">
+            <div class="lst-grid">
+              <ul style="list-style-type: disc">
+                <li>disc</li>
+                <li>disc</li>
+              </ul>
+              <ul style="list-style-type: circle">
+                <li>circle</li>
+                <li>circle</li>
+              </ul>
+              <ul style="list-style-type: square">
+                <li>square</li>
+                <li>square</li>
+              </ul>
+              <ol style="list-style-type: decimal">
+                <li>decimal</li>
+                <li>decimal</li>
+              </ol>
+              <ol style="list-style-type: upper-roman">
+                <li>upper-roman</li>
+                <li>upper-roman</li>
+              </ol>
+              <ul style="list-style-type: none">
+                <li>none</li>
+                <li>none</li>
+              </ul>
+            </div>
+          </div>
+          <div class="codebox">
+            <span class="s">ul</span> { <span class="k">list-style-type</span>:
+            <span class="v">square</span>; }<br />
+            <span class="s">ol</span> { <span class="k">list-style-type</span>:
+            <span class="v">upper-roman</span>; }
+          </div>
+        </div>
+
+        <div class="card tbl-c">
+          <div class="card-head">
+            <div class="num">📍</div>
+            <h2>Position de la puce — <code>list-style-position</code></h2>
+          </div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Précise si la puce se place à l'<b>extérieur</b> ou à l'<b
+              >intérieur</b
+            >
+            du bloc de texte.
+          </p>
+          <div class="demo-label">👁 outside (défaut) vs inside</div>
+          <div class="demo" style="display: block">
+            <p class="pos-tag">list-style-position: outside;</p>
+            <ul class="lst-out">
+              <li>La puce est en dehors du texte.</li>
+              <li>Les lignes s'alignent proprement.</li>
+            </ul>
+            <p class="pos-tag">list-style-position: inside;</p>
+            <ul class="lst-in">
+              <li>La puce fait partie du texte.</li>
+              <li>Le retour à la ligne rentre sous la puce.</li>
+            </ul>
+          </div>
+          <div class="codebox">
+            <span class="s">ul</span> {
+            <span class="k">list-style-position</span>:
+            <span class="v">inside</span>; }
+          </div>
+        </div>
+
+        <div class="card tbl-c">
+          <div class="card-head">
+            <div class="num">🖼️</div>
+            <h2>Puce en image — <code>list-style-image</code></h2>
+          </div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Remplace la puce classique par une image.
+          </p>
+          <div class="codebox">
+            <span class="s">ul</span> { <span class="k">list-style-image</span>:
+            <span class="v">url("puce.svg")</span>; }
+          </div>
+          <div class="demo-label">👁 Avec une puce SVG</div>
+          <div class="demo" style="display: block">
+            <ul class="lst-img">
+              <li>Puce personnalisée n°1</li>
+              <li>Puce personnalisée n°2</li>
+              <li>Puce personnalisée n°3</li>
+            </ul>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">⚠️</span> Si l'image ne charge pas, la puce de
+              <code>list-style-type</code> prend le relais.
+            </li>
+            <li>
+              <span class="ico">🔹</span> Peu de contrôle (taille, alignement) :
+              pour un rendu précis, utilisez <code>background-image</code> sur
+              les <code>li</code>.
+            </li>
+          </ul>
+        </div>
+
+        <div class="card tbl-c">
+          <div class="card-head">
+            <div class="num">🧩</div>
+            <h2>Super-propriété — <code>list-style</code></h2>
+          </div>
+          <p
+            style="
+              font-size: 12.5px;
+              line-height: 1.5;
+              color: #1c2440;
+              margin: 0;
+            "
+          >
+            Regroupe <code>type</code>, <code>position</code> et
+            <code>image</code> en une seule déclaration — l'ordre est libre.
+          </p>
+          <div class="codebox">
+            <span class="s">ul</span> { <span class="k">list-style</span>:
+            <span class="v">upper-roman inside</span>; }<br />
+            <span class="s">ul</span> { <span class="k">list-style</span>:
+            <span class="v">square inside url("puce.svg")</span>; }
+          </div>
+          <div class="demo-label">👁 Résultat combiné</div>
+          <div class="demo" style="display: block">
+            <ul class="lst-all">
+              <li>Type + position + image en une seule ligne.</li>
+              <li>Les valeurs omises reviennent à leur valeur par défaut.</li>
+            </ul>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> S'applique sur <code>ul</code> /
+              <code>ol</code> et s'hérite par les <code>li</code>.
+            </li>
+            <li>
+              <span class="ico">🔹</span> En cas de conflit,
+              <code>list-style-image</code> gagne sur
+              <code>list-style-type</code> (tant que l'image charge).
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ==================== 8. FILTRES & TRANSFORMATIONS DÉTAILLÉES ==================== -->
+      <div class="section-label" id="point-8">
+        <div class="dot"></div>
+        <span>8. Filtres, Transformations 2D détaillées &amp; Animations</span>
+      </div>
+
+      <div class="grid">
+        <div class="card anim-c" style="grid-column: span 2">
+          <div class="card-head">
+            <div class="num">🔄</div>
+            <h2>
+              Propriété <code>transform</code> et Fonctions Associées (Annexe)
+            </h2>
+          </div>
+          <p style="font-size: 12.5px; line-height: 1.5; margin: 0">
+            Permet d'appliquer des effets géométriques 2D ou 3D à un élément
+            sans modifier le flux normal. Fonctions principales :
+          </p>
+          <ul class="keypoints" style="margin-top: 8px">
+            <li>
+              <span class="ico">📍</span> <b><code>rotate()</code></b> :
+              Rotation (ex: <code>transform: rotate(90deg);</code>).
+            </li>
+            <li>
+              <span class="ico">📐</span> <b><code>skew()</code></b> :
+              Inclinaison horizontale/verticale (ex:
+              <code>transform: skew(30deg);</code>).
+            </li>
+            <li>
+              <span class="ico">🔍</span> <b><code>scale()</code></b> : Échelle
+              d'agrandissement/réduction (ex:
+              <code>transform: scale(2);</code>).
+            </li>
+            <li>
+              <span class="ico">🚚</span> <b><code>translate()</code></b> :
+              Déplacement à l'aide d'un vecteur (ex:
+              <code>transform: translate(120px);</code>).
+            </li>
+          </ul>
+          <div class="codebox">
+            <span class="s">.box-transform:hover</span> {
+            <span class="k">transform</span>:
+            <span class="v">rotate(15deg) scale(1.1)</span>; }
+          </div>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-rotate">
+              🔍 rotate()
+            </button>
+            <button type="button" class="btn-detail" data-win="win-skew">
+              🔍 skew()
+            </button>
+            <button type="button" class="btn-detail" data-win="win-scale">
+              🔍 scale()
+            </button>
+            <button type="button" class="btn-detail" data-win="win-translate">
+              🔍 translate()
+            </button>
+          </div>
+          <div class="demo-label">👁 Résultat interactif (Survolez)</div>
+          <div class="demo">
+            <div class="demo-transf-box">Survolez-moi !</div>
+          </div>
+        </div>
+        <div class="card anim-c" style="grid-column: span 2">
+          <div class="card-head">
+            <div class="num">🎞️</div>
+            <h2>Transition &amp; Animation</h2>
+          </div>
+          <div>
+            <code>transition</code>, <code>@keyframes</code>,
+            <code>animation</code>
+          </div>
+          <ul class="keypoints">
+            <li>
+              <span class="ico">🔹</span> <code>transition</code> : passage
+              progressif d'un état à un autre (ex. au survol).
+            </li>
+            <li>
+              <span class="ico">🔹</span> <code>animation</code> : mouvement
+              décrit en étapes avec <code>@keyframes</code>.
+            </li>
+          </ul>
+          <div class="win-btns">
+            <button type="button" class="btn-detail" data-win="win-transition">
+              🔍 Détails transition
+            </button>
+            <button type="button" class="btn-detail" data-win="win-animation">
+              🔍 Détails animation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer>
+        <div class="foot-item"><span class="foot-name">A. Essouyah</span></div>
+        <div class="foot-item">
+          <span>Annexe Synthétique Globale &amp; Visuelle CSS3</span>
+        </div>
+        <div class="foot-end">Bonne révision ! 🚀</div>
+      </footer>
+    </div>
+
+    <template
+      id="win-box-model"
+      data-title="Modèle de boîte — composition et fond"
+    >
+      <p>
+        Une boîte CSS se compose, du centre vers l’extérieur, du
+        <b>contenu</b>, du <code>padding</code>, de la <code>border</code> et de
+        la <code>margin</code>.
+      </p>
+      <div class="box-model-stage">
+        <div class="box-model-margin-label">
+          MARGIN — espace extérieur : on voit le fond du parent
+        </div>
+        <div class="box-model-element">
+          <span class="box-model-border-label"
+            >BORDER — le fond passe dessous</span
+          >
+          <div class="box-model-padding-label">
+            PADDING — cet espace est aussi rempli par le fond
+          </div>
+          <div class="box-model-content">CONTENU — zone intérieure</div>
+        </div>
+      </div>
+      <h3>Le rôle de <code>background-clip</code></h3>
+      <p>
+        Cette propriété choisit jusqu’où le fond est peint. Elle ne change ni la
+        taille de la boîte ni sa marge.
+      </p>
+      <table
+        class="detail-table"
+        aria-label="Zones peintes selon background-clip"
+      >
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Zone couverte par le fond</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>border-box</code> (défaut)</td>
+            <td>
+              Contenu + padding + sous la bordure, jusqu’à son bord extérieur.
+            </td>
+          </tr>
+          <tr>
+            <td><code>padding-box</code></td>
+            <td>
+              Contenu + padding ; le fond s’arrête au bord intérieur de la
+              bordure.
+            </td>
+          </tr>
+          <tr>
+            <td><code>content-box</code></td>
+            <td>Contenu seulement ; padding et bordure ne sont pas peints.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <b>Dans tous les cas, la margin n’est pas peinte</b> par le fond propre
+        de l’élément. Une bordure transparente peut laisser voir le fond situé
+        dessous.
+      </p>
+      <h3>Exemple</h3>
+      <div class="codebox">
+        .boite { margin: 16px; border: 8px solid rgba(14, 158, 134, .5);
+        padding: 12px; background: #ffd86b; background-clip: border-box; /*
+        valeur par défaut */ }
+      </div>
+    </template>
+
+    <template
+      id="win-float"
+      data-title="float — habiller un texte autour d'une image"
+    >
+      <p>
+        <code>float</code> pousse une boîte vers le bord gauche ou droit du
+        conteneur. Les lignes de texte qui suivent se réorganisent pour
+        l'entourer.
+      </p>
+      <div class="codebox">
+        float: left; /* l'élément flotte à gauche */ float: right; /* il flotte
+        à droite */ float: none; /* comportement normal */
+      </div>
+      <h3>Exemple concret : une photo dans un article</h3>
+      <p>
+        Utilisez les boutons pour déplacer l'image. Observez le paragraphe : il
+        s'enroule autour de l'image à gauche ou à droite, puis reprend toute la
+        largeur en dessous.
+      </p>
+      <div data-demo="float">
+        <div
+          class="seg"
+          role="group"
+          aria-label="Choisir la position de l'image flottante"
+        >
+          <label
+            ><input
+              type="radio"
+              name="float-position-demo"
+              value="left"
+              checked
+            /><span>Float à gauche</span></label
+          >
+          <label
+            ><input
+              type="radio"
+              name="float-position-demo"
+              value="right"
+            /><span>Float à droite</span></label
+          >
+          <label
+            ><input type="radio" name="float-position-demo" value="none" /><span
+              >Sans float</span
+            ></label
+          >
+        </div>
+        <div class="float-stage">
+          <div
+            class="float-photo"
+            style="float: left"
+            role="img"
+            aria-label="Photo décorative"
+          >
+            <span>PHOTO</span>
+          </div>
+          <p class="float-copy">
+            Samedi dernier, notre classe a visité le jardin botanique. Le guide
+            nous a présenté les plantes locales et expliqué comment elles
+            poussent au fil des saisons. Dans un article, une photo peut flotter
+            sur un côté pendant que le texte l'entoure naturellement. Essayez de
+            la déplacer à droite, puis choisissez « Sans float » pour comparer
+            le résultat.
+          </p>
+          <p class="float-clear">
+            <b>La suite de l'article</b> — ce paragraphe utilise
+            <code>clear: both</code> : il commence sous l'image, quel que soit
+            le côté où elle flotte.
+          </p>
+        </div>
+        <div class="codebox out">float: left; margin: 0 14px 8px 0;</div>
+      </div>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>float: left</code> et
+          <code>float: right</code> règlent le côté ; ajoutez souvent une marge
+          pour séparer le texte.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>clear: both</code> empêche le bloc
+          suivant de se placer à côté des flottants.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Si le parent doit englober ses enfants
+          flottants, utilisez <code>display: flow-root</code> sur le parent.
+        </li>
+        <li>
+          <span class="ico">⭐</span> <code>float</code> est surtout utile pour
+          l'habillage d'images et de texte ; pour des colonnes ou des cartes,
+          préférez Flexbox ou Grid.
+        </li>
+      </ul>
+      <div class="codebox">
+        .photo { float: left; margin: 0 14px 8px 0; } .suite-article { clear:
+        both; } .article { display: flow-root; } /* le parent contient le
+        flottant */
+      </div>
+    </template>
+    <template id="win-text-shadow" data-title="text-shadow — ombre du texte"
+      ><p>
+        Le même principe que box-shadow, appliqué aux lettres. Attention : pas
+        d'étendue, pas d'inset. Manipulez les valeurs : le code CSS se met à
+        jour en direct.
+      </p>
+      <h3>Laboratoire</h3>
+      <div class="slab tslab">
+        <div class="stage"><p class="tbox">Ombre</p></div>
+        <div class="slab-controls">
+          <div class="ctl">
+            <label>Décalage X</label
+            ><input
+              type="range"
+              data-k="x"
+              min="-20"
+              max="20"
+              value="3"
+            /><output>3 px</output>
+          </div>
+          <div class="ctl">
+            <label>Décalage Y</label
+            ><input
+              type="range"
+              data-k="y"
+              min="-20"
+              max="20"
+              value="4"
+            /><output>4 px</output>
+          </div>
+          <div class="ctl">
+            <label>Flou</label
+            ><input
+              type="range"
+              data-k="blur"
+              min="0"
+              max="30"
+              value="6"
+            /><output>6 px</output>
+          </div>
+          <div class="ctl">
+            <label>Opacité</label
+            ><input
+              type="range"
+              data-k="alpha"
+              min="0"
+              max="100"
+              value="40"
+            /><output>40 %</output>
+          </div>
+          <div class="ctl">
+            <label>Couleur</label
+            ><input
+              type="color"
+              data-k="color"
+              value="#211f38"
+            /><output></output>
+          </div>
+        </div>
+        <pre class="codebox out">
+text-shadow: 3px 4px 6px rgba(33,31,56,.4);</pre
+        >
+        <button type="button" class="copy-btn">Copier le CSS</button>
+      </div>
+      <h3>La syntaxe</h3>
+      <div class="codebox">text-shadow: X Y flou couleur;</div>
+      <p>
+        Mêmes valeurs que <code>box-shadow</code>, sans étendue ni
+        <code>inset</code>. Plusieurs ombres se séparent par des virgules ; la
+        première est dessinée au-dessus.
+      </p>
+      <h3>Exemples</h3>
+      <div class="sgrid">
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #d9d6ec; color: #211f38"
+            data-css="2px 2px 4px rgba(33,31,56,.4)"
+          >
+            Aa
+          </div>
+          <b>Ombre douce</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #d9d6ec; color: #d9d6ec"
+            data-css="0 -1px 1px #211f38, 0 1px 1px #fff"
+          >
+            Aa
+          </div>
+          <b>Gravé (letterpress)</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #12102a; color: #fff"
+            data-css="0 0 6px #fff, 0 0 14px #5b4bff, 0 0 28px #5b4bff"
+          >
+            Aa
+          </div>
+          <b>Néon</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #d9d6ec; color: #fff"
+            data-css="-1px -1px 0 #211f38, 1px -1px 0 #211f38, -1px 1px 0 #211f38, 1px 1px 0 #211f38"
+          >
+            Aa
+          </div>
+          <b>Contour</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #d9d6ec; color: #5b4bff"
+            data-css="1px 1px 0 #211f38, 2px 2px 0 #211f38, 3px 3px 0 #211f38, 4px 4px 0 #211f38"
+          >
+            Aa
+          </div>
+          <b>Relief 3D</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="tx"
+            style="background: #5b4bff; color: #fff"
+            data-css="0 2px 10px rgba(0,0,0,.45)"
+          >
+            Aa
+          </div>
+          <b>Lisibilité sur fond vif</b><small></small>
+        </div>
+      </div>
+      <h3>À savoir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span>
+          <b>Le flou est plus visible sur du texte fin.</b> Gardez des valeurs
+          faibles pour le texte courant ; réservez les grandes ombres aux
+          titres.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>Un contour avec 4 ombres</b> est simple
+          mais irrégulier aux angles. La propriété
+          <code>-webkit-text-stroke</code> est plus propre, mais moins standard.
+        </li>
+        <li>
+          <span class="ico">🔹</span>
+          <b>Le texte transparent garde son ombre</b> (<code
+            >color: transparent</code
+          >), ce qui permet de n'afficher que l'ombre.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>Coût de rendu.</b> Un grand nombre
+          d'ombres superposées sur beaucoup de texte ralentit l'affichage.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>Contraste.</b> Une ombre ne remplace
+          pas un contraste suffisant entre le texte et le fond.
+        </li>
+      </ul></template
+    >
+    <template id="win-bg-color" data-title="background-color — couleur de fond"
+      ><p>
+        Colore le fond d'un élément (contenu + padding, jusque sous la bordure).
+      </p>
+      <div class="codebox">background-color: valeur;</div>
+      <h3>Formats acceptés</h3>
+      <div class="row">
+        <div class="dm" style="background: tomato">tomato</div>
+        <div class="dm" style="background: #29abe2">#29abe2</div>
+        <div class="dm" style="background: rgb(41, 171, 226)">rgb()</div>
+        <div
+          class="dm"
+          style="background: rgba(41, 171, 226, 0.4); color: #1c2440"
+        >
+          rgba() .4
+        </div>
+      </div>
+      <div class="codebox">
+        background-color: tomato; /* mot-clé */ background-color: #29abe2; /*
+        hexadécimal */ background-color: rgb(41, 171, 226); /* RGB */
+        background-color: rgba(41,171,226,.4);/* RGB + transparence */
+      </div>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Valeur par défaut :
+          <code>transparent</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> La transparence de
+          <code>rgba()</code> touche seulement le fond ;
+          <code>opacity</code> touche aussi le texte et les enfants.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Vérifiez le contraste entre la couleur du
+          texte et celle du fond.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-bg-shorthand"
+      data-title="Le raccourci background en détail"
+    >
+      <p>
+        La super-propriété <code>background</code> rassemble en une seule règle
+        plusieurs propriétés d’arrière-plan. Elle accepte une image, une
+        position, une taille, une répétition, un attachement, des boîtes et une
+        couleur.
+      </p>
+
+      <h3>Syntaxe</h3>
+      <div class="codebox">
+        background: [image] [position] / [size] [repeat] [attachment] [origin]
+        [clip] [color];
+      </div>
+      <p>L’ordre est libre, avec deux exceptions :</p>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>position / size</code> forme un bloc
+          : la taille vient immédiatement après la position, séparée par
+          <code>/</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> La couleur ne peut apparaître que dans la
+          dernière couche d’un arrière-plan à plusieurs couches.
+        </li>
+      </ul>
+
+      <h3>Valeurs par défaut (réinitialisées si elles sont omises)</h3>
+      <p>Chaque valeur non précisée revient à sa valeur initiale :</p>
+      <table
+        class="detail-table"
+        aria-label="Valeurs réinitialisées par le raccourci background"
+      >
+        <thead>
+          <tr>
+            <th>Propriété</th>
+            <th>Valeur initiale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>background-color</code></td>
+            <td><code>transparent</code></td>
+          </tr>
+          <tr>
+            <td><code>background-image</code></td>
+            <td><code>none</code></td>
+          </tr>
+          <tr>
+            <td><code>background-position</code></td>
+            <td><code>0% 0%</code> (haut gauche)</td>
+          </tr>
+          <tr>
+            <td><code>background-size</code></td>
+            <td><code>auto</code></td>
+          </tr>
+          <tr>
+            <td><code>background-repeat</code></td>
+            <td><code>repeat</code></td>
+          </tr>
+          <tr>
+            <td><code>background-attachment</code></td>
+            <td><code>scroll</code></td>
+          </tr>
+          <tr>
+            <td><code>background-origin</code></td>
+            <td><code>padding-box</code></td>
+          </tr>
+          <tr>
+            <td><code>background-clip</code></td>
+            <td><code>border-box</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        <b>Conséquence :</b> le raccourci écrase les valeurs détaillées écrites
+        avant lui.
+      </p>
+      <div class="codebox">
+        .box { background-size: cover; /* perdu ! */ background: url("a.jpg")
+        center; /* size revient à auto */ }
+      </div>
+      <p>
+        <b>Correction :</b> placer le raccourci en premier, puis les propriétés
+        détaillées.
+      </p>
+      <div class="codebox">
+        .box { background: url("a.jpg") center / cover no-repeat;
+        background-size: cover; /* détail après le raccourci */ }
+      </div>
+
+      <h3>Le <code>/</code> entre la position et la taille</h3>
+      <div class="codebox">
+        background: url("a.jpg") center / cover no-repeat; background:
+        url("a.jpg") 20px 10px / 100px auto no-repeat;
+      </div>
+      <p>
+        Sans <code>/</code>, la valeur <code>cover</code> seule est invalide
+        dans le raccourci et toute la déclaration est ignorée :
+      </p>
+      <div class="codebox">
+        background: url("a.jpg") center cover; /* ❌ invalide */ background:
+        url("a.jpg") center / cover; /* ✅ valide */
+      </div>
+
+      <h3>Les valeurs <code>repeat</code> à deux mots</h3>
+      <div class="codebox">
+        background: url("a.png") repeat-x; /* raccourci */ background:
+        url("a.png") repeat no-repeat; /* X puis Y = repeat-x */ background:
+        url("a.png") space round; /* X : space, Y : round */
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>space</code> répète l’image entière
+          sans la rogner et répartit des espaces égaux entre les répétitions.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>round</code> redimensionne l’image
+          pour qu’un nombre entier de répétitions tienne dans la zone.
+        </li>
+      </ul>
+
+      <h3>Deux valeurs de boîte : <code>origin</code> et <code>clip</code></h3>
+      <p>
+        <code>border-box</code>, <code>padding-box</code> et
+        <code>content-box</code> désignent des zones de la boîte.
+      </p>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Une seule valeur s’applique à
+          <code>background-origin</code> et à <code>background-clip</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Deux valeurs : la première définit
+          <code>origin</code>, la seconde <code>clip</code>.
+        </li>
+      </ul>
+      <div class="codebox">
+        background: url("a.png") no-repeat content-box; /* origin = content-box,
+        clip = content-box */ background: url("a.png") no-repeat padding-box
+        border-box; /* origin = padding-box, clip = border-box */
+      </div>
+      <p>
+        La valeur <code>text</code> pour <code>clip</code> n’est pas fiable dans
+        le raccourci : utilisez séparément <code>background-clip: text</code>.
+      </p>
+
+      <h3>Fonds multiples</h3>
+      <p>
+        Une couche par virgule ; la première est dessinée au-dessus. La couleur
+        ne figure que dans la dernière couche.
+      </p>
+      <div class="codebox">
+        background: url("logo.png") no-repeat right 10px top 10px / 60px,
+        linear-gradient(rgb(0 0 0 / .4), rgb(0 0 0 / .4)), url("photo.jpg")
+        center / cover no-repeat, #222;
+      </div>
+      <p>Chaque couche possède ses propres position, taille et répétition.</p>
+
+      <h3>Position avec décalage (4 valeurs)</h3>
+      <div class="codebox">
+        background-position: right 10px bottom 20px; /* 10px depuis la droite,
+        20px depuis le bas */
+      </div>
+      <p>Dans le raccourci :</p>
+      <div class="codebox">
+        background: url("i.svg") no-repeat right 10px center / 24px;
+      </div>
+
+      <h3>Exemples prêts à l’emploi</h3>
+      <div class="codebox">
+        /* Image de couverture */ background: #333 url("hero.jpg") center /
+        cover no-repeat; /* Dégradé simple */ background:
+        linear-gradient(135deg, #667eea, #764ba2); /* Icône à gauche dans un
+        champ */ input { background: #fff url("loupe.svg") no-repeat 8px center
+        / 18px; padding-left: 34px; } /* Fond fixe */ background: url("bg.jpg")
+        center / cover fixed;
+      </div>
+
+      <h3>Pièges à retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">⚠️</span> Le raccourci réinitialise les propriétés
+          non écrites.
+        </li>
+        <li>
+          <span class="ico">⚠️</span> <code>/</code> est obligatoire entre
+          position et taille.
+        </li>
+        <li>
+          <span class="ico">⚠️</span> <code>background-color</code> se place
+          uniquement dans la dernière couche.
+        </li>
+        <li>
+          <span class="ico">⚠️</span> Une couche invalide annule toute la
+          déclaration.
+        </li>
+        <li>
+          <span class="ico">⚠️</span> Une seule valeur de boîte s’applique à la
+          fois à <code>origin</code> et à <code>clip</code>.
+        </li>
+        <li>
+          <span class="ico">ℹ️</span> Les chemins <code>url()</code> sont
+          relatifs au fichier CSS.
+        </li>
+      </ul>
+    </template>
+    <template id="win-radius" data-title="border-radius — coins arrondis"
+      ><p>
+        Arrondit les coins d'un élément, et aussi son fond, sa bordure et ses
+        ombres.
+      </p>
+      <div class="codebox">border-radius: 1 à 4 valeurs;</div>
+      <div class="row">
+        <div>
+          <div class="dm" style="border-radius: 20px">20px</div>
+          <small>1 valeur</small>
+        </div>
+        <div>
+          <div class="dm" style="border-radius: 30px 8px">30px 8px</div>
+          <small>2 valeurs</small>
+        </div>
+        <div>
+          <div class="dm" style="border-radius: 40px 20px 10px">40 20 10</div>
+          <small>3 valeurs</small>
+        </div>
+        <div>
+          <div class="dm" style="border-radius: 0 30px 0 30px">0 30 0 30</div>
+          <small>4 valeurs</small>
+        </div>
+        <div>
+          <div class="dm" style="border-radius: 50%; width: 64px">50%</div>
+          <small>cercle</small>
+        </div>
+      </div>
+      <ul class="keypoints">
+        <li><span class="ico">🔹</span> <b>1 valeur</b> : les 4 coins.</li>
+        <li>
+          <span class="ico">🔹</span> <b>2 valeurs</b> : haut-gauche +
+          bas-droite, puis haut-droite + bas-gauche.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>3 valeurs</b> : haut-gauche, puis
+          haut-droite + bas-gauche, puis bas-droite.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>4 valeurs</b> : sens horaire, à partir
+          du haut-gauche.
+        </li>
+      </ul>
+      <h3>Cas utiles</h3>
+      <div class="codebox">
+        border-radius: 50%; /* cercle si largeur = hauteur */ border-radius:
+        999px; /* forme « pilule » */ border-radius: 50% / 30%; /* coins
+        elliptiques : horizontal / vertical */
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Un pourcentage est relatif aux dimensions
+          de la boîte.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Avec <code>overflow: hidden</code>,
+          l'arrondi découpe aussi le contenu (images).
+        </li>
+      </ul></template
+    >
+    <template id="win-box-shadow" data-title="box-shadow — ombre de la boîte"
+      ><p>
+        Une ombre portée dessinée par le navigateur autour d'un élément, sans
+        image ni balise supplémentaire. Manipulez les valeurs : le code CSS se
+        met à jour en direct.
+      </p>
+      <h3>Laboratoire</h3>
+      <div class="slab">
+        <div class="stage"><div class="slab-box"></div></div>
+        <div class="slab-controls">
+          <div class="ctl">
+            <label>Décalage X</label
+            ><input
+              type="range"
+              data-k="x"
+              min="-50"
+              max="50"
+              value="0"
+            /><output>0 px</output>
+          </div>
+          <div class="ctl">
+            <label>Décalage Y</label
+            ><input
+              type="range"
+              data-k="y"
+              min="-50"
+              max="50"
+              value="14"
+            /><output>14 px</output>
+          </div>
+          <div class="ctl">
+            <label>Flou</label
+            ><input
+              type="range"
+              data-k="blur"
+              min="0"
+              max="100"
+              value="30"
+            /><output>30 px</output>
+          </div>
+          <div class="ctl">
+            <label>Étendue</label
+            ><input
+              type="range"
+              data-k="spread"
+              min="-50"
+              max="50"
+              value="-6"
+            /><output>-6 px</output>
+          </div>
+          <div class="ctl">
+            <label>Opacité</label
+            ><input
+              type="range"
+              data-k="alpha"
+              min="0"
+              max="100"
+              value="35"
+            /><output>35 %</output>
+          </div>
+          <div class="ctl">
+            <label>Couleur</label
+            ><input
+              type="color"
+              data-k="color"
+              value="#211f38"
+            /><output></output>
+          </div>
+          <div class="ctl">
+            <label>Intérieure (inset)</label
+            ><input type="checkbox" data-k="inset" /><output></output>
+          </div>
+        </div>
+        <pre class="codebox out">
+box-shadow: 0px 14px 30px -6px rgba(33,31,56,.35);</pre
+        >
+        <button type="button" class="copy-btn">Copier le CSS</button>
+      </div>
+      <h3>La syntaxe</h3>
+      <div class="codebox">box-shadow: [inset] X Y flou étendue couleur;</div>
+      <dl class="sdl">
+        <dt>X</dt>
+        <dd>
+          Décalage horizontal. Positif : vers la droite. Négatif : vers la
+          gauche.
+        </dd>
+        <dt>Y</dt>
+        <dd>
+          Décalage vertical. Positif : vers le bas. Négatif : vers le haut.
+        </dd>
+        <dt>flou</dt>
+        <dd>Rayon de flou, jamais négatif. À 0, le bord de l'ombre est net.</dd>
+        <dt>étendue</dt>
+        <dd>
+          Agrandit (positif) ou rétrécit (négatif) l'ombre avant le flou.
+          Facultatif.
+        </dd>
+        <dt>couleur</dt>
+        <dd>
+          De préférence semi-transparente (<code>rgba()</code>). Facultatif :
+          par défaut, <code>currentColor</code>.
+        </dd>
+        <dt>inset</dt>
+        <dd>Place l'ombre à l'intérieur de la bordure, comme un creux.</dd>
+      </dl>
+      <h3>Exemples courants</h3>
+      <div class="sgrid">
+        <div class="sdemo">
+          <div class="sw" data-css="0 1px 3px rgba(33,31,56,.25)"></div>
+          <b>Ombre subtile</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div class="sw" data-css="0 18px 40px -12px rgba(33,31,56,.45)"></div>
+          <b>Élévation (carte)</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="sw"
+            data-css="0 1px 2px rgba(33,31,56,.2), 0 4px 8px rgba(33,31,56,.15), 0 16px 32px rgba(33,31,56,.15)"
+          ></div>
+          <b>Ombres superposées</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div class="sw" data-css="8px 8px 0 #5b4bff"></div>
+          <b>Ombre nette (flou 0)</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div class="sw" data-css="inset 0 4px 12px rgba(33,31,56,.35)"></div>
+          <b>Creux (inset)</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div class="sw" data-css="0 0 0 4px #5b4bff"></div>
+          <b>Contour sans bordure</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div class="sw" data-css="0 0 24px 4px rgba(91,75,255,.7)"></div>
+          <b>Lueur colorée</b><small></small>
+        </div>
+        <div class="sdemo">
+          <div
+            class="sw"
+            data-css="9px 9px 18px rgba(33,31,56,.25), -9px -9px 18px rgba(255,255,255,.7)"
+          ></div>
+          <b>Néomorphisme</b><small></small>
+        </div>
+      </div>
+      <h3>À savoir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span>
+          <b>Aucun impact sur la mise en page.</b> L'ombre ne change ni la
+          taille de l'élément ni la position de ses voisins, et elle ne reçoit
+          pas les clics.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>Elle suit border-radius.</b> Les coins
+          arrondis de l'élément arrondissent aussi l'ombre.
+        </li>
+        <li>
+          <span class="ico">🔹</span>
+          <b>Plusieurs ombres, séparées par des virgules.</b> La première de la
+          liste est dessinée au-dessus des autres.
+        </li>
+        <li>
+          <span class="ico">🔹</span>
+          <b>Les ombres superposées paraissent plus naturelles</b> qu'une seule
+          grosse ombre : une petite ombre proche et une grande ombre diffuse.
+        </li>
+        <li>
+          <span class="ico">🔹</span>
+          <b>box-shadow ou filter: drop-shadow() ?</b> box-shadow suit la boîte
+          rectangulaire ; drop-shadow suit la forme réelle, y compris la
+          transparence d'un PNG ou SVG.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>Accessibilité.</b> Ne remplacez pas
+          <code>outline</code> par une ombre pour le focus sans laisser un
+          contour visible.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-table-layout"
+      data-title="table-layout — algorithme de largeur"
+      ><p>Choisit comment le navigateur calcule les largeurs de colonnes.</p>
+      <div class="codebox">table-layout: auto | fixed;</div>
+      <div class="row">
+        <div>
+          <b>auto</b> (défaut)
+          <table style="table-layout: auto; width: 220px">
+            <tr>
+              <td>Un contenu très très long</td>
+              <td>B</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <b>fixed</b>
+          <table style="table-layout: fixed; width: 220px">
+            <tr>
+              <td
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+              >
+                Un contenu très très long
+              </td>
+              <td>B</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <b>auto</b> : les colonnes s'adaptent au
+          contenu ; le navigateur lit tout le tableau avant de l'afficher.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>fixed</b> : les largeurs viennent de la
+          <code>width</code> du tableau et de la 1re ligne ; affichage plus
+          rapide et colonnes prévisibles.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Avec <code>fixed</code>, définissez
+          <code>width</code> sur le tableau, sinon il reste en
+          <code>auto</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Le contenu trop long déborde : ajoutez
+          <code>overflow: hidden; text-overflow: ellipsis;</code>.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-collapse"
+      data-title="border-collapse — fusion des bordures"
+      ><p>
+        Décide si les bordures des cellules restent séparées ou fusionnent.
+      </p>
+      <div class="codebox">border-collapse: separate | collapse;</div>
+      <div class="row">
+        <div>
+          <b>separate</b> (défaut)
+          <table
+            style="
+              border-collapse: separate;
+              border-spacing: 4px;
+              background: #d9cdf7;
+              border-radius: 8px;
+              padding: 4px;
+            "
+          >
+            <tr>
+              <td style="background: #fff; border-color: #d9cdf7">A</td>
+              <td style="background: #fff; border-color: #d9cdf7">B</td>
+            </tr>
+            <tr>
+              <td style="background: #fff; border-color: #d9cdf7">C</td>
+              <td style="background: #fff; border-color: #d9cdf7">D</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <b>collapse</b>
+          <table style="border-collapse: collapse">
+            <tr>
+              <td style="background: #efeafc; border-color: #fff">A</td>
+              <td style="background: #efeafc; border-color: #fff">B</td>
+            </tr>
+            <tr>
+              <td style="background: #e9e2fb; border-color: #fff">C</td>
+              <td style="background: #e9e2fb; border-color: #fff">D</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <b>separate</b> : chaque cellule garde sa
+          bordure ; double trait entre cellules, écart réglé par
+          <code>border-spacing</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>collapse</b> : les bordures voisines
+          fusionnent en un seul trait ; <code>border-spacing</code> est ignoré.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>border-radius</code> n'arrondit pas
+          les cellules en mode <code>collapse</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Le plus courant pour un tableau propre :
+          <code>border-collapse: collapse;</code>.
+        </li>
+      </ul></template
+    >
+    <template id="win-transition" data-title="transition — passage progressif"
+      ><p>
+        Rend progressif le changement d'une propriété (survol, focus, classe
+        ajoutée en JavaScript).
+      </p>
+      <div class="codebox">transition: propriété durée fonction délai;</div>
+      <div class="row">
+        <div class="dm dm-tr" tabindex="0">Survolez-moi</div>
+      </div>
+      <div class="codebox">
+        .boite { transition: background-color .4s ease, transform .4s ease; }
+        .boite:hover { background: #ff6a3d; transform: scale(1.15); }
+      </div>
+      <h3>Comparez les fonctions de temporisation</h3>
+      <p>
+        Les 5 billes partent <b>en même temps</b>, avec la même durée : seule la
+        <code>timing-function</code> change. <code>linear</code> (gris) sert de
+        référence : vitesse constante. Observez qui démarre vite, qui ralentit à
+        l'arrivée.
+      </p>
+      <div class="ez">
+        <div class="ez-row">
+          <div class="ez-name">
+            <span>linear</span
+            ><svg viewBox="-2 -2 44 44" aria-hidden="true">
+              <path d="M0 40 L40 0" />
+            </svg>
+          </div>
+          <div class="ez-rail"><div class="ez-ball ez-linear"></div></div>
+        </div>
+        <div class="ez-row">
+          <div class="ez-name">
+            <span>ease</span
+            ><svg viewBox="-2 -2 44 44" aria-hidden="true">
+              <path d="M0 40 C10 36 10 0 40 0" />
+            </svg>
+          </div>
+          <div class="ez-rail"><div class="ez-ball ez-ease"></div></div>
+        </div>
+        <div class="ez-row">
+          <div class="ez-name">
+            <span>ease-in</span
+            ><svg viewBox="-2 -2 44 44" aria-hidden="true">
+              <path d="M0 40 C16.8 40 40 0 40 0" />
+            </svg>
+          </div>
+          <div class="ez-rail"><div class="ez-ball ez-in"></div></div>
+        </div>
+        <div class="ez-row">
+          <div class="ez-name">
+            <span>ease-out</span
+            ><svg viewBox="-2 -2 44 44" aria-hidden="true">
+              <path d="M0 40 C0 40 23.2 0 40 0" />
+            </svg>
+          </div>
+          <div class="ez-rail"><div class="ez-ball ez-out"></div></div>
+        </div>
+        <div class="ez-row">
+          <div class="ez-name">
+            <span>ease-in-out</span
+            ><svg viewBox="-2 -2 44 44" aria-hidden="true">
+              <path d="M0 40 C16.8 40 23.2 0 40 0" />
+            </svg>
+          </div>
+          <div class="ez-rail"><div class="ez-ball ez-inout"></div></div>
+        </div>
+        <p class="ez-note">
+          Les traits verticaux marquent 25 %, 50 % et 75 % du trajet. Courbe =
+          vitesse dans le temps (pente raide = rapide).
+        </p>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>linear</code> : vitesse constante du
+          début à la fin (effet mécanique, utile pour les rotations en boucle).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>ease</code> (défaut) : démarrage
+          rapide, fin lente.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>ease-in</code> : démarrage lent,
+          accélère jusqu'à la fin.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>ease-out</code> : démarrage rapide,
+          ralentit à l'arrivée (naturel pour une apparition).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>ease-in-out</code> : lent au début
+          et à la fin, rapide au milieu.
+        </li>
+      </ul>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>transition-property</code> :
+          propriété concernée (<code>all</code> = toutes).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>transition-duration</code> : durée
+          (<code>.4s</code> ou <code>400ms</code>).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>transition-timing-function</code> :
+          <code>ease</code>, <code>linear</code>, <code>ease-in</code>,
+          <code>ease-out</code>, <code>ease-in-out</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>transition-delay</code> : attente
+          avant le début.
+        </li>
+      </ul>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Placez la <code>transition</code> sur
+          l'état de base : elle joue alors aussi au retour.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Seules les valeurs numériques s'animent ;
+          <code>display</code> ne s'anime pas.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Préférez <code>transform</code> et
+          <code>opacity</code>, plus fluides.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-animation"
+      data-title="animation — mouvement avec @keyframes"
+      ><p>
+        Décrit un mouvement en plusieurs étapes, qui peut se répéter, sans
+        action de l'utilisateur.
+      </p>
+      <div class="codebox">
+        @keyframes rebond { from { transform: translateY(0); } to { transform:
+        translateY(60px); } } .balle { animation: rebond 1s ease-in-out infinite
+        alternate; }
+      </div>
+      <div class="row">
+        <div class="dm-an" title="Survolez pour mettre en pause"></div>
+        <small
+          >Survolez la balle : <code>animation-play-state: paused</code></small
+        >
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>animation-name</code> : nom du
+          <code>@keyframes</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-duration</code> : durée
+          d'un cycle.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-timing-function</code> :
+          rythme (<code>ease</code>, <code>linear</code>…).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-delay</code> : attente
+          avant le début.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-iteration-count</code> :
+          nombre de répétitions, ou <code>infinite</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-direction</code> :
+          <code>normal</code>, <code>reverse</code>, <code>alternate</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>animation-fill-mode</code> :
+          <code>forwards</code> garde l'état final.
+        </li>
+      </ul>
+      <h3>Transition ou animation ?</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <b>transition</b> : 2 états (départ →
+          arrivée), déclenchée par un événement.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <b>animation</b> : plusieurs étapes
+          (<code>0%</code>, <code>50%</code>, <code>100%</code>), peut démarrer
+          seule et boucler.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Respectez
+          <code>prefers-reduced-motion</code> pour les personnes sensibles au
+          mouvement.
+        </li>
+      </ul></template
+    >
+
+    <template id="win-bg-image" data-title="background-image — image de fond"
+      ><p>
+        Place une image (fichier, dégradé, motif) sur le fond de l'élément.
+      </p>
+      <div class="codebox">background-image: url("photo.jpg");</div>
+      <h3>Valeurs possibles</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>url("…")</code> : un fichier image
+          (jpg, png, svg, gif…).
+        </li>
+        <li>
+          <span class="ico">🔹</span> Un dégradé :
+          <code>linear-gradient()</code>, <code>radial-gradient()</code>… (un
+          dégradé EST une image).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>none</code> : valeur par défaut,
+          aucune image.
+        </li>
+      </ul>
+      <div class="row">
+        <div
+          class="dm tile-demo"
+          style="
+            width: 96px;
+            height: 64px;
+            background-size: cover;
+            background-repeat: no-repeat;
+          "
+        >
+          url()
+        </div>
+        <div
+          class="dm"
+          style="background-image: linear-gradient(135deg, #29abe2, #5b4bff)"
+        >
+          dégradé
+        </div>
+        <div
+          class="dm"
+          style="
+            background-image: linear-gradient(
+                rgba(255, 216, 107, 0.85),
+                rgba(255, 216, 107, 0)
+              ),
+              repeating-linear-gradient(45deg, #29abe2 0 8px, #5b4bff 8px 16px);
+          "
+        >
+          2 images
+        </div>
+      </div>
+      <h3>Plusieurs images à la fois</h3>
+      <p>
+        On les sépare par des virgules : la <b>première</b> est dessinée
+        au-dessus des autres.
+      </p>
+      <div class="codebox">
+        background-image: url("logo.png"), linear-gradient(to right, #29abe2,
+        #5b4bff);
+      </div>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Toujours prévoir une couleur de secours :
+          <code>background-color</code> s'affiche si l'image ne charge pas.
+        </li>
+        <li>
+          <span class="ico">🔹</span> La taille et le placement de l'image se
+          règlent avec <code>background-size</code> et
+          <code>background-position</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Par défaut, l'image se répète pour remplir
+          toute la boîte.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-bg-repeat"
+      data-title="background-repeat — répétition de l'image"
+      ><p>Contrôle comment l'image de fond se répète dans la boîte.</p>
+      <div class="codebox">
+        background-repeat: repeat | repeat-x | repeat-y | no-repeat | space |
+        round;
+      </div>
+      <h3>Essayez</h3>
+      <div data-demo="bgrepeat">
+        <div class="seg">
+          <label
+            ><input type="radio" name="bgr" value="repeat" checked /><span
+              >repeat</span
+            ></label
+          ><label
+            ><input type="radio" name="bgr" value="repeat-x" /><span
+              >repeat-x</span
+            ></label
+          ><label
+            ><input type="radio" name="bgr" value="repeat-y" /><span
+              >repeat-y</span
+            ></label
+          ><label
+            ><input type="radio" name="bgr" value="no-repeat" /><span
+              >no-repeat</span
+            ></label
+          ><label
+            ><input type="radio" name="bgr" value="space" /><span
+              >space</span
+            ></label
+          ><label
+            ><input type="radio" name="bgr" value="round" /><span
+              >round</span
+            ></label
+          >
+        </div>
+        <div class="tile-demo"></div>
+        <div class="codebox out">background-repeat: repeat;</div>
+      </div>
+      <h3>Que fait chaque valeur ?</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>repeat</code> (défaut) : répète
+          l'image en X et en Y, quitte à la couper.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>repeat-x</code> /
+          <code>repeat-y</code> : répète uniquement en ligne / en colonne.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>no-repeat</code> : une seule image.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>space</code> : répète sans couper et
+          répartit l'espace libre entre les images.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>round</code> : étire ou compresse
+          légèrement pour que les images soient toujours entières.
+        </li>
+      </ul>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Avec <code>no-repeat</code>, pensez à
+          régler <code>background-position</code> et
+          <code>background-size</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Très utilisé pour les motifs (pointillés,
+          rayures) et les petites icônes.
+        </li>
+      </ul></template
+    >
+    <template
+      id="win-bg-size"
+      data-title="background-size — taille de l'image de fond"
+    >
+      <p>
+        <code>background-size</code> règle la taille d’une image ou d’un dégradé
+        de fond, sans changer les dimensions de l’élément. Les pourcentages sont
+        calculés par rapport à la zone de positionnement du fond — contrôlée par
+        <code>background-origin</code>, qui vaut <code>padding-box</code> par
+        défaut.
+      </p>
+      <div class="codebox">
+        background-size: auto | cover | contain | largeur [hauteur];
+      </div>
+      <h3>Essayez les différentes valeurs</h3>
+      <div data-demo="bgsize">
+        <div
+          class="seg"
+          role="group"
+          aria-label="Choisir la taille de l’image de fond"
+        >
+          <label
+            ><input type="radio" name="bgs" value="auto" checked /><span
+              >auto</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="bgs" value="50%" /><span
+              >50%</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="bgs" value="100% 100%" /><span
+              >100% 100%</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="bgs" value="cover" /><span
+              >cover</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="bgs" value="contain" /><span
+              >contain</span
+            ></label
+          >
+        </div>
+        <div class="tile-demo tile-norep"></div>
+        <div class="codebox out">background-size: auto;</div>
+      </div>
+      <h3>Valeurs principales</h3>
+      <table
+        class="detail-table"
+        aria-label="Comparaison des valeurs de background-size"
+      >
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Effet</th>
+            <th>À retenir</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>auto</code></td>
+            <td>Utilise la taille intrinsèque de l’image.</td>
+            <td>Valeur par défaut ; une dimension peut rester automatique.</td>
+          </tr>
+          <tr>
+            <td><code>50%</code> ou <code>180px</code></td>
+            <td>
+              Une seule valeur fixe la largeur ; la hauteur devient
+              <code>auto</code>.
+            </td>
+            <td>Les proportions de l’image sont conservées.</td>
+          </tr>
+          <tr>
+            <td><code>100% 100%</code></td>
+            <td>Fixe séparément largeur et hauteur.</td>
+            <td>
+              Peut déformer l’image si le ratio diffère de celui de la boîte.
+            </td>
+          </tr>
+          <tr>
+            <td><code>contain</code></td>
+            <td>Agrandit ou réduit pour afficher l’image entière.</td>
+            <td>Ratio conservé ; des espaces vides peuvent rester.</td>
+          </tr>
+          <tr>
+            <td><code>cover</code></td>
+            <td>Agrandit ou réduit pour couvrir toute la zone.</td>
+            <td>Ratio conservé ; une partie de l’image peut être coupée.</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Comment lire les dimensions ?</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Une valeur seule, comme
+          <code>50%</code> ou <code>180px</code>, correspond à la largeur ; la
+          hauteur reste proportionnelle (<code>auto</code>).
+        </li>
+        <li>
+          <span class="ico">🔹</span> Deux valeurs s’écrivent dans l’ordre
+          <b>largeur hauteur</b> : <code>200px 120px</code> ou
+          <code>50% auto</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>cover</code> et
+          <code>contain</code> gardent les proportions ; utilisez
+          <code>background-position</code> pour choisir quelle partie reste
+          visible avec <code>cover</code>.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Avec plusieurs images de fond, donnez une
+          taille par image, dans le même ordre et séparées par des virgules.
+        </li>
+      </ul>
+      <h3>Exemples courants</h3>
+      <div class="codebox">
+        /* Photo : remplit la boîte, rognage possible */ background:
+        url("photo.jpg") center / cover no-repeat; /* Logo : entier, largeur
+        120px et hauteur proportionnelle */ background-size: 120px auto; /* Deux
+        couches : logo au-dessus de la photo */ background-image:
+        url("logo.svg"), url("photo.jpg"); background-size: 32px auto, cover;
+      </div>
+    </template>
+    <template
+      id="win-bg-clip"
+      data-title="background-clip — zone peinte par le fond"
+    >
+      <p>
+        <code>background-clip</code> définit la zone jusqu’à laquelle la couleur
+        ou l’image de fond est peinte. La bordure et la marge ne sont pas
+        déplacées.
+      </p>
+      <div class="codebox">
+        background-clip: border-box | padding-box | content-box | text;
+      </div>
+      <h3>Essayez — observez la bordure semi-transparente</h3>
+      <div data-demo="bgclip">
+        <div
+          class="seg"
+          role="group"
+          aria-label="Choisir la zone de clipping du fond"
+        >
+          <label
+            ><input
+              type="radio"
+              name="bgclip"
+              value="border-box"
+              checked
+            /><span>border-box</span></label
+          >
+          <label
+            ><input type="radio" name="bgclip" value="padding-box" /><span
+              >padding-box</span
+            ></label
+          >
+          <label
+            ><input type="radio" name="bgclip" value="content-box" /><span
+              >content-box</span
+            ></label
+          >
+        </div>
+        <div class="clip-demo">Le fond s’arrête à la limite choisie</div>
+        <div class="codebox out">background-clip: border-box;</div>
+      </div>
+      <h3>Les trois zones principales</h3>
+      <table
+        class="detail-table"
+        aria-label="Comparaison des valeurs de background-clip"
+      >
+        <thead>
+          <tr>
+            <th>Valeur</th>
+            <th>Zone peinte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>border-box</code> (défaut)</td>
+            <td>Contenu, padding et fond sous la bordure.</td>
+          </tr>
+          <tr>
+            <td><code>padding-box</code></td>
+            <td>Contenu + padding ; pas la bordure.</td>
+          </tr>
+          <tr>
+            <td><code>content-box</code></td>
+            <td>Contenu seulement ; ni padding ni bordure.</td>
+          </tr>
+        </tbody>
+      </table>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> La <code>margin</code> n’est jamais
+          couverte par le fond de l’élément.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>background-origin</code> choisit
+          l’origine du positionnement ; <code>background-clip</code> choisit
+          jusqu’où le fond est visible.
+        </li>
+        <li>
+          <span class="ico">🔹</span> La valeur <code>text</code> découpe le
+          fond selon la forme des lettres ; elle s’utilise souvent avec
+          <code>-webkit-background-clip: text</code> et
+          <code>color: transparent</code>.
+        </li>
+      </ul>
+    </template>
+    <template id="win-overflow" data-title="overflow — contenu débordant"
+      ><p>
+        Contrôle ce qui se passe quand le contenu est trop grand pour sa boîte.
+      </p>
+      <div class="codebox">overflow: visible | hidden | scroll | auto;</div>
+      <h3>Essayez</h3>
+      <div data-demo="overflow">
+        <div class="seg">
+          <label
+            ><input type="radio" name="ovf" value="visible" checked /><span
+              >visible</span
+            ></label
+          ><label
+            ><input type="radio" name="ovf" value="hidden" /><span
+              >hidden</span
+            ></label
+          ><label
+            ><input type="radio" name="ovf" value="scroll" /><span
+              >scroll</span
+            ></label
+          ><label
+            ><input type="radio" name="ovf" value="auto" /><span
+              >auto</span
+            ></label
+          >
+        </div>
+        <div class="ov-wrap">
+          <div class="ov-box">
+            Ligne 1 — Ce texte est volontairement trop long pour la boîte.<br />Ligne
+            2 — Les lignes suivantes dépassent la hauteur fixée.<br />Ligne 3 —
+            Changez la valeur d'overflow pour comparer.<br />Ligne 4 — visible :
+            le texte sort de la boîte.<br />Ligne 5 — hidden : la partie qui
+            dépasse est coupée.<br />Ligne 6 — scroll : barres de défilement
+            toujours affichées.<br />Ligne 7 — auto : barres seulement si
+            nécessaire.<br />Ligne 8 — Encore une ligne pour dépasser.<br />Ligne
+            9 — Et une autre.<br />Ligne 10 — Fin du contenu de démonstration.
+          </div>
+        </div>
+        <div class="codebox out">overflow: visible;</div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>visible</code> (défaut) : le
+          débordement s'affiche en dehors de la boîte.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>hidden</code> : la partie qui
+          dépasse est coupée.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>scroll</code> : barres de défilement
+          toujours affichées.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>auto</code> : barres uniquement si
+          nécessaire (recommandé).
+        </li>
+      </ul>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>overflow-x</code> et
+          <code>overflow-y</code> gèrent chaque axe séparément.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>overflow: hidden</code> +
+          <code>border-radius</code> : découpe aussi les images aux coins
+          arrondis.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Texte sur une seule ligne avec « … » :
+          <code
+            >white-space: nowrap; overflow: hidden; text-overflow:
+            ellipsis;</code
+          >
+        </li>
+      </ul></template
+    >
+    <template id="win-opacity" data-title="opacity — transparence"
+      ><p>
+        Rend l'élément plus ou moins transparent : le fond, le texte, les images
+        et tous les enfants.
+      </p>
+      <div class="codebox">opacity: 0 (invisible) → 1 (opaque, défaut);</div>
+      <h3>Essayez</h3>
+      <div class="live2" data-kind="opacity">
+        <div class="row">
+          <label
+            >Opacité
+            <input type="range" data-k="v" min="0" max="100" value="100"
+          /></label>
+        </div>
+        <div
+          class="stage"
+          style="
+            background: repeating-linear-gradient(
+              45deg,
+              #dfe3f3 0 12px,
+              #eef1fb 12px 24px
+            );
+          "
+        >
+          <div class="tgt dm2" style="opacity: 1">opacity</div>
+        </div>
+        <div class="codebox out">opacity: 1;</div>
+      </div>
+      <h3>opacity ou rgba() ?</h3>
+      <div class="row">
+        <div>
+          <div
+            class="dm"
+            style="background: rgba(41, 171, 226, 0.45); color: #1c2440"
+          >
+            rgba()
+          </div>
+          <small>seul le fond est transparent</small>
+        </div>
+        <div>
+          <div class="dm" style="background: #29abe2; opacity: 0.45">
+            opacity
+          </div>
+          <small>tout l'élément est transparent</small>
+        </div>
+      </div>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> L'opacité ne se cumule pas avec celle du
+          parent : un enfant ne peut jamais être plus opaque que son parent.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>opacity: 0</code> garde la place de
+          l'élément dans la page (≠ <code>display: none</code>).
+        </li>
+        <li>
+          <span class="ico">🔹</span> Très utilisé avec
+          <code>transition</code> pour les effets de fondu au survol.
+        </li>
+      </ul></template
+    >
+    <template id="win-rotate" data-title="rotate() — rotation"
+      ><p>
+        Fait tourner l'élément autour de son centre, sans déplacer les voisins
+        dans la page.
+      </p>
+      <div class="codebox">transform: rotate(45deg);</div>
+      <h3>Essayez</h3>
+      <div class="live2" data-kind="rotate">
+        <div class="row">
+          <label
+            >Angle
+            <input type="range" data-k="v" min="-180" max="180" value="45"
+          /></label>
+        </div>
+        <div class="stage" style="min-height: 180px">
+          <div class="tgt dm2" style="transform: rotate(45deg)">rotate()</div>
+        </div>
+        <div class="codebox out">transform: rotate(45deg);</div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> Unités : <code>deg</code> (le plus
+          courant), <code>turn</code>, <code>rad</code>. Sens positif =
+          aiguilles d'une montre.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Le centre de rotation se change avec
+          <code>transform-origin</code> (<code>top left</code>,
+          <code>center</code>…).
+        </li>
+        <li>
+          <span class="ico">🔹</span> L'espace occupé dans le flux ne change pas
+          : les voisins ne bougent pas.
+        </li>
+      </ul>
+      <div class="codebox">
+        .etiquette { transform: rotate(-4deg); transform-origin: top left; }
+      </div></template
+    >
+    <template id="win-skew" data-title="skew() — inclinaison"
+      ><p>
+        Incline l'élément comme un parallélogramme : horizontalement,
+        verticalement, ou les deux.
+      </p>
+      <div class="codebox">
+        transform: skew(20deg); /* axe X */ transform: skew(20deg, 10deg); /* X
+        puis Y */
+      </div>
+      <h3>Essayez</h3>
+      <div class="live2" data-kind="skew">
+        <div class="row">
+          <label
+            >Angle X
+            <input type="range" data-k="v" min="-60" max="60" value="25"
+          /></label>
+        </div>
+        <div class="stage" style="min-height: 170px">
+          <div class="tgt dm2" style="transform: skew(25deg)">skew()</div>
+        </div>
+        <div class="codebox out">transform: skew(25deg);</div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>skewX(a)</code> et
+          <code>skewY(a)</code> : une seule direction à la fois.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Le texte est déformé aussi — à utiliser
+          avec modération sur les textes longs.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Effet « italique », flèches, rubans et
+          bannières dynamiques.
+        </li>
+      </ul></template
+    >
+    <template id="win-scale" data-title="scale() — agrandir / réduire"
+      ><p>
+        Agrandit ou réduit l'élément sans changer sa place dans la mise en page.
+      </p>
+      <div class="codebox">
+        transform: scale(1.5); /* x1.5 */ transform: scale(2, 0.5); /* largeur
+        x2, hauteur ÷2 */
+      </div>
+      <h3>Essayez</h3>
+      <div class="live2" data-kind="scale">
+        <div class="row">
+          <label
+            >Échelle
+            <input
+              type="range"
+              data-k="v"
+              min="0.2"
+              max="3"
+              step="0.05"
+              value="1.4"
+          /></label>
+        </div>
+        <div class="stage" style="min-height: 220px">
+          <div class="tgt dm2" style="transform: scale(1.4)">scale()</div>
+        </div>
+        <div class="codebox out">transform: scale(1.4);</div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <code>1</code> = taille normale ;
+          <code>&gt; 1</code> agrandit ; <code>&lt; 1</code> réduit.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Valeur négative : l'élément est aussi
+          retourné (effet miroir).
+        </li>
+        <li>
+          <span class="ico">🔹</span> L'espace occupé dans le flux ne change pas
+          : les voisins ne bougent pas.
+        </li>
+        <li>
+          <span class="ico">🔹</span> Classique au survol :
+          <code>transition: transform .3s;</code> +
+          <code>:hover { transform: scale(1.1); }</code>
+        </li>
+      </ul></template
+    >
+    <template id="win-translate" data-title="translate() — déplacement"
+      ><p>
+        Déplace l'élément horizontalement et/ou verticalement, sans décaler le
+        reste de la page.
+      </p>
+      <div class="codebox">transform: translate(40px, -20px);</div>
+      <h3>Essayez</h3>
+      <div class="live2" data-kind="translate">
+        <div class="row">
+          <label
+            >X
+            <input
+              type="range"
+              data-k="x"
+              min="-90"
+              max="90"
+              value="40" /></label
+          ><label
+            >Y <input type="range" data-k="y" min="-60" max="60" value="-20"
+          /></label>
+        </div>
+        <div class="stage" style="min-height: 200px">
+          <div class="tgt dm2" style="transform: translate(40px, -20px)">
+            translate()
+          </div>
+        </div>
+        <div class="codebox out">transform: translate(40px, -20px);</div>
+      </div>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> 1 valeur = X seulement ; 2 valeurs = X et
+          Y.
+        </li>
+        <li>
+          <span class="ico">🔹</span> En <code>%</code>, le déplacement est
+          relatif à la taille de l'élément lui-même :
+          <code>translate(-50%, -50%)</code> sert à centrer parfaitement.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>translateX()</code> et
+          <code>translateY()</code> : une seule direction à la fois.
+        </li>
+        <li>
+          <span class="ico">🔹</span> La place d'origine reste vide : les
+          voisins ne bougent pas.
+        </li>
+      </ul></template
+    >
+
+    <template
+      id="win-link-states"
+      data-title="a:link, a:visited, a:hover, a:active — les états d'un lien"
+      ><p>
+        Un lien <code>&lt;a&gt;</code> passe par 4 états selon son historique et
+        les actions de l'utilisateur. Chaque état se cible avec une
+        pseudo-classe.
+      </p>
+      <table>
+        <tr>
+          <th style="background: #eef1fb">Pseudo-classe</th>
+          <th style="background: #eef1fb">Cible</th>
+          <th style="background: #eef1fb">Quand ?</th>
+        </tr>
+        <tr>
+          <td><code>a:link</code></td>
+          <td>Liens non visités</td>
+          <td>état par défaut d'un lien jamais ouvert</td>
+        </tr>
+        <tr>
+          <td><code>a:visited</code></td>
+          <td>Liens visités</td>
+          <td>le lien figure dans l'historique du navigateur</td>
+        </tr>
+        <tr>
+          <td><code>a:hover</code></td>
+          <td>Élément survolé</td>
+          <td>le pointeur de la souris est dessus</td>
+        </tr>
+        <tr>
+          <td><code>a:active</code></td>
+          <td>Liens activés</td>
+          <td>pendant le clic (souris enfoncée)</td>
+        </tr>
+      </table>
+      <h3>Exemple complet — ordre « LoVe / HAte »</h3>
+      <div class="codebox">
+        a:link { color: #2e86de; } /* L : non visité */ a:visited { color:
+        #8e44ad; } /* V : visité */ a:hover { color: #e2691a; text-decoration:
+        underline; } /* H : survolé */ a:active { color: #d6336c; font-weight:
+        bold; } /* A : cliqué */
+      </div>
+      <h3>Essayez</h3>
+      <div class="stage" style="min-height: 90px">
+        <a class="lnk-demo" href="#!">Survolez-moi puis cliquez-moi</a>
+      </div>
+      <h3>À retenir</h3>
+      <ul class="keypoints">
+        <li>
+          <span class="ico">🔹</span> <b>L'ordre d'écriture compte</b> :
+          toujours <code>link → visited → hover → active</code> (moyen
+          mnémotechnique : <b>LoVe / HAte</b>). Sinon, <code>hover</code> et
+          <code>active</code> peuvent être écrasés.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>a:visited</code> est limité pour
+          protéger la vie privée : seules certaines propriétés
+          (<code>color</code>, <code>background-color</code>,
+          <code>border-color</code>…) peuvent changer.
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>:hover</code> s'applique à
+          <b>n'importe quel élément</b>, pas seulement aux liens
+          (<code>div:hover</code>, <code>img:hover</code>…).
+        </li>
+        <li>
+          <span class="ico">🔹</span> <code>:active</code> ne dure que le temps
+          du clic ; sur mobile, il se déclenche au toucher.
+        </li>
+      </ul></template
+    >
+
+    <div id="win-overlay">
+      <div id="win" role="dialog" aria-modal="true" aria-labelledby="win-title">
+        <div class="win-bar" id="win-bar">
+          <h2 id="win-title"></h2>
+          <button
+            type="button"
+            id="win-course-return"
+            class="win-course-return"
+            aria-label="Retour à la page du cours CSS"
+            title="Retour au cours CSS"
+          >
+            ↩ Cours CSS
+          </button>
+          <button
+            type="button"
+            id="win-max"
+            aria-label="Agrandir la fenêtre"
+            aria-pressed="false"
+            title="Agrandir"
+          >
+            ⤢
+          </button>
+          <button
+            type="button"
+            id="win-close"
+            aria-label="Fermer et revenir à la fiche"
+            title="Fermer et revenir à la fiche"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="win-body" id="win-body"></div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var ov = document.getElementById("win-overlay"),
+          w = document.getElementById("win"),
+          body = document.getElementById("win-body"),
+          ttl = document.getElementById("win-title"),
+          bar = document.getElementById("win-bar"),
+          last = null,
+          d = null;
+        function setMaximized(maximized) {
+          maximized = Boolean(maximized);
+          w.classList.toggle("max", maximized);
+          var button = document.getElementById("win-max");
+          button.textContent = maximized ? "⤡" : "⤢";
+          button.title = maximized ? "Réduire" : "Agrandir";
+          button.setAttribute(
+            "aria-label",
+            maximized ? "Réduire la fenêtre" : "Agrandir la fenêtre"
+          );
+          button.setAttribute("aria-pressed", maximized ? "true" : "false");
+        }
+        function centerWindow() {
+          w.style.left =
+            Math.max(8, (ov.clientWidth - w.offsetWidth) / 2) + "px";
+          w.style.top =
+            Math.max(8, (ov.clientHeight - w.offsetHeight) / 2) + "px";
+        }
+        function open(id, btn) {
+          var t = document.getElementById(id);
+          if (!t) return;
+          last = btn;
+          ttl.textContent = t.dataset.title;
+          body.innerHTML = "";
+          body.appendChild(t.content.cloneNode(true));
+          initShadowDemos(body);
+          setMaximized(false);
+          ov.classList.add("open");
+          document.body.style.overflow = "hidden";
+          centerWindow();
+          body.scrollTop = 0;
+          document.getElementById("win-close").focus();
+        }
+        function close() {
+          ov.classList.remove("open");
+          setMaximized(false);
+          document.body.style.overflow = "";
+          body.innerHTML = "";
+          if (last) last.focus();
+        }
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-win]");
+          if (b) {
+            open(b.dataset.win, b);
+            return;
+          }
+          if (
+            e.target === ov ||
+            e.target.closest("#win-close") ||
+            e.target.closest("#win-course-return")
+          )
+            close();
+          else if (e.target.closest("#win-max")) {
+            var willMaximize = !w.classList.contains("max");
+            setMaximized(willMaximize);
+            if (!willMaximize) centerWindow();
+          }
+        });
+        window.addEventListener("resize", function () {
+          if (ov.classList.contains("open") && !w.classList.contains("max"))
+            centerWindow();
+        });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener("resize", function () {
+            if (ov.classList.contains("open") && !w.classList.contains("max"))
+              centerWindow();
+          });
+        }
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && ov.classList.contains("open")) close();
+        });
+        bar.addEventListener("pointerdown", function (e) {
+          if (e.target.closest("button") || w.classList.contains("max")) return;
+          d = { x: e.clientX - w.offsetLeft, y: e.clientY - w.offsetTop };
+          bar.setPointerCapture(e.pointerId);
+        });
+        bar.addEventListener("pointermove", function (e) {
+          if (!d) return;
+          w.style.left = Math.max(0, e.clientX - d.x) + "px";
+          w.style.top = Math.max(0, e.clientY - d.y) + "px";
+        });
+        bar.addEventListener("pointerup", function () {
+          d = null;
+        });
+        document.addEventListener("input", function (e) {
+          var l = e.target.closest(".live");
+          if (!l) return;
+          var v = function (k) {
+            return l.querySelector("[data-k=" + k + "]").value;
+          };
+          var css =
+            v("x") + "px " + v("y") + "px " + v("b") + "px rgba(0,0,0,.4)";
+          var txt = l.dataset.prop === "text";
+          l.querySelector(".tgt").style[txt ? "textShadow" : "boxShadow"] = css;
+          l.querySelector(".out").textContent =
+            (txt ? "text-shadow: " : "box-shadow: ") + css + ";";
+        });
+        /* Démos interactives : transform + opacity (curseurs) */
+        document.addEventListener("input", function (e) {
+          var l = e.target.closest(".live2");
+          if (!l) return;
+          var tgt = l.querySelector(".tgt"),
+            out = l.querySelector(".out"),
+            g = function (k) {
+              var el = l.querySelector("[data-k='" + k + "']");
+              return el ? el.value : null;
+            },
+            kind = l.dataset.kind;
+          if (kind === "opacity") {
+            var o = g("v") / 100;
+            tgt.style.opacity = o;
+            out.textContent = "opacity: " + o + ";";
+          } else if (kind === "translate") {
+            var ct = "translate(" + g("x") + "px, " + g("y") + "px)";
+            tgt.style.transform = ct;
+            out.textContent = "transform: " + ct + ";";
+          } else if (kind) {
+            var unit = kind === "scale" ? "" : "deg";
+            var cf = kind + "(" + g("v") + unit + ")";
+            tgt.style.transform = cf;
+            out.textContent = "transform: " + cf + ";";
+          }
+        });
+        /* Démos interactives : overflow, background-repeat, background-size (boutons radio) */
+        document.addEventListener("change", function (e) {
+          var w = e.target.closest("[data-demo]");
+          if (!w) return;
+          var out = w.querySelector(".out"),
+            kind = w.dataset.demo;
+          if (kind === "overflow") {
+            w.querySelector(".ov-box").style.overflow = e.target.value;
+            out.textContent = "overflow: " + e.target.value + ";";
+          } else if (kind === "bgrepeat") {
+            w.querySelector(".tile-demo").style.backgroundRepeat =
+              e.target.value;
+            out.textContent = "background-repeat: " + e.target.value + ";";
+          } else if (kind === "bgsize") {
+            w.querySelector(".tile-demo").style.backgroundSize = e.target.value;
+            out.textContent = "background-size: " + e.target.value + ";";
+          } else if (kind === "bgclip") {
+            var clipValue = e.target.value;
+            if (
+              ["border-box", "padding-box", "content-box"].indexOf(
+                clipValue
+              ) === -1
+            )
+              return;
+            w.querySelector(".clip-demo").style.backgroundClip = clipValue;
+            out.textContent = "background-clip: " + clipValue + ";";
+          } else if (kind === "float") {
+            var floatValue = e.target.value;
+            var floatPhoto = w.querySelector(".float-photo");
+            if (
+              !floatPhoto ||
+              ["left", "right", "none"].indexOf(floatValue) === -1
+            )
+              return;
+            floatPhoto.style.float = floatValue;
+            if (floatValue === "right") {
+              floatPhoto.style.margin = "0 0 8px 14px";
+              out.textContent = "float: right;\nmargin: 0 0 8px 14px;";
+            } else if (floatValue === "left") {
+              floatPhoto.style.margin = "0 14px 8px 0";
+              out.textContent = "float: left;\nmargin: 0 14px 8px 0;";
+            } else {
+              floatPhoto.style.margin = "0 0 8px";
+              out.textContent = "float: none;";
+            }
+          }
+        });
+        /* ===== Labos box-shadow / text-shadow ===== */
+        function hexToRgba(hex, a) {
+          var n = parseInt(hex.slice(1), 16);
+          var al = (a / 100).toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+          return (
+            "rgba(" +
+            ((n >> 16) & 255) +
+            ", " +
+            ((n >> 8) & 255) +
+            ", " +
+            (n & 255) +
+            ", " +
+            al +
+            ")"
+          );
+        }
+        function updateBoxLab(lab) {
+          var g = function (k) {
+            return lab.querySelector('[data-k="' + k + '"]');
+          };
+          var v = [
+            g("inset").checked ? "inset" : "",
+            g("x").value + "px",
+            g("y").value + "px",
+            g("blur").value + "px",
+            g("spread").value + "px",
+            hexToRgba(g("color").value, g("alpha").value),
+          ]
+            .filter(Boolean)
+            .join(" ");
+          lab.querySelector(".slab-box").style.boxShadow = v;
+          lab.querySelector(".out").textContent = "box-shadow: " + v + ";";
+          ["x", "y", "blur", "spread"].forEach(function (k) {
+            g(k).parentNode.querySelector("output").textContent =
+              g(k).value + " px";
+          });
+          g("alpha").parentNode.querySelector("output").textContent =
+            g("alpha").value + " %";
+        }
+        function updateTextLab(lab) {
+          var g = function (k) {
+            return lab.querySelector('[data-k="' + k + '"]');
+          };
+          var v =
+            g("x").value +
+            "px " +
+            g("y").value +
+            "px " +
+            g("blur").value +
+            "px " +
+            hexToRgba(g("color").value, g("alpha").value);
+          lab.querySelector(".tbox").style.textShadow = v;
+          lab.querySelector(".out").textContent = "text-shadow: " + v + ";";
+          ["x", "y", "blur"].forEach(function (k) {
+            g(k).parentNode.querySelector("output").textContent =
+              g(k).value + " px";
+          });
+          g("alpha").parentNode.querySelector("output").textContent =
+            g("alpha").value + " %";
+        }
+        function initShadowDemos(root) {
+          root.querySelectorAll(".slab").forEach(function (l) {
+            (l.classList.contains("tslab") ? updateTextLab : updateBoxLab)(l);
+          });
+          root.querySelectorAll(".sdemo .sw").forEach(function (s) {
+            var c = s.getAttribute("data-css");
+            s.style.boxShadow = c;
+            var cap = s.parentNode.querySelector("small");
+            if (cap) cap.textContent = "box-shadow: " + c + ";";
+          });
+          root.querySelectorAll(".sdemo .tx").forEach(function (t) {
+            var c = t.getAttribute("data-css");
+            t.style.textShadow = c;
+            var cap = t.parentNode.querySelector("small");
+            if (cap) cap.textContent = "text-shadow: " + c + ";";
+          });
+        }
+        document.addEventListener("input", function (e) {
+          var lab = e.target.closest(".slab");
+          if (!lab) return;
+          (lab.classList.contains("tslab") ? updateTextLab : updateBoxLab)(lab);
+        });
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest(".copy-btn");
+          if (!b) return;
+          var lab = b.closest(".slab");
+          if (!lab) return;
+          var txt = lab.querySelector(".out").textContent;
+          var done = function (ok) {
+            b.textContent = ok ? "Copié ✔" : "Sélectionnez le code";
+            setTimeout(function () {
+              b.textContent = "Copier le CSS";
+            }, 1600);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(
+              function () {
+                done(true);
+              },
+              function () {
+                done(false);
+              }
+            );
+          } else {
+            done(false);
+          }
+        });
+      })();
+    </script>
+    <button
+      type="button"
+      id="to-top"
+      aria-label="Remonter en haut de la page"
+      title="Remonter en haut"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+    <script>
+      (function () {
+        var bar = document.querySelector("header.topbar"),
+          nav = bar.querySelector(".toc-nav");
+        var prog = bar.querySelector(".progress i"),
+          btn = document.getElementById("to-top");
+        var menuToggle = document.getElementById("mobile-menu-toggle");
+        var links = [].slice.call(bar.querySelectorAll(".toc a"));
+        var secs = links.map(function (a) {
+          return document.querySelector(a.getAttribute("href"));
+        });
+        var root = document.documentElement,
+          ticking = false,
+          last = -2;
+        function setH() {
+          root.style.setProperty("--bar-h", bar.offsetHeight + "px");
+        }
+        function closeMobileMenu() {
+          if (!menuToggle) return;
+          nav.classList.remove("is-open");
+          menuToggle.setAttribute("aria-expanded", "false");
+          menuToggle.setAttribute("aria-label", "Ouvrir le sommaire");
+          setH();
+        }
+        if (menuToggle) {
+          menuToggle.addEventListener("click", function () {
+            var open = this.getAttribute("aria-expanded") !== "true";
+            this.setAttribute("aria-expanded", String(open));
+            this.setAttribute(
+              "aria-label",
+              open ? "Fermer le sommaire" : "Ouvrir le sommaire"
+            );
+            nav.classList.toggle("is-open", open);
+            setH();
+          });
+          nav.addEventListener("click", function (e) {
+            if (e.target.closest("a") && nav.classList.contains("is-open"))
+              closeMobileMenu();
+          });
+          document.addEventListener("click", function (e) {
+            if (
+              nav.classList.contains("is-open") &&
+              !nav.contains(e.target) &&
+              !menuToggle.contains(e.target)
+            )
+              closeMobileMenu();
+          });
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && nav.classList.contains("is-open")) {
+              closeMobileMenu();
+              menuToggle.focus();
+            }
+          });
+          var brand = bar.querySelector(".brand");
+          if (brand)
+            brand.addEventListener("click", function () {
+              if (nav.classList.contains("is-open")) closeMobileMenu();
+            });
+        }
+        function update() {
+          ticking = false;
+          var y = window.pageYOffset || root.scrollTop,
+            max = root.scrollHeight - window.innerHeight;
+          prog.style.transform =
+            "scaleX(" + (max > 0 ? Math.min(1, y / max) : 0) + ")";
+          bar.classList.toggle("scrolled", y > 8);
+          btn.classList.toggle("show", y > 400);
+          var line = bar.offsetHeight + 40,
+            cur = -1;
+          secs.forEach(function (s, i) {
+            if (s && s.getBoundingClientRect().top <= line) cur = i;
+          });
+          if (cur !== last) {
+            last = cur;
+            links.forEach(function (a, i) {
+              if (i === cur) a.setAttribute("aria-current", "true");
+              else a.removeAttribute("aria-current");
+            });
+            if (cur >= 0)
+              if (nav.scrollWidth > nav.clientWidth)
+                nav.scrollTo({
+                  left:
+                    links[cur].offsetLeft -
+                    nav.clientWidth / 2 +
+                    links[cur].offsetWidth / 2,
+                  behavior: "smooth",
+                });
+          }
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > 640 && nav.classList.contains("is-open"))
+            closeMobileMenu();
+          setH();
+          onScroll();
+        });
+        btn.addEventListener("click", function () {
+          window.scrollTo({ top: 0 });
+        });
+        setH();
+        update();
+      })();
+    </script>
+    <script>
+      (function () {
+        function c() {
+          var b =
+            a.contentDocument || (a.contentWindow && a.contentWindow.document);
+          if (b) {
+            var d = b.createElement("script");
+            d.innerHTML =
+              "window.__CF$cv$params={r:'a44c65139cc04aaf',t:'MTc5MTAzNTIwNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+            b.getElementsByTagName("head")[0].appendChild(d);
+          }
+        }
+        if (document.body) {
+          var a = document.createElement("iframe");
+          a.height = 1;
+          a.width = 1;
+          a.style.position = "absolute";
+          a.style.top = 0;
+          a.style.left = 0;
+          a.style.border = "none";
+          a.style.visibility = "hidden";
+          document.body.appendChild(a);
+          if ("loading" !== document.readyState) c();
+          else if (window.addEventListener)
+            document.addEventListener("DOMContentLoaded", c);
+          else {
+            var e = document.onreadystatechange || function () {};
+            document.onreadystatechange = function (b) {
+              e(b);
+              "loading" !== document.readyState &&
+                ((document.onreadystatechange = e), c());
+            };
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
