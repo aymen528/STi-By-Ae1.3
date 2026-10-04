@@ -6081,11 +6081,13 @@ background-repeat: repeat;</pre>
         btn.classList.toggle("hidden", y < 300);
       }
       function revenirEnHaut() {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        /* instantané : sur mobile, le scroll doux se fait intercepter/annuler
+           par l'inertie du balayage et la page reste bloquée en chemin */
+        window.scrollTo(0, 0);
         ["quizOverlay", "resultsOverlay"].forEach(function (id) {
           var ov = $("#" + id);
           if (ov && !ov.classList.contains("hidden")) {
-            ov.scrollTo({ top: 0, behavior: "smooth" });
+            ov.scrollTop = 0;
           }
         });
       }

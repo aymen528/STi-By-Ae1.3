@@ -4071,5 +4071,75 @@
         }
       })();
     </script>
-  </body>
+  
+    <script id="sti-install-fab">
+      /* Sur mobile, la bannière du hero est souvent sous la ligne de
+         flottaison : on propose aussi une pastille « Installer », en bas à
+         gauche (loin de l'assistant), avec croix de fermeture définitive. */
+      (function () {
+        var mobile =
+          matchMedia("(max-width: 860px), (pointer: coarse)").matches;
+        var standalone =
+          (window.matchMedia &&
+            matchMedia("(display-mode: standalone)").matches) ||
+          navigator.standalone;
+        if (!mobile || standalone) return;
+        try {
+          if (localStorage.getItem("sti-install-fab") === "off") return;
+        } catch (e) {}
+
+        var estIos =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        var differe = null;
+        window.addEventListener("beforeinstallprompt", function (e) {
+          e.preventDefault();
+          differe = e;
+        });
+
+        var style = document.createElement("style");
+        style.textContent =
+          "#sti-fab{position:fixed;left:12px;bottom:12px;z-index:9998;display:flex;align-items:center;gap:8px;" +
+          "padding:9px 12px;border-radius:999px;background:#0f1726;color:#f9f1e3;border:2px solid #f9f1e3;" +
+          "box-shadow:3px 3px 0 #f4511e;font:700 12.5px/1 system-ui,'Segoe UI',sans-serif;max-width:calc(100vw - 24px)}" +
+          "#sti-fab button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:#f4511e;color:#fff;font:800 12px/1 inherit}" +
+          "#sti-fab .x{padding:2px 6px;background:transparent;color:#f9f1e3;opacity:.75}" +
+          "#sti-fab .x:hover{opacity:1}";
+        document.head.appendChild(style);
+
+        var f = document.createElement("div");
+        f.id = "sti-fab";
+        f.innerHTML =
+          "📲 <span id="sti-fab-txt">Installer l'appli du cours</span> " +
+          "<button type="button" id="sti-fab-go">⤓ Installer</button>" +
+          "<button type="button" class="x" id="sti-fab-x" aria-label="Fermer">✕</button>";
+        document.body.appendChild(f);
+
+        f.querySelector("#sti-fab-x").addEventListener("click", function () {
+          f.remove();
+          try {
+            localStorage.setItem("sti-install-fab", "off");
+          } catch (e) {}
+        });
+        f.querySelector("#sti-fab-go").addEventListener("click", function () {
+          if (differe) {
+            differe.prompt();
+            differe.userChoice.then(function () {
+              f.remove();
+            });
+          } else if (estIos) {
+            document.getElementById("sti-fab-txt").textContent =
+              "Partagez ⬆️ puis « Sur l'écran d'accueil »";
+            f.querySelector("#sti-fab-go").remove();
+          } else {
+            document.getElementById("sti-fab-txt").textContent =
+              "Menu ⋮ du navigateur → « Installer l'application »";
+          }
+        });
+        window.addEventListener("appinstalled", function () {
+          f.remove();
+        });
+      })();
+    </script>
+</body>
 </html>

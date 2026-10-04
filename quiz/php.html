@@ -42745,7 +42745,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         return p;
       }
       function scrollToSetup() {
-        $("setup").scrollIntoView({ behavior: "smooth" });
+        window.scrollTo(0, 0);
       }
       function surpriseMe() {
         const cats = [...CATS];
