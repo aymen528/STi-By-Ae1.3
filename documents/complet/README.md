@@ -1,24 +1,28 @@
 # Documents complets (PDF par année)
 
-Déposez ici, sous ces noms exacts, les deux PDF que vous téléchargerez :
+| Fichier | Année | Contenu | Version HTML |
+|---|---|---|---|
+| `complet-3eme-si.pdf` | 3ème SI | Cours HTML5 + CSS3 + JavaScript (45 p.) | ✅ `complet-3eme-si.pdf.html` |
+| `complet-4eme-si-cours.pdf` | 4ème SI | Cours HTML5 + JS + PHP + BD (65 p.) | ✅ `complet-4eme-si-cours.pdf.html` |
+| `complet-4eme-si-resume.pdf` | 4ème SI | Résumé fonctions standards JS/PHP/SQL (14 p., paysage) | ✅ `complet-4eme-si-resume.pdf.html` |
 
-| Fichier | Contenu |
-|---|---|
-| `complet-3eme-si.pdf` | Tout le programme de la 3ème Sciences Informatique |
-| `complet-4eme-si.pdf` | Tout le programme de la 4ème STI |
+Chaque document existe en **deux formats** :
+- le PDF d'origine (téléchargeable / imprimable),
+- la page `.pdf.html` générée (rendu page à page, marche partout y compris
+  sur mobile) — c'est elle que la carte de l'accueil propose en priorité
+  (« 📖 Lire en ligne »).
 
-Dès qu'un PDF est présent, la carte correspondante de la page d'accueil
-s'anime toute seule (plus de mention « À venir »).
+## Ajouter un nouveau document complet
 
-## Facultatif : version HTML (lecture confortable sur mobile)
-
-Depuis la racine du dépôt :
+1. Déposer le PDF ici, avec un nom sans espaces ni accents
+   (ex. `complet-bac-si.pdf`).
+2. Convertir depuis la racine du dépôt :
 
 ```bash
-python3 tools/pdf2atelier.py documents/complet/complet-3eme-si.pdf "Programme complet — 3ème SI"
-python3 tools/pdf2atelier.py documents/complet/complet-4eme-si.pdf "Programme complet — 4ème SI"
+pip install pypdfium2   # une seule fois
+python3 tools/pdf2atelier.py documents/complet/complet-bac-si.pdf "Titre affiché"
 ```
 
-Cela crée `complet-3eme-si.pdf.html` (+ un dossier d'images à côté) ;
-la carte de l'accueil bascule alors automatiquement sur la lecture en ligne.
-Le PDF d'origine reste téléchargeable depuis la page.
+3. Copier une carte dans `index.html` (section `#complet`) en pointant le
+   `href` vers le `.pdf` — le script de la page basculera tout seul vers la
+   version `.pdf.html`.
