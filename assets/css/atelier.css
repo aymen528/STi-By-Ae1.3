@@ -1,9 +1,9 @@
 /* ============================================================
-   MODÈLE 2 — « L'Atelier »  ·  skin optionnel du site STI by AE
+   « L'Atelier » — design actif du site STI by AE
    Style : papier crème, grille de points, encre bleu nuit,
    orange vif, bordures nettes 2 px et ombres dures.
-   Ce fichier complète les styles existants : il ne les casse pas
-   (tout est sur-spécifique via :root et peut être désactivé).
+   (Surcouche complète : remplace tokens et composants sans toucher au HTML)
+   (tout est sur-spécifique via :root, donc sans risque de régression).
    ============================================================ */
 
 /* ---------- Tokens (clair) ---------- */
