@@ -2717,7 +2717,18 @@
       <!-- ======================= Documents complets (PDF) ======================= -->
       <style id="complet-style">
         #complet .annexes-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) }
-        #complet .annexe-card .go { cursor: pointer }
+        #complet .annexe-card .go {
+          opacity: 1;
+          transform: none;
+          background: #b4552d;
+          color: #fff;
+          padding: 7px 12px;
+          border-radius: 999px;
+          font-weight: 800;
+          font-size: 0.78em;
+          box-shadow: 2px 2px 0 rgba(16, 23, 40, 0.45);
+        }
+        #complet .annexe-card .go svg { display: none }
         #complet .annexe-card.absent { opacity: 0.72; cursor: progress }
         #complet .annexe-card.absent .go { color: var(--muted, #6b6250); font-weight: 700 }
       </style>
@@ -3357,7 +3368,18 @@
 
         if (rotatorIconEl && rotatorTextEl) {
           setRotatorContent(rotatorItems[0]);
-          setInterval(rotate, 2200);
+          /* un seul tour de la liste, puis l'animation s'arrête sur le
+             dernier élément (au lieu de tourner à l'infini) */
+          var tour = 0;
+          if (!reduceMotion) {
+            (function suivant() {
+              if (tour++ >= rotatorItems.length - 1) return;
+              setTimeout(function () {
+                rotate();
+                suivant();
+              }, 2200);
+            })();
+          }
         }
 
         /* ---------- Lueur qui suit la souris (cartes de cours) ---------- */
@@ -3993,21 +4015,9 @@
         var full = tag.textContent;
         var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (reduce) return; /* affichage statique immédiat */
-        tag.style.minWidth = tag.getBoundingClientRect().width + "px";
-        tag.classList.add("is-typing");
-        var i = 0;
-        tag.textContent = "";
-        var timer = setInterval(function () {
-          i++;
-          tag.textContent = full.slice(0, i);
-          if (i >= full.length) {
-            clearInterval(timer);
-            setTimeout(function () {
-              tag.classList.remove("is-typing");
-              tag.style.minWidth = "";
-            }, 2200);
-          }
-        }, 45);
+        /* le texte reste désormais affiché tel quel : plus d'effet
+           machine à écrire (l'animation repartait à chaque retour
+           sur la page et devenait lassante) */
       })();
     </script>
 
@@ -4155,7 +4165,7 @@
 
         var style = document.createElement("style");
         style.textContent =
-          "#sti-fab{position:fixed;left:12px;bottom:12px;z-index:9998;display:flex;align-items:center;gap:8px;" +
+          "#sti-fab{position:fixed;left:12px;bottom:84px;z-index:9998;display:flex;align-items:center;gap:8px;" +
           "padding:9px 12px;border-radius:999px;background:#0f1726;color:#f9f1e3;border:2px solid #f9f1e3;" +
           "box-shadow:3px 3px 0 #f4511e;font:700 12.5px/1 system-ui,'Segoe UI',sans-serif;max-width:calc(100vw - 24px)}" +
           "#sti-fab button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:#f4511e;color:#fff;font:800 12px/1 inherit}" +
