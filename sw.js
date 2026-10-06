@@ -4,13 +4,15 @@
    pages (toujours frais quand il y a du réseau), cache pour les ressources
    statiques. Vider le cache en cas de pépin : DevTools → Application. */
 
-var CACHE = "sti-atelier-v6";
+var CACHE = "sti-atelier-v7";
 var SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./assets/css/atelier.css",
   "./assets/css/atelier-pages.css",
+  "./assets/css/protection.css",
+  "./assets/js/protection.js",
   "./assets/fonts/fonts.css",
   "./assets/icons/sti-icon-192.png",
   "./assets/icons/sti-icon-512.png",

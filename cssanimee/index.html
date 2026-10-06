@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
 <meta charset="UTF-8" http-equiv="X-UA-Compatible" content="IE=edge" name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CSS pas à pas — décoration : arrière-plans, liens, ombres, bordures, tableaux et listes (annexe CSS3)</title>
 <link rel="stylesheet" href="style.css" type="text/css" />
 </head>
 <body onkeydown="clavier(event)">
 
-<!-- Bouton retour vers la fiche CSS3 (navigation mobile) -->
+<!-- Bouton retour vers la section appelante « CSS pas à pas » de la fiche CSS3 -->
 <style>
 #retour-cours{position:fixed;left:14px;bottom:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;padding:13px 18px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);font:600 13.5px/1 system-ui,'Segoe UI',sans-serif;white-space:nowrap;transition:background .2s ease,transform .2s ease}
 #retour-cours:hover{background:#b4552d;color:#fff;transform:translateX(-2px)}
 @media print{#retour-cours{display:none!important}}
 </style>
-<a id="retour-cours" href="../cours/css3.html">⬅ Retour au cours</a>
+<a id="retour-cours" href="../cours/css3.html#css-pas-a-pas" title="Retour à la section « CSS pas à pas » du cours">⬅ Retour au cours</a>
 
 <header class="entete">
   <h1 class="titre-principal">CSS pas à pas</h1>
@@ -632,5 +633,9 @@
 </footer>
 
 <script src="cours.js"></script>
+<!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../assets/css/protection.css" />
+<script src="../assets/js/protection.js" defer></script>
+<!-- /Protection -->
 </body>
 </html>

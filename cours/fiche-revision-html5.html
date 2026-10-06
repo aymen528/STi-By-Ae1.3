@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -690,5 +691,9 @@
   </script>
 
 <script id="stix-top">(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest('a[href="#top"]'):null;if(!a)return;e.preventDefault();var de=document.documentElement,pr=de.style.scrollBehavior;de.style.scrollBehavior="auto";window.scrollTo(0,0);if(pr)de.style.scrollBehavior=pr;else de.style.removeProperty("scroll-behavior");if(location.hash==="#top"&&history.replaceState)history.replaceState(null,"",location.pathname+location.search);});})();</script>
-  </body>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../assets/css/protection.css" />
+<script src="../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
 </html>
