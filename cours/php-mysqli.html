@@ -593,6 +593,10 @@ init();build();render();
       color:#ffb27a;font-weight:800;font-size:12px;letter-spacing:.2px;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
+    /* Même comportement que les leçons pas à pas CSS :
+       les boutons texte (précédent/suivant/lecture auto/recommencer)
+       sont remplacés par les symboles de la barre ci-dessus */
+    #prev,#next,#auto,#rst{display:none !important}
   }
   #rot-overlay{
     display:none;position:fixed;inset:0;z-index:99999;
