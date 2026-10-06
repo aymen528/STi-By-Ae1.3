@@ -1,16 +1,1633 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src https://www.youtube.com https://example.com https://exemple.tn; connect-src https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta http-equiv="refresh" content="0; url=php.html" />
-<title>Cours PHP — redirection</title>
-<script>location.replace("php.html");</script>
-</head>
-<body>
-<p>La page a déménagé : <a href="php.html">ouvrir le cours PHP (nouvelle version animée)</a>.</p>
-<!-- 🔒 Protection du contenu STI -->
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <link rel="stylesheet" href="../assets/css/php.css" />
+    <link rel="stylesheet" href="../assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="../assets/css/atelier-php.css" /
+    <title>Cours PHP complet</title>
+  </head>
+  <body id="top">
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:78px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../exercices/series-exercices.html#php" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🏋️ Exercices</a><a href="../quiz/php.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a></nav>
+
+    <header class="top">
+      <div class="top-inner">
+        <button
+          type="button"
+          class="menu-btn"
+          id="menu-btn"
+          aria-controls="sidebar"
+          aria-expanded="false"
+          aria-label="Ouvrir le sommaire"
+        >
+          ☰
+        </button>
+        <a
+          class="brand"
+          href="#top"
+          aria-label="Cours PHP complet — haut de page"
+        >
+          <span class="logo" aria-hidden="true">🐘</span>
+          <div class="titles">
+            <div class="t1">Cours PHP complet</div>
+            <div class="t2">
+              Travail élaboré par A. Essouyah
+              <img
+                class="topbar-logo"
+                src="../assets/icons/STI_by_AE.ico"
+                alt="Logo STI By A.E"
+                width="18"
+                height="18"
+                onerror="this.style.display='none'"
+              />
+            </div>
+          </div>
+        </a>
+        <div class="now" id="now" aria-hidden="true"></div>
+        <div class="hbtns">
+          <a href="../index.html#cours" title="Retour" aria-label="Retour"
+            ><span aria-hidden="true">🏠</span
+            ><span class="txt">Retour</span></a
+          >
+          <a
+            href="../documents/annexes/annexe-php.pdf.html"
+            target="_blank"
+            rel="noopener"
+            title="Annexe PHP (PDF)"
+            aria-label="Annexe PHP (PDF)"
+            ><span aria-hidden="true">📄</span
+            ><span class="txt">Annexe PHP</span></a
+          >
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><i></i></div>
+    </header>
+
+    <nav class="side" id="sidebar" aria-label="Sommaire du cours">
+      <p class="nav-title"><span aria-hidden="true">🐘</span> Sommaire</p>
+      <div class="nav-group">
+        <a href="#s1" class="main-link">1. Introduction au PHP</a>
+        <div class="sub-links-container">
+          <a href="#s1-1" class="sub-link">1.1 Définition</a>
+          <a href="#s1b" class="sub-link">1.2 Client / serveur</a>
+          <a href="#s1-3" class="sub-link">1.3 Syntaxe d'un script</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <a href="#s2" class="main-link">2. Types, variables, opérateurs</a>
+        <div class="sub-links-container">
+          <a href="#s2-1" class="sub-link">2.1 Types de données</a>
+          <a href="#s2-2" class="sub-link">2.2 Les variables</a>
+          <a href="#s2-3" class="sub-link">2.3 Les constantes</a>
+          <a href="#s2-4" class="sub-link">2.4 Transtypage &amp; opérateurs</a>
+          <a href="#s2-5" class="sub-link">2.5 Maths et echo</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <a href="#s3" class="main-link">3. Manipulation de variables</a>
+      </div>
+      <div class="nav-group">
+        <a href="#s4" class="main-link">4. Chaînes de caractères</a>
+      </div>
+      <div class="nav-group">
+        <a href="#s5" class="main-link">5. Les tableaux</a>
+      </div>
+      <div class="nav-group">
+        <a href="#s6" class="main-link">6. Dates et heures</a>
+        <div class="sub-links-container">
+          <a href="#s6-1" class="sub-link">6.1 checkdate</a>
+          <a href="#s6-2" class="sub-link">6.2 date</a>
+          <a href="#s6-3" class="sub-link">6.3 getdate</a>
+          <a href="#s6-4" class="sub-link">6.4 time</a>
+          <a href="#s6-5" class="sub-link">6.5 mktime</a>
+          <a href="#s6-6" class="sub-link">6.6 strtotime</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <a href="#s7" class="main-link">7. Superglobales &amp; divers</a>
+      </div>
+      <div class="nav-group">
+        <a href="#s8" class="main-link">8. PHP et MySQL</a>
+        <div class="sub-links-container">
+          <a href="#s8anim" class="sub-link">8.0 Animation guichet</a>
+          <a href="#s8-1" class="sub-link">8.1 Circuit d'une requête</a>
+          <a href="#s8-2" class="sub-link">8.2 Fonctions MySQLi</a>
+          <a href="#s8-3" class="sub-link">8.3 mysqli_query()</a>
+          <a href="#s8-4" class="sub-link">8.4 fetch_array / fetch_row</a>
+          <a href="#s8-5" class="sub-link">8.5 mysqli_num_rows()</a>
+          <a href="#s8-6" class="sub-link">8.6 Connexion &amp; erreurs</a>
+          <a href="#s8-7" class="sub-link">8.7 Insérer, modifier, supprimer</a>
+        </div>
+      </div>
+      <div class="nav-group">
+        <a href="#s9" class="main-link">9. Exemple récapitulatif</a>
+      </div>
+      <div class="nav-group">
+        <a href="#s10" class="main-link">10. Quatre pages complètes</a>
+        <div class="sub-links-container">
+          <a href="#s10a" class="sub-link">10.1 Insertion</a>
+          <a href="#s10b" class="sub-link">10.2 Sélection</a>
+          <a href="#s10c" class="sub-link">10.3 Mise à jour</a>
+          <a href="#s10d" class="sub-link">10.4 Statistiques</a>
+        </div>
+      </div>
+    </nav>
+    <div class="scrim" id="scrim"></div>
+
+    <main>
+      <div class="wrap">
+        <h1 class="title">Cours PHP complet</h1>
+        <div class="sub">
+          4ème SI — Développement Web (HTML5, CSS3, JavaScript, PHP) et bases de
+          données
+        </div>
+
+        <h2 id="s1">1. Introduction au langage PHP</h2>
+        <h3 id="s1-1">1.1 Définition</h3>
+        <p>
+          PHP (abréviation de <i>Personal Home Page Hypertext Preprocessor</i>)
+          est un langage de scripts qui s'intègre aux pages HTML et qui permet
+          de réaliser des pages Web dynamiques.
+        </p>
+        <p>
+          Un langage est dit « côté serveur » lorsque son code est exécuté sur
+          le serveur Web, avant l'envoi de la page au navigateur. Le navigateur
+          ne reçoit jamais le code PHP : il ne reçoit que le résultat, sous
+          forme de HTML « classique ». C'est ce qui distingue PHP d'un langage «
+          côté client » comme JavaScript.
+        </p>
+
+        <h3 id="s1b">1.2 Le principe client / serveur — en schémas</h3>
+        <div class="analogy">
+          <b class="tt"
+            >Analogie n°1 — Le client, le serveur et le chef cuisinier (au
+            restaurant)</b
+          >
+          <div class="diagram">
+            <svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker
+                  id="a1"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="6"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0L6,3L0,6Z" fill="var(--blue)" />
+                </marker>
+              </defs>
+              <rect
+                x="10"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="85"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Client
+              </text>
+              <text
+                x="85"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (navigateur)
+              </text>
+              <rect
+                x="245"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="320"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Serveur de salle
+              </text>
+              <text
+                x="320"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (serveur Web)
+              </text>
+              <rect
+                x="480"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="555"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Chef cuisinier
+              </text>
+              <text
+                x="555"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (interpréteur PHP)
+              </text>
+              <rect
+                x="480"
+                y="150"
+                width="150"
+                height="46"
+                rx="8"
+                fill="var(--analogy-bg)"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+              />
+              <text
+                x="555"
+                y="177"
+                text-anchor="middle"
+                font-size="11.5"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Garde-manger (MySQL)
+              </text>
+              <line
+                x1="160"
+                y1="35"
+                x2="240"
+                y2="35"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a1)"
+              />
+              <text
+                x="200"
+                y="27"
+                text-anchor="middle"
+                font-size="10"
+                fill="var(--blue)"
+              >
+                commande
+              </text>
+              <line
+                x1="395"
+                y1="35"
+                x2="475"
+                y2="35"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a1)"
+              />
+              <text
+                x="435"
+                y="27"
+                text-anchor="middle"
+                font-size="10"
+                fill="var(--blue)"
+              >
+                transmet
+              </text>
+              <line
+                x1="555"
+                y1="80"
+                x2="555"
+                y2="145"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a1)"
+              />
+              <text
+                x="605"
+                y="115"
+                text-anchor="middle"
+                font-size="10"
+                fill="var(--blue)"
+              >
+                ingrédients
+              </text>
+              <line
+                x1="475"
+                y1="90"
+                x2="165"
+                y2="90"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+                marker-end="url(#a1)"
+              />
+              <text
+                x="320"
+                y="105"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--navy)"
+              >
+                plat fini → transmis au client (HTML)
+              </text>
+            </svg>
+          </div>
+          <p>
+            Le client ne voit jamais la recette ni la cuisine : il reçoit
+            seulement le plat fini — de même que le navigateur ne reçoit jamais
+            le code PHP, seulement le HTML généré.
+          </p>
+        </div>
+
+        <div class="analogy">
+          <b class="tt">Analogie n°2 — Le client au guichet d'une banque</b>
+          <div class="diagram">
+            <svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker
+                  id="a2"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="6"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0L6,3L0,6Z" fill="var(--blue)" />
+                </marker>
+              </defs>
+              <rect
+                x="10"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="85"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Client
+              </text>
+              <text
+                x="85"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (formulaire HTML)
+              </text>
+              <rect
+                x="245"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="320"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Employé
+              </text>
+              <text
+                x="320"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (script PHP)
+              </text>
+              <rect
+                x="480"
+                y="20"
+                width="150"
+                height="60"
+                rx="8"
+                fill="var(--card)"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+              />
+              <text
+                x="555"
+                y="45"
+                text-anchor="middle"
+                font-size="13"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                Système central
+              </text>
+              <text
+                x="555"
+                y="62"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--muted)"
+              >
+                (base MySQL)
+              </text>
+              <rect
+                x="245"
+                y="150"
+                width="150"
+                height="46"
+                rx="8"
+                fill="var(--analogy-bg)"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+              />
+              <text
+                x="320"
+                y="177"
+                text-anchor="middle"
+                font-size="11.5"
+                fill="var(--navy)"
+                font-weight="700"
+              >
+                $_GET / $_POST
+              </text>
+              <line
+                x1="160"
+                y1="35"
+                x2="240"
+                y2="35"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a2)"
+              />
+              <text
+                x="200"
+                y="27"
+                text-anchor="middle"
+                font-size="10"
+                fill="var(--blue)"
+              >
+                bordereau
+              </text>
+              <line
+                x1="395"
+                y1="35"
+                x2="475"
+                y2="35"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a2)"
+              />
+              <text
+                x="435"
+                y="27"
+                text-anchor="middle"
+                font-size="10"
+                fill="var(--blue)"
+              >
+                consulte / met à jour
+              </text>
+              <line
+                x1="320"
+                y1="80"
+                x2="320"
+                y2="145"
+                stroke="var(--blue)"
+                stroke-width="1.5"
+                marker-end="url(#a2)"
+              />
+              <line
+                x1="475"
+                y1="90"
+                x2="165"
+                y2="90"
+                stroke="var(--navy)"
+                stroke-width="1.5"
+                marker-end="url(#a2)"
+              />
+              <text
+                x="320"
+                y="105"
+                text-anchor="middle"
+                font-size="10.5"
+                fill="var(--navy)"
+              >
+                reçu remis au client (HTML)
+              </text>
+            </svg>
+          </div>
+          <p>
+            Le client ne voit jamais le système interne — seulement le résultat
+            final, comme l'internaute ne reçoit que la page HTML finale.
+          </p>
+        </div>
+
+        <h3 id="s1-3">1.3 Syntaxe générale d'un script PHP</h3>
+        <pre><code>&lt;?php
+   // instructions PHP ici
+   echo "Bonjour tout le monde !";
+?&gt;</code></pre>
+        <p>
+          Chaque instruction se termine par <code>;</code>, les commentaires
+          s'écrivent avec <code>//</code> ou <code>/* ... */</code>.
+        </p>
+
+        <h2 id="s2">2. Types de données, variables et opérateurs</h2>
+        <h3 id="s2-1">2.1 Types de données</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>int</td>
+              <td>Entier</td>
+            </tr>
+            <tr>
+              <td>float</td>
+              <td>Réel</td>
+            </tr>
+            <tr>
+              <td>string</td>
+              <td>Chaîne de caractères</td>
+            </tr>
+            <tr>
+              <td>bool</td>
+              <td>Booléen</td>
+            </tr>
+            <tr>
+              <td>array</td>
+              <td>Tableau</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="s2-2">2.2 Les variables</h3>
+        <p>
+          Toute variable commence par <code>$</code>, sans déclaration préalable
+          (typage dynamique).
+        </p>
+        <pre><code>&lt;?php
+   $nom = "Ali"; $age = 17; $moyenne = 14.5; $actif = true;
+?&gt;</code></pre>
+        <h3 id="s2-3">2.3 Les constantes</h3>
+        <p>
+          On définit une constante avec <code>define()</code>. Elle ne commence
+          pas par <code>$</code> et n'est plus modifiable.
+        </p>
+        <pre><code>&lt;?php
+   define("ECOLE", "Lycée Rafèha");
+   echo ("&lt;HR&gt;" . ECOLE);
+?&gt;</code></pre>
+        <h3 id="s2-4">2.4 Transtypage, logiques, comparaison, arithmétiques</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Transtypage</th>
+              <th>Logiques</th>
+              <th>Comparaison</th>
+              <th>Arithmétiques</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>(int)</td>
+              <td>&amp;&amp; Et</td>
+              <td>== égal</td>
+              <td>+ - * /</td>
+            </tr>
+            <tr>
+              <td>(float)</td>
+              <td>|| Ou</td>
+              <td>&lt;&gt; différent</td>
+              <td>% modulo</td>
+            </tr>
+            <tr>
+              <td>(string)</td>
+              <td>! Non</td>
+              <td>&lt; &lt;= &gt; &gt;=</td>
+              <td>= affectation</td>
+            </tr>
+            <tr>
+              <td>(bool) (array)</td>
+              <td></td>
+              <td></td>
+              <td>. concaténation</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 id="s2-5">2.5 Fonctions mathématiques et echo</h3>
+        <pre><code>&lt;?php
+   echo abs(-7), " ", sqrt(16), " ", round(3.6), " ", rand(1,10);
+?&gt;</code></pre>
+
+        <h2 id="s3">3. Fonctions de manipulation de variables</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Fonction</th>
+              <th>Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>gettype($v)</td>
+              <td>Type de la variable</td>
+            </tr>
+            <tr>
+              <td>settype($v,"type")</td>
+              <td>Définit explicitement le type</td>
+            </tr>
+            <tr>
+              <td>is_string / is_array / is_int / is_float</td>
+              <td>Teste le type</td>
+            </tr>
+            <tr>
+              <td>isset($v) / unset($v)</td>
+              <td>Variable définie ? / Détruit la variable</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>&lt;?php
+   $x = 2.3;
+   echo gettype($x);        // double
+   settype($x, "integer"); echo $x; // 2
+   $val = isset($x); unset($x); $val2 = isset($x); // true, false
+?&gt;</code></pre>
+
+        <h2 id="s4">4. Les chaînes de caractères</h2>
+        <pre><code>&lt;?php
+   $s = "Il était une fois";
+   print $s[4]; // 't'
+?&gt;</code></pre>
+        <table>
+          <thead>
+            <tr>
+              <th>Fonction</th>
+              <th>Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>substr / strlen / trim</td>
+              <td>Sous-chaîne / longueur / nettoyage</td>
+            </tr>
+            <tr>
+              <td>implode / explode</td>
+              <td>Tableau ↔ chaîne</td>
+            </tr>
+            <tr>
+              <td>str_replace</td>
+              <td>Remplace les occurrences</td>
+            </tr>
+            <tr>
+              <td>chr / ord</td>
+              <td>Caractère ↔ code ASCII</td>
+            </tr>
+            <tr>
+              <td>strpos / strcmp</td>
+              <td>Position / comparaison</td>
+            </tr>
+            <tr>
+              <td>strrev / strtolower / strtoupper</td>
+              <td>Inverse / minuscule / majuscule</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>&lt;?php
+   $array = array('lastname','email','phone');
+   echo implode(",", $array);          // lastname,email,phone
+   $pieces = explode(" ", "a b c");
+   echo $pieces[0];                     // a
+   echo strpos("ABCDEFGH", 'CD');       // 2
+?&gt;</code></pre>
+
+        <h2 id="s5">5. Les tableaux</h2>
+        <p>
+          Tableaux à indices entiers (indice 0 par défaut) ou associatifs
+          (indices en chaîne) ; les types peuvent être mélangés.
+        </p>
+        <pre><code>&lt;?php
+   $vente = array("lundi"=>7, "mardi"=>5, "jeudi"=>9);
+   echo $vente["mardi"]; // 5
+?&gt;</code></pre>
+        <table>
+          <thead>
+            <tr>
+              <th>Parcours</th>
+              <th>Tri</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>current() / key()</td>
+              <td>sort() / rsort()</td>
+            </tr>
+            <tr>
+              <td>reset() / end()</td>
+              <td>ksort() / krsort()</td>
+            </tr>
+            <tr>
+              <td>next() / prev() / sizeof()</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>&lt;?php
+   $notes = array(12, 8, 17, 5);
+   sort($notes); print_r($notes); // 5,8,12,17
+?&gt;</code></pre>
+
+        <h2 id="s6">6. Fonctions de date et d'heure</h2>
+        <p>
+          Un <b>timestamp</b> est un entier long contenant le nombre de secondes
+          écoulées entre le début de l'époque UNIX (1ᵉʳ janvier 1970 à 00:00:00
+          GMT) et une date donnée. Sur un site dynamique, on est souvent amené à
+          : affecter la date/l'heure système à une variable, ajouter une période
+          à une date, changer le format d'affichage d'une date, ou traiter des
+          champs de type date.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Fonction</th>
+              <th>Rôle (annexe)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>checkdate()</td>
+              <td>Vérifie la validité d'une date</td>
+            </tr>
+            <tr>
+              <td>date()</td>
+              <td>Formate une date et la retourne sous forme de chaîne</td>
+            </tr>
+            <tr>
+              <td>time()</td>
+              <td>Retourne l'heure actuelle en nombre de secondes</td>
+            </tr>
+            <tr>
+              <td>strtotime()</td>
+              <td>Transforme une chaîne contenant une date en timestamp</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 id="s6-1">6.1 checkdate — vérifier une date</h3>
+        <p>Syntaxe : <code>int checkdate(int m, int j, int a)</code></p>
+        <p>
+          Retourne <code>TRUE</code> si la date représentée par le jour j, le
+          mois m et l'année a est valide, sinon <code>FALSE</code>. Attention :
+          l'ordre des arguments n'est pas l'ordre français (mois, jour, année).
+          La date est valide si l'année est comprise entre 1 et 32767, le mois
+          entre 1 et 12, et le jour dans l'intervalle du mois — les années
+          bissextiles sont prises en compte.
+        </p>
+        <pre><code>&lt;?Php
+$j=24; $m=9; $a=2026;
+if (checkdate($m,$j,$a)==true) $d=$j."/".$m."/".$a;
+else $d="données invalide ";
+echo($d);
+?&gt;</code></pre>
+
+        <h3 id="s6-2">6.2 date — formater une date</h3>
+        <p>
+          Syntaxe : <code>string date(string format, [int timestamp])</code>
+        </p>
+        <p>
+          Retourne une date sous forme de chaîne, au format donné par le
+          paramètre <code>format</code> (ex. Y = année, m = mois, d = jour, H =
+          heures, i = minutes, s = secondes). La date utilisée est celle du
+          <code>timestamp</code> fourni, ou la date/heure courantes si aucun
+          timestamp n'est fourni.
+        </p>
+        <pre><code>&lt;?Php
+$d=date("Y-m-d H:i:s");
+echo("Nous sommes le : ".$d);
+?&gt;</code></pre>
+
+        <h3 id="s6-3">6.3 getdate — informations détaillées sur une date</h3>
+        <p>Syntaxe : <code>array getdate([int timestamp])</code></p>
+        <p>
+          Retourne un tableau associatif contenant les informations de date et
+          d'heure du timestamp fourni (ou de la date/heure courante sinon). Le
+          tableau comporte les éléments :
+          <code
+            >seconds, minutes, hours, mday, wday, mon, year, yday, weekday,
+            month</code
+          >.
+        </p>
+        <pre><code>&lt;?php
+$a=getdate();
+$b=date("d-m-Y H:i:s");
+echo("Nous sommes le : ".$b."&lt;br&gt;");
+echo("Les secondes : ".$a["seconds"]."&lt;br&gt;");
+echo("Les minutes : ".$a["minutes"]."&lt;br&gt;");
+echo("Les heures : ".$a["hours"]."&lt;br&gt;");
+echo("Le jour du mois : ".$a["mday"]."&lt;br&gt;");
+echo("Le jour de la semaine : ".$a["wday"]."&lt;br&gt;");
+echo("Les mois : ".$a["mon"]."&lt;br&gt;");
+echo("L'année : ".$a["year"]."&lt;br&gt;");
+echo("Le jour de l'année : ".$a["yday"]."&lt;br&gt;");
+echo("Le nom du jour de la semaine : ".$a["weekday"]."&lt;br&gt;");
+echo("Le nom du mois : ".$a["month"]."&lt;br&gt;");
+?&gt;</code></pre>
+
+        <h3 id="s6-4">6.4 time — timestamp de l'instant présent</h3>
+        <p>Syntaxe : <code>int time(void)</code></p>
+        <p>
+          Retourne le timestamp qui est un entier long représentant l'heure
+          courante, mesurée en secondes depuis le 1ᵉʳ janvier 1970.
+        </p>
+        <pre><code>&lt;?Php
+$a=time();
+$b=date("d/m/Y H:i:s",$a);
+echo($a." = ".$b);
+?&gt;</code></pre>
+
+        <h3 id="s6-5">6.5 mktime — construire un timestamp</h3>
+        <p>
+          Syntaxe :
+          <code
+            >int mktime(int hour, int min, int sec, int month, int day, int
+            year, int is_dst)</code
+          >
+        </p>
+        <p>
+          Retourne un timestamp correspondant aux arguments fournis. Les
+          arguments peuvent être omis de droite à gauche ; tout argument
+          manquant prend la valeur courante de l'heure ou du jour.
+          <code>is_dst</code> vaut 1 si l'heure d'été est appliquée, 0 sinon, et
+          -1 (par défaut) si on ne sait pas.
+        </p>
+        <pre><code>&lt;?Php
+$h=10; $mn=30; $s=0; $m=9; $j=24; $a=2026;
+$ns=mktime($h,$mn,$s,$m,$j,$a);
+echo("le nombre de secondes est : ".$ns."&lt;br&gt;");
+$d=date("d-m-Y H:i:s",$ns);
+echo("Ce nombre de secondes correspond à la date : ".$d);
+?&gt;</code></pre>
+
+        <h3 id="s6-6">6.6 strtotime — interpréter une date en anglais</h3>
+        <p>Syntaxe : <code>int strtotime(string time, [int now])</code></p>
+        <p>
+          Essaie de lire une date au format anglais et de la transformer en
+          timestamp, relativement au timestamp <code>now</code>, ou à la date
+          courante si celui-ci est omis. Accepte aussi des expressions relatives
+          comme <code>"+1 day"</code>, <code>"+1 week"</code>.
+        </p>
+        <pre><code>&lt;?php
+$a=strtotime("now");
+$b=strtotime("10 September 2026");
+$c=strtotime("+1 day");
+$d=strtotime("+1 week");
+$e=strtotime("+1 week 2 days 4 hours 2 seconds");
+
+echo (date("Y-d-m H:i:s",$a)." = ".$a." secondes&lt;br&gt;") ;
+echo (date("Y-d-m H:i:s",$b)." = ".$b." secondes&lt;br&gt;") ;
+echo (date("Y-d-m H:i:s",$c)." = ".$c." secondes&lt;br&gt;") ;
+echo (date("Y-d-m H:i:s",$d)." = ".$d." secondes&lt;br&gt;") ;
+echo (date("Y-d-m H:i:s",$e)." = ".$e." secondes&lt;br&gt;") ;
+?&gt;</code></pre>
+
+        <h2 id="s7">7. Variables superglobales et fonctions diverses</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Variable / Fonction</th>
+              <th>Rôle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>$_GET / $_POST</td>
+              <td>Valeurs reçues via l'URL / via POST</td>
+            </tr>
+            <tr>
+              <td>die()</td>
+              <td>Affiche un message et arrête le script</td>
+            </tr>
+            <tr>
+              <td>isset()</td>
+              <td>Vérifie qu'une variable est définie</td>
+            </tr>
+            <tr>
+              <td>require()</td>
+              <td>Inclut et exécute un fichier</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>&lt;?php
+   $nom = $_POST['nom'];
+   if (!isset($nom) || $nom=="") die("Le nom est obligatoire.");
+   echo "Bonjour " . $nom;
+?&gt;</code></pre>
+
+        <h2 id="s8">8. Utiliser MySQL avec PHP</h2>
+        <p>
+          PHP dialogue avec MySQL via l'extension <b>MySQLi</b> (interface
+          procédurale) — l'équivalent, dans l'analogie de la banque, du système
+          informatique central que l'employé consulte pour lire ou modifier les
+          comptes.
+        </p>
+
+        <h3 id="s8anim">8.0 Comprendre le dialogue PHP ↔ MySQL en animation</h3>
+        <p>
+          Avant les fonctions, une histoire : le client arrive et prend une
+          feuille (un formulaire nom, téléphone, email) ; la guichetière — qui
+          est <b>JavaScript</b>, pas PHP — contrôle chaque champ ; le
+          coursier&nbsp;<b>PHP</b> emporte la feuille validée jusqu'à
+          l'administration (le <b>SGBD MySQL</b>) qui la classe dans les
+          archives (la <b>base de données</b>) ; enfin, le coursier rapporte le
+          résultat que la guichetière redonne au client. Utilisez les boutons
+          pour suivre le parcours complet des requêtes INSERT (réponse
+          booléenne) et SELECT (réponse ressource, avec la page retournée en
+          liste &lt;select&gt;/&lt;option&gt;).
+        </p>
+        <p style="text-align: center">
+          <button type="button" id="animOpen" class="anim-open">
+            ▶ Ouvrir l'animation du guichet
+          </button>
+        </p>
+        <div
+          id="animModal"
+          class="anim-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="animTitle"
+          hidden
+        >
+          <div class="anim-box" id="animBox">
+            <div class="anim-head">
+              <span id="animTitle"
+                >Animation — Du formulaire aux archives : l'histoire du
+                guichet</span
+              >
+              <span class="anim-tools">
+                <button
+                  type="button"
+                  id="animFull"
+                  title="Agrandir sur toute la page"
+                >
+                  ⛶ Plein écran
+                </button>
+                <button type="button" id="animClose" title="Fermer">
+                  ✕ Fermer
+                </button>
+              </span>
+            </div>
+            <div class="anim-body">
+              <div id="anim-bd">
+            <iframe id="animFrame" src="php-mysqli.html?embed=1"
+              title="Animation — Du formulaire aux archives : l’histoire du guichet"
+              loading="lazy"></iframe>
+          </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 id="s8-1">8.1 Le circuit d'une requête, étape par étape</h3>
+        <div class="step">
+          <b>1. Connexion</b> —
+          <code>mysqli_connect(hôte, utilisateur, mot_de_passe)</code> ouvre une
+          connexion au serveur MySQL et retourne une ressource de connexion (ex.
+          <code>$connexion</code>).
+        </div>
+        <div class="step">
+          <b>2. Sélection de la base</b> —
+          <code>mysqli_select_db($connexion, "nom_bd")</code> indique sur quelle
+          base travailler.
+        </div>
+        <div class="step">
+          <b>3. Construction de la requête SQL</b> — la requête (SELECT, INSERT,
+          UPDATE, DELETE…) est écrite dans une chaîne PHP, avec les valeurs des
+          variables insérées.
+        </div>
+        <div class="step">
+          <b>4. Exécution</b> —
+          <code>mysqli_query($connexion, $requete)</code> envoie la requête au
+          serveur ; elle retourne un résultat (SELECT) ou true/false
+          (INSERT/UPDATE/DELETE).
+        </div>
+        <div class="step">
+          <b>5. Exploitation du résultat</b> — pour un SELECT, on parcourt les
+          lignes avec <code>mysqli_fetch_array()</code> dans une boucle
+          <code>while</code>.
+        </div>
+        <div class="step">
+          <b>6. Fermeture</b> — <code>mysqli_close($connexion)</code> libère la
+          connexion en fin de script.
+        </div>
+
+        <h3 id="s8-2">8.2 Fonctions MySQLi essentielles</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Fonction</th>
+              <th>Rôle</th>
+              <th>Type de retour</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>mysqli_connect(host,user,pass)</td>
+              <td>Connexion au serveur MySQL</td>
+              <td>
+                object <code>mysqli</code> (ressource de connexion), ou
+                <code>false</code> en cas d'échec
+              </td>
+            </tr>
+            <tr>
+              <td>mysqli_select_db(cnx,bd)</td>
+              <td>Sélectionne la base</td>
+              <td>bool</td>
+            </tr>
+            <tr>
+              <td>mysqli_query(cnx,req)</td>
+              <td>Envoie et exécute une requête SQL</td>
+              <td>
+                object <code>mysqli_result</code> pour un SELECT ;
+                <code>bool</code> (true/false) pour INSERT/UPDATE/DELETE
+              </td>
+            </tr>
+            <tr>
+              <td>mysqli_fetch_array(res)</td>
+              <td>Ligne en tableau associatif + numérique</td>
+              <td>array, ou <code>null</code> s'il n'y a plus de ligne</td>
+            </tr>
+            <tr>
+              <td>mysqli_fetch_row(res)</td>
+              <td>Ligne en tableau indexé numériquement</td>
+              <td>
+                array indexé, ou <code>null</code> s'il n'y a plus de ligne
+              </td>
+            </tr>
+            <tr>
+              <td>mysqli_num_rows(res)</td>
+              <td>Nombre de lignes du résultat</td>
+              <td>int</td>
+            </tr>
+            <tr>
+              <td>mysqli_affected_rows(cnx)</td>
+              <td>Lignes affectées (INSERT/UPDATE/DELETE)</td>
+              <td>int</td>
+            </tr>
+            <tr>
+              <td>mysqli_insert_id(cnx)</td>
+              <td>Dernier id AUTO_INCREMENT généré</td>
+              <td>int</td>
+            </tr>
+            <tr>
+              <td>mysqli_error(cnx)</td>
+              <td>Dernier message d'erreur</td>
+              <td>string</td>
+            </tr>
+            <tr>
+              <td>mysqli_close(cnx)</td>
+              <td>Ferme la connexion</td>
+              <td>bool</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 id="s8-3">
+          8.3 mysqli_query() : un comportement différent selon la requête
+        </h3>
+        <p>
+          Syntaxe :
+          <code>mixed mysqli_query(mysqli $connexion, string $requete)</code>.
+          Cette fonction envoie n'importe quelle requête SQL au serveur, mais ce
+          qu'elle retourne dépend du type de requête :
+        </p>
+        <div class="step">
+          <b>Pour un SELECT</b> (ou SHOW, DESCRIBE…) — elle retourne un objet
+          <b>mysqli_result</b> : un « résultat » qu'il faut ensuite parcourir
+          avec <code>mysqli_fetch_array()</code> ou
+          <code>mysqli_fetch_row()</code>. En cas d'erreur de syntaxe SQL, elle
+          retourne <code>false</code>.
+        </div>
+        <div class="step">
+          <b>Pour un INSERT / UPDATE / DELETE</b> — il n'y a pas de lignes à
+          lire : elle retourne simplement <code>true</code> (succès) ou
+          <code>false</code> (échec). On connaît alors l'effet de la requête via
+          <code>mysqli_affected_rows()</code> ou
+          <code>mysqli_insert_id()</code>, jamais via
+          <code>mysqli_fetch_array()</code>.
+        </div>
+        <pre><code>&lt;?php
+// SELECT : mysqli_query retourne un résultat à parcourir
+$res = mysqli_query($connexion, "SELECT nom FROM eleves");
+if ($res) {
+   while ($ligne = mysqli_fetch_array($res)) {
+      echo $ligne["nom"] . "&lt;br&gt;";
+   }
+} else {
+   echo "Erreur SQL : " . mysqli_error($connexion);
+}
+
+// INSERT : mysqli_query retourne true / false
+$ok = mysqli_query($connexion, "INSERT INTO eleves (nom) VALUES ('Sami')");
+if ($ok) {
+   echo "Insertion réussie, id = " . mysqli_insert_id($connexion);
+} else {
+   echo "Erreur SQL : " . mysqli_error($connexion);
+}
+
+// UPDATE : mysqli_query retourne aussi true / false
+$ok2 = mysqli_query($connexion, "UPDATE eleves SET moyenne = 16 WHERE nom = 'Sami'");
+if ($ok2) {
+   echo mysqli_affected_rows($connexion) . " ligne(s) mise(s) à jour.";
+}
+?&gt;</code></pre>
+
+        <h3 id="s8-4">8.4 mysqli_fetch_array() et mysqli_fetch_row()</h3>
+        <p>
+          <code>mysqli_fetch_array($resultat)</code> extrait la ligne courante
+          du résultat et avance automatiquement au suivant à chaque appel ; par
+          défaut elle retourne un tableau
+          <b>à la fois associatif et numérique</b> (indices texte
+          <i>et</i> indices entiers pour la même valeur), tant qu'il reste des
+          lignes, sinon <code>null</code>.
+        </p>
+        <p>
+          <code>mysqli_fetch_row($resultat)</code> fait la même chose mais
+          retourne uniquement un tableau <b>indexé numériquement</b> (comme un
+          tableau classique 0, 1, 2…), sans les clés textuelles.
+        </p>
+        <pre><code>&lt;?php
+$res = mysqli_query($connexion, "SELECT nom, moyenne FROM eleves");
+
+// Avec mysqli_fetch_array : accès par nom de colonne OU par indice
+$ligne = mysqli_fetch_array($res);
+echo $ligne["nom"];      // accès associatif : "Ali"
+echo $ligne[0];           // accès numérique : "Ali" (même valeur)
+echo $ligne["moyenne"];   // "14.5"
+echo $ligne[1];           // "14.5"
+
+// Avec mysqli_fetch_row : accès uniquement par indice numérique
+$res2 = mysqli_query($connexion, "SELECT nom, moyenne FROM eleves");
+while ($row = mysqli_fetch_row($res2)) {
+   echo $row[0] . " a pour moyenne " . $row[1] . "&lt;br&gt;";
+   // $row["nom"] n'existerait pas ici : uniquement $row[0], $row[1]...
+}
+?&gt;</code></pre>
+        <p class="note">
+          En pratique, <code>mysqli_fetch_array()</code> est le plus utilisé en
+          classe car <code>$ligne["colonne"]</code> rend le code plus lisible ;
+          <code>mysqli_fetch_row()</code> est plus léger quand on connaît déjà
+          l'ordre exact des colonnes.
+        </p>
+
+        <h3 id="s8-5">8.5 mysqli_num_rows()</h3>
+        <p>
+          Syntaxe : <code>int mysqli_num_rows(mysqli_result $resultat)</code>.
+          Elle retourne le <b>nombre de lignes</b> contenues dans un résultat de
+          type SELECT. Elle ne s'applique qu'à un résultat de SELECT (un objet
+          <code>mysqli_result</code>) — pour connaître le nombre de lignes
+          touchées par un INSERT/UPDATE/DELETE, on utilise
+          <code>mysqli_affected_rows()</code> à la place.
+        </p>
+        <pre><code>&lt;?php
+$req = "SELECT * FROM eleves WHERE moyenne &gt;= 10";
+$resultat = mysqli_query($connexion, $req);
+$nb = mysqli_num_rows($resultat);
+
+if ($nb == 0) {
+   echo "Aucun élève admis.";
+} else {
+   echo $nb . " élève(s) admis :&lt;br&gt;";
+   while ($ligne = mysqli_fetch_array($resultat)) {
+      echo "- " . $ligne["nom"] . "&lt;br&gt;";
+   }
+}
+?&gt;</code></pre>
+
+        <h3 id="s8-6">8.6 Se connecter et gérer les erreurs</h3>
+        <pre><code>&lt;?php
+$connexion = mysqli_connect("localhost", "root", "");
+if (!$connexion) {
+   die("Connexion échouée : " . mysqli_connect_error());
+}
+mysqli_select_db($connexion, "ecole");
+?&gt;</code></pre>
+
+        <h3 id="s8-7">8.7 Insérer, mettre à jour, supprimer</h3>
+        <pre><code>&lt;?php
+// INSERT
+$req = "INSERT INTO eleves (nom, moyenne) VALUES ('Ali', 14.5)";
+mysqli_query($connexion, $req);
+echo "Nouvel id : " . mysqli_insert_id($connexion);
+
+// UPDATE
+$req2 = "UPDATE eleves SET moyenne = 15 WHERE nom = 'Ali'";
+mysqli_query($connexion, $req2);
+echo mysqli_affected_rows($connexion) . " ligne(s) modifiée(s).";
+
+// DELETE
+$req3 = "DELETE FROM eleves WHERE nom = 'Ali'";
+mysqli_query($connexion, $req3);
+mysqli_close($connexion);
+?&gt;</code></pre>
+        <p class="note">
+          Sécurité : toujours contrôler/échapper les données saisies par
+          l'utilisateur avant de les insérer dans une requête SQL, afin d'éviter
+          les injections SQL. Les anciennes fonctions <code>mysql_*</code> (sans
+          « i ») sont obsolètes : utiliser MySQLi.
+        </p>
+
+        <h2 id="s9">9. Exemple récapitulatif — formulaire d'inscription</h2>
+        <pre><code>&lt;!-- formulaire.html --&gt;
+&lt;form method="post" action="inscription.php"&gt;
+   Nom : &lt;input type="text" name="nom"&gt;&lt;br&gt;
+   Âge : &lt;input type="text" name="age"&gt;&lt;br&gt;
+   &lt;input type="submit" value="Envoyer"&gt;
+&lt;/form&gt;</code></pre>
+        <pre><code>&lt;?php
+// inscription.php
+$nom = $_POST['nom'];
+$age = (int)$_POST['age'];
+if (!isset($nom) || $nom == "") die("Le nom est obligatoire.");
+
+$connexion = mysqli_connect("localhost", "root", "");
+mysqli_select_db($connexion, "ecole");
+$req = "INSERT INTO eleves (nom, age) VALUES ('" . $nom . "', " . $age . ")";
+if (mysqli_query($connexion, $req)) {
+   echo "Inscription réussie pour " . $nom . " le " . date("d-m-Y") . ".";
+} else {
+   echo mysqli_error($connexion);
+}
+mysqli_close($connexion);
+?&gt;</code></pre>
+
+        <h2 id="s10">10. Quatre pages PHP complètes (CRUD + statistiques)</h2>
+        <p>
+          Ces quatre pages utilisent la même table
+          <code>eleves(id, nom, age, moyenne)</code> et le même schéma de
+          connexion.
+        </p>
+
+        <h3 id="s10a">10.1 Page d'insertion — ajouter.php</h3>
+        <pre><code>&lt;?php
+$connexion = mysqli_connect("localhost", "root", "");
+mysqli_select_db($connexion, "ecole");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+   $nom = $_POST['nom'];
+   $age = (int)$_POST['age'];
+   $moyenne = (float)$_POST['moyenne'];
+
+   $req = "INSERT INTO eleves (nom, age, moyenne) VALUES ('$nom', $age, $moyenne)";
+   if (mysqli_query($connexion, $req)) {
+      echo "Élève ajouté (id = " . mysqli_insert_id($connexion) . ").";
+   } else {
+      echo "Erreur : " . mysqli_error($connexion);
+   }
+}
+?&gt;
+&lt;form method="post"&gt;
+   Nom : &lt;input name="nom"&gt;&lt;br&gt;
+   Âge : &lt;input name="age" type="number"&gt;&lt;br&gt;
+   Moyenne : &lt;input name="moyenne" type="number" step="0.01"&gt;&lt;br&gt;
+   &lt;input type="submit" value="Ajouter"&gt;
+&lt;/form&gt;</code></pre>
+
+        <h3 id="s10b">10.2 Page de sélection — liste.php</h3>
+        <pre><code>&lt;?php
+$connexion = mysqli_connect("localhost", "root", "");
+mysqli_select_db($connexion, "ecole");
+
+$req = "SELECT id, nom, age, moyenne FROM eleves ORDER BY nom";
+$resultat = mysqli_query($connexion, $req);
+?&gt;
+&lt;table border="1"&gt;
+   &lt;tr&gt;&lt;th&gt;Id&lt;/th&gt;&lt;th&gt;Nom&lt;/th&gt;&lt;th&gt;Âge&lt;/th&gt;&lt;th&gt;Moyenne&lt;/th&gt;&lt;/tr&gt;
+   &lt;?php while ($ligne = mysqli_fetch_array($resultat)) { ?&gt;
+   &lt;tr&gt;
+      &lt;td&gt;&lt;?php echo $ligne["id"]; ?&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;?php echo $ligne["nom"]; ?&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;?php echo $ligne["age"]; ?&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;?php echo $ligne["moyenne"]; ?&gt;&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;?php } ?&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;?php echo mysqli_num_rows($resultat); ?&gt; élève(s) au total.&lt;/p&gt;</code></pre>
+
+        <h3 id="s10c">10.3 Page de mise à jour — modifier.php</h3>
+        <pre><code>&lt;?php
+$connexion = mysqli_connect("localhost", "root", "");
+mysqli_select_db($connexion, "ecole");
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+   $id = (int)$_POST['id'];
+   $moyenne = (float)$_POST['moyenne'];
+
+   $req = "UPDATE eleves SET moyenne = $moyenne WHERE id = $id";
+   mysqli_query($connexion, $req);
+
+   if (mysqli_affected_rows($connexion) > 0) {
+      echo "Moyenne mise à jour pour l'élève n°$id.";
+   } else {
+      echo "Aucune ligne modifiée (id introuvable ?).";
+   }
+}
+?&gt;
+&lt;form method="post"&gt;
+   Id de l'élève : &lt;input name="id" type="number"&gt;&lt;br&gt;
+   Nouvelle moyenne : &lt;input name="moyenne" type="number" step="0.01"&gt;&lt;br&gt;
+   &lt;input type="submit" value="Mettre à jour"&gt;
+&lt;/form&gt;</code></pre>
+
+        <h3 id="s10d">10.4 Page de statistiques — statistiques.php</h3>
+        <pre><code>&lt;?php
+$connexion = mysqli_connect("localhost", "root", "");
+mysqli_select_db($connexion, "ecole");
+
+$total = mysqli_query($connexion, "SELECT COUNT(*) AS nb FROM eleves");
+$ligneTotal = mysqli_fetch_array($total);
+echo "Nombre d'élèves : " . $ligneTotal["nb"] . "&lt;br&gt;";
+
+$moy = mysqli_query($connexion, "SELECT AVG(moyenne) AS m FROM eleves");
+$ligneMoy = mysqli_fetch_array($moy);
+echo "Moyenne générale : " . round($ligneMoy["m"], 2) . "&lt;br&gt;";
+
+$max = mysqli_query($connexion, "SELECT nom, moyenne FROM eleves ORDER BY moyenne DESC LIMIT 1");
+$ligneMax = mysqli_fetch_array($max);
+echo "Meilleure moyenne : " . $ligneMax["nom"] . " (" . $ligneMax["moyenne"] . ")&lt;br&gt;";
+
+$parTranche = mysqli_query($connexion,
+   "SELECT CASE WHEN moyenne&gt;=10 THEN 'Admis' ELSE 'Non admis' END AS statut, COUNT(*) AS nb
+    FROM eleves GROUP BY statut");
+while ($l = mysqli_fetch_array($parTranche)) {
+   echo $l["statut"] . " : " . $l["nb"] . "&lt;br&gt;";
+}
+mysqli_close($connexion);
+?&gt;</code></pre>
+
+        <footer>Cours PHP — 4ème SI · Travail élaboré par A. Essouyah</footer>
+      </div>
+    </main>
+    <script>
+      /* ---- gestion de la boîte modale ---- */
+      (function () {
+        var M = document.getElementById("animModal"),
+          B = document.getElementById("animBox");
+        function open() {
+          M.hidden = false;
+          document.body.style.overflow = "hidden";
+        }
+        function close() {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(function () {});
+          }
+          M.classList.remove("full");
+          M.hidden = true;
+          document.body.style.overflow = "";
+          var f = document.getElementById("animFrame");
+          var a = f && f.contentDocument ? f.contentDocument.getElementById("auto") : null;
+          if (a && a.textContent == "Pause") a.click();
+        }
+        function toggleFull() {
+          if (M.classList.contains("full")) {
+            M.classList.remove("full");
+            if (document.fullscreenElement)
+              document.exitFullscreen().catch(function () {});
+          } else {
+            M.classList.add("full");
+            if (B.requestFullscreen)
+              B.requestFullscreen().catch(function () {});
+          }
+          document.getElementById("animFull").textContent =
+            M.classList.contains("full") ? "⤡ Réduire" : "⛶ Plein écran";
+        }
+        document.getElementById("animOpen").onclick = open;
+        document.getElementById("animClose").onclick = close;
+        document.getElementById("animFull").onclick = toggleFull;
+        M.addEventListener("click", function (e) {
+          if (e.target === M) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key == "Escape" && !M.hidden) close();
+        });
+        document.addEventListener("fullscreenchange", function () {
+          if (!document.fullscreenElement && M.classList.contains("full")) {
+            M.classList.remove("full");
+            document.getElementById("animFull").textContent = "⛶ Plein écran";
+          }
+        });
+      })();
+    </script>
+    
+    
+    <button
+      type="button"
+      id="to-top"
+      aria-label="Remonter en haut de la page"
+      title="Remonter en haut"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+    <script>
+      (function () {
+        var bar = document.querySelector("header.top");
+        var nav = document.getElementById("sidebar");
+        var prog = bar.querySelector(".progress i");
+        var btn = document.getElementById("to-top");
+        var now = document.getElementById("now");
+        var menu = document.getElementById("menu-btn");
+        var scrim = document.getElementById("scrim");
+        var root = document.documentElement,
+          ticking = false,
+          lastKey = "";
+
+        var groups = [].slice
+          .call(nav.querySelectorAll(".nav-group"))
+          .map(function (g) {
+            var main = g.querySelector(".main-link");
+            return {
+              g: g,
+              main: main,
+              sec: document.querySelector(main.getAttribute("href")),
+              subs: [].slice
+                .call(g.querySelectorAll(".sub-link"))
+                .map(function (a) {
+                  return {
+                    a: a,
+                    el: document.querySelector(a.getAttribute("href")),
+                  };
+                }),
+            };
+          });
+
+        function setH() {
+          root.style.setProperty("--header-h", bar.offsetHeight + "px");
+        }
+
+        function update() {
+          ticking = false;
+          var y = window.pageYOffset || root.scrollTop;
+          var max = root.scrollHeight - window.innerHeight;
+          prog.style.transform =
+            "scaleX(" + (max > 0 ? Math.min(1, y / max) : 0) + ")";
+          bar.classList.toggle("scrolled", y > 8);
+          btn.classList.toggle("show", y > 400);
+
+          var line = bar.offsetHeight + 40,
+            cg = -1,
+            cs = -1;
+          groups.forEach(function (o, i) {
+            if (o.sec && o.sec.getBoundingClientRect().top <= line) cg = i;
+          });
+          if (cg >= 0) {
+            groups[cg].subs.forEach(function (o, j) {
+              if (o.el && o.el.getBoundingClientRect().top <= line) cs = j;
+            });
+          }
+          if (max > 0 && y >= max - 4) {
+            cg = groups.length - 1;
+            cs = groups[cg].subs.length - 1;
+          }
+          var key = cg + ":" + cs;
+          if (key === lastKey) return;
+          lastKey = key;
+
+          groups.forEach(function (o, i) {
+            o.g.classList.toggle("current", i === cg);
+            o.subs.forEach(function (s, j) {
+              if (i === cg && j === cs)
+                s.a.setAttribute("aria-current", "location");
+              else s.a.removeAttribute("aria-current");
+            });
+          });
+
+          if (cg < 0) {
+            now.innerHTML = "";
+            return;
+          }
+          now.innerHTML = "<b></b>" + (cs >= 0 ? " › <span></span>" : "");
+          now.firstChild.textContent = groups[cg].main.textContent.trim();
+          if (cs >= 0)
+            now.lastChild.textContent =
+              groups[cg].subs[cs].a.textContent.trim();
+
+          var t = cs >= 0 ? groups[cg].subs[cs].a : groups[cg].main;
+          var nr = nav.getBoundingClientRect(),
+            tr = t.getBoundingClientRect();
+          if (
+            nav.scrollHeight > nav.clientHeight &&
+            (tr.top < nr.top + 50 || tr.bottom > nr.bottom - 20)
+          ) {
+            nav.scrollTo({
+              top: nav.scrollTop + tr.top - nr.top - nav.clientHeight / 2,
+              behavior: "smooth",
+            });
+          }
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+
+        function setNav(open) {
+          document.body.classList.toggle("nav-open", open);
+          menu.setAttribute("aria-expanded", open ? "true" : "false");
+          menu.setAttribute(
+            "aria-label",
+            open ? "Fermer le sommaire" : "Ouvrir le sommaire"
+          );
+          if (open) {
+            var f = nav.querySelector("a");
+            if (f) f.focus({ preventScroll: true });
+          } else if (
+            document.activeElement &&
+            nav.contains(document.activeElement)
+          ) {
+            menu.focus();
+          }
+        }
+        menu.addEventListener("click", function () {
+          setNav(!document.body.classList.contains("nav-open"));
+        });
+        scrim.addEventListener("click", function () {
+          setNav(false);
+        });
+        nav.addEventListener("click", function (e) {
+          if (e.target.closest("a") && window.innerWidth <= 860) setNav(false);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (
+            e.key === "Escape" &&
+            document.body.classList.contains("nav-open")
+          )
+            setNav(false);
+        });
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > 860) setNav(false);
+          setH();
+          onScroll();
+        });
+        btn.addEventListener("click", function () {
+          window.scrollTo({ top: 0 });
+        });
+        setH();
+        update();
+      })();
+    </script>
+  <script id="stix-top">(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest('a[href="#top"]'):null;if(!a)return;e.preventDefault();var de=document.documentElement,pr=de.style.scrollBehavior;de.style.scrollBehavior="auto";window.scrollTo(0,0);if(pr)de.style.scrollBehavior=pr;else de.style.removeProperty("scroll-behavior");if(location.hash==="#top"&&history.replaceState)history.replaceState(null,"",location.pathname+location.search);});})();</script>
+  <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
 <script src="../assets/js/protection.js" defer></script>
 <!-- /Protection -->

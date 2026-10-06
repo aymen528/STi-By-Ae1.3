@@ -2,14 +2,686 @@
 <html lang="fr">
 <head>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src https://www.youtube.com https://example.com https://exemple.tn; connect-src https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta http-equiv="refresh" content="0; url=php.html" />
-<title>Cours PHP — redirection</title>
-<script>location.replace("php.html");</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Du formulaire aux archives : JavaScript, PHP, SGBD et BD</title>
+<style>
+:root{--bg:#F2F4F9;--card:#fff;--ink:#17202F;--mut:#5A6579;--line:#DDE2EC;--php:#6B5BD2;--js:#B8860B;--db:#1F7A8C;--ok:#2E8B57;--bub:#fff;--wall:#E6EBF4;--wall2:#D3DAE8;--floor:#C3CAD9;--wood:#8A5A3B;--glass:rgba(120,170,220,.25);--arch:#CDE6EA;--cjs:#FFF3C4;--cjs2:#FFE58A;--cphp:#ECE5FB;--cphp2:#C9B8F2;--chtml:#FDEEE6;--chtml2:#F8D9C8;--chtmlInk:#C4552B;
+--sh:0 1px 2px rgba(23,32,47,.06),0 8px 24px -10px rgba(23,32,47,.16);--sh2:0 2px 4px rgba(23,32,47,.08),0 16px 36px -12px rgba(23,32,47,.26);--glow:rgba(255,255,255,.3);
+--ease:cubic-bezier(.65,0,.35,1);--pop:cubic-bezier(.2,.9,.3,1.25);--mono:"Cascadia Code","JetBrains Mono","SF Mono",Consolas,monospace;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121826;--card:#1B2433;--ink:#E8ECF3;--mut:#9AA6BA;--line:#33405A;--php:#9B8DF0;--js:#E2A94A;--db:#4FB3C6;--ok:#5CC98A;--bub:#2A3550;--wall:#222C47;--wall2:#1A2238;--floor:#151C30;--wood:#6B4630;--glass:rgba(140,190,240,.16);--arch:#1B3B44;--cjs:#463B17;--cjs2:#6B5B22;--cphp:#2F2750;--cphp2:#4A3E78;--chtml:#462A1C;--chtml2:#5E3A28;--chtmlInk:#F0926B;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 28px -10px rgba(0,0,0,.6);--sh2:0 2px 4px rgba(0,0,0,.45),0 18px 40px -12px rgba(0,0,0,.7);--glow:rgba(160,190,255,.09)}}
+:root[data-theme="dark"]{--bg:#121826;--card:#1B2433;--ink:#E8ECF3;--mut:#9AA6BA;--line:#33405A;--php:#9B8DF0;--js:#E2A94A;--db:#4FB3C6;--ok:#5CC98A;--bub:#2A3550;--wall:#222C47;--wall2:#1A2238;--floor:#151C30;--wood:#6B4630;--glass:rgba(140,190,240,.16);--arch:#1B3B44;--cjs:#463B17;--cjs2:#6B5B22;--cphp:#2F2750;--cphp2:#4A3E78;--chtml:#462A1C;--chtml2:#5E3A28;--chtmlInk:#F0926B;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 28px -10px rgba(0,0,0,.6);--sh2:0 2px 4px rgba(0,0,0,.45),0 18px 40px -12px rgba(0,0,0,.7);--glow:rgba(160,190,255,.09)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:16px/1.55 "Segoe UI Variable Text","Inter","Segoe UI",system-ui,-apple-system,"Trebuchet MS",sans-serif;-webkit-font-smoothing:antialiased;background:radial-gradient(900px 380px at 6% -8%,color-mix(in srgb,var(--php) 12%,transparent),transparent 70%),radial-gradient(800px 360px at 100% 0,color-mix(in srgb,var(--db) 11%,transparent),transparent 70%),var(--bg)}
+main{max-width:1400px;margin:0 auto;padding:24px 18px 48px}
+h1{font-size:clamp(1.4rem,2.3vw,1.9rem);font-weight:750;letter-spacing:-.02em;line-height:1.2;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 18px;max-width:95ch}.sub b{color:var(--ink);font-weight:650}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+button{font:inherit;font-size:.92rem;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:999px;cursor:pointer;box-shadow:var(--sh);transition:transform .2s var(--pop),box-shadow .2s,border-color .2s,background .25s,color .25s}
+button:hover:not(:disabled){border-color:var(--php);transform:translateY(-1px);box-shadow:var(--sh2)}
+button:active:not(:disabled){transform:scale(.96)}
+button:focus-visible{outline:3px solid var(--php);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default;box-shadow:none}
+button.main{background:linear-gradient(135deg,color-mix(in srgb,var(--php) 82%,#000),color-mix(in srgb,var(--php) 60%,#1b4fa0));border-color:transparent;color:#fff}
+button.on{background:color-mix(in srgb,var(--php) 14%,var(--card));border-color:var(--php);color:var(--php);box-shadow:inset 0 0 0 1px var(--php)}
+.grow{flex:1}
+.dots{display:flex;gap:6px;margin:0 0 8px}
+.dots i{flex:1;height:6px;border-radius:99px;background:var(--line);transition:background .5s var(--ease),box-shadow .5s,transform .5s var(--pop)}
+.dots i.d{background:var(--php)}
+.dots i.d:not(:has(~ i.d)){box-shadow:0 0 0 3px color-mix(in srgb,var(--php) 24%,transparent);transform:scaleY(1.4)}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh2);background:var(--card)}
+.scene{position:relative;min-width:660px;container-type:inline-size;aspect-ratio:900/420;--axp:39%}
+.scene::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 18% 0%,var(--glow),transparent 55%),linear-gradient(180deg,transparent 72%,rgba(0,0,0,.09))}
+svg{display:block;width:100%;height:100%}
+#gCli,#gWom,#gCours,#gGard,#gDir{filter:drop-shadow(0 5px 4px rgba(10,20,40,.22))}
+svg rect[fill="var(--wood)"]{filter:drop-shadow(0 4px 5px rgba(10,20,40,.22))}
+.it{display:none;transform-box:fill-box;transform-origin:50% 60%}
+.it.on{display:block;animation:pop .45s var(--pop) both}
+@keyframes pop{from{opacity:0;scale:.55}to{opacity:1;scale:1}}
+.ag{transition:transform 1.6s var(--ease)}
+.lg{transform-box:fill-box;transform-origin:50% 0}
+.bod{animation:br 3.2s ease-in-out infinite}
+.walk .bod{animation:wb .4s ease-in-out infinite}
+.walk .l1{animation:sw .4s ease-in-out infinite alternate}.walk .l2{animation:sw .4s ease-in-out infinite alternate-reverse}
+@keyframes br{50%{transform:translateY(-2px)}}@keyframes wb{50%{transform:translateY(-5px)}}
+@keyframes sw{from{transform:rotate(-24deg)}to{transform:rotate(24deg)}}
+.tr{transition:transform .6s var(--ease),opacity .6s}.tr.taken{opacity:.28;transform:translateX(-18px)}
+#cab{transition:transform 1.6s var(--ease);display:none;transform-box:fill-box;transform-origin:50% 100%}
+#cab.show{display:block;animation:pop .5s var(--pop) both}
+.bub{position:absolute;background:var(--bub);border:1.5px solid var(--line);border-radius:16px;padding:.45em .8em;font-size:clamp(9px,1.7cqw,14px);line-height:1.35;display:none;z-index:4;box-shadow:var(--sh2);color:var(--ink);transform-origin:50% 100%}
+.bub.show{display:block;animation:bubIn .42s var(--pop) both}
+.bub::after{content:"";position:absolute;left:22px;bottom:-6px;width:10px;height:10px;background:inherit;border:inherit;border-top:0;border-left:0;border-radius:0 0 3px 0;transform:rotate(45deg)}
+.bub b{display:block;font-size:.8em;font-weight:700;opacity:.92;margin-bottom:.15em}
+@keyframes bubIn{from{opacity:0;scale:.7;translate:0 8px}to{opacity:1;scale:1;translate:0 0}}
+#bc{left:1%;bottom:66%;width:25%}
+#bw{left:27%;bottom:80%;width:23%;border-color:var(--js)}
+#ba{left:var(--axp);transform:translateX(-50%);bottom:54%;width:22%;border-color:var(--php);transition:left 1.6s var(--ease)}
+#bg{right:1%;bottom:80%;width:23%;border-color:var(--db)}
+.docs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:860px){.docs{grid-template-columns:1fr}}
+.pcard h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pview{margin-bottom:10px;min-height:2.6em}
+.pview select{width:100%;font:inherit;font-size:.85rem;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.pcode{font:12px/1.7 var(--mono);background:var(--chtml);border-radius:12px;padding:10px 12px;min-height:5em}
+.pcode .tline{font-weight:bold;color:var(--chtmlInk)}
+.pcode .oline{padding-left:1.2em}
+.pcode .oline.new{background:var(--chtml2);border-radius:6px;animation:hlIn .5s var(--pop) both}
+.pcode .ph,.pview .ph{color:var(--mut);font-size:.86rem}
+.pout{font-weight:bold;font-size:1.05rem;color:var(--ok)}
+.fcard h2{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.frow{display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px dashed var(--line)}
+.flab{width:82px;color:var(--mut);font-size:.86rem}
+.fval{flex:1;font-family:var(--mono);font-size:.92rem;min-height:1.2em}
+.fck{width:24px;height:24px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:.85rem;border:2px solid var(--line);color:var(--mut);transition:background .35s,border-color .35s,color .35s}
+.fck.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);animation:pop .45s var(--pop) both}
+.fck.wait{border-color:var(--js);color:var(--js)}
+.stamp{font-size:.7rem;padding:.2em .7em;border:1.5px solid currentColor;border-radius:99px;font-weight:700;white-space:nowrap;background:color-mix(in srgb,currentColor 10%,transparent);animation:pop .4s var(--pop) both}
+.stamp:empty{display:none}
+.stamp.ok{color:var(--ok)}.stamp.wait{color:var(--js)}.stamp.go{color:var(--php)}.stamp.arch{color:var(--db)}
+.fstat{margin-top:10px;font-size:.86rem;color:var(--mut);min-height:1.3em}
+.rstat{display:inline-block;font-size:.72rem;font-weight:700;padding:.25em .75em;border:1.5px solid currentColor;border-radius:99px;margin-bottom:10px;background:color-mix(in srgb,currentColor 10%,transparent);transition:color .4s}
+.rstat.s0{color:var(--mut)}.rstat.s1{color:var(--php)}.rstat.s2{color:var(--js)}.rstat.s3{color:var(--ok)}
+.rbody{font-family:var(--mono);font-size:.95rem;min-height:2.6em}
+.off{display:none}
+.browser{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 16px;font-size:.88rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center;box-shadow:var(--sh)}
+.browser span{color:var(--mut);font-family:var(--mono)}
+.browser span::before{content:"https://";opacity:.55}
+.browser b{color:var(--ok);font-weight:600;margin-left:auto}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);gap:18px;align-items:start}
+.side{display:flex;flex-direction:column;gap:14px}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
+.panel h2{font-size:.98rem;font-weight:700;letter-spacing:-.005em;margin:0 0 8px}
+#codeTitle{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.88rem}
+#codeTitle::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:#FF5F57;box-shadow:16px 0 0 #FEBC2E,32px 0 0 #28C840;margin-right:34px}
+pre{margin:0;font:12.5px/1.75 var(--mono);border-radius:12px;padding:10px 4px}
+pre.js{background:var(--cjs)}
+pre.php{background:var(--cphp)}
+pre span{display:block;padding:0 8px;border-left:4px solid transparent;border-radius:0 6px 6px 0;white-space:pre-wrap;overflow-wrap:anywhere;transition:opacity .35s,background .35s,border-color .35s}
+pre:has(.hl) span:not(.hl){opacity:.64}
+pre span.hl{animation:hlIn .5s var(--pop) both}
+pre.js span.hl{background:var(--cjs2);border-left-color:var(--js)}
+pre.php span.hl{background:var(--cphp2);border-left-color:var(--php)}
+@keyframes hlIn{from{opacity:.45;translate:-8px 0}to{opacity:1;translate:0 0}}
+#ttl{font-size:1.02rem}
+#desc{line-height:1.65}
+.shl{opacity:0;transform:translateY(10px);transition:opacity .6s var(--ease),transform .6s var(--ease)}.shl.built{opacity:1;transform:none}.shl:nth-child(2){transition-delay:.25s}.shl:nth-child(3){transition-delay:.5s}
+pre.sql{background:color-mix(in srgb,var(--db) 16%,var(--card))}pre.sql span.hl{background:color-mix(in srgb,var(--db) 32%,var(--card));border-left-color:var(--db)}
+pre.html{background:var(--chtml)}pre.html span.hl{background:var(--chtml2);border-left-color:var(--chtmlInk)}
+.bar.pick #mIns,.bar.pick #mSel,.bar.pick #mUpd{animation:pick 1.1s ease-in-out 3}
+@keyframes pick{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--php) 35%,transparent)}}
+#gDir{transition:transform 1.6s var(--ease),opacity .6s}#bd{left:var(--dxp,36%);bottom:67%;width:21%;border-color:var(--ink);transition:left 1.6s var(--ease)}#bd::after{left:15px}#ba::after{left:calc(50% - 5px)}#bg::after{left:auto;right:60px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.legend span{position:relative;font-size:.82rem;padding:5px 12px 5px 26px;border-radius:99px;background:var(--card);border:1px solid var(--line);box-shadow:var(--sh)}
+.legend span::before{content:"";position:absolute;left:10px;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:var(--c)}
+.phases{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.phases button{font-size:.84rem;padding:7px 14px;box-shadow:none}
+.phases button.done{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.phases button.done::before{content:"✓ "}
+.dots i{position:relative;cursor:pointer}.dots i::before{content:"";position:absolute;inset:-9px 0}
+.dots i:not(.d):hover{background:color-mix(in srgb,var(--php) 45%,var(--line))}
+.hint{margin:0 0 14px;font-size:.8rem;color:var(--mut)}
+select#spd{font:inherit;font-size:.92rem;font-weight:600;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);box-shadow:var(--sh);cursor:pointer}
+.side .panel:first-child{border-left:4px solid var(--php)}
+#desc{font-size:1.02rem}
+html:fullscreen body{font-size:18px;overflow:auto}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<script>if (location.search.indexOf("embed") !== -1) document.documentElement.className += " embed";</script>
 </head>
 <body>
-<p>La page a déménagé : <a href="php.html">ouvrir le cours PHP (nouvelle version animée)</a>.</p>
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:78px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../exercices/series-exercices.html#php" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🏋️ Exercices</a><a href="../quiz/php.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a></nav>
+<main>
+<h1>Du formulaire aux archives : l'histoire du guichet</h1>
+<p class="sub">Suivez le voyage d'une feuille, du formulaire jusqu'aux archives.</p>
+<div class="legend"><span style="--c:var(--ink)">Directeur : donne les ordres</span><span style="--c:var(--mut)">Client : remplit la feuille</span><span style="--c:var(--js)">Guichetière = JavaScript (navigateur)</span><span style="--c:var(--php)">Coursier = PHP (serveur Web Apache)</span><span style="--c:var(--db)">Administration = SGBD (serveur MySQL)</span></div>
+<div class="bar">
+<button id="mIns" class="on">INSERT (réponse booléenne)</button>
+<button id="mSel">SELECT (réponse ressource)</button>
+<button id="mUpd">UPDATE (réponse booléenne)</button>
+<span class="grow"></span>
+<button id="prev">Précédent</button><button id="next" class="main">Suivant</button>
+<button id="auto">Lecture auto</button><select id="spd" aria-label="Vitesse de lecture"><option value="6500">Lente</option><option value="4200" selected>Normale</option><option value="2500">Rapide</option></select><button id="rst">Recommencer</button><button id="fs">Plein écran</button>
+</div>
+<div class="phases" id="phases"></div>
+<div class="dots" id="dots"></div>
+<p class="hint">Astuces : touches ← → pour naviguer, A lecture auto, F plein écran ; cliquez sur un chapitre ou sur la barre de progression pour sauter à une étape.</p>
+<div class="layout"><div class="left">
+<div class="wrap"><div class="scene" id="scene">
+<svg viewBox="0 0 900 420" role="img" aria-label="Scène : le client remplit un formulaire, la guichetière JavaScript le contrôle champ par champ, le coursier PHP le porte à l'administration SGBD qui le classe aux archives, puis le résultat revient au client">
+<rect width="900" height="330" fill="var(--wall)"/>
+<rect y="322" width="900" height="10" fill="var(--wall2)"/>
+<rect y="332" width="900" height="88" fill="var(--floor)"/>
+<path d="M0 372H900M300 332L260 420M600 332L640 420" stroke="var(--wall2)" stroke-width="2" opacity=".6"/>
+<path d="M0 332H300L260 420H0Z" fill="var(--js)" opacity=".1"/><path d="M300 332H600L640 420H260Z" fill="var(--php)" opacity=".1"/><path d="M600 332H900V420H640Z" fill="var(--db)" opacity=".1"/>
+<rect x="14" y="399" width="182" height="19" rx="9.5" fill="var(--card)" stroke="var(--js)" stroke-width="1.5"/><text x="105" y="412.5" text-anchor="middle" fill="var(--ink)" font-size="10.5" font-weight="bold">Navigateur (client) · JS</text>
+<rect x="352" y="399" width="200" height="19" rx="9.5" fill="var(--card)" stroke="var(--php)" stroke-width="1.5"/><text x="452" y="412.5" text-anchor="middle" fill="var(--ink)" font-size="10.5" font-weight="bold">Serveur Web · Apache + PHP</text>
+<rect x="722" y="399" width="166" height="19" rx="9.5" fill="var(--card)" stroke="var(--db)" stroke-width="1.5"/><text x="805" y="412.5" text-anchor="middle" fill="var(--ink)" font-size="10.5" font-weight="bold">Serveur de BD · MySQL</text>
+<rect x="455" y="12" width="190" height="32" rx="6" fill="var(--php)"/>
+<text x="550" y="34" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">Banque des élèves</text>
+<rect x="720" y="96" width="170" height="276" fill="var(--arch)" stroke="var(--db)" stroke-width="3"/>
+<rect x="735" y="104" width="140" height="24" rx="4" fill="var(--db)"/>
+<text x="805" y="121" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="bold">Archives · la base (BD)</text>
+<g id="shelves"></g>
+<g id="newFile" class="it"></g>
+<g id="gGard" transform="translate(830,372)"></g>
+<rect x="745" y="292" width="145" height="80" fill="var(--wood)"/>
+<rect x="737" y="284" width="153" height="10" rx="3" fill="#A9754F"/>
+<rect x="757" y="318" width="122" height="22" rx="4" fill="var(--db)"/>
+<text x="818" y="334" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="bold">Administration · SGBD</text>
+<g id="gWom" transform="translate(225,372)"></g>
+<rect x="160" y="196" width="128" height="90" rx="4" fill="var(--glass)" stroke="#8fb8e0" stroke-width="2"/>
+<path d="M175 290L215 200M195 290L225 220" stroke="#fff" stroke-width="3" opacity=".35"/>
+<rect x="150" y="292" width="150" height="80" fill="var(--wood)"/>
+<rect x="142" y="284" width="166" height="10" rx="3" fill="#A9754F"/>
+<rect x="158" y="318" width="134" height="22" rx="4" fill="var(--js)"/>
+<text x="225" y="334" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Guichet · JavaScript</text>
+<g id="gWomHand" transform="translate(225,372)"></g>
+<g id="deskP"><rect x="256" y="277" width="30" height="5" rx="1" fill="#fff" stroke="#8892a6"/><rect x="258" y="272" width="26" height="5" rx="1" fill="#fff" stroke="#8892a6"/><rect x="260" y="267" width="22" height="5" rx="1" fill="#fff" stroke="#8892a6"/></g>
+<g id="gCli" transform="translate(70,372)"></g>
+<g id="gDir" transform="translate(545,372)"></g>
+<g id="gCours" class="ag" style="transform:translate(350px,372px)"></g>
+<g id="cab"></g>
+<g id="sClosed" class="it"><path d="M52 14v14M148 14v14" stroke="#8892a6" stroke-width="2"/><rect x="20" y="28" width="160" height="42" rx="8" fill="#D64545" stroke="#fff" stroke-width="2"/><text x="100" y="47" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">TRAVAUX</text><text x="100" y="62" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">FERMÉ AU PUBLIC</text></g>
+<g id="sOpen" class="it"><path d="M52 14v14M148 14v14" stroke="#8892a6" stroke-width="2"/><rect x="20" y="28" width="160" height="42" rx="8" fill="#23744A" stroke="#fff" stroke-width="2"/><text x="100" y="47" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">OUVERT</text><text x="100" y="62" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Bienvenue !</text></g>
+</svg>
+<div class="bub" id="bc"></div><div class="bub" id="bw"></div><div class="bub" id="ba"></div><div class="bub" id="bg"></div><div class="bub" id="bd"></div>
+</div></div>
+<div class="docs">
+<div class="panel fcard" id="fcard">
+<h2>📄 La feuille (formulaire) <span class="stamp" id="fstamp"></span></h2>
+<div class="frow"><span class="flab">Nom</span><span class="fval" id="v-nom"></span><span class="fck" id="ck-nom"></span></div>
+<div class="frow"><span class="flab">Téléphone</span><span class="fval" id="v-tel"></span><span class="fck" id="ck-tel"></span></div>
+<div class="frow"><span class="flab">Email</span><span class="fval" id="v-email"></span><span class="fck" id="ck-email"></span></div>
+<div class="fstat" id="fstat"></div>
+</div>
+<div class="panel pcard" id="pcard">
+<h2>🌐 La page retournée au client <span class="stamp" id="pstamp"></span></h2>
+<div class="pview" id="pview"></div>
+<div class="pcode" id="pcode"></div>
+</div>
+<div class="panel rcard" id="rcard">
+<h2>🧾 Le résultat</h2>
+<div class="rstat" id="rstat"></div>
+<div class="rbody" id="rbody"></div>
+</div>
+</div>
+<div class="browser"><span id="url">ecole.tn/formulaire.html</span><b id="scr">—</b></div>
+</div>
+<div class="side">
+<div class="panel"><h2 id="ttl"></h2><div id="desc"></div></div>
+<div class="panel"><h2 id="codeTitle">controle.js</h2><pre id="code"></pre></div>
+</div>
+</div>
+</main>
+<script>
+var PH=['Préparation','Côté client (JS)','Serveur : PHP → MySQL','Réponse au client'],PB=[0,5,11,15];
+var POS={R:350,A:620,W:560,G:430};
+var ROWS=[[1,'Ali'],[2,'Sara'],[3,'Omar'],[4,'Lina']];
+var lastC=-90,lastD=470,mode='ins',i=0,timer=null,last='W',S=[],curCode='',curScr='—',curUrl='ecole.tn/formulaire.html';
+var NAME={d:'Le directeur',c:'Le client',w:'La guichetière (JS)',a:'Le coursier (PHP)',g:"L'administration (SGBD)"};
+var COL={d:'var(--ink)',c:'var(--mut)',w:'var(--js)',a:'var(--php)',g:'var(--db)'};
+var CODE_JS=[
+'// controle.js — la guichetière (JavaScript)',
+'// appelé par la feuille : <form onsubmit="return controleFeuille()">',
+'function controleFeuille() {',
+'  const f = document.getElementById(\'feuille\');',
+'  // 1) le nom est-il rempli ?',
+'  if (f.nom.value.trim() === \'\') {',
+'    alert(\'Nom obligatoire\'); return false;',
+'  }',
+'  // 2) le téléphone : chiffres, espaces ou \'+\' seulement',
+'  let tel = f.tel.value.trim(), bon = true;',
+'  for (let k = 0; k < tel.length; k++) {',
+'    let c = tel[k];',
+'    if ((c < \'0\' || c > \'9\') && c !== \' \' && c !== \'+\') bon = false;',
+'  }',
+'  if (!bon) { alert(\'Téléphone invalide\'); return false; }',
+'  // 3) l\'email : un \'@\' et un \'.\' après lui',
+'  let mail = f.email.value.trim(), aro = -1, pt = -1;',
+'  for (let k = 0; k < mail.length; k++) {',
+'    if (mail[k] === \'@\') aro = k;',
+'    if (mail[k] === \'.\') pt = k;',
+'  }',
+'  if (aro < 1 || pt < aro + 2) {',
+'    alert(\'Email invalide\'); return false;',
+'  }',
+'  // OK : return true laisse la feuille partir en POST vers traiter.php',
+'  return true;',
+'}'];
+var CODE_SQL=[
+'CREATE DATABASE ecole;',
+'USE ecole;',
+'CREATE TABLE eleves (',
+'  id    INT AUTO_INCREMENT PRIMARY KEY,',
+'  nom   VARCHAR(50),',
+'  tel   VARCHAR(20),',
+'  email VARCHAR(80)',
+');'];
+var CODE_HTML=[
+'<!-- formulaire.html : la feuille du client -->',
+'<form id="feuille" method="post" action="traiter.php"',
+'      onsubmit="return controleFeuille()">',
+'  <label>Nom</label>',
+'  <input type="text" name="nom">',
+'  <label>Téléphone</label>',
+'  <input type="text" name="tel">',
+'  <label>Email</label>',
+'  <input type="text" name="email">',
+'  <input type="submit" value="Envoyer">',
+'</form>',
+'<script src="controle.js"><\/script>'];
+var CODE_PHP={
+upd:['$nouveau = $_POST[\'nom\'];','$tel     = $_POST[\'tel\'];','$email   = $_POST[\'email\'];','$conn = mysqli_connect("localhost","root","","ecole");','$sql = "UPDATE eleves SET nom=\'$nouveau\', tel=\'$tel\' WHERE nom=\'Sara\'";','$res = mysqli_query($conn, $sql);','if ($res) { echo "Nom modifié"; }','mysqli_close($conn);'],
+ins:['$nom   = $_POST[\'nom\'];','$tel   = $_POST[\'tel\'];','$email = $_POST[\'email\'];','$conn = mysqli_connect("localhost","root","","ecole");','$sql = "INSERT INTO eleves(nom,tel,email) VALUES(\'$nom\',\'$tel\',\'$email\')";','$res = mysqli_query($conn, $sql);','if ($res) { echo "Élève enregistré"; }','mysqli_close($conn);'],
+sel:['$nom = $_POST[\'nom\'];','$conn = mysqli_connect("localhost","root","","ecole");','$sql = "SELECT * FROM eleves";','$res = mysqli_query($conn, $sql);','echo \'<select name="eleve">\';','while ($row = mysqli_fetch_row($res)) {','    echo \'<option value="\'.$row[0].\'">\'.$row[0].\' · \'.$row[1].\'</option>\';','}','echo \'</select>\';','mysqli_close($conn);']};
+function person(o,extra){
+var h=o.hair;
+return '<g class="bod">'+(o.long?'<rect x="-20" y="-152" width="40" height="42" rx="14" fill="'+h+'"/>':'')+
+'<g class="lg l1"><rect x="-13" y="-64" width="11" height="62" rx="5" fill="'+o.pants+'"/><ellipse cx="-8" cy="-1" rx="10" ry="5" fill="#222"/></g>'+
+'<g class="lg l2"><rect x="2" y="-64" width="11" height="62" rx="5" fill="'+o.pants+'"/><ellipse cx="8" cy="-1" rx="10" ry="5" fill="#222"/></g>'+
+'<rect x="-25" y="-118" width="10" height="46" rx="5" fill="'+o.suit+'"/><rect x="15" y="-118" width="10" height="46" rx="5" fill="'+o.suit+'"/>'+
+'<rect x="-20" y="-124" width="40" height="66" rx="14" fill="'+o.suit+'"/>'+
+'<circle cx="-20" cy="-70" r="5.5" fill="'+o.skin+'"/><circle cx="20" cy="-70" r="5.5" fill="'+o.skin+'"/>'+
+'<rect x="-5" y="-134" width="10" height="12" fill="'+o.skin+'"/><circle cx="0" cy="-148" r="17" fill="'+o.skin+'"/>'+
+(o.cap
+?'<path d="M-16 -156a16 13 0 0 1 32 0z" fill="'+h+'"/><path d="M-23 -157h46v3a23 5 0 0 1 -46 0z" fill="'+h+'"/>'
+:'<path d="M-18 -150A18 18 0 0 1 18 -150Q0 -160 -18 -150Z" fill="'+h+'"/>'+(o.bun?'<circle cx="0" cy="-168" r="8" fill="'+h+'"/>':''))+
+'<circle cx="-6" cy="-148" r="1.9" fill="#222"/><circle cx="6" cy="-148" r="1.9" fill="#222"/><path d="M-6 -141q6 5 12 0" stroke="#222" stroke-width="1.6" fill="none"/>'+
+(extra||'')+'</g>';}
+var FORM='<rect x="26" y="-104" width="24" height="32" rx="2" fill="#fff" stroke="#8892a6"/><path d="M30 -96h16M30 -90h16M30 -84h10" stroke="#8892a6"/>';
+var FORM_L='<rect x="-42" y="-118" width="24" height="32" rx="2" fill="#fff" stroke="#8892a6"/><path d="M-38 -110h16M-38 -104h16M-38 -98h10" stroke="#8892a6"/>';
+var CHECK_L='<circle cx="-30" cy="-102" r="9" fill="var(--ok)"/><path d="M-34.5 -102l3.5 4.5 6.5-7.5" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+var SLIP='<rect x="24" y="-102" width="28" height="36" rx="2" fill="#fff" stroke="var(--ok)" stroke-width="2"/><path d="M30 -93h16M30 -87h16" stroke="#999" stroke-width="2"/><circle cx="38" cy="-75" r="7" fill="var(--ok)"/><path d="M34.5 -75l2.5 3 4.5-5" stroke="#fff" stroke-width="2" fill="none"/>';
+var CARD='<rect x="-12" y="-94" width="24" height="30" rx="3" fill="#fff" stroke="var(--db)" stroke-width="2"/><circle cx="0" cy="-84" r="5" fill="var(--db)"/><text x="0" y="-70" font-size="7" text-anchor="middle" fill="#222">$conn</text>';
+function el(x){return document.getElementById(x);}
+function init(){
+el('gCli').setAttribute('class','ag');el('gCli').innerHTML=person({skin:'#E2B48C',hair:'#2B2118',suit:'#3B6FB6',pants:'#2B3A55'},'<rect x="-16" y="-104" width="32" height="12" rx="2" fill="#fff"/><text id="cName" x="0" y="-95" font-size="9" text-anchor="middle" fill="#222">Sara</text><g id="cP" class="it">'+FORM+'</g><g id="cRes" class="it">'+SLIP+'</g>');
+el('gDir').innerHTML=person({skin:'#D9A87E',hair:'#9AA0A8',suit:'#2F3A4F',pants:'#1F2937'},'<path d="M0 -122l-4.5 10 4.5 30 4.5-30z" fill="#C0392B"/><rect x="-11" y="-153" width="9" height="7" rx="2" fill="none" stroke="#222" stroke-width="1.4"/><rect x="2" y="-153" width="9" height="7" rx="2" fill="none" stroke="#222" stroke-width="1.4"/><text y="20" text-anchor="middle" font-size="11" font-weight="bold" fill="var(--ink)">Directeur</text>');
+el('gWom').innerHTML=person({skin:'#F0C4A0',hair:'#3A2418',suit:'#E0A93B',pants:'#8A6B2F',long:1,bun:1},'');
+el('gWomHand').innerHTML='<g id="wForm" class="it">'+FORM_L+'</g><g id="wCheck" class="it">'+CHECK_L+'</g><g id="wRes" class="it">'+SLIP+'</g>';
+el('gCours').innerHTML=person({skin:'#E8B48C',hair:'#4A3DA8',suit:'#6B5BD2',pants:'#3A2F6B',cap:1},
+'<rect x="14" y="-116" width="26" height="22" rx="4" fill="#8A5A3B"/><path d="M-16 -126 L20 -112" stroke="#8A5A3B" stroke-width="4"/>'+
+'<g id="i-form" class="it">'+FORM_L+CHECK_L+'</g>'+
+'<g id="i-key" class="it"><circle cx="34" cy="-80" r="6" fill="none" stroke="#C9A227" stroke-width="3"/><path d="M40 -80h16M52 -80v6M47 -80v5" stroke="#C9A227" stroke-width="3"/></g>'+
+'<g id="i-note" class="it"><rect x="26" y="-102" width="30" height="26" fill="#FFE27A" stroke="#C9A227"/><text x="41" y="-85" font-size="9" text-anchor="middle" fill="#333">SQL</text></g>'+
+'<g id="i-ok" class="it"><circle cx="38" cy="-84" r="13" fill="#2E8B57"/><path d="M31 -84l5 6 9-11" stroke="#fff" stroke-width="3" fill="none"/></g>'+
+'<g id="i-slip" class="it">'+SLIP+'</g>'+
+'<g id="i-row" class="it"><rect x="26" y="-104" width="46" height="26" rx="2" fill="#fff" stroke="#C98A2B"/><text id="rowT" x="49" y="-87" font-size="11" text-anchor="middle" fill="#222"></text></g>'+
+'<g id="badge" class="it">'+CARD+'</g>');
+el('gGard').innerHTML=person({skin:'#C99A73',hair:'#111',suit:'#1F7A8C',pants:'#14454F'},'<g id="gB" class="it" transform="translate(-52,-40)">'+CARD+'</g>');
+var s='';for(var r=0;r<3;r++){s+='<g class="shl">';for(var c=0;c<8;c++){s+='<rect x="'+(732+c*16)+'" y="'+(146+r*50-(c%3)*4)+'" width="11" height="'+(34+(c%3)*4)+'" fill="'+['#C0544A','#4F8FBF','#D9A93B'][(c+r)%3]+'"/>';}
+s+='<rect x="728" y="'+(180+r*50)+'" width="152" height="6" fill="var(--wood)"/></g>';}
+el('shelves').innerHTML=s;
+el('newFile').innerHTML='<rect x="858" y="146" width="13" height="34" rx="2" fill="var(--ok)"/><path d="M860.5 163l3 4 6.5-8" stroke="#fff" stroke-width="2" fill="none"/>';
+var t='<rect x="0" y="-134" width="100" height="132" rx="5" fill="var(--wood)"/><text x="50" y="-142" text-anchor="middle" font-size="12" font-weight="bold" fill="#E2A94A">$res</text><circle cx="14" cy="-3" r="5" fill="#333"/><circle cx="86" cy="-3" r="5" fill="#333"/>';
+ROWS.forEach(function(r,k){var y=-126+k*30;t+='<g class="tr"><rect x="8" y="'+y+'" width="84" height="26" rx="3" fill="#F1D9A8" stroke="#C98A2B" stroke-width="2"/><ellipse cx="26" cy="'+(y+13)+'" rx="15" ry="5" fill="#C98A2B"/><text x="65" y="'+(y+17)+'" text-anchor="middle" font-size="11" fill="#222">'+r[0]+' · '+r[1]+'</text></g>';});
+el('cab').innerHTML=t;
+var gd=el('gDir');gd.setAttribute('class','ag');gd.style.transform='translate(470px,372px)';gd.getBoundingClientRect();
+}
+function steps(){
+var U=(mode=='upd'),I=(mode!='sel'),s=[];
+var RT=U?'✔ Nom modifié : Sara → Selim':'✔ Élève enregistré';
+var RT1=U?'true · Nom modifié (Sara → Selim)':'true · Élève enregistré';
+s.push({t:"Le SGBD crée les archives (CREATE DATABASE)",
+d:"Au tout début, la salle des archives est vide. L'administration, c'est le serveur de base de données (MySQL, un SGBD) : elle la construit : CREATE DATABASE ecole crée la base de données, puis USE ecole la sélectionne. Pas encore d'étagère ni de dossier. Un panneau « Travaux : fermé au public » est affiché : personne ne peut entrer.",
+b:{d:"SGBD, construis les archives : la base « ecole » !",g:"À vos ordres ! Je construis la salle des archives."},dir:1,
+dx:680,ag:'W',cx:-90,sh:0,form:0,stat:"La base de données vient d'être créée (vide)",file:'sql',url:'ecole.tn/phpmyadmin',scr:'CREATE DATABASE ecole…',l:[0,1]});
+s.push({t:"Il installe les étagères (CREATE TABLE)",
+d:"Dans la base, l'administration installe les étagères : CREATE TABLE eleves définit les colonnes id, nom, tel et email. Chaque élève sera ensuite un dossier (une ligne) rangé sur ces étagères.",
+b:{d:"Maintenant, installe la table « eleves ».",g:"Une table « eleves » : id, nom, téléphone, email."},dir:1,
+dx:680,ag:'W',cx:-90,sh:3,form:0,stat:"La table eleves est prête à recevoir des dossiers",file:'sql',url:'ecole.tn/phpmyadmin',scr:'CREATE TABLE eleves…',l:[2,3,4,5,6,7]});
+s.push({t:"On crée la page HTML du formulaire",
+d:"Le développeur écrit formulaire.html : la feuille à remplir, avec un champ par donnée (nom, tel, email), method=post et action=traiter.php (le coursier PHP qui recevra la feuille). L'attribut onsubmit appelle déjà controleFeuille(). La page est rangée sur le serveur Web (Apache), qui la distribue aux clients.",
+b:{d:"Passons au HTML : créez la page du formulaire !",w:"Voici la feuille, prête à être distribuée."},dir:1,
+wf:1,dx:345,ag:'W',cx:-90,form:1,stat:"La page du formulaire est prête : 3 champs vides",file:'html',url:'ecole.tn/formulaire.html',scr:'—',l:[1,2,3,4,5,6,7,8,9,10,11]});
+s.push({t:"On forme la guichetière (JavaScript) au contrôle",
+d:"Dans controle.js, on apprend à la guichetière ses règles : nom non vide, téléphone composé de chiffres, d'espaces ou de « + », email avec un « @ » suivi d'un point. Si une règle échoue : alert puis return false, et la feuille ne part pas. Ce contrôle s'exécute dans le navigateur, avant tout envoi au serveur Web.",
+b:{d:"Guichetière, apprenez à contrôler les données de la feuille.",w:"Compris : je contrôle le nom, le téléphone et l'email."},dir:1,
+wc:1,dx:345,ag:'W',cx:-90,form:1,stat:"Les règles de contrôle sont apprises",file:'js',url:'ecole.tn/formulaire.html',scr:'—',l:CODE_JS.map(function(x,k){return k;}).slice(2)});
+s.push({t:"Le directeur rappelle son travail au coursier (PHP)",
+d:"Le directeur appelle le coursier : c'est PHP, exécuté par le serveur Web (Apache), le seul à travailler côté serveur. Sa mission : prendre la feuille validée par JavaScript (reçue en POST), se connecter au SGBD (mysqli_connect), lui transmettre la demande SQL (mysqli_query), puis rapporter le résultat au client (echo).",
+b:{d:"Coursier ! Rappelle-toi ton travail : porter les feuilles validées au SGBD.",a:"Compris, patron : je me connecte, j'interroge, je rapporte."},
+dir:1,dx:345,ag:'G',cx:-90,form:1,stat:"Le coursier connaît sa mission",file:'php',url:'ecole.tn/traiter.php',scr:'—',l:CODE_PHP[mode].map(function(x,k){return k;})});
+s.push({t:"Le client arrive, prend la feuille et choisit son action",
+d:"Tout est prêt : le panneau passe à « Ouvert » et le client peut entrer. Il se sert une feuille (Nom, Téléphone, Email) et décide ce qu'il veut faire : s'inscrire (INSERT), consulter la liste (SELECT) ou modifier son nom (UPDATE). Les 3 boutons au-dessus de la scène représentent ce choix ; ici : "+(U?'UPDATE':(I?'INSERT':'SELECT'))+". Au moment de l'envoi, la feuille appelle controleFeuille() (attribut onsubmit).",
+b:{c:"Bonjour ! Je voudrais "+(U?"changer mon nom (UPDATE).":(I?"m'inscrire (INSERT).":"voir la liste (SELECT).")),w:"Nous sommes ouverts ! Tenez, voici le formulaire."},
+pick:1,cf:1,form:1,stat:"Une feuille vierge : 3 champs à remplir",file:'js',url:'ecole.tn/formulaire.html',l:[0,1]});
+s.push({t:"Il remplit la feuille et la tend",
+d:"Le client écrit ses données dans les 3 champs"+(U?" : nom = « Selim » (le nouveau nom voulu)":" : nom = « Sara »")+", téléphone et email, puis il tend la feuille à la guichetière.",
+b:{c:U?"Je m'appelle Sara, je voudrais devenir Selim.":(I?"Je m'appelle Sara, enregistrez-moi.":"Je voudrais la liste des élèves."),w:"Donnez-moi la feuille, je contrôle chaque champ."},
+wf:1,form:2,stat:"Feuille remplie — 3 champs à contrôler",file:'js',url:'ecole.tn/formulaire.html',l:[3]});
+s.push({t:"La guichetière contrôle le champ « Nom »",
+d:"Attention : la guichetière n'est PAS PHP ! Elle représente JavaScript, qui travaille dans le navigateur du client. Premier contrôle : le champ Nom est-il rempli ? Sinon la fonction retourne false et la feuille est refusée.",
+b:{w:"Nom : rempli. ✓",c:"D'accord !"},
+wf:1,form:2,fc:'nom',stat:"Contrôle 1/3 — le champ Nom…",file:'js',url:'ecole.tn/formulaire.html',l:[4,5,6,7]});
+s.push({t:"…puis le champ « Téléphone »",
+d:"Deuxième contrôle SANS expression régulière : une boucle for parcourt chaque caractère du téléphone. Chaque caractère doit être un chiffre, un espace ou « + » ; sinon la fonction retourne false et la feuille est refusée.",
+b:{w:"Téléphone : format correct. ✓",c:"Super !"},
+wf:1,form:2,fc:'tel',stat:"Contrôle 2/3 — le champ Téléphone…",file:'js',url:'ecole.tn/formulaire.html',l:[8,9,10,11,12,13,14]});
+s.push({t:"…et le champ « Email »",
+d:"Troisième contrôle, encore une boucle : elle parcourt l'email et repère la position du « @ » et du point. Il faut un « @ » et un point après lui, sinon la feuille ne part même pas.",
+b:{w:"Email : format correct. ✓",c:"Parfait !"},
+wf:1,form:2,fc:'email',stat:"Contrôle 3/3 — le champ Email…",file:'js',url:'ecole.tn/formulaire.html',l:[15,16,17,18,19,20,21,22,23]});
+s.push({t:"Les 3 champs sont validés ✓",
+d:"Tous les contrôles JavaScript sont passés : la fonction s'apprête à retourner true. C'est seulement maintenant que la feuille peut partir vers le serveur.",
+b:{w:"Feuille validée : les 3 champs sont bons !",c:"Merci !"},
+wf:1,wc:1,form:2,fc:'all',fst:['ok','VALIDÉE PAR JS ✓'],stat:"3/3 contrôles réussis",file:'js',url:'ecole.tn/formulaire.html',l:[24,25]});
+s.push({t:"Elle confie la feuille au coursier (PHP)",
+d:"controleFeuille() retourne true : la feuille est envoyée en POST au serveur Web (Apache), qui exécute traiter.php. Le coursier, c'est PHP : lui seul travaille côté serveur. Il prend la feuille et part à l'administration.",
+b:{w:"Feuille validée. Coursier, c'est pour vous !",a:"Je l'emmène à l'administration."},
+ff:1,form:2,fc:'all',fst:['go','ENVOYÉE EN POST →'],stat:"La feuille part vers traiter.php",file:'js',url:'ecole.tn/formulaire.html',l:[2,25,26]});
+s.push({t:"Le coursier va à l'administration (SGBD)",
+d:"Le serveur Web (Apache) exécute traiter.php : le coursier (PHP) reçoit les données en POST ($_POST['nom'], $_POST['tel'], $_POST['email']) puis se rend à l'administration — le serveur de BD MySQL (le SGBD) : mysqli_connect() avec serveur, utilisateur, mot de passe et base « ecole ».",
+ag:'A',ff:1,hand:'key',form:2,fc:'all',fst:['go','CHEZ LE COURSIER (PHP)'],stat:"traiter.php reçoit le POST…",file:'php',url:'ecole.tn/traiter.php',scr:'Connexion à MySQL…',
+b:{a:"J'ai la feuille. Je vais à l'administration.",g:"Qui êtes-vous ?"},l:I?[0,1,2,3]:[0,1]});
+s.push({t:"L'administration remet un badge ($conn)",
+d:"Accès autorisé ! L'administration remet un badge, que le coursier range dans $conn. Il devra le présenter à chaque demande.",
+ag:'A',ff:1,bd:1,gh:1,form:2,fc:'all',fst:['go','CHEZ LE COURSIER (PHP)'],stat:"Connexion ouverte ($conn)",file:'php',url:'ecole.tn/traiter.php',scr:'Connexion à MySQL…',
+b:{g:"Vous êtes autorisé. Voici votre badge.",a:"Merci, je le garde dans $conn."},l:I?[3]:[1]});
+s.push({t:"Le coursier transmet la demande (mysqli_query)",
+d:"Le coursier formule la demande en SQL avec les valeurs de la feuille et la remet à l'administration : mysqli_query($conn, $sql), badge à l'appui.",
+ag:'A',ff:1,bd:1,hand:'note',form:2,fc:'all',fst:['go','TRAITEMENT…'],stat:"Requête SQL en cours…",file:'php',url:'ecole.tn/traiter.php',scr:'Requête SQL envoyée…',
+b:{a:(U?"UPDATE eleves SET nom='Selim'…":(I?"INSERT INTO eleves(nom,tel,email)…":"SELECT * FROM eleves…"))+" Voici mon badge.",g:"Je traite la demande…"},l:I?[4,5]:[2,3]});
+if(I){
+s.push({t:"L'administration classe la feuille aux archives (BD)",
+d:"L'administration exécute la demande et classe la feuille dans les archives — la base de données — puis répond true. Pour INSERT, UPDATE et DELETE, mysqli_query renvoie true ou false : un simple if suffit."+(U?" La ligne de Sara devient Selim.":""),
+ag:'A',bd:1,hand:'ok',filed:1,res:1,resT:RT1,form:2,fc:'all',fst:['arch','CLASSÉE AUX ARCHIVES ✓'],stat:"La feuille est maintenant dans la BD",file:'php',url:'ecole.tn/traiter.php',scr:'Enregistrement…',
+b:{g:"true : la feuille est classée aux archives !",a:"Je prépare le bulletin de résultat."},l:[5,6]});
+s.push({t:"Le coursier rapporte le résultat au guichet",
+d:"Le coursier revient au comptoir avec le bulletin de résultat (le « true » de mysqli_query) et s'apprête à le remettre à la guichetière.",
+ag:'R',bd:1,hand:'slip',res:1,resT:RT1,form:2,fc:'all',fst:['arch','CLASSÉE AUX ARCHIVES ✓'],stat:"Le résultat revient vers le guichet",file:'php',url:'ecole.tn/traiter.php',scr:'Résultat reçu',
+b:{a:"Guichetière, voici le résultat !",w:"Je le prends, merci."},l:[6]});
+s.push({t:"La guichetière reçoit le résultat du coursier",
+d:"La guichetière (JavaScript) reçoit le bulletin des mains du coursier PHP. Elle vérifie le contenu avant de l'afficher dans le navigateur du client.",
+wRes:1,bd:1,res:2,resT:RT1,form:2,fc:'all',fst:['arch','CLASSÉE AUX ARCHIVES ✓'],stat:"Résultat entre les mains de la guichetière",file:'php',url:'ecole.tn/traiter.php',scr:'Résultat reçu',
+b:{w:"Résultat reçu : true — c'est enregistré.",a:"Mission accomplie !"},l:[6]});
+s.push({t:"Elle redonne le résultat au client (echo)",
+d:"La guichetière prépare la page de réponse (le echo de PHP) et la montre au client : le résultat lui est remis dans son navigateur.",
+cRes:1,bd:1,pg:2,res:3,resT:RT,nm:U?"Selim":0,form:2,fc:'all',fst:['ok','REMISE AU CLIENT ✓'],stat:"Terminé : la feuille a fait tout le voyage",file:'php',url:'ecole.tn/traiter.php',scr:RT,
+b:{w:U?"Voilà : vous êtes maintenant Selim !":"Sara, vous êtes enregistrée !",c:U?"Merci, je suis Selim !":"Merci beaucoup !"},l:[6]});
+s.push({t:"Fin de la connexion",
+d:"mysqli_close($conn) : le coursier rend son badge, la connexion à l'administration est terminée. En production, préférez les requêtes préparées (mysqli_prepare) contre les injections SQL.",
+nm:U?"Selim":0,pg:2,res:3,resT:RT,form:2,fc:'all',fst:['ok','REMISE AU CLIENT ✓'],stat:"Connexion fermée",file:'php',url:'ecole.tn/traiter.php',scr:RT,
+b:{a:"Badge rendu. Au suivant !"},l:[7]});
+}else{
+s.push({t:"L'administration remet le résultat ($res)",
+d:"Pour un SELECT, l'administration ne répond pas true/false : elle prépare le résultat complet dans une armoire $res — un tiroir (une ligne) par enregistrement — et le coursier la ramène au guichet pour construire la page du client.",
+ag:'R',bd:1,cab:1,pg:1,res:1,resT:'$res : 4 tiroirs (4 élèves)',form:2,fc:'all',fst:['go','LECTURE DES ARCHIVES'],stat:"Le résultat est une ressource $res",file:'php',url:'ecole.tn/traiter.php',scr:'Lecture des archives…',
+b:{g:"Voici l'armoire $res : 4 tiroirs.",a:"Je la ramène au guichet, tiroir par tiroir."},l:[3]});
+var f=[
+[1,"1 · Ali","1 Ali","mysqli_fetch_row retire le tiroir suivant et le met dans $row (indices 0, 1…). La ligne devient une <option> dans la liste <select> retournée au client.","mysqli_fetch_row : premier tiroir"],
+[2,"2 · Sara","1 Ali · 2 Sara","Le while rappelle fetch : chaque nouvelle ligne ajoute une <option> à la liste du client.","Tiroir suivant → nouvelle <option>"],
+[4,"4 · Lina","1 Ali · 2 Sara · 3 Omar · 4 Lina","La boucle continue : la page retournée se remplit — la liste <select> gagne une <option> par élève.","…jusqu'au dernier tiroir"]];
+f.forEach(function(x,k){
+s.push({t:x[4],d:x[3],ag:'R',bd:1,cab:1,n:x[0],hand:'row',row:x[1],pg:1,popt:x[0],res:2,resT:x[0]+' ligne'+(k?'s':'')+' lue'+(k?'s':'')+'…',
+b:{a:"$row = ["+x[1].replace(' · ',', ')+"]",w:"→ option « "+x[1]+" » ajoutée"},
+scr:x[2],form:2,fc:'all',fst:['go','PAGE EN CONSTRUCTION'],stat:"La page du client se remplit (<option>)",file:'php',url:'ecole.tn/traiter.php',l:k==0?[4,5,6]:[5,6]});
+});
+s.push({t:"Armoire vide : fetch renvoie null",
+d:"Plus aucun tiroir : mysqli_fetch_row renvoie null, la condition du while devient fausse et la boucle s'arrête — la liste <select> est maintenant complète.",
+ag:'R',bd:1,cab:1,n:4,pg:1,popt:4,res:2,resT:'4 lignes lues — plus rien',form:2,fc:'all',fst:['go','LISTE COMPLÈTE'],stat:"La boucle while s'arrête",file:'php',url:'ecole.tn/traiter.php',scr:f[2][2],
+b:{a:"Il n'y a plus rien à sortir.",w:"Très bien, la liste est complète."},l:[5,7]});
+s.push({t:"La guichetière reçoit la page du coursier",
+d:"Le coursier remet la page complète à la guichetière (JavaScript) : une liste <select> contenant 4 <option> (un élève par ligne), prête à être affichée dans le navigateur du client.",
+wRes:1,bd:1,pg:2,popt:4,res:2,resT:'✔ 4 élèves : Ali, Sara, Omar, Lina',form:2,fc:'all',fst:['go','PAGE REÇUE'],stat:"La page <select> est entre les mains de la guichetière",file:'php',url:'ecole.tn/traiter.php',scr:f[2][2],
+b:{w:"J'ai la page : une belle liste déroulante !",a:"À votre disposition !"},l:[7,8]});
+s.push({t:"Elle affiche la page au client (echo)",
+d:"La guichetière affiche la page retournée (echo) dans le navigateur du client : la liste déroulante <select> contient tous les élèves, chacun étant une <option>.",
+cRes:1,bd:1,pg:2,popt:4,res:3,resT:'✔ 4 élèves : Ali, Sara, Omar, Lina',form:2,fc:'all',fst:['ok','REMISE AU CLIENT ✓'],stat:"Terminé : la feuille a fait tout le voyage",file:'php',url:'ecole.tn/traiter.php',scr:'1 Ali · 2 Sara · 3 Omar · 4 Lina',
+b:{w:"Voici la liste des élèves !",c:"Merci beaucoup !"},l:[4,5,6,7,8]});
+s.push({t:"Fin de la connexion",
+d:"mysqli_close($conn) : le coursier rend son badge, la connexion à l'administration est terminée. En production, préférez les requêtes préparées (mysqli_prepare) contre les injections SQL.",
+pg:2,popt:4,res:3,resT:'✔ 4 élèves : Ali, Sara, Omar, Lina',form:2,fc:'all',fst:['ok','REMISE AU CLIENT ✓'],stat:"Connexion fermée",file:'php',url:'ecole.tn/traiter.php',scr:'1 Ali · 2 Sara · 3 Omar · 4 Lina',
+b:{a:"Badge rendu. Au suivant !"},l:[9]});
+}
+return s;}
+function esc(c){return c.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function build(){
+S=steps();
+el('dots').innerHTML=S.map(function(s,k){return '<i title="'+(k+1)+'. '+s.t+'"></i>';}).join('');
+el('phases').innerHTML=PH.map(function(n,k){return '<button type="button" data-b="'+PB[k]+'">'+(k+1)+' · '+n+'</button>';}).join('');
+curCode='';
+}
+function on(id,v){el(id).classList.toggle('on',!!v);}
+function render(){
+var s=S[i],X=POS[s.ag||'R'],cr=el('gCours');
+var cl=el('gCli'),cx=s.cx===undefined?70:s.cx,sh=s.sh===undefined?3:s.sh;
+cl.style.transform='translate('+cx+'px,372px)';
+if(cx!=lastC){cl.classList.add('walk');setTimeout(function(){cl.classList.remove('walk');},1600);lastC=cx;}
+[].forEach.call(document.querySelectorAll('.shl'),function(g,k){g.classList.toggle('built',k<sh);});
+el('mIns').parentNode.classList.toggle('pick',!!s.pick);
+on('sClosed',s.cx===-90);on('sOpen',s.cx!==-90);el('gDir').style.opacity=s.dir?1:0;var dx=s.dx===undefined?345:s.dx,gd=el('gDir');gd.style.transform='translate('+dx+'px,372px)';if(dx!=lastD){gd.classList.add('walk');setTimeout(function(){gd.classList.remove('walk');},1600);lastD=dx;}el('scene').style.setProperty('--dxp',((dx-20)/9)+'%');
+cr.style.transform='translate('+X+'px,372px)';
+el('cab').style.transform='translate('+(X+55)+'px,372px)';
+el('scene').style.setProperty('--axp',(X/9)+'%');
+if((s.ag||'R')!=last){cr.classList.add('walk');setTimeout(function(){cr.classList.remove('walk');},1600);last=s.ag||'R';}
+['key','note','ok','row','slip'].forEach(function(k){on('i-'+k,s.hand==k);});
+on('i-form',!!s.ff);
+on('wForm',!!s.wf);
+on('wCheck',!!s.wc);
+on('wRes',!!s.wRes);
+on('cP',!!s.cf);
+on('cRes',!!s.cRes);
+on('badge',!!s.bd);
+on('gB',!!s.gh);
+on('newFile',!!s.filed);
+el('cName').textContent=s.nm||'Sara';
+if(s.row)el('rowT').textContent=s.row;
+el('cab').classList.toggle('show',!!s.cab);
+[].forEach.call(document.querySelectorAll('.tr'),function(h,k){h.classList.toggle('taken',k<(s.n||0));});
+['c','w','a','g','d'].forEach(function(k){
+var b=el('b'+k);
+b.innerHTML=s.b[k]?'<b style="color:'+COL[k]+'">'+NAME[k]+'</b>'+s.b[k]:'';
+b.classList.toggle('show',!!s.b[k]);
+});
+if(s.scr!==undefined)curScr=s.scr;
+if(s.url!==undefined)curUrl=s.url;
+el('scr').textContent=curScr;
+el('url').textContent=curUrl;
+var form=s.form||0,order=['nom','tel','email'],vals={nom:mode=='upd'?'Selim':'Sara',tel:'98 123 456',email:'sara@mail.tn'};
+var upto=order.indexOf(s.fc=='all'?'email':s.fc);
+order.forEach(function(k,idx){
+el('v-'+k).textContent=form>=2?vals[k]:'—';
+var ck=el('ck-'+k);
+ck.textContent=idx<=upto?'✓':(form>=2?'…':'·');
+ck.className='fck'+(idx<=upto?' ok':(form>=2?' wait':''));
+});
+var fst=s.fst||['',''];
+el('fstamp').textContent=fst[1]||'';
+el('fstamp').className='stamp '+(fst[0]||'');
+el('fstat').textContent=s.stat||'';
+var pg=s.pg||0,popt=s.popt||0,echoTxt=mode=='upd'?'Nom modifié':'Élève enregistré';
+el('pstamp').textContent=pg?(mode=='sel'?'HTML':'echo'):'';
+el('pstamp').className='stamp '+(pg>=2?'ok':(pg==1?'go':''));
+if(mode=='sel'){
+var opts='';
+for(var q=0;q<popt;q++){
+opts+='<div class="oline'+(pg==1&&q==popt-1?' new':'')+'">&lt;option value="'+ROWS[q][0]+'"&gt;'+ROWS[q][0]+' · '+ROWS[q][1]+'&lt;/option&gt;</div>';
+}
+el('pcode').innerHTML=pg?'<div class="tline">&lt;select name="eleve"&gt;</div>'+opts+(popt?'<div class="tline">&lt;/select&gt;</div>':''):'<span class="ph">— la page echo se construit avec fetch_row —</span>';
+el('pview').innerHTML=(pg&&popt)?'<select size="3" disabled>'+ROWS.slice(0,popt).map(function(r){return '<option>'+r[0]+' · '+r[1]+'</option>';}).join('')+'</select>':'<span class="ph">— en attente —</span>';
+}else{
+el('pcode').innerHTML=pg>=2?'<div class="tline">echo "'+echoTxt+'";</div><div class="pout">'+echoTxt+'</div>':'<span class="ph">— la page echo s\'affichera ici —</span>';
+el('pview').innerHTML=pg>=2?'<div class="pout">✔ '+echoTxt+'</div>':'<span class="ph">— en attente —</span>';
+}
+el('rstat').textContent=['EN ATTENTE — le résultat s\'affichera ici','EN ROUTE — le coursier (PHP)','REÇU — la guichetière (JS)','REMIS AU CLIENT ✓'][s.res||0];
+el('rstat').className='rstat s'+(s.res||0);
+el('rbody').textContent=s.resT||'—';
+var key=s.file+mode,CD={js:CODE_JS,php:CODE_PHP[mode],sql:CODE_SQL,html:CODE_HTML};
+if(key!=curCode){el('code').innerHTML=CD[s.file].map(function(c){return '<span>'+esc(c)+'</span>';}).join('');curCode=key;}
+el('code').className=s.file;
+el('codeTitle').textContent={js:'controle.js',php:'traiter.php',sql:'ecole.sql',html:'formulaire.html'}[s.file];
+[].forEach.call(document.querySelectorAll('#code span'),function(x,k){x.classList.toggle('hl',s.l.indexOf(k)>-1);});
+[].forEach.call(document.querySelectorAll('#dots i'),function(x,k){x.classList.toggle('d',k<=i);});
+var ph=0;PB.forEach(function(b,k){if(i>=b)ph=k;});
+[].forEach.call(el('phases').children,function(b,k){b.classList.toggle('on',k==ph);b.classList.toggle('done',k<ph);});
+el('ttl').textContent=(i+1)+'/'+S.length+' – '+s.t;
+el('desc').textContent=s.d;
+el('prev').disabled=i==0;el('next').disabled=i==S.length-1;
+}
+function go(k){i=Math.max(0,Math.min(S.length-1,k));render();}
+function stop(){if(timer){clearInterval(timer);timer=null;el('auto').textContent='Lecture auto';}}
+function setMode(m){stop();mode=m;el('mIns').classList.toggle('on',m=='ins');el('mSel').classList.toggle('on',m=='sel');el('mUpd').classList.toggle('on',m=='upd');i=i<=5?i:0;curScr='—';curUrl='ecole.tn/formulaire.html';build();render();}
+el('next').onclick=function(){stop();go(i+1);};
+el('prev').onclick=function(){stop();go(i-1);};
+el('rst').onclick=function(){stop();go(0);};
+el('mIns').onclick=function(){setMode('ins');};
+el('mSel').onclick=function(){setMode('sel');};
+el('mUpd').onclick=function(){setMode('upd');};
+el('auto').onclick=function(){
+if(timer){stop();return;}
+if(i==S.length-1)go(0);
+el('auto').textContent='Pause';
+timer=setInterval(function(){if(i>=S.length-1){stop();return;}go(i+1);},+el('spd').value);};
+el('spd').onchange=function(){if(timer){stop();el('auto').click();}};
+el('phases').onclick=function(e){var b=e.target.closest('button');if(b){stop();go(+b.getAttribute('data-b'));}};
+el('dots').onclick=function(e){var k=[].indexOf.call(el('dots').children,e.target);if(k>-1){stop();go(k);}};
+el('fs').onclick=function(){var d=document;if(d.fullscreenElement){d.exitFullscreen();}else if(d.documentElement.requestFullscreen){d.documentElement.requestFullscreen();}};
+document.addEventListener('fullscreenchange',function(){el('fs').textContent=document.fullscreenElement?'Quitter le plein écran':'Plein écran';});
+document.addEventListener('keydown',function(e){
+var tg=e.target.tagName,k=e.key;
+if(e.ctrlKey||e.metaKey||e.altKey||tg=='SELECT'||tg=='INPUT')return;
+if(k=='ArrowRight'||k=='PageDown'){e.preventDefault();stop();go(i+1);}
+else if(k=='ArrowLeft'||k=='PageUp'){e.preventDefault();stop();go(i-1);}
+else if(k=='Home'){stop();go(0);}
+else if(k=='End'){stop();go(S.length-1);}
+else if(k==' '&&tg!='BUTTON'){e.preventDefault();stop();go(i+1);}
+else if(k=='a'||k=='A'){el('auto').click();}
+else if(k=='f'||k=='F'){el('fs').click();}});
+init();build();render();
+</script><!-- 📱 Comportements mobiles (comme les leçons pas à pas) -->
+<nav id="phpm-ctrl" aria-label="Contrôles de la leçon">
+  <button type="button" class="pc-btn" id="pc-prev" aria-label="Étape précédente">&#9664;</button>
+  <button type="button" class="pc-btn" id="pc-auto" aria-label="Lecture automatique / pause">&#9205;</button>
+  <button type="button" class="pc-btn" id="pc-next" aria-label="Étape suivante">&#9654;</button>
+  <button type="button" class="pc-btn" id="pc-rst" aria-label="Recommencer">&#8635;</button>
+  <span class="pc-etape" id="pc-etape">1/1</span>
+</nav>
+<div id="rot-overlay" role="dialog" aria-label="Passer en mode paysage">
+  <div class="rot-boite">
+    <div class="rot-phone" aria-hidden="true">📱</div>
+    <p class="rot-title">Tournez-moi ! 🔄</p>
+    <p class="rot-txt">Cette leçon animée se vit beaucoup mieux en <strong>plein écran paysage</strong>.<br />Tournez votre appareil, ou :</p>
+    <button type="button" class="rot-btn" id="rot-go">🖥️ Passer en plein écran paysage</button>
+    <br />
+    <button type="button" class="rot-skip" id="rot-skip">continuer en portrait</button>
+  </div>
+</div>
+<style>
+  /* Contrôles par symboles + étape : même comportement sur TOUS les écrans
+     (les boutons texte précédent/suivant/lecture auto/recommencer sont remplacés) */
+  body{padding-bottom:78px}
+  #phpm-ctrl{
+    position:fixed;left:0;right:0;bottom:0;z-index:9998;
+    display:flex;align-items:center;gap:7px;
+    padding:9px 12px;
+    background:rgba(15,20,36,.94);backdrop-filter:blur(8px);
+    border-top:1px solid rgba(249,241,227,.14);
+  }
+  #prev,#next,#auto,#rst{display:none !important}
+  .pc-btn{
+    min-width:44px;height:42px;padding:0 10px;border-radius:12px;cursor:pointer;
+    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
+    color:#f9f1e3;font-size:15px;line-height:1;box-shadow:none;
+  }
+  .pc-btn:active{transform:scale(.93)}
+  .pc-etape{
+    flex:1 1 auto;min-width:0;height:42px;display:inline-flex;align-items:center;
+    justify-content:flex-end;padding:0 10px;border-radius:12px;
+    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
+    color:#ffb27a;font-weight:800;font-size:12px;letter-spacing:.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  @media screen and (max-width:920px){
+    #phpm-ctrl{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
+  }
+  /* Mode intégré dans la boîte du cours php.html (?embed=1) */
+  html.embed #stix-nav, html.embed #rot-overlay{display:none !important}
+  html.embed main{padding-top:8px}
+  html.embed h1, html.embed .sub{display:none}
+  #rot-overlay{
+    display:none;position:fixed;inset:0;z-index:99999;
+    flex-direction:column;align-items:center;justify-content:center;
+    padding:28px;text-align:center;
+    background:radial-gradient(120% 90% at 50% 12%,#2c3554 0%,#10162c 58%,#0a0e1c 100%);
+    color:#f9f1e3;font-family:system-ui,'Segoe UI',sans-serif;
+  }
+  #rot-overlay.cache{display:none !important}
+  .rot-phone{font-size:64px;line-height:1;animation:rot-bascule 1.8s ease-in-out infinite}
+  @keyframes rot-bascule{0%,18%{transform:rotate(0deg)}58%,100%{transform:rotate(90deg)}}
+  .rot-title{margin:16px 0 6px;font-size:27px;font-weight:800}
+  .rot-txt{margin:0 0 22px;font-size:15px;line-height:1.55;color:#cdd6f0}
+  .rot-btn{
+    padding:14px 26px;border:none;border-radius:999px;cursor:pointer;
+    background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;
+    font-size:15px;font-weight:800;box-shadow:0 10px 26px rgba(244,81,30,.35);
+  }
+  .rot-skip{margin-top:16px;padding:6px 10px;background:none;border:none;cursor:pointer;color:#9aa3bd;font-size:13px;text-decoration:underline}
+  @media screen and (orientation:portrait) and (pointer:coarse){
+    #rot-overlay{display:flex}
+    body:has(#rot-overlay:not(.cache)){overflow:hidden}
+  }
+  @media print{#phpm-ctrl,#rot-overlay{display:none !important}}
+</style>
+<script>
+/* 📱 Contrôles mobiles : symboles + étape, synchronisés avec la leçon */
+(function () {
+  function $(x) { return document.getElementById(x); }
+  var prev = $("pc-prev"), nxt = $("pc-next"), rst = $("pc-rst"),
+      auto = $("pc-auto"), lab = $("pc-etape");
+  if (prev) prev.onclick = function () { stop(); go(i - 1); };
+  if (nxt)  nxt.onclick  = function () { stop(); go(i + 1); };
+  if (rst)  rst.onclick  = function () { stop(); go(0); };
+  if (auto) auto.onclick = function () { var a = $("auto"); if (a) a.click(); };
+  function sync() {
+    var a = $("auto");
+    if (auto && a) {
+      auto.textContent = a.textContent.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
+    }
+    if (lab && window.S && typeof window.i === "number" && window.S[window.i]) {
+      var t = window.S[window.i].t || "";
+      lab.textContent = (window.i + 1) + "/" + window.S.length + (t ? " \u00B7 " + t : "");
+    }
+  }
+  sync();
+  setInterval(sync, 400);
+
+  /* 🔄 Overlay « Tournez-moi » */
+  var overlay = $("rot-overlay");
+  if (overlay) {
+    var cacher = function () { overlay.classList.add("cache"); };
+    var skip = $("rot-skip"), goBtn = $("rot-go");
+    if (skip) skip.addEventListener("click", cacher);
+    if (goBtn) goBtn.addEventListener("click", function () {
+      var elx = document.documentElement;
+      var req = elx.requestFullscreen || elx.webkitRequestFullscreen || elx.msRequestFullscreen;
+      if (req) {
+        try {
+          var pr = req.call(elx);
+          if (pr && pr.then) {
+            pr.then(function () {
+              if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(function () {});
+              }
+            }).catch(function () {});
+          }
+        } catch (err) { /* non supporté */ }
+      }
+      cacher();
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > window.innerHeight) cacher();
+    });
+    window.addEventListener("orientationchange", function () {
+      setTimeout(function () { if (window.innerWidth > window.innerHeight) cacher(); }, 200);
+    });
+  }
+})();
+</script>
+
 <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
 <script src="../assets/js/protection.js" defer></script>

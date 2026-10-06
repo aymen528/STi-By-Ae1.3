@@ -1142,3 +1142,17 @@ footer {
     animation: none !important;
   }
 }
+
+/* ---- Boîte « Du formulaire aux archives » : iframe de la leçon animée ---- */
+.anim-body #anim-bd iframe#animFrame {
+  width: 100%;
+  height: min(72vh, 660px);
+  border: 0;
+  display: block;
+  border-radius: 10px;
+  background: var(--bg);
+}
+.anim-modal.full .anim-body #anim-bd iframe#animFrame {
+  height: calc(100vh - 60px);
+  border-radius: 0;
+}
