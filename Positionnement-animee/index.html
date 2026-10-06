@@ -78,7 +78,7 @@
 
 
 <nav class="barre">
-  <button type="button" id="barre-burger" aria-expanded="false" aria-controls="barre-contenu">☰ Menu de la leçon</button>
+  <button type="button" id="barre-burger" aria-expanded="false" aria-controls="barre-contenu"><span class="burger-ico" aria-hidden="true">☰</span><span class="burger-txt"> Menu de la leçon</span></button>
   <span class="ctrl-mobile">
     <input type="button" class="ctrl-btn" aria-label="Étape précédente" value="&#9664;" onclick="precedent()" />
     <input type="button" class="ctrl-btn" id="ctrl-auto" aria-label="Lecture automatique / pause" value="&#9205;" onclick="lectureAuto()" />
@@ -719,18 +719,25 @@
   var burger = document.getElementById("barre-burger");
   var nav = burger ? burger.closest(".barre") : null;
 
+  function libelle(txt) {
+    var t = burger.querySelector(".burger-txt");
+    if (t) { t.textContent = txt; } else { burger.textContent = txt; }
+  }
+
   function fermerMenu() {
     if (!nav || !burger) return;
     nav.classList.remove("ouverte");
     burger.setAttribute("aria-expanded", "false");
-    burger.textContent = "☰ Menu de la leçon";
+    libelle(" Menu de la leçon");
   }
 
   if (burger && nav) {
     burger.addEventListener("click", function () {
       var ouvert = nav.classList.toggle("ouverte");
       burger.setAttribute("aria-expanded", ouvert ? "true" : "false");
-      burger.textContent = ouvert ? "✕ Fermer le menu" : "☰ Menu de la leçon";
+      libelle(ouvert ? " Fermer le menu" : " Menu de la leçon");
+      var ico = burger.querySelector(".burger-ico");
+      if (ico) ico.textContent = ouvert ? "✕" : "☰";
     });
     nav.addEventListener("click", function (e) {
       var chip = e.target && e.target.closest ? e.target.closest(".chip") : null;
@@ -791,11 +798,18 @@
   .ctrl-btn:active{transform:scale(.93)}
   .sombre .ctrl-btn{color:#cdd6f0;border-color:#2a3352;background:rgba(42,51,82,.45)}
   .clair  .ctrl-btn{color:#41507a;border-color:#e2d3b4;background:rgba(226,211,180,.35)}
+  .ctrl-mobile{min-width:0}
   .ctrl-etape{
-    display:inline-flex;align-items:center;justify-content:center;
-    min-width:52px;height:40px;padding:0 10px;border-radius:12px;
-    border:1px solid;font-weight:800;font-size:13.5px;
-    font-variant-numeric:tabular-nums;letter-spacing:.3px;
+    display:inline-flex;align-items:center;justify-content:flex-end;
+    flex:0 1 auto;min-width:60px;height:40px;padding:0 10px;border-radius:12px;
+    border:1px solid;font-weight:800;font-size:12.5px;
+    font-variant-numeric:tabular-nums;letter-spacing:.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  @media screen and (max-width:480px){
+    .ctrl-etape{flex:1 1 100%;font-size:12px}
+    .burger-txt{display:none}
+    #barre-burger{padding:11px 13px}
   }
   .sombre .ctrl-etape{color:#ffb27a;border-color:#2a3352;background:rgba(42,51,82,.45)}
   .clair  .ctrl-etape{color:#b4552d;border-color:#e2d3b4;background:rgba(226,211,180,.35)}
@@ -810,14 +824,20 @@
   var ctrlAuto = document.getElementById("ctrl-auto");
   var btnAuto = document.getElementById("bouton-auto");
   var etiquette = document.getElementById("ctrl-etape");
-  setInterval(function () {
+  function sync() {
     if (ctrlAuto && btnAuto) {
       ctrlAuto.value = btnAuto.value.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
     }
-    if (etiquette && window.COURS) {
-      etiquette.textContent = (window.etape + 1) + "/" + window.COURS.length;
+    if (etiquette && window.COURS && window.COURS[window.etape]) {
+      var n = window.etape + 1;
+      var t = window.COURS[window.etape].titre || "";
+      etiquette.textContent = n + "/" + window.COURS.length + (t ? " \u00B7 " + t : "");
+      etiquette.setAttribute("aria-label",
+        "\u00C9tape " + n + " sur " + window.COURS.length + (t ? " : " + t : ""));
     }
-  }, 400);
+  }
+  sync();
+  setInterval(sync, 400);
 })();
 </script>
 
