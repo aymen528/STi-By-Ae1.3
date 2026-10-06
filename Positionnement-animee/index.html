@@ -8,6 +8,14 @@
 </head>
 <body onkeydown="clavier(event)">
 
+<!-- Bouton retour vers la fiche CSS3 (navigation mobile) -->
+<style>
+#retour-cours{position:fixed;left:14px;bottom:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;padding:13px 18px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);font:600 13.5px/1 system-ui,'Segoe UI',sans-serif;white-space:nowrap;transition:background .2s ease,transform .2s ease}
+#retour-cours:hover{background:#b4552d;color:#fff;transform:translateX(-2px)}
+@media print{#retour-cours{display:none!important}}
+</style>
+<a id="retour-cours" href="../cours/css3.html">⬅ Retour au cours</a>
+
 <header class="entete">
   <h1 class="titre-principal">CSS pas à pas</h1>
   <p class="soustitre">display · position · float — écrits uniquement avec les balises HTML5 et les propriétés CSS3 de l’annexe</p>
