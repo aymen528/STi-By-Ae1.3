@@ -551,6 +551,66 @@ else if(k=='a'||k=='A'){el('auto').click();}
 else if(k=='f'||k=='F'){el('fs').click();}});
 init();build();render();
 </script>
+<!-- ⏯️ Barre de contrôles par symboles + étape actuelle (ajoutée, n'enlève rien) -->
+<nav id="phpm-ctrl" aria-label="Contrôles rapides">
+  <button type="button" class="pc-btn" id="pc-prev" aria-label="Étape précédente">&#9664;</button>
+  <button type="button" class="pc-btn" id="pc-auto" aria-label="Lecture automatique / pause">&#9205;</button>
+  <button type="button" class="pc-btn" id="pc-next" aria-label="Étape suivante">&#9654;</button>
+  <button type="button" class="pc-btn" id="pc-rst" aria-label="Recommencer">&#8635;</button>
+  <span class="pc-etape" id="pc-etape">1/1</span>
+</nav>
+<style>
+  body{padding-bottom:78px}
+  #phpm-ctrl{
+    position:fixed;left:0;right:0;bottom:0;z-index:9998;
+    display:flex;align-items:center;gap:7px;
+    padding:9px 12px;
+    background:rgba(15,20,36,.94);backdrop-filter:blur(8px);
+    border-top:1px solid rgba(249,241,227,.14);
+  }
+  .pc-btn{
+    min-width:44px;height:42px;padding:0 10px;border-radius:12px;cursor:pointer;
+    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
+    color:#f9f1e3;font-size:15px;line-height:1;box-shadow:none;
+  }
+  .pc-btn:active{transform:scale(.93)}
+  .pc-etape{
+    flex:1 1 auto;min-width:0;height:42px;display:inline-flex;align-items:center;
+    justify-content:flex-end;padding:0 10px;border-radius:12px;
+    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
+    color:#ffb27a;font-weight:800;font-size:12px;letter-spacing:.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  @media screen and (max-width:920px){
+    #phpm-ctrl{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
+  }
+  @media print{#phpm-ctrl{display:none !important}}
+</style>
+<script>
+/* ⏯️ Barre de symboles : pilote les mêmes fonctions que les boutons d'origine */
+(function () {
+  function $(x) { return document.getElementById(x); }
+  var prev = $("pc-prev"), nxt = $("pc-next"), rst = $("pc-rst"),
+      auto = $("pc-auto"), lab = $("pc-etape");
+  if (prev) prev.onclick = function () { stop(); go(i - 1); };
+  if (nxt)  nxt.onclick  = function () { stop(); go(i + 1); };
+  if (rst)  rst.onclick  = function () { stop(); go(0); };
+  if (auto) auto.onclick = function () { var a = $("auto"); if (a) a.click(); };
+  function sync() {
+    var a = $("auto");
+    if (auto && a) {
+      auto.textContent = a.textContent.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
+    }
+    if (lab && window.S && typeof window.i === "number" && window.S[window.i]) {
+      var t = window.S[window.i].t || "";
+      lab.textContent = (window.i + 1) + "/" + window.S.length + (t ? " \u00B7 " + t : "");
+    }
+  }
+  sync();
+  setInterval(sync, 400);
+})();
+</script>
+
 <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
 <script src="../assets/js/protection.js" defer></script>
