@@ -1992,6 +1992,117 @@
     <link rel="stylesheet" href="assets/css/atelier.css" />
   </head>
   <body>
+    <!-- 📱 Écran d'entrée (mobile / application installée) : logo STI puis slogan -->
+    <div id="splash-sti" aria-hidden="true">
+      <img
+        class="splash-logo"
+        src="assets/icons/sti-icon-192.png"
+        alt="Logo STI"
+      />
+      <p class="splash-txt">
+        <span class="splash-sti">STI</span>
+        <span class="splash-slogan">Le web de A à Z.</span>
+      </p>
+    </div>
+    <style>
+      #splash-sti {
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: var(--bg, #f6eedc);
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      #splash-sti.cache {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      #splash-sti .splash-logo {
+        width: 118px;
+        height: 118px;
+        border-radius: 28px;
+        box-shadow: 0 18px 44px rgba(16, 23, 40, 0.22);
+        opacity: 0;
+        transform: scale(0.6);
+        animation: splash-pop 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.1s
+          forwards;
+      }
+      #splash-sti .splash-txt {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        text-align: center;
+      }
+      #splash-sti .splash-sti {
+        font-size: 44px;
+        font-weight: 900;
+        letter-spacing: 3px;
+        color: var(--ink, #101728);
+        opacity: 0;
+        transform: translateY(12px);
+        animation: splash-up 0.6s ease 0.75s forwards;
+      }
+      #splash-sti .splash-slogan {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--muted, #6b6250);
+        opacity: 0;
+        transform: translateY(12px);
+        animation: splash-up 0.6s ease 1s forwards;
+      }
+      @keyframes splash-pop {
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @keyframes splash-up {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash-sti .splash-logo,
+        #splash-sti .splash-sti,
+        #splash-sti .splash-slogan {
+          animation-duration: 0.01s;
+          animation-delay: 0s;
+        }
+      }
+    </style>
+    <script>
+      /* 📱 Splash STI : uniquement mobile / application installée */
+      (function () {
+        var s = document.getElementById("splash-sti");
+        if (!s) return;
+        var tactile =
+          window.matchMedia && matchMedia("(pointer: coarse)").matches;
+        var pwa =
+          window.matchMedia &&
+          matchMedia("(display-mode: standalone)").matches;
+        var petit = window.innerWidth < 760;
+        if (!tactile && !pwa && !petit) {
+          s.parentNode.removeChild(s);
+          return;
+        }
+        var fermer = function () {
+          s.classList.add("cache");
+          setTimeout(function () {
+            if (s.parentNode) s.parentNode.removeChild(s);
+          }, 550);
+        };
+        s.addEventListener("click", fermer);
+        setTimeout(fermer, 2300);
+      })();
+    </script>
     <div class="progress" id="progress"></div>
 
     <div class="bg-decor" aria-hidden="true">

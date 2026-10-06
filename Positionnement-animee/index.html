@@ -79,6 +79,12 @@
 
 <nav class="barre">
   <button type="button" id="barre-burger" aria-expanded="false" aria-controls="barre-contenu">☰ Menu de la leçon</button>
+  <span class="ctrl-mobile">
+    <input type="button" class="ctrl-btn" aria-label="Étape précédente" value="&#9664;" onclick="precedent()" />
+    <input type="button" class="ctrl-btn" id="ctrl-auto" aria-label="Lecture automatique / pause" value="&#9205;" onclick="lectureAuto()" />
+    <input type="button" class="ctrl-btn" aria-label="Étape suivante" value="&#9654;" onclick="suivant()" />
+    <input type="button" class="ctrl-btn" aria-label="Rejouer l’étape" value="&#8635;" onclick="rejouer()" />
+  </span>
   <div id="barre-contenu">
   <details class="liste-etapes" id="liste-etapes" open>
     <summary class="resume-etapes">Étapes du cours</summary>
@@ -97,7 +103,7 @@
           <input type="button" class="chip" id="chip-11" value="Bonus · flex" onclick="aller(11)" />
     </p>
   </details>
-  <p>
+  <p class="ctrl-texte">
     <input type="button" class="btn" value="&#9664; Précédent" onclick="precedent()" />
     <input type="button" class="btn btn-violet" value="Suivant &#9654;" onclick="suivant()" />
     <input type="button" class="btn" value="&#8635; Rejouer l’étape" onclick="rejouer()" />
@@ -765,6 +771,39 @@
       }, 200);
     });
   }
+})();
+</script>
+
+
+<style>
+/* 📱 Contrôles rapides à symboles (mobile) */
+.ctrl-mobile{display:none}
+@media screen and (max-width:920px){
+  .barre{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  #barre-burger{margin:0}
+  .ctrl-mobile{display:inline-flex;gap:6px;margin-left:auto}
+  .ctrl-btn{
+    min-width:42px;height:40px;padding:0 10px;border-radius:12px;cursor:pointer;
+    border:1px solid;font-family:inherit;font-size:15px;line-height:1;
+    transition:background-color .2s ease,transform .15s ease;
+  }
+  .ctrl-btn:active{transform:scale(.93)}
+  .sombre .ctrl-btn{color:#cdd6f0;border-color:#2a3352;background:rgba(42,51,82,.45)}
+  .clair  .ctrl-btn{color:#41507a;border-color:#e2d3b4;background:rgba(226,211,180,.35)}
+  .barre #barre-contenu{flex:1 1 100%}
+  .ctrl-texte{display:none !important}
+}
+@media print{.ctrl-mobile{display:none !important}}
+</style>
+<script>
+/* 📱 Symbole ⏵/⏸ synchronisé avec la lecture auto */
+(function () {
+  var ctrlAuto = document.getElementById("ctrl-auto");
+  var btnAuto = document.getElementById("bouton-auto");
+  if (!ctrlAuto || !btnAuto) return;
+  setInterval(function () {
+    ctrlAuto.value = btnAuto.value.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
+  }, 400);
 })();
 </script>
 
