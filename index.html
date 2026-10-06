@@ -2002,6 +2002,7 @@
       <p class="splash-txt">
         <span class="splash-sti">STI</span>
         <span class="splash-slogan">Le web de A à Z.</span>
+        <span class="splash-sign">By A.E.</span>
       </p>
     </div>
     <style>
@@ -2057,6 +2058,17 @@
         transform: translateY(12px);
         animation: splash-up 0.6s ease 1s forwards;
       }
+      #splash-sti .splash-sign {
+        margin-top: 4px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent, #f4511e);
+        opacity: 0;
+        transform: translateY(12px);
+        animation: splash-up 0.6s ease 1.3s forwards;
+      }
       @keyframes splash-pop {
         to {
           opacity: 1;
@@ -2072,7 +2084,8 @@
       @media (prefers-reduced-motion: reduce) {
         #splash-sti .splash-logo,
         #splash-sti .splash-sti,
-        #splash-sti .splash-slogan {
+        #splash-sti .splash-slogan,
+        #splash-sti .splash-sign {
           animation-duration: 0.01s;
           animation-delay: 0s;
         }
@@ -2100,7 +2113,7 @@
           }, 550);
         };
         s.addEventListener("click", fermer);
-        setTimeout(fermer, 2300);
+        setTimeout(fermer, 2600);
       })();
     </script>
     <div class="progress" id="progress"></div>
