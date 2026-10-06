@@ -129,10 +129,8 @@ select#spd{font:inherit;font-size:.92rem;font-weight:600;padding:8px 12px;border
 html:fullscreen body{font-size:18px;overflow:auto}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-<script>if (location.search.indexOf("embed") !== -1) document.documentElement.className += " embed";</script>
 </head>
 <body>
-<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:78px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../exercices/series-exercices.html#php" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🏋️ Exercices</a><a href="../quiz/php.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a></nav>
 <main>
 <h1>Du formulaire aux archives : l'histoire du guichet</h1>
 <p class="sub">Suivez le voyage d'une feuille, du formulaire jusqu'aux archives.</p>
@@ -552,136 +550,7 @@ else if(k==' '&&tg!='BUTTON'){e.preventDefault();stop();go(i+1);}
 else if(k=='a'||k=='A'){el('auto').click();}
 else if(k=='f'||k=='F'){el('fs').click();}});
 init();build();render();
-</script><!-- 📱 Comportements mobiles (comme les leçons pas à pas) -->
-<nav id="phpm-ctrl" aria-label="Contrôles de la leçon">
-  <button type="button" class="pc-btn" id="pc-prev" aria-label="Étape précédente">&#9664;</button>
-  <button type="button" class="pc-btn" id="pc-auto" aria-label="Lecture automatique / pause">&#9205;</button>
-  <button type="button" class="pc-btn" id="pc-next" aria-label="Étape suivante">&#9654;</button>
-  <button type="button" class="pc-btn" id="pc-rst" aria-label="Recommencer">&#8635;</button>
-  <span class="pc-etape" id="pc-etape">1/1</span>
-</nav>
-<div id="rot-overlay" role="dialog" aria-label="Passer en mode paysage">
-  <div class="rot-boite">
-    <div class="rot-phone" aria-hidden="true">📱</div>
-    <p class="rot-title">Tournez-moi ! 🔄</p>
-    <p class="rot-txt">Cette leçon animée se vit beaucoup mieux en <strong>plein écran paysage</strong>.<br />Tournez votre appareil, ou :</p>
-    <button type="button" class="rot-btn" id="rot-go">🖥️ Passer en plein écran paysage</button>
-    <br />
-    <button type="button" class="rot-skip" id="rot-skip">continuer en portrait</button>
-  </div>
-</div>
-<style>
-  /* Contrôles par symboles + étape : même comportement sur TOUS les écrans
-     (les boutons texte précédent/suivant/lecture auto/recommencer sont remplacés) */
-  body{padding-bottom:78px}
-  #phpm-ctrl{
-    position:fixed;left:0;right:0;bottom:0;z-index:9998;
-    display:flex;align-items:center;gap:7px;
-    padding:9px 12px;
-    background:rgba(15,20,36,.94);backdrop-filter:blur(8px);
-    border-top:1px solid rgba(249,241,227,.14);
-  }
-  #prev,#next,#auto,#rst{display:none !important}
-  .pc-btn{
-    min-width:44px;height:42px;padding:0 10px;border-radius:12px;cursor:pointer;
-    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
-    color:#f9f1e3;font-size:15px;line-height:1;box-shadow:none;
-  }
-  .pc-btn:active{transform:scale(.93)}
-  .pc-etape{
-    flex:1 1 auto;min-width:0;height:42px;display:inline-flex;align-items:center;
-    justify-content:flex-end;padding:0 10px;border-radius:12px;
-    border:1px solid rgba(249,241,227,.22);background:rgba(42,51,82,.55);
-    color:#ffb27a;font-weight:800;font-size:12px;letter-spacing:.2px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
-  @media screen and (max-width:920px){
-    #phpm-ctrl{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
-  }
-  /* Mode intégré dans la boîte du cours php.html (?embed=1) */
-  html.embed #stix-nav, html.embed #rot-overlay{display:none !important}
-  html.embed main{padding-top:8px}
-  html.embed h1, html.embed .sub{display:none}
-  #rot-overlay{
-    display:none;position:fixed;inset:0;z-index:99999;
-    flex-direction:column;align-items:center;justify-content:center;
-    padding:28px;text-align:center;
-    background:radial-gradient(120% 90% at 50% 12%,#2c3554 0%,#10162c 58%,#0a0e1c 100%);
-    color:#f9f1e3;font-family:system-ui,'Segoe UI',sans-serif;
-  }
-  #rot-overlay.cache{display:none !important}
-  .rot-phone{font-size:64px;line-height:1;animation:rot-bascule 1.8s ease-in-out infinite}
-  @keyframes rot-bascule{0%,18%{transform:rotate(0deg)}58%,100%{transform:rotate(90deg)}}
-  .rot-title{margin:16px 0 6px;font-size:27px;font-weight:800}
-  .rot-txt{margin:0 0 22px;font-size:15px;line-height:1.55;color:#cdd6f0}
-  .rot-btn{
-    padding:14px 26px;border:none;border-radius:999px;cursor:pointer;
-    background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;
-    font-size:15px;font-weight:800;box-shadow:0 10px 26px rgba(244,81,30,.35);
-  }
-  .rot-skip{margin-top:16px;padding:6px 10px;background:none;border:none;cursor:pointer;color:#9aa3bd;font-size:13px;text-decoration:underline}
-  @media screen and (orientation:portrait) and (pointer:coarse){
-    #rot-overlay{display:flex}
-    body:has(#rot-overlay:not(.cache)){overflow:hidden}
-  }
-  @media print{#phpm-ctrl,#rot-overlay{display:none !important}}
-</style>
-<script>
-/* 📱 Contrôles mobiles : symboles + étape, synchronisés avec la leçon */
-(function () {
-  function $(x) { return document.getElementById(x); }
-  var prev = $("pc-prev"), nxt = $("pc-next"), rst = $("pc-rst"),
-      auto = $("pc-auto"), lab = $("pc-etape");
-  if (prev) prev.onclick = function () { stop(); go(i - 1); };
-  if (nxt)  nxt.onclick  = function () { stop(); go(i + 1); };
-  if (rst)  rst.onclick  = function () { stop(); go(0); };
-  if (auto) auto.onclick = function () { var a = $("auto"); if (a) a.click(); };
-  function sync() {
-    var a = $("auto");
-    if (auto && a) {
-      auto.textContent = a.textContent.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
-    }
-    if (lab && window.S && typeof window.i === "number" && window.S[window.i]) {
-      var t = window.S[window.i].t || "";
-      lab.textContent = (window.i + 1) + "/" + window.S.length + (t ? " \u00B7 " + t : "");
-    }
-  }
-  sync();
-  setInterval(sync, 400);
-
-  /* 🔄 Overlay « Tournez-moi » */
-  var overlay = $("rot-overlay");
-  if (overlay) {
-    var cacher = function () { overlay.classList.add("cache"); };
-    var skip = $("rot-skip"), goBtn = $("rot-go");
-    if (skip) skip.addEventListener("click", cacher);
-    if (goBtn) goBtn.addEventListener("click", function () {
-      var elx = document.documentElement;
-      var req = elx.requestFullscreen || elx.webkitRequestFullscreen || elx.msRequestFullscreen;
-      if (req) {
-        try {
-          var pr = req.call(elx);
-          if (pr && pr.then) {
-            pr.then(function () {
-              if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock("landscape").catch(function () {});
-              }
-            }).catch(function () {});
-          }
-        } catch (err) { /* non supporté */ }
-      }
-      cacher();
-    });
-    window.addEventListener("resize", function () {
-      if (window.innerWidth > window.innerHeight) cacher();
-    });
-    window.addEventListener("orientationchange", function () {
-      setTimeout(function () { if (window.innerWidth > window.innerHeight) cacher(); }, 200);
-    });
-  }
-})();
 </script>
-
 <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
 <script src="../assets/js/protection.js" defer></script>
