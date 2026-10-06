@@ -83,6 +83,7 @@
     <input type="button" class="ctrl-btn" id="ctrl-auto" aria-label="Lecture automatique / pause" value="&#9205;" onclick="lectureAuto()" />
     <input type="button" class="ctrl-btn" aria-label="Étape suivante" value="&#9654;" onclick="suivant()" />
     <input type="button" class="ctrl-btn" aria-label="Rejouer l’étape" value="&#8635;" onclick="rejouer()" />
+    <span class="ctrl-etape" id="ctrl-etape" aria-live="polite" title="Étape actuelle">1/12</span>
   </span>
   <div id="barre-contenu">
   <details class="liste-etapes" id="liste-etapes" open>
@@ -776,19 +777,32 @@
   .ctrl-btn:active{transform:scale(.93)}
   .sombre .ctrl-btn{color:#cdd6f0;border-color:#2a3352;background:rgba(42,51,82,.45)}
   .clair  .ctrl-btn{color:#41507a;border-color:#e2d3b4;background:rgba(226,211,180,.35)}
+  .ctrl-etape{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:52px;height:40px;padding:0 10px;border-radius:12px;
+    border:1px solid;font-weight:800;font-size:13.5px;
+    font-variant-numeric:tabular-nums;letter-spacing:.3px;
+  }
+  .sombre .ctrl-etape{color:#ffb27a;border-color:#2a3352;background:rgba(42,51,82,.45)}
+  .clair  .ctrl-etape{color:#b4552d;border-color:#e2d3b4;background:rgba(226,211,180,.35)}
   .barre #barre-contenu{flex:1 1 100%}
   .ctrl-texte{display:none !important}
 }
 @media print{.ctrl-mobile{display:none !important}}
 </style>
 <script>
-/* 📱 Symbole ⏵/⏸ synchronisé avec la lecture auto */
+/* 📱 Symbole ⏵/⏸ + étape actuelle synchronisés */
 (function () {
   var ctrlAuto = document.getElementById("ctrl-auto");
   var btnAuto = document.getElementById("bouton-auto");
-  if (!ctrlAuto || !btnAuto) return;
+  var etiquette = document.getElementById("ctrl-etape");
   setInterval(function () {
-    ctrlAuto.value = btnAuto.value.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
+    if (ctrlAuto && btnAuto) {
+      ctrlAuto.value = btnAuto.value.indexOf("Pause") !== -1 ? "\u23F8" : "\u23F5";
+    }
+    if (etiquette && window.COURS) {
+      etiquette.textContent = (window.etape + 1) + "/" + window.COURS.length;
+    }
   }, 400);
 })();
 </script>
