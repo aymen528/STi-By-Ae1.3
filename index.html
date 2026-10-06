@@ -624,6 +624,62 @@
       }
 
       /* Terminal */
+      /* ─────────────── QR « Scanner-moi » ─────────────── */
+      .hero-right {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+      }
+
+      .qr-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease,
+          border-color 0.2s ease;
+        animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
+      }
+
+      .qr-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+        box-shadow: var(--shadow-lg);
+      }
+
+      .qr-card img {
+        width: 96px;
+        height: 96px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #fffdf5;
+        flex: 0 0 auto;
+      }
+
+      .qr-card-txt {
+        min-width: 0;
+      }
+
+      .qr-card-txt strong {
+        display: block;
+        font-size: 1.05em;
+        margin-bottom: 3px;
+      }
+
+      .qr-card-txt small {
+        display: block;
+        color: var(--muted);
+        font-size: 0.85em;
+        line-height: 1.45;
+      }
+
       .terminal {
         background: linear-gradient(var(--term-bg), var(--term-bg)) padding-box,
           var(--grad) border-box;
@@ -2459,6 +2515,7 @@
           </div>
         </div>
 
+        <div class="hero-right">
         <div class="terminal" aria-hidden="true">
           <div class="terminal-bar">
             <span></span><span></span><span></span>
@@ -2482,6 +2539,28 @@
               <span class="cursor">▌</span>
             </div>
           </div>
+        </div>
+
+        <!-- Carte QR « Scanner-moi » -->
+        <a
+          class="qr-card"
+          href="https://aymenessouyah.github.io/STi/"
+          title="Ouvrir le site sur votre téléphone"
+        >
+          <img
+            src="assets/images/qr-code-site.png"
+            alt="QR code du site STI by AE"
+            width="96"
+            height="96"
+          />
+          <span class="qr-card-txt">
+            <strong>📱 Scanner-moi !</strong>
+            <small
+              >Flashez ce code avec votre téléphone pour passer directement
+              au site, où que vous soyez.</small
+            >
+          </span>
+        </a>
         </div>
       </section>
 
