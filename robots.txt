@@ -1,0 +1,100 @@
+# ============================================================
+#  Plateforme STI par A. Essouyah — aymenessouyah.github.io/STi
+#  Contenu pédagogique protégé © A. Essouyah.
+#
+#  L'exploration, l'indexation, l'extraction ou l'utilisation de
+#  ce site (textes, images, code, PDF) par tout outil, service ou
+#  modèle d'intelligence artificielle est INTERDITE : entraînement,
+#  fine-tuning, RAG, génération de réponses, résumé automatique, etc.
+#
+#  Les moteurs de recherche classiques restent autorisés afin que
+#  les élèves puissent trouver le site.
+# ============================================================
+
+# --- OpenAI (ChatGPT, GPT…) ---
+User-agent: GPTBot
+Disallow: /
+User-agent: OAI-SearchBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
+User-agent: GPTBot-User
+Disallow: /
+
+# --- Anthropic (Claude…) ---
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Claude-Web
+Disallow: /
+User-agent: Claude-SearchBot
+Disallow: /
+User-agent: Claude-User
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+
+# --- Google (utilisation IA / Gemini) ---
+User-agent: Google-Extended
+Disallow: /
+
+# --- Common Crawl (jeu de données d'entraînement de nombreux modèles) ---
+User-agent: CCBot
+Disallow: /
+
+# --- Perplexity ---
+User-agent: PerplexityBot
+Disallow: /
+User-agent: Perplexity-User
+Disallow: /
+
+# --- Meta / Facebook ---
+User-agent: Meta-ExternalAgent
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+User-agent: Applebot-Extended
+Disallow: /
+
+# --- Amazon ---
+User-agent: Amazonbot
+Disallow: /
+
+# --- ByteDance (TikTok / Doubao) ---
+User-agent: Bytespider
+Disallow: /
+
+# --- Cohere ---
+User-agent: cohere-ai
+Disallow: /
+User-agent: cohere-training-data
+Disallow: /
+
+# --- Mistral ---
+User-agent: MistralAI-User
+Disallow: /
+
+# --- Autres assistants / agrégateurs IA ---
+User-agent: YouBot
+Disallow: /
+User-agent: DuckAssistBot
+Disallow: /
+User-agent: ICC-Crawler
+Disallow: /
+User-agent: ImagesiftBot
+Disallow: /
+User-agent: Meltwater
+Disallow: /
+User-agent: Omgili
+Disallow: /
+User-agent: Omgilibot
+Disallow: /
+User-agent: Scrapy
+Disallow: /
+User-agent: PetalBot
+Disallow: /
+
+# --- Le reste (moteurs de recherche classiques) est autorisé ---
+User-agent: *
+Allow: /
+
+Sitemap: https://aymenessouyah.github.io/STi/
