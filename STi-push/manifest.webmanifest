@@ -1,0 +1,50 @@
+{
+  "name": "STI by AE — L'Atelier du Web",
+  "short_name": "STI by AE",
+  "description": "Cours, exercices, quiz HTML5, CSS3, JavaScript, SQL et PHP — Lycée Raféha.",
+  "id": "sti-by-ae-atelier",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f9f1e3",
+  "theme_color": "#0f1726",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icons/sti-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/sti-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/sti-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cours",
+      "short_name": "Cours",
+      "url": "./index.html#cours",
+      "icons": [{ "src": "assets/icons/sti-icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Quiz",
+      "short_name": "Quiz",
+      "url": "./index.html#modules",
+      "icons": [{ "src": "assets/icons/sti-icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

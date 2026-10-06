@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Série BD : Jointure - sous-requêtes - Group By (Lycée Rafèha)</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.2em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+        text-align: center;
+      }
+      .db-logo {
+        width: 42px;
+        height: 42px;
+        background: #2b6cb0;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 18px;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 22px;
+        margin-bottom: 10px;
+        border-radius: 0 4px 4px 0;
+      }
+      ul,
+      ol {
+        margin-top: 5px;
+        margin-bottom: 8px;
+        padding-left: 22px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      code {
+        font-family: Consolas, monospace;
+        font-size: 0.88em;
+        background-color: #f7fafc;
+        padding: 2px 4px;
+        border-radius: 3px;
+        color: #2b6cb0;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A. Essouyah</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          Série BD : Jointure - sous-requêtes - Group By<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Bases de Données - SQL</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          Classe<br /><span style="font-weight: normal; font-size: 0.9em"
+            >4<sup>ème</sup> SI 2</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="db-logo">SQL</div>
+      <h1>Série de Révision : Jointures, Sous-requêtes et Group By</h1>
+    </div>
+
+    <p>
+      Soit la représentation textuelle de la base de données
+      <strong>ÉTUDIANT</strong> :
+    </p>
+    <ul>
+      <li>
+        <strong>ETUDIANT :</strong>
+        <code>(Numetu, Nometu, Dtnaiss, Cdsexe)</code>
+      </li>
+      <li><strong>SEXE :</strong> <code>(Cdsexe, Lbsexe)</code></li>
+      <li>
+        <strong>ENSEIGNANT :</strong>
+        <code>(Numens, Nomens, Grade, Ancien)</code>
+      </li>
+      <li>
+        <strong>MATIERE :</strong>
+        <code>(Numat, Nomat, Coeff, Numens)</code>
+      </li>
+      <li><strong>NOTES :</strong> <code>(Numetu, Numat, Note)</code></li>
+    </ul>
+
+    <h2>Travail Demandé</h2>
+    <p>
+      À partir de la base de données ci-dessus, écrire les requêtes SQL
+      permettant de répondre aux questions suivantes :
+    </p>
+
+    <ol>
+      <li>
+        Afficher quel était l'âge moyen des garçons et des filles au premier
+        janvier 2025.
+      </li>
+      <li>Afficher le nom et le grade des enseignants d'histoire.</li>
+      <li>
+        Afficher les noms et numéro des étudiants qui n'ont pas de notes en
+        Sociologie.
+      </li>
+      <li>
+        Afficher le nom et le coefficient des matières qui sont enseignées par
+        des maîtres de conférences ou des assistants.
+      </li>
+      <li>
+        Afficher pour chaque étudiant (nom et numéro), et par ordre
+        alphabétique, la moyenne qu'il a obtenue dans chaque matière.
+      </li>
+      <li>
+        Afficher le nom, l'âge et le sexe des étudiants qui ont eu une note
+        d'informatique supérieure à la moyenne générale de la classe.
+      </li>
+      <li>
+        Afficher, pour chaque étudiant (nom et numéro) qui a une note dans
+        chacune des matières, la moyenne obtenue au diplôme.
+      </li>
+      <li>
+        Afficher le nom, le grade et l'ancienneté des enseignants qui enseignent
+        dans plus d'une matière.
+      </li>
+      <li>
+        Afficher le nombre de garçons et le nombre de filles qui ont réussi au
+        diplôme : moyenne ≥ 10.
+      </li>
+      <li>
+        Afficher le nom, le numéro et le sexe des étudiants qui ont une note en
+        informatique supérieure à leur note de Mathématiques.
+      </li>
+      <li>
+        Afficher le nom des couples, nom du garçon nom de la fille, dont la
+        différence d'âge ne dépasse pas 6 mois (180 jours).
+      </li>
+      <li>
+        Pour les étudiants n'ayant pas de note dans une matière, afficher le
+        numéro, le nom de l'étudiant et le nom de la matière concernée[cite:
+        11].
+      </li>
+      <li>
+        Afficher les matières pour lesquelles la moyenne des notes est
+        inférieure à 10. Afficher le nom de l'enseignant correspondant[cite:
+        11].
+      </li>
+      <li>
+        Afficher, pour chaque matière, quelle est la meilleure note et quel est
+        l'étudiant qui l'a obtenue.
+      </li>
+      <li>
+        Afficher, pour chaque sexe (Homme, Femme) la moyenne des notes dans la
+        matière enseignée par Ali Ben Salah.
+      </li>
+    </ol>
+
+    <div class="footer-page">4ème SI - Lycée Rafèha | Prof : A. Essouyah</div>
+  </body>
+</html>

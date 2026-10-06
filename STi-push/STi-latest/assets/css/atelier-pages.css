@@ -1,0 +1,386 @@
+/* ============================================================
+   « L'Atelier » — extension du design pour les pages internes
+   (cours/html5.html · cours/css3.html · exercices/series-exercices.html)
+   Surcouche uniquement visuelle : elle ne casse ni les mises en
+   page mobiles ni les démos pédagogiques. Les utilitaires Tailwind
+   (html5) et les sélecteurs de css.css (css3) sont redéfinis ici,
+   en fin de cascade, donc ils prennent le pas sur les fichiers d'origine.
+   ============================================================ */
+
+/* ---------- Palette commune ---------- */
+:root {
+  --m2-bg: #f6eedc;
+  --m2-bg-2: #fbf5e8;
+  --m2-surface: #fffdf5;
+  --m2-surface-2: #f1e6d0;
+  --m2-line: #e2d3b4;
+  --m2-line-strong: #d0bd97;
+  --m2-ink: #101728;
+  --m2-ink-soft: #3d3624;
+  --m2-muted: #6b6250;
+  --m2-accent: #f4511e;
+  --m2-accent-dark: #c2410c;
+  --m2-accent-soft: #ffe2d2;
+  --m2-ok: #17b26a;
+  --m2-panel: #0c1424;
+  --m2-cream: #efe3cc;
+  --m2-edge: #101728;
+  --m2-pop-sm: 2.5px 2.5px 0 var(--m2-edge);
+  --m2-pop: 4px 4px 0 var(--m2-edge);
+  --m2-pop-lg: 7px 7px 0 var(--m2-edge);
+
+  /* Jetons consommés par series-exercices.html (inoffensifs ailleurs) */
+  --bg: #f6eedc;
+  --surface: #fffdf5;
+  --surface-2: #f1e6d0;
+  --border: #e2d3b4;
+  --ink: #101728;
+  --muted: #6b6250;
+  --accent: #f4511e;
+  --radius: 16px;
+  --c-css: #f4511e;
+  --c-js: #c98a00;
+  --c-sql: #0e7c86;
+  --c-bdd: #0e7c86;
+  --c-php: #2f4bc4;
+  --c-html: #101728;
+}
+
+/* ---------- Fond crème + grille de points + halo pêche ---------- */
+body {
+  background-color: var(--m2-bg) !important;
+  color: var(--m2-ink);
+  font-family: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI",
+    Arial, sans-serif;
+}
+
+body {
+  background-image: radial-gradient(
+      circle,
+      rgba(16, 23, 40, 0.13) 1.15px,
+      transparent 1.15px
+    ),
+    linear-gradient(
+      180deg,
+      rgba(248, 168, 107, 0.3) 0%,
+      rgba(248, 168, 107, 0) 100%
+    );
+  background-repeat: repeat, no-repeat;
+  background-size: 23px 23px, 100% 480px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--m2-accent) 28%, transparent);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Manrope", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.022em;
+}
+
+/* En-têtes collants de style index (topbar css3/series, sticky html5) */
+header.topbar,
+body > header.sticky {
+  border-bottom: 2.5px solid var(--m2-edge);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   1) cours/html5.html — remap des utilitaires Tailwind utilisés
+   (slate → crème/navy, brand vert → orange/navy)
+   ============================================================ */
+
+/* Neutres */
+.font-sans {
+  font-family: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI",
+    Arial, sans-serif;
+}
+
+.bg-slate-50 {
+  background-color: var(--m2-bg-2);
+}
+
+.bg-slate-100 {
+  background-color: var(--m2-surface-2);
+}
+
+.bg-slate-200 {
+  background-color: var(--m2-line);
+}
+
+.bg-slate-800 {
+  background-color: #131f38;
+}
+
+.bg-slate-900 {
+  background-color: var(--m2-panel);
+}
+
+.bg-white {
+  background-color: var(--m2-surface);
+}
+
+.bg-white\/95 {
+  background-color: rgb(251 245 232 / 0.94);
+}
+
+.bg-white\/35 {
+  background-color: rgb(255 253 245 / 0.45);
+}
+
+.bg-white\/20 {
+  background-color: rgb(255 253 245 / 0.3);
+}
+
+.border-slate-200 {
+  border-color: var(--m2-line);
+}
+
+.border-slate-300 {
+  border-color: var(--m2-line-strong);
+}
+
+.border-slate-700 {
+  border-color: #2a3a58;
+}
+
+.divide-slate-200 > * + * {
+  border-color: var(--m2-line);
+}
+
+.text-slate-900,
+.text-slate-800 {
+  color: var(--m2-ink);
+}
+
+.text-slate-700 {
+  color: var(--m2-ink-soft);
+}
+
+.text-slate-600 {
+  color: #57503c;
+}
+
+.text-slate-500 {
+  color: var(--m2-muted);
+}
+
+.text-slate-400 {
+  color: #8a7f68;
+}
+
+.text-slate-300 {
+  color: #b3a583;
+}
+
+.text-slate-200 {
+  color: var(--m2-cream);
+}
+
+.hover\:bg-slate-300:hover {
+  background-color: var(--m2-line-strong);
+}
+
+.hover\:text-slate-700:hover {
+  color: var(--m2-ink);
+}
+
+/* « brand » (vert) → accents crème/orange/navy de l'Atelier */
+.text-brand-700,
+.text-brand-600 {
+  color: var(--m2-accent-dark);
+}
+
+.text-brand-800 {
+  color: var(--m2-ink);
+}
+
+.text-brand-100,
+.text-brand-200 {
+  color: #ffd9c2;
+}
+
+.bg-brand-50 {
+  background-color: #fdf0e6;
+}
+
+.bg-brand-100 {
+  background-color: var(--m2-accent-soft);
+}
+
+.bg-brand-500,
+.bg-brand-600 {
+  background-color: var(--m2-ink);
+}
+
+.bg-brand-700 {
+  background-color: var(--m2-panel);
+}
+
+.bg-brand-800 {
+  background-color: var(--m2-ink);
+}
+
+.border-brand-200 {
+  border-color: #f6c9ae;
+}
+
+.border-brand-400,
+.border-brand-500,
+.border-brand-600 {
+  border-color: var(--m2-edge);
+}
+
+.ring-brand-500 {
+  --tw-ring-color: var(--m2-accent);
+}
+
+.accent-brand-600 {
+  accent-color: var(--m2-accent);
+}
+
+.from-brand-800 {
+  --tw-gradient-from: #101728 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(16 23 40 / 0) var(--tw-gradient-to-position);
+}
+
+.to-brand-900 {
+  --tw-gradient-to: var(--m2-accent) var(--tw-gradient-to-position);
+}
+
+.hover\:bg-brand-50:hover {
+  background-color: var(--m2-accent-soft);
+}
+
+.hover\:bg-brand-700:hover {
+  background-color: var(--m2-panel);
+}
+
+.hover\:bg-brand-800:hover {
+  background-color: var(--m2-ink);
+}
+
+.hover\:text-brand-700:hover {
+  color: var(--m2-accent-dark);
+}
+
+
+
+/* ============================================================
+   2) cours/css3.html — re-teinte des chrome de css.css
+   ============================================================ */
+
+header.topbar {
+  background: rgb(251 245 232 / 0.92);
+}
+
+.css-badge {
+  background: var(--m2-ink);
+  color: #ffd9c2;
+  border: 2px solid var(--m2-edge);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--m2-accent);
+  font-weight: 800;
+}
+
+.card {
+  background: var(--m2-surface);
+  border: 2px solid var(--m2-edge);
+  border-radius: 16px;
+  box-shadow: 5px 5px 0 rgba(16, 23, 40, 0.14);
+}
+
+.btn-nav,
+.btn-detail,
+.demo-btn,
+.copy-btn {
+  border: 2px solid var(--m2-edge);
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: var(--m2-pop-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-nav:hover,
+.btn-detail:hover,
+.demo-btn:hover,
+.copy-btn:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 4px 4px 0 var(--m2-edge);
+}
+
+.toc-nav a {
+  border: 2px solid var(--m2-edge);
+  border-radius: 999px;
+  background: var(--m2-surface);
+  font-weight: 700;
+}
+
+.codebox {
+  border: 2px solid var(--m2-edge);
+  border-radius: 14px;
+}
+
+.astuce {
+  border-left: 6px solid var(--m2-accent);
+}
+
+.box-title {
+  letter-spacing: -0.02em;
+}
+
+/* Scènes de démo : fond crème au lieu du bleu pâle */
+.win-body .stage,
+.win-body .detail-table th {
+  background: var(--m2-surface-2);
+}
+
+.win-body .detail-table th,
+.win-body .detail-table td {
+  border-color: var(--m2-line-strong);
+}
+
+.win-body .float-stage,
+.tbl-sep td,
+.slab-box,
+.sdemo .sw,
+.ez-name svg {
+  border-color: var(--m2-line-strong);
+}
+
+.seg span {
+  border: 2px solid var(--m2-edge);
+  background: var(--m2-surface);
+  border-radius: 9px;
+}
+
+.ctl input[type="range"] {
+  accent-color: var(--m2-accent);
+}
+
+/* ============================================================
+   3) exercices/series-exercices.html — focus visible à l'accent
+   ============================================================ */
+
+.back-link:focus-visible,
+.brand:focus-visible,
+#to-top:focus-visible {
+  outline-color: var(--m2-accent);
+}
+
+/* --- Cartes exercices : les boutons peuvent maintenant passer à la ligne
+       (5 boutons dans « Site Tunisie », ça débordait sur mobile aussi) --- */
+.exo-actions {
+  flex-wrap: wrap;
+}
+
+/* « Site Tunisie » occupe toute la largeur pour contenir ses 5 boutons */
+.exo-card-wide {
+  grid-column: 1 / -1;
+}

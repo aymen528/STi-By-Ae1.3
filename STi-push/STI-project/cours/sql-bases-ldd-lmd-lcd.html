@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bases de données & SQL — LDD, LMD, LCD</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --text:#1c2330; --muted:#5b6472;
+    --accent:#2f6feb; --accent2:#0ea5a0; --border:#e2e6ee;
+    --code-bg:#0f172a; --code-text:#e2e8f0;
+    --ldd:#2f6feb; --lmd:#0ea5a0; --lcd:#c0562f;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1420; --card:#161d2c; --text:#e7ebf3; --muted:#98a2b3;
+      --border:#262f42; --code-bg:#0a0e17; --code-text:#dbe4f3;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1420; --card:#161d2c; --text:#e7ebf3; --muted:#98a2b3;
+    --border:#262f42; --code-bg:#0a0e17; --code-text:#dbe4f3;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+    line-height:1.55;
+  }
+  header{
+    padding:2.2rem 1.2rem 1.6rem; text-align:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+  }
+  header h1{margin:0 0 .4rem; font-size:clamp(1.4rem,4vw,2.1rem);}
+  header p{margin:0; opacity:.92; font-size:.95rem;}
+  nav{
+    position:fixed; top:env(safe-area-inset-top,0px); left:0;
+    bottom:env(safe-area-inset-bottom,0px); width:220px;
+    display:flex; flex-direction:column; gap:.3rem;
+    background:var(--card); border-right:1px solid var(--border);
+    padding:1.1rem .8rem; overflow-y:auto; z-index:20;
+  }
+  nav .nav-title{
+    font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--muted); margin:0 0 .5rem .3rem;
+  }
+  nav a{
+    text-decoration:none; color:var(--text); background:transparent;
+    padding:.5rem .7rem; border-radius:8px; font-size:.87rem;
+  }
+  nav a:hover{background:rgba(47,111,235,.1); color:var(--accent);}
+  header, main{margin-left:220px;}
+  @media (max-width:720px){
+    nav{
+      position:static; width:auto; bottom:auto;
+      flex-direction:row; overflow-x:auto; overflow-y:visible;
+      border-right:none; border-bottom:1px solid var(--border);
+    }
+    nav .nav-title{display:none;}
+    nav a{white-space:nowrap;}
+    header, main{margin-left:0;}
+  }
+  main{max-width:960px; padding:0 1.2rem 3rem;}
+  section{margin-top:2.2rem;}
+  h2{font-size:1.3rem; border-left:5px solid var(--accent); padding-left:.6rem; margin-bottom:.8rem;}
+  h3{font-size:1.05rem; color:var(--accent); margin:1.2rem 0 .4rem;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1.1rem 1.3rem; box-shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  p{color:var(--text);}
+  .muted{color:var(--muted);}
+  pre{
+    background:var(--code-bg); color:var(--code-text); padding:.9rem 1rem;
+    border-radius:10px; overflow-x:auto; font-size:.82rem; line-height:1.5;
+    max-width:100%;
+  }
+  code{font-family:"Fira Code",Consolas,monospace;}
+  .table-wrap{overflow-x:auto; margin-top:.8rem;}
+  table{border-collapse:collapse; width:100%; min-width:560px; font-size:.88rem;}
+  th,td{border:1px solid var(--border); padding:.6rem .7rem; text-align:left; vertical-align:top;}
+  th{background:rgba(47,111,235,.08);}
+  .badge{
+    display:inline-block; padding:.15rem .55rem; border-radius:999px;
+    font-size:.75rem; font-weight:600; color:#fff;
+  }
+  .b-ldd{background:var(--ldd);} .b-lmd{background:var(--lmd);} .b-lcd{background:var(--lcd);}
+  .grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; margin-top:1rem;}
+  .mini{border-top:4px solid var(--accent); }
+  .mini.lmd{border-top-color:var(--lmd);}
+  .mini.lcd{border-top-color:var(--lcd);}
+  footer{text-align:center; color:var(--muted); font-size:.8rem; padding:1.5rem 1rem 2.5rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bases de données & langage SQL</h1>
+  <p>Définitions, LDD / LMD / LCD, et exemple complet — 4ème SI</p>
+</header>
+
+<nav>
+  <p class="nav-title">Sommaire</p>
+  <a href="#def-bdd">Base de données</a>
+  <a href="#def-sql">SQL</a>
+  <a href="#comparatif">LDD / LMD / LCD</a>
+  <a href="#create-table">CREATE TABLE</a>
+  <a href="#alter-table">ALTER TABLE</a>
+  <a href="#exemple">Exemple complet</a>
+</nav>
+
+<main>
+
+  <section id="def-bdd">
+    <h2>1. Qu'est-ce qu'une base de données ?</h2>
+    <div class="card">
+      <p>Une <strong>base de données</strong> est un ensemble structuré et organisé de données, stockées de façon durable sur un support informatique, et destinées à être consultées, mises à jour et gérées par plusieurs utilisateurs ou applications.</p>
+      <p>Elle est gérée par un <strong>SGBD</strong> (Système de Gestion de Base de Données) — par exemple MySQL, PostgreSQL ou SQL Server — qui permet de créer, interroger, modifier et sécuriser les données tout en évitant les redondances et en garantissant leur cohérence.</p>
+      <p class="muted">Une base de données relationnelle organise les données en <em>tables</em> (lignes/colonnes) reliées entre elles par des clés (primaire, étrangère).</p>
+    </div>
+  </section>
+
+  <section id="def-sql">
+    <h2>2. Qu'est-ce que le SQL ?</h2>
+    <div class="card">
+      <p><strong>SQL</strong> (Structured Query Language) est le langage standard utilisé pour communiquer avec une base de données relationnelle : créer sa structure, y insérer et modifier des données, les interroger, et contrôler les droits d'accès.</p>
+      <p>Le SQL se divise traditionnellement en plusieurs sous-langages, selon le rôle des commandes :</p>
+    </div>
+  </section>
+
+  <section id="comparatif">
+    <h2>3. Différence entre LDD, LMD et LCD</h2>
+
+    <div class="grid3">
+      <div class="card mini">
+        <span class="badge b-ldd">LDD</span>
+        <p><strong>Langage de Définition des Données</strong></p>
+        <p class="muted">Définit et modifie la <em>structure</em> de la base : tables, colonnes, contraintes.</p>
+        <p><code>CREATE, ALTER, DROP</code></p>
+      </div>
+      <div class="card mini lmd">
+        <span class="badge b-lmd">LMD</span>
+        <p><strong>Langage de Manipulation des Données</strong></p>
+        <p class="muted">Permet d'interroger et de modifier le <em>contenu</em> des tables.</p>
+        <p><code>SELECT, INSERT, UPDATE, DELETE</code></p>
+      </div>
+      <div class="card mini lcd">
+        <span class="badge b-lcd">LCD</span>
+        <p><strong>Langage de Contrôle des Données</strong></p>
+        <p class="muted">Gère les <em>droits d'accès</em> des utilisateurs à la base.</p>
+        <p><code>GRANT, REVOKE</code></p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Critère</th><th><span class="badge b-ldd">LDD</span></th><th><span class="badge b-lmd">LMD</span></th><th><span class="badge b-lcd">LCD</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rôle</td><td>Créer / modifier la structure (schéma)</td><td>Manipuler les données (lire, ajouter, modifier, supprimer)</td><td>Gérer les autorisations d'accès</td></tr>
+          <tr><td>Agit sur</td><td>Tables, colonnes, contraintes, index</td><td>Lignes / enregistrements</td><td>Utilisateurs et privilèges</td></tr>
+          <tr><td>Commandes clés</td><td>CREATE TABLE, ALTER TABLE, DROP TABLE, DROP DATABASE</td><td>SELECT, INSERT INTO, UPDATE, DELETE</td><td>GRANT, REVOKE</td></tr>
+          <tr><td>Exemple</td><td><code>ALTER TABLE Client ADD COLUMN Tel_Cli VARCHAR(10);</code></td><td><code>UPDATE Employé SET Salaire = Salaire*1.15 WHERE anciennete&gt;10;</code></td><td><code>GRANT SELECT ON Client TO 'user1';</code></td></tr>
+          <tr><td>Fréquence d'usage</td><td>Ponctuel (conception, évolution du schéma)</td><td>Quotidien (exploitation de la base)</td><td>Administration / sécurité</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="create-table">
+    <h2>4. CREATE TABLE en détail</h2>
+    <div class="card">
+      <p><strong>Syntaxe générale :</strong></p>
+      <pre><code>CREATE TABLE nom_table (
+    nom_colonne1  type1  [contrainte(s) de colonne],
+    nom_colonne2  type2  [contrainte(s) de colonne],
+    ...
+    [CONSTRAINT nom_contrainte] contrainte de table (colonne1, ...)
+);</code></pre>
+      <p style="border-left:4px solid var(--accent2); padding-left:.7rem;"><strong>Ordre à respecter pour chaque colonne :</strong> <code>nom_du_champ</code> → <code>type</code> → <code>contrainte(s)</code>. Une colonne peut cumuler plusieurs contraintes, écrites à la suite (<code>NOT NULL</code>, <code>CHECK</code>, <code>DEFAULT</code>...).</p>
+
+      <h3>4.1 Contrainte de colonne vs contrainte de table</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Où elle s'écrit</th><th>Quand l'utiliser</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Contrainte de <strong>colonne</strong></td>
+              <td>Juste après le nom et le type de la colonne concernée</td>
+              <td>La contrainte ne porte que sur <em>une seule</em> colonne</td>
+              <td><code>immat_Vehicule VARCHAR(10) PRIMARY KEY</code></td>
+            </tr>
+            <tr>
+              <td>Contrainte de <strong>table</strong></td>
+              <td>Après la liste de toutes les colonnes, précédée en général de <code>CONSTRAINT nom</code></td>
+              <td>La contrainte porte sur <em>plusieurs</em> colonnes à la fois (clé composée)</td>
+              <td><code>CONSTRAINT PK_Location PRIMARY KEY (immat_Vehicule, NCIN_Cli)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.2 PRIMARY KEY</h3>
+      <p>Identifie une ligne de façon unique (valeur unique et non nulle obligatoire).</p>
+      <pre><code>-- PK simple : contrainte de colonne
+CREATE TABLE Client(
+    NCIN_Cli VARCHAR(8) PRIMARY KEY,
+    nom_Cli  VARCHAR(20) NOT NULL
+);
+
+-- PK composée (2 colonnes ou plus) : obligatoirement une contrainte de table
+CREATE TABLE Location(
+    immat_Vehicule VARCHAR(10),
+    NCIN_Cli       VARCHAR(8),
+    date_loc       TIMESTAMP,
+    CONSTRAINT PK_Location PRIMARY KEY (immat_Vehicule, NCIN_Cli)
+);</code></pre>
+
+      <h3>4.3 FOREIGN KEY / REFERENCES</h3>
+      <p>Une clé étrangère relie une colonne (ou un groupe de colonnes) d'une table à la <strong>clé primaire</strong> (ou une clé unique) d'une autre table, afin de garantir l'intégrité référentielle.</p>
+      <pre><code>-- En contrainte de colonne (raccourci REFERENCES)
+CREATE TABLE Location(
+    immat_Vehicule VARCHAR(10) REFERENCES Vehicule(immat_Vehicule),
+    NCIN_Cli       VARCHAR(8)  REFERENCES Client(NCIN_Cli),
+    ...
+);
+
+-- En contrainte de table (obligatoire si la clé étrangère porte sur plusieurs colonnes)
+CREATE TABLE Location(
+    immat_Vehicule VARCHAR(10),
+    NCIN_Cli       VARCHAR(8),
+    ...
+    CONSTRAINT FK_Vehicule FOREIGN KEY (immat_Vehicule) REFERENCES Vehicule(immat_Vehicule),
+    CONSTRAINT FK_Client   FOREIGN KEY (NCIN_Cli) REFERENCES Client(NCIN_Cli)
+);</code></pre>
+
+      <h3>4.4 ON DELETE : avec ou sans CASCADE</h3>
+      <p>Précise ce qui doit se passer dans la table <em>fille</em> quand la ligne référencée dans la table <em>mère</em> est supprimée.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Option</th><th>Comportement à la suppression du parent</th></tr></thead>
+          <tbody>
+            <tr><td><code>ON DELETE CASCADE</code></td><td>Les lignes filles correspondantes sont <strong>supprimées automatiquement</strong>.</td></tr>
+            <tr><td><em>(rien — comportement par défaut)</em> / <code>ON DELETE RESTRICT</code> ou <code>NO ACTION</code></td><td>La suppression du parent est <strong>refusée</strong> tant qu'il existe des lignes filles liées.</td></tr>
+            <tr><td><code>ON DELETE SET NULL</code></td><td>La clé étrangère des lignes filles est mise à <code>NULL</code> (colonne doit accepter les NULL).</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code>-- Avec CASCADE : supprimer un véhicule supprime automatiquement ses locations
+immat_Vehicule VARCHAR(10) REFERENCES Vehicule(immat_Vehicule) ON DELETE CASCADE
+
+-- Sans CASCADE : la suppression du véhicule est bloquée s'il a encore des locations
+immat_Vehicule VARCHAR(10) REFERENCES Vehicule(immat_Vehicule)</code></pre>
+
+      <h3>4.5 CHECK : validation des valeurs</h3>
+      <p>La contrainte <code>CHECK(condition)</code> refuse toute ligne qui ne respecte pas la condition indiquée. Elle s'écrit, comme les autres, <strong>après le nom du champ et son type</strong> — en contrainte de colonne, ou en contrainte de table pour nommer la contrainte ou la faire porter sur plusieurs colonnes.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Forme</th><th>Usage</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr><td><code>CHECK(condition)</code></td><td>Condition simple (comparaison, intervalle)</td><td><code>duree_loc INT(3) CHECK(duree_loc &gt; 0)</code></td></tr>
+            <tr><td><code>CHECK(col BETWEEN a AND b)</code></td><td>Valeur comprise dans un intervalle</td><td><code>Annee_Acq INT CHECK(Annee_Acq BETWEEN 2000 AND 2022)</code></td></tr>
+            <tr><td><code>CHECK(col IN (...))</code></td><td>La valeur doit appartenir à une liste autorisée</td><td><code>marque VARCHAR(20) CHECK(marque IN('Peugeot','Renault','Fiat'))</code></td></tr>
+            <tr><td><code>CHECK(col NOT IN (...))</code></td><td>La valeur ne doit <strong>pas</strong> appartenir à une liste interdite</td><td><code>Ville VARCHAR(20) CHECK(Ville NOT IN('Inconnue','N/A'))</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre><code>-- Contrainte de colonne : nom_champ, type, puis CHECK
+CREATE TABLE Vehicule(
+    immat_Vehicule VARCHAR(10) PRIMARY KEY,
+    marque VARCHAR(20) NOT NULL
+        CHECK(marque IN('Peugeot','Renault','Fiat','Opel','Volkswagen','Citroën')),
+    statut VARCHAR(15) DEFAULT 'Disponible'
+        CHECK(statut NOT IN('Hors service','Volé'))
+);
+
+-- Contrainte de table nommée, ajoutée après coup
+ALTER TABLE Vehicule
+ADD CONSTRAINT CK_Marque CHECK(marque IN('Peugeot','Renault','Fiat'));</code></pre>
+
+      <h3>4.6 Types de champs les plus courants</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Usage</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr><td><code>INT</code> / <code>INT(n)</code></td><td>Nombre entier</td><td><code>duree_loc INT(3)</code></td></tr>
+            <tr><td><code>DECIMAL(p,s)</code></td><td>Nombre décimal : p chiffres au total, s après la virgule</td><td><code>cout_loc DECIMAL(8,3)</code></td></tr>
+            <tr><td><code>VARCHAR(n)</code></td><td>Chaîne de caractères de longueur variable (max n)</td><td><code>marque VARCHAR(20)</code></td></tr>
+            <tr><td><code>CHAR(n)</code></td><td>Chaîne de longueur fixe n</td><td><code>code_pays CHAR(2)</code></td></tr>
+            <tr><td><code>DATE</code></td><td>Date seule</td><td>2024-11-04</td></tr>
+            <tr><td><code>TIME</code></td><td>Heure seule</td><td>23:44:05</td></tr>
+            <tr><td><code>DATETIME</code></td><td>Date + heure</td><td>2024-11-04 23:44:05</td></tr>
+            <tr><td><code>TIMESTAMP</code></td><td>Date + heure ; seul type compatible avec <code>DEFAULT CURRENT_TIMESTAMP</code></td><td><code>date_loc TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code></td></tr>
+            <tr><td><code>YEAR</code></td><td>Année seule</td><td><code>date_acq YEAR</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.7 Nomination des champs (bonnes pratiques)</h3>
+      <ul>
+        <li>Nom <strong>explicite</strong> et significatif (<code>nom_Cli</code> plutôt que <code>n</code>).</li>
+        <li>Pas d'espaces ni d'accents ; utiliser <code>_</code> pour séparer les mots (<code>date_acq</code>, <code>immat_Vehicule</code>).</li>
+        <li>Éviter les <strong>mots réservés</strong> SQL (<code>date</code>, <code>order</code>, <code>table</code>…).</li>
+        <li>Rester <strong>cohérent</strong> dans toute la base : une clé étrangère reprend le nom de la clé primaire référencée (<code>NCIN_Cli</code> dans <code>Client</code> et dans <code>Location</code>).</li>
+        <li>Préfixer éventuellement par un suffixe/préfixe indiquant la table d'origine (<code>_Cli</code>, <code>_Vehicule</code>) pour lever toute ambiguïté dans les jointures.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="alter-table">
+    <h2>5. ALTER TABLE en détail</h2>
+    <div class="card">
+      <p><code>ALTER TABLE</code> modifie la structure d'une table déjà créée : ajouter, modifier ou supprimer une colonne ou une contrainte.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Opération</th><th>Syntaxe</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Ajouter une colonne</td>
+              <td><code>ALTER TABLE t ADD COLUMN (col) type;</code></td>
+              <td><code>ALTER TABLE Client ADD COLUMN (Tel_Cli) VARCHAR(10);</code><br><span class="muted">Les parenthèses sont facultatives pour une seule colonne.</span></td>
+            </tr>
+            <tr>
+              <td>Modifier une colonne</td>
+              <td><code>ALTER TABLE t MODIFY COLUMN col nouveau_type;</code></td>
+              <td><code>ALTER TABLE Client MODIFY COLUMN Tel_Cli INT(8);</code></td>
+            </tr>
+            <tr>
+              <td>Supprimer une colonne</td>
+              <td><code>ALTER TABLE t DROP COLUMN col;</code></td>
+              <td><code>ALTER TABLE Client DROP COLUMN Adresse_Cli;</code></td>
+            </tr>
+            <tr>
+              <td>Ajouter une contrainte CHECK</td>
+              <td><code>ALTER TABLE t ADD CONSTRAINT CHECK (condition);</code></td>
+              <td><code>ALTER TABLE Vehicule ADD CONSTRAINT CHECK Annee_Acq BETWEEN 2000 AND 2022;</code></td>
+            </tr>
+            <tr>
+              <td>Valeur par défaut</td>
+              <td><code>ALTER TABLE t MODIFY COLUMN col type DEFAULT valeur;</code></td>
+              <td><code>ALTER TABLE Client MODIFY COLUMN Ville VARCHAR(20) DEFAULT 'Tunis';</code><br><span class="muted">On modifie la colonne, on n'ajoute pas une "contrainte" séparée.</span></td>
+            </tr>
+            <tr>
+              <td>Remplacer la clé primaire (PK composée)</td>
+              <td><code>ALTER TABLE t DROP PRIMARY KEY, ADD PRIMARY KEY (col1, col2, ...);</code></td>
+              <td><code>ALTER TABLE Location DROP PRIMARY KEY ADD PRIMARY KEY (immat_Vehicule, NCIN_Cli, date_loc);</code></td>
+            </tr>
+            <tr>
+              <td>Supprimer la clé primaire</td>
+              <td><code>ALTER TABLE t DROP PRIMARY KEY;</code></td>
+              <td><code>ALTER TABLE Client DROP PRIMARY KEY;</code></td>
+            </tr>
+            <tr>
+              <td>Ajouter une clé étrangère</td>
+              <td><code>ALTER TABLE t ADD CONSTRAINT nom FOREIGN KEY (col) REFERENCES autre_table(col) [ON DELETE CASCADE];</code></td>
+              <td><code>ALTER TABLE Location ADD CONSTRAINT FK_Client FOREIGN KEY (NCIN_Cli) REFERENCES Client(NCIN_Cli) ON DELETE CASCADE;</code></td>
+            </tr>
+            <tr>
+              <td>Désactiver / réactiver les contraintes</td>
+              <td><code>ALTER TABLE t DISABLE KEYS; / ENABLE KEYS;</code></td>
+              <td><code>ALTER TABLE Client DISABLE KEYS;</code></td>
+            </tr>
+            <tr>
+              <td>Renommer la table</td>
+              <td><code>ALTER TABLE t RENAME TO nouveau_nom;</code></td>
+              <td><code>ALTER TABLE Vehicule RENAME TO Voiture;</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">Règle pratique : <strong>ADD</strong> pour créer (colonne ou contrainte), <strong>MODIFY</strong> pour changer le type ou une valeur par défaut d'une colonne existante, <strong>DROP</strong> pour supprimer.</p>
+    </div>
+  </section>
+
+  <section id="exemple">
+    <h2>6. Exemple complet</h2>
+    <div class="card">
+      <p class="muted">Contexte : gestion de location de véhicules (Véhicule, Client, Location).</p>
+
+      <h3><span class="badge b-ldd">LDD</span> Création de la structure</h3>
+      <pre><code>CREATE TABLE Vehicule(
+    immat_Vehicule VARCHAR(10) PRIMARY KEY,
+    marque VARCHAR(20) NOT NULL
+        CHECK(marque IN('Peugeot','Renault','Fiat','Opel','Volkswagen','Citroën')),
+    model VARCHAR(20) NOT NULL,
+    date_acq YEAR NOT NULL
+);
+
+CREATE TABLE Client(
+    NCIN_Cli VARCHAR(8) PRIMARY KEY,
+    nom_Cli VARCHAR(20) NOT NULL,
+    Ville VARCHAR(20) DEFAULT 'Tunis'
+);
+
+CREATE TABLE Location(
+    immat_Vehicule VARCHAR(10) REFERENCES Vehicule(immat_Vehicule) ON DELETE CASCADE,
+    NCIN_Cli VARCHAR(8) REFERENCES Client(NCIN_Cli) ON DELETE CASCADE,
+    date_loc TIMESTAMP DEFAULT CURRENT_TIMESTAMP CHECK(date_loc &lt;= NOW()),
+    duree_loc INT(3) CHECK(duree_loc &gt; 0),
+    cout_loc DECIMAL(8,3) CHECK(cout_loc &gt; 0),
+    CONSTRAINT PK_Location PRIMARY KEY(immat_Vehicule, NCIN_Cli)
+);</code></pre>
+
+      <h3><span class="badge b-ldd">LDD</span> Évolution du schéma</h3>
+      <pre><code>-- Ajouter un téléphone au client
+ALTER TABLE Client ADD COLUMN Tel_Cli VARCHAR(10);
+
+-- Corriger le type en numérique
+ALTER TABLE Client MODIFY COLUMN Tel_Cli INT(8);
+
+-- Renommer la table Vehicule
+ALTER TABLE Vehicule RENAME TO Voiture;</code></pre>
+
+      <h3><span class="badge b-lmd">LMD</span> Manipulation des données</h3>
+      <pre><code>-- Ajouter une location
+INSERT INTO Location(immat_Vehicule, NCIN_Cli, duree_loc, cout_loc)
+VALUES ('123TU456', '01234567', 5, 250.000);
+
+-- Nombre de locations par client, s'il en a au moins 2
+SELECT NCIN_Cli, COUNT(*) AS "Nombre de locations"
+FROM Location
+GROUP BY NCIN_Cli
+HAVING COUNT(*) >= 2;
+
+-- Coût total encaissé par véhicule
+SELECT immat_Vehicule, SUM(cout_loc) AS "Total encaissé"
+FROM Location
+GROUP BY immat_Vehicule
+ORDER BY "Total encaissé" DESC;
+
+-- Mise à jour : augmenter le coût de 10% pour les locations de plus de 7 jours
+UPDATE Location
+SET cout_loc = cout_loc * 1.10
+WHERE duree_loc > 7;</code></pre>
+
+      <h3><span class="badge b-lcd">LCD</span> Contrôle des accès</h3>
+      <pre><code>-- Autoriser la lecture seule sur la table Client
+GRANT SELECT ON Client TO 'secretaire'@'localhost';
+
+-- Retirer le droit de suppression sur Location
+REVOKE DELETE ON Location FROM 'secretaire'@'localhost';</code></pre>
+    </div>
+  </section>
+
+</main>
+
+<footer>Document réalisé à partir de l'annexe SQL — A. Essouyah</footer>
+
+</body>
+</html>

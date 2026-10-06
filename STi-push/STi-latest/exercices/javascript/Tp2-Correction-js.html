@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <title>TP2 JavaScript - Corrigé</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.4em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      .js-logo {
+        width: 42px;
+        height: 42px;
+        background: #f7df1e;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        border-radius: 0 4px 4px 0;
+      }
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.85em;
+      }
+      table.data-table th,
+      table.data-table td {
+        border: 1px solid #cbd5e0;
+        padding: 6px 8px;
+        text-align: left;
+      }
+      table.data-table th {
+        background-color: #2b6cb0;
+        color: #fff;
+        font-weight: 600;
+        text-align: center;
+      }
+      table.data-table tr:nth-child(even) {
+        background-color: #f7fafc;
+      }
+      .badge {
+        background-color: #1a365d;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 0.9em;
+      }
+      ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../../cours/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">📚 Cours JavaScript</a><a href="../../quiz/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a><a href="../../exercices/series-exercices.html#javascript" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">≡ Séries</a></nav>
+
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A.E</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          CORRIGÉ TP N°2 : JavaScript<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Systèmes, Technologies & Internet</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          2026-2027<br /><span style="font-weight: normal; font-size: 0.9em"
+            >3<sup>ème</sup> Science Info</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="js-logo">JS</div>
+      <h1>Corrigé Officiel TP N°2</h1>
+    </div>
+
+    <h2>Activité 1 : Explication des Différences Clés</h2>
+    <ul>
+      <li>
+        <strong
+          >Différence entre <code>oninput</code> et
+          <code>onchange</code> :</strong
+        >
+        <ul>
+          <li>
+            <code>oninput</code> déclenche la fonction
+            <strong>immédiatement</strong> à chaque modification de caractère
+            (frappe, suppression, collage)[cite: 6].
+          </li>
+          <li>
+            <code>onchange</code> se déclenche uniquement lorsque le champ de
+            saisie <strong>perd le focus</strong> (désélection) après avoir été
+            modifié[cite: 6]. <code>onchange</code> s'applique aussi aux listes
+            déroulantes <code>&lt;select&gt;</code>[cite: 6].
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong
+          >Différence entre <code>onfocus</code> et
+          <code>onblur</code> :</strong
+        >
+        <ul>
+          <li>
+            <code>onfocus</code> se déclenche au moment où l'élément est
+            activé/sélectionné par le curseur[cite: 6].
+          </li>
+          <li>
+            <code>onblur</code> est son exact opposé : il se déclenche au moment
+            où l'élément perd le curseur de saisie[cite: 6].
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>Activité 2 : Corrigé du Tableau Récapitulatif des Événements</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 25%">Déclencheur d'événement</th>
+          <th>Rôle &amp; Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge">onclick</span></td>
+          <td>
+            Se produit lorsque l'utilisateur clique sur un élément HTML[cite:
+            6]. Supported sur quasi tous les éléments (sauf
+            <code>&lt;head&gt;</code>, <code>&lt;title&gt;</code>, etc.)[cite:
+            6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onmouseover</span></td>
+          <td>
+            Se produit lorsque le pointeur de la souris survole la zone d'un
+            élément HTML[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onchange</span></td>
+          <td>
+            Se déclenche après modification de la valeur et lorsque l'élément
+            perd le focus[cite: 6]. Pris en charge par <code>input</code>,
+            <code>select</code>, <code>textarea</code>[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">oninput</span></td>
+          <td>
+            Se déclenche de manière synchrone et instantanée dès que la valeur
+            d'un champ change[cite: 6]. Pris en charge par <code>input</code> et
+            <code>textarea</code>[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onkeydown</span></td>
+          <td>
+            Se déclenche à l'instant où l'utilisateur appuie sur une touche du
+            clavier[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onkeyup</span></td>
+          <td>
+            Se déclenche lorsque l'utilisateur relâche une touche précédemment
+            enfoncée[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onfocus</span></td>
+          <td>
+            Se produit lorsqu'un composant reçoit le focus d'entrée (curseur
+            cliqué)[cite: 6]. Utilisé sur <code>input</code>,
+            <code>select</code>, <code>a</code>[cite: 6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onblur</span></td>
+          <td>
+            Se déclenche dès que l'élément perd le focus (clic à
+            l'extérieur)[cite: 6]. Opposé exact de <code>onfocus</code>[cite:
+            6].
+          </td>
+        </tr>
+        <tr>
+          <td><span class="badge">onload</span></td>
+          <td>
+            Se déclenche au chargement complet de l'élément ou de toute la page
+            Web[cite: 6]. Pris en charge par <code>body</code>,
+            <code>iframe</code>, <code>img</code>, <code>script</code>[cite: 6].
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-page">
+      3ème Science Info - Lycée Rafèha | Corrigé TP2 JavaScript
+    </div>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

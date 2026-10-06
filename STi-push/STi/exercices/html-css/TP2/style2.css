@@ -1,0 +1,480 @@
+/* ==================================================================
+   TP N°2 - Lycee Rafeha - 3eme SI
+   Fichier : style2.css   (feuille de style EXTERNE)
+   ------------------------------------------------------------------
+   Contraintes respectees :
+     - Aucune propriete Flexbox, aucune CSS Grid  (agencement par
+       flottants "float" + "inline-block", comme dans le TP d'origine)
+     - Proprietes travaillees en plus :
+       box-shadow, text-shadow, background-image, background-size,
+       background-repeat, border-radius, overflow, opacity,
+       table-layout, border-collapse, listes (list-style)
+   ------------------------------------------------------------------
+   Les images de fond sont encodees en "data URI" : le rendu ne depend
+   donc d'AUCUN fichier externe (tp2.html + style2.css suffisent).
+   Variante avec un fichier image :
+       background-image: url("images/fond.svg");
+   ================================================================== */
+
+
+/* ==================================================================
+   0. REGLAGES GENERAUX
+   ================================================================== */
+
+* {
+  box-sizing: border-box;   /* la largeur inclut bordures + marges interieures */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* Fond de la fenetre : image repetee + couleur (background-image / size / repeat) */
+  background-color: #e8eef6;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><circle cx='3' cy='3' r='1.2' fill='%23b9c8db'/></svg>");
+  background-size: 24px 24px;
+  background-repeat: repeat;
+
+  font-family: "Trebuchet MS", Verdana, Geneva, sans-serif;
+  font-size: 13px;
+  color: #1e293b;
+  padding: 20px 0;          /* espace autour de la "feuille" de 800 x 500 px */
+}
+
+
+/* ==================================================================
+   1. LA FEUILLE : 800 px de large x 500 px de haut (cotes du TP)
+   ================================================================== */
+
+#page {
+  width: 800px;             /* largeur totale imposee */
+  height: 500px;            /* hauteur totale imposee : 90 + 50 + 260 + 100 */
+  margin: 0 auto;           /* centrage horizontal */
+
+  background-color: #ffffff;
+  border-radius: 12px;      /* coins arrondis de la feuille */
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35),   /* ombre externe */
+              0 0 0 1px rgba(15, 23, 42, 0.06);     /* fine bordure */
+
+  overflow: hidden;         /* rogne les enfants qui depasseraient les coins */
+}
+
+
+/* ==================================================================
+   2. EN-TETE  : 800 x 90 px
+   ================================================================== */
+
+header {
+  height: 90px;
+  padding: 12px 20px;
+  color: #ffffff;
+  border-radius: 12px 12px 0 0;          /* arrondi seulement en haut */
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+  overflow: hidden;                      /* contient le logo flottant */
+
+  /* DEUX images de fond superposees :
+       1) un degrade lineaire        -> background-size: cover
+       2) un motif de points (SVG)   -> background-size: 40px 40px, repeat  */
+  background-image:
+    linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='7' cy='7' r='2' fill='%23ffffff' opacity='0.30'/><circle cx='27' cy='27' r='2' fill='%23ffffff' opacity='0.16'/></svg>");
+  background-size: cover, 40px 40px;
+  background-repeat: no-repeat, repeat;
+}
+
+header .logo {
+  float: left;
+  width: 56px;
+  height: 56px;
+  margin-right: 14px;
+  border-radius: 50%;                    /* vignette ronde */
+  opacity: 0.92;                         /* legerement transparente */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+header h1 {
+  font-size: 23px;
+  letter-spacing: 0.5px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.55);   /* ombre portee sur le texte */
+}
+
+header .sous-titre {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ==================================================================
+   3. MENU  : 800 x 50 px     (liste horizontale)
+   ================================================================== */
+
+nav {
+  height: 50px;
+  padding: 8px 20px;
+  background-image: linear-gradient(#1e293b, #0f172a);   /* background-image = degrade */
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.45);
+}
+
+nav ul.menu {
+  list-style: none;          /* on enleve les puces de la liste */
+}
+
+nav li {
+  display: inline-block;     /* les elements de liste s'alignent en ligne */
+  margin-right: 8px;
+}
+
+nav a {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #e2e8f0;
+  text-decoration: none;                  /* on enleve le soulignement */
+  background-color: rgba(255, 255, 255, 0.10);
+  border-radius: 16px;                    /* liens en forme de pastille */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+nav a:hover {
+  background-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  opacity: 0.85;                          /* effet de transparence au survol */
+}
+
+nav a.actif {
+  background-color: #2563eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ==================================================================
+   4. SECTION CENTRALE : 800 x 260 px
+      50 px de marge a gauche + 550 px (form) + 200 px (aside) = 800 px
+   ================================================================== */
+
+section {
+  height: 260px;
+  padding-left: 50px;        /* la marge interieure gauche de 50 px du schema */
+}
+
+
+/* ---------- 4.a LE FORMULAIRE : 550 x 260 px, flotte a gauche ---------- */
+
+form#inscription {
+  float: left;
+  width: 550px;
+  height: 260px;
+  padding: 12px;
+
+  background-color: #fbfdff;
+  background-image: linear-gradient(#f8fbff, #eef4fb);
+  background-repeat: no-repeat;           /* une seule repetition = une seule image */
+  background-size: cover;
+
+  border: 1px solid #cbd5e1;
+  border-left: 5px solid #2563eb;         /* filet de couleur a gauche */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+
+  /* Le contenu du formulaire est plus haut que 260 px :
+     "overflow-y: auto" ajoute une barre de defilement verticale.       */
+  overflow-y: auto;
+}
+
+form fieldset {
+  border: 1px dashed #93c5fd;
+  border-radius: 6px;
+  padding: 8px 12px 12px 12px;
+}
+
+form legend {
+  padding: 0 6px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #1e3a8a;
+  text-shadow: 1px 1px 0 #ffffff, 0 2px 3px rgba(37, 99, 235, 0.25);
+}
+
+form p {
+  margin: 7px 0;
+}
+
+form label {
+  display: inline-block;
+  width: 130px;
+  vertical-align: top;
+  font-size: 12px;
+  color: #334155;
+}
+
+form .aide {
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.7;                           /* texte secondaire transparent */
+}
+
+/* Champs de saisie : bordures arrondies + ombre interieure */
+form input[type="text"],
+form input[type="email"],
+form input[type="date"],
+form select,
+form textarea {
+  width: 250px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #94a3b8;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.15);
+  overflow: hidden;                       /* pas de debordement du texte saisi */
+}
+
+form textarea {
+  width: 355px;
+  height: 52px;
+  resize: none;                           /* on interdit le redimensionnement */
+  overflow: auto;                         /* barre de defilement si besoin */
+}
+
+/* Mise en surbrillance du champ actif */
+form input:focus,
+form select:focus,
+form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Cases a cocher et boutons radio : pas de largeur fixe */
+form input[type="checkbox"],
+form input[type="radio"] {
+  width: auto;
+}
+
+form .groupe .etiquette {
+  display: inline-block;
+  width: 130px;
+  vertical-align: top;
+  font-size: 12px;
+  color: #334155;
+}
+
+form label.en-ligne {
+  display: inline;
+  width: auto;
+  margin-right: 10px;
+}
+
+/* Les deux boutons */
+form .actions {
+  margin-top: 12px;
+  text-align: right;
+}
+
+form .bouton {
+  padding: 6px 16px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+  border-radius: 15px;                    /* boutons arrondis */
+  box-shadow: 0 3px 6px rgba(15, 23, 42, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+form .envoyer {
+  background-image: linear-gradient(#22c55e, #15803d);
+}
+
+form .effacer {
+  background-image: linear-gradient(#94a3b8, #64748b);
+  opacity: 0.8;                           /* bouton volontairement estompe */
+}
+
+form .bouton:hover {
+  opacity: 0.85;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.45);
+}
+
+
+/* ---------- 4.b L'ASIDE : 200 x 260 px, flotte a droite ---------- */
+/*    (il remplace les deux <article> de la version d'origine)      */
+
+aside#infos {
+  float: right;
+  width: 200px;
+  height: 260px;
+  padding: 10px;
+
+  background-color: #f8fafc;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><circle cx='2' cy='2' r='1' fill='%23cbd5e1'/></svg>");
+  background-size: 20px 20px;
+  background-repeat: repeat;
+
+  border: 1px solid #cbd5e1;
+  border-top: 4px solid #f59e0b;          /* liseray haut de couleur */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+
+  font-size: 11.5px;
+  line-height: 1.35;
+
+  overflow: auto;                         /* defilement si le contenu depasse */
+}
+
+aside h2 {
+  margin: 7px 0 3px 0;
+  font-size: 12px;
+  color: #1e3a8a;
+  text-shadow: 1px 1px 0 #ffffff;
+  border-bottom: 2px solid #fbbf24;
+  border-radius: 2px;
+}
+
+aside h2:first-child {
+  margin-top: 0;
+}
+
+/* --- Listes --- */
+aside ul {
+  list-style-type: square;                /* puces carrees */
+  list-style-position: inside;
+  padding-left: 3px;                      /* on reduit le retrait de la liste */
+  margin: 3px 0 5px 0;
+  line-height: 1.25;
+}
+
+aside li {
+  margin-bottom: 1px;
+}
+
+/* --- Tableau : table-layout + border-collapse --- */
+aside table {
+  width: 100%;
+  table-layout: fixed;        /* les colonnes gardent les largeurs declarees */
+  border-collapse: collapse;  /* bordures des cellules fusionnees */
+  font-size: 10px;
+  line-height: 1.2;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.20);
+}
+
+aside caption {
+  font-size: 10px;
+  font-style: italic;
+  color: #475569;
+  text-shadow: 1px 1px 0 #ffffff;
+  padding-bottom: 1px;
+  line-height: 1.2;
+}
+
+aside th,
+aside td {
+  border: 1px solid #94a3b8;
+  padding: 1px 4px;
+  text-align: left;
+}
+
+aside thead th {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+  text-shadow: 1px 1px 0 #ffffff;
+}
+
+aside tbody tr:nth-child(even) {
+  background-color: #f1f5f9;              /* lignes alternees */
+}
+
+/* Ligne "salle fermee" : estompee grace a opacity */
+aside tbody tr.ferie {
+  opacity: 0.45;
+}
+
+/* --- Vignette : background-image + cover + no-repeat --- */
+.vignette {
+  height: 34px;
+  margin-top: 6px;
+  border-radius: 6px;
+  opacity: 0.9;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.30);
+
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' width='200' height='80'><rect width='200' height='80' fill='%23bfdbfe'/><circle cx='40' cy='40' r='18' fill='%233b82f6'/><rect x='70' y='22' width='110' height='8' rx='4' fill='%232563eb'/><rect x='70' y='38' width='80' height='8' rx='4' fill='%2360a5fa'/><rect x='70' y='54' width='95' height='8' rx='4' fill='%2393c5fd'/></svg>");
+  background-size: cover;                 /* l'image remplit la vignette */
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+/* ==================================================================
+   5. PIED DE PAGE : 800 x 100 px
+   ================================================================== */
+
+footer {
+  clear: both;               /* repasse sous les elements flottants */
+  height: 100px;
+  padding: 10px 20px;
+  color: #e2e8f0;
+
+  background-color: #0f172a;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.95)),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'><rect x='0' y='0' width='14' height='1' fill='%2338bdf8' opacity='0.35'/><rect x='18' y='14' width='8' height='1' fill='%2338bdf8' opacity='0.20'/></svg>");
+  background-size: cover, 30px 30px;
+  background-repeat: no-repeat, repeat;
+
+  border-radius: 0 0 12px 12px;
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.45);   /* ombre INTERIEURE */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+footer ul.liens {
+  list-style: none;          /* menu du bas : liste sans puces, sur une ligne */
+  text-align: center;
+  line-height: 1.2;
+}
+
+footer li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+footer a {
+  color: #93c5fd;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+footer a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* Etapes d'inscription : liste ORDONNEE affichee sur une seule ligne */
+footer ol.etapes {
+  margin-top: 7px;
+  padding-left: 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.2;
+  list-style-position: inside;
+}
+
+footer ol.etapes li {
+  margin: 0 6px;
+}
+
+footer .copyright {
+  margin-top: 8px;
+  font-size: 10.5px;
+  text-align: center;
+  opacity: 0.7;              /* mention legale plus discrete */
+}

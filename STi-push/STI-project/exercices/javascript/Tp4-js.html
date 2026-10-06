@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <title>TP4 JavaScript - Énoncé</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.5em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      .js-logo {
+        width: 42px;
+        height: 42px;
+        background: #f7df1e;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 22px;
+        margin-bottom: 10px;
+        border-radius: 0 4px 4px 0;
+      }
+      .code-box {
+        background-color: #f7fafc;
+        border: 1px solid #cbd5e0;
+        border-left: 4px solid #4a5568;
+        padding: 10px 14px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.88em;
+        margin: 10px 0;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+      ul,
+      ol {
+        margin-top: 5px;
+        margin-bottom: 8px;
+        padding-left: 22px;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A.E</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          TP N°4 : JavaScript<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Systèmes, Technologies & Internet</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          2026-2027<br /><span style="font-weight: normal; font-size: 0.9em"
+            >3<sup>ème</sup> Science Info</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="js-logo">JS</div>
+      <h1>Travaux Pratiques N°4</h1>
+    </div>
+
+    <p>
+      <strong>Objectif de la séance :</strong> Comprendre les objets, les
+      propriétés et les fonctions prédéfinies en JavaScript (`Math`, `String`,
+      `Date`, `Array`, objets littéraux)[cite: 7].
+    </p>
+
+    <h2>Exercice 1 : Manipulation de l'objet Math et des Styles</h2>
+    <p>
+      Saisir le code suivant dans une page nommée <code>Math.html</code>[cite:
+      7] :
+    </p>
+    <div class="code-box">
+      &lt;p id="demo1"&gt;&lt;/p&gt; &lt;p id="demo2"&gt;&lt;/p&gt; &lt;p
+      id="demo3"&gt;&lt;/p&gt; &lt;p id="demo4"&gt;&lt;/p&gt; &lt;script&gt; var
+      p1 = document.getElementsByTagName('p')[0]; var p2 =
+      document.getElementsByTagName('p')[1]; var p3 =
+      document.getElementsByTagName('p')[2]; var p4 =
+      document.getElementsByTagName('p')[3]; p1.innerHTML = Math.PI;
+      p1.style.fontFamily = "cursive"; p1.style.fontWeight = "bold";
+      p2.innerHTML = Math.pow(2, 3); p3.innerHTML = Math.abs(-3); p4.innerHTML =
+      Math.ceil(4.4); &lt;/script&gt;
+    </div>
+    <p><strong>Questions :</strong></p>
+    <ol>
+      <li>Expliquer le rôle de <code>Math</code>[cite: 7].</li>
+      <li>
+        Expliquer l'instruction :
+        <code>p1.style.fontFamily = "valeur"</code>[cite: 7].
+      </li>
+      <li>Quel est le rôle de <code>Math.PI</code> ?[cite: 7]</li>
+      <li>Quel est le rôle de <code>Math.pow()</code> ?[cite: 7]</li>
+      <li>Quel est le rôle de <code>Math.abs()</code> ?[cite: 7]</li>
+      <li>Quel est le rôle de <code>Math.ceil()</code> ?[cite: 7]</li>
+    </ol>
+
+    <h2>Exercice 2 : Manipulation des Chaînes de Caractères</h2>
+    <p>
+      Saisir le code suivant dans une page nommée <code>chaine.html</code>[cite:
+      7] :
+    </p>
+    <div class="code-box">
+      &lt;p id="demo1"&gt;Classe num 3 Sciences de l'informatique num1&lt;/p&gt;
+      &lt;p id="demo2"&gt;&lt;/p&gt; &lt;p id="demo3"&gt;&lt;/p&gt; &lt;p
+      id="demo4"&gt;&lt;/p&gt; &lt;p id="demo5"&gt;&lt;/p&gt; &lt;script&gt; var
+      p1 = document.getElementsByTagName('p')[0]; var p2 =
+      document.getElementsByTagName('p')[1]; var p3 =
+      document.getElementsByTagName('p')[2]; var p4 =
+      document.getElementsByTagName('p')[3]; var p5 =
+      document.getElementsByTagName('p')[4]; var lg = p1.innerHTML.length;
+      p2.innerHTML = lg; var pos = p1.innerHTML.indexOf("Sciences");
+      p3.innerHTML = pos; var partie = p1.innerHTML.slice(10, 18); p4.innerHTML
+      = partie; var pos = p1.innerHTML.lastIndexOf("num"); p5.innerHTML = pos;
+      &lt;/script&gt;
+    </div>
+    <p><strong>Questions :</strong></p>
+    <ol>
+      <li>
+        Expliquer le rôle de <code>innerHTML.length</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+      <li>
+        Expliquer le rôle de <code>indexOf()</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+      <li>
+        Quel est le rôle de <code>slice()</code>, quel est le résultat affiché
+        ?[cite: 7]
+      </li>
+      <li>
+        Quel est le rôle de <code>lastIndexOf()</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+    </ol>
+
+    <h2>Exercice 3 : Manipulation de l'objet Date</h2>
+    <p>
+      Saisir le code suivant dans une page nommée <code>Date.html</code>[cite:
+      7] :
+    </p>
+    <div class="code-box">
+      &lt;p id="demo1"&gt;&lt;/p&gt; &lt;p id="demo2"&gt;&lt;/p&gt; &lt;p
+      id="demo3"&gt;&lt;/p&gt; &lt;p id="demo4"&gt;&lt;/p&gt; &lt;script&gt; var
+      d = new Date(); document.getElementById("demo1").innerHTML =
+      d.getFullYear(); var mois = ["janvier", "fevrier", "Mars", "Avril", "Mai",
+      "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre",
+      "Decembre"]; document.getElementById("demo2").innerHTML =
+      mois[d.getMonth()]; document.getElementById("demo3").innerHTML =
+      d.getDate(); &lt;/script&gt;
+    </div>
+    <p><strong>Questions :</strong></p>
+    <ol>
+      <li>
+        Expliquer le rôle de <code>getFullYear()</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+      <li>
+        Expliquer le rôle de <code>getMonth()</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+      <li>
+        Quel est le rôle de <code>getDate()</code>, quel est le résultat affiché
+        ?[cite: 7]
+      </li>
+    </ol>
+
+    <h2>Exercice 4 : Manipulation des Tableaux (Array)</h2>
+    <p>
+      Saisir le code suivant dans une page nommée <code>Array.html</code>[cite:
+      7] :
+    </p>
+    <div class="code-box">
+      &lt;p id="demo1"&gt;&lt;/p&gt; &lt;p id="demo2"&gt;&lt;/p&gt; &lt;p
+      id="demo3"&gt;&lt;/p&gt; &lt;p id="demo4"&gt;&lt;/p&gt; &lt;script&gt; var
+      fruits = ["Banane", "Orange", "fraise", "Manga"];
+      document.getElementById("demo1").innerHTML = fruits.toString();
+      document.getElementById("demo2").innerHTML = fruits.join(" * ");
+      document.getElementById("demo3").innerHTML = fruits; fruits.pop();
+      fruits.push("Kiwi"); document.getElementById("demo4").innerHTML = fruits;
+      &lt;/script&gt;
+    </div>
+    <p><strong>Questions :</strong></p>
+    <ol>
+      <li>
+        Expliquer le rôle de <code>toString()</code>, quel est le résultat
+        affiché ?[cite: 7]
+      </li>
+      <li>
+        Expliquer le rôle de <code>join()</code>, quel est le résultat affiché
+        ?[cite: 7]
+      </li>
+      <li>
+        Quel est le rôle des méthodes <code>pop()</code> et <code>push()</code>,
+        quel est le résultat affiché ?[cite: 7]
+      </li>
+    </ol>
+
+    <h2>Exercice 5 : Manipulation des Objets Littéraux</h2>
+    <p>
+      Saisir le code suivant dans une page nommée <code>objet.html</code>[cite:
+      7] :
+    </p>
+    <div class="code-box">
+      &lt;p id="demo1"&gt;&lt;/p&gt; &lt;p id="demo2"&gt;&lt;/p&gt;
+      &lt;script&gt; var voiture = { type: "Fiat", modele: "500", couleur:
+      "bleu" }; var eleve = { id: 12345, nom: "foulen", prenom: "foulani", age:
+      16 }; document.getElementById("demo1").innerHTML = "le type de la voiture
+      est " + voiture.type; document.getElementById("demo2").innerHTML =
+      eleve.nom + " " + eleve.prenom; &lt;/script&gt;
+    </div>
+    <p><strong>Questions :</strong></p>
+    <ol>
+      <li>Expliquer l'objet <code>voiture</code>[cite: 7].</li>
+      <li>Expliquer l'objet <code>eleve</code>[cite: 7].</li>
+      <li>
+        Quel est le contenu affiché par <code>eleve.nom</code> et
+        <code>eleve.prenom</code> ?[cite: 7]
+      </li>
+    </ol>
+
+    <div class="footer-page">
+      3ème Science Info - Lycée Rafèha | TP4 JavaScript
+    </div>
+  </body>
+</html>

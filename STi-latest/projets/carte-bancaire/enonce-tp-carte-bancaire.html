@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" />
+    <title>Exercice — Carte bancaire animée</title>
+    <style>
+      @page {
+        size: A4 landscape;
+        margin: 1.5cm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        color: #1f2937;
+        line-height: 1.55;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        font-size: 12.5px;
+      }
+
+      /* =========================================================
+         EN-TÊTE ÉTABLISSEMENT (3 zones)
+         ========================================================= */
+      .entete {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 18px;
+        padding: 14px 20px;
+        margin-bottom: 18px;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(37, 117, 252, 0.28);
+      }
+
+      /* --- Zone gauche : logo + établissement --- */
+      .entete-gauche {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .entete-gauche .logo {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        background: #ffffff;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .entete-gauche .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        padding: 4px;
+      }
+
+      .entete-gauche .etab-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+        min-width: 0;
+      }
+
+      .entete-gauche .etab-nom {
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+      }
+
+      .entete-gauche .etab-niveau {
+        font-size: 11.5px;
+        opacity: 0.9;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      /* --- Zone centrale : Matière --- */
+      .entete-centre {
+        text-align: center;
+        line-height: 1.25;
+      }
+
+      .entete-centre .label {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        opacity: 0.85;
+        margin-bottom: 2px;
+      }
+
+      .entete-centre .matiere {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        padding: 5px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+      }
+
+      /* --- Zone droite : enseignant --- */
+      .entete-droite {
+        text-align: right;
+        line-height: 1.3;
+        white-space: nowrap;
+      }
+
+      .entete-droite .label {
+        opacity: 0.85;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+      }
+
+      .entete-droite .nom {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+      }
+
+      /* ---------- TITRES ---------- */
+      h1 {
+        font-size: 24px;
+        color: #2575fc;
+        border-bottom: 3px solid #2575fc;
+        padding-bottom: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        letter-spacing: -0.5px;
+      }
+
+      h2 {
+        font-size: 17px;
+        color: #6a11cb;
+        margin-top: 26px;
+        margin-bottom: 12px;
+        border-left: 5px solid #6a11cb;
+        padding: 6px 12px;
+        background: linear-gradient(90deg, #f5f0ff 0%, transparent 100%);
+        border-radius: 0 6px 6px 0;
+      }
+
+      h3 {
+        font-size: 13.5px;
+        color: #111;
+        margin-top: 16px;
+        margin-bottom: 6px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      h3::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: #2575fc;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      p,
+      li {
+        font-size: 12.5px;
+      }
+
+      /* ---------- TABLEAUX ---------- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0 18px;
+        font-size: 12px;
+        background: #fff;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+
+      th,
+      td {
+        border: 1px solid #e5e7eb;
+        padding: 7px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: linear-gradient(135deg, #eef3ff, #e0e9ff);
+        font-weight: 700;
+        color: #1e3a8a;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      tr:nth-child(even) td {
+        background: #fafbff;
+      }
+
+      /* ---------- CODES ---------- */
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 11.5px;
+        color: #be185d;
+      }
+
+      .interdit {
+        color: #c0392b;
+        font-weight: 700;
+        background: #fef2f2;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border-left: 3px solid #c0392b;
+        font-size: 11.5px;
+      }
+
+      /* ---------- PAGE DE GARDE ---------- */
+      .page-garde {
+        text-align: center;
+        padding: 20px 10px 30px;
+        page-break-after: always;
+      }
+
+      .page-garde h1 {
+        font-size: 30px;
+        border: none;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .page-garde .sous-titre {
+        font-size: 15px;
+        color: #555;
+        margin-bottom: 30px;
+        font-style: italic;
+      }
+
+      /* ---------- GALERIE D'IMAGES CÔTE À CÔTE ---------- */
+      .capture {
+        margin: 25px 0;
+        padding: 15px;
+        border: 2px dashed #c7d2fe;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #fafbff 0%, #f5f0ff 100%);
+      }
+
+      .capture-galerie {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        align-items: stretch;
+        flex-wrap: nowrap;
+      }
+
+      .capture-item {
+        flex: 1 1 0;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: 0 3px 10px rgba(37, 117, 252, 0.12);
+        border: 1px solid #e0e9ff;
+      }
+
+      .capture-item img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 6px;
+        object-fit: cover;
+      }
+
+      .capture-item .legende-item {
+        font-size: 11px;
+        color: #555;
+        margin-top: 8px;
+        text-align: center;
+        font-style: italic;
+      }
+
+      .capture-legende {
+        font-style: italic;
+        font-size: 12px;
+        color: #666;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      /* ---------- META ---------- */
+      .page-garde .meta {
+        font-size: 13px;
+        color: #333;
+        line-height: 2;
+        margin-top: 25px;
+      }
+
+      .page-garde .meta span {
+        display: inline-block;
+        background: #f0f4ff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        margin: 5px;
+        font-weight: 600;
+        color: #1e3a8a;
+        border: 1px solid #dbe4ff;
+      }
+
+      /* ---------- ENCADRÉ ---------- */
+      .encadre {
+        background: linear-gradient(135deg, #f9f9ff, #f0f4ff);
+        border-left: 4px solid #6a11cb;
+        padding: 12px 16px;
+        margin: 15px 0;
+        border-radius: 0 8px 8px 0;
+        font-size: 12px;
+      }
+
+      .encadre ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .encadre li {
+        margin-bottom: 4px;
+      }
+
+      /* ---------- GRILLE 2 COLONNES ---------- */
+      .grille-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px 24px;
+        margin-top: 10px;
+      }
+
+      .col {
+        min-width: 0;
+      }
+
+      .q-bloc {
+        margin-bottom: 14px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .q-bloc h3 {
+        margin-top: 10px;
+      }
+
+      .q-bloc p {
+        margin-bottom: 6px;
+      }
+
+      /* ---------- SAUTS DE PAGE ---------- */
+      .page-break {
+        page-break-before: always;
+      }
+
+      /* ---------- IMPRESSION ---------- */
+      @media print {
+        body {
+          padding: 0;
+          font-size: 11.5px;
+          max-width: 100%;
+        }
+
+        .entete {
+          box-shadow: none;
+          border: 1px solid #2575fc;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .entete-gauche .logo {
+          box-shadow: none;
+          border-color: #fff;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+        h2 {
+          font-size: 15px;
+        }
+        h3 {
+          font-size: 12px;
+        }
+
+        table {
+          font-size: 10.5px;
+        }
+        th,
+        td {
+          padding: 5px 7px;
+        }
+
+        code {
+          font-size: 10.5px;
+        }
+
+        .capture {
+          border: 1px solid #c7d2fe;
+          box-shadow: none;
+        }
+
+        .capture-item {
+          box-shadow: none;
+        }
+
+        .grille-2col {
+          gap: 12px 18px;
+        }
+
+        .page-garde {
+          padding: 10px 0;
+        }
+      }
+
+      /* ---------- RESPONSIVE (écran) ---------- */
+      @media (max-width: 700px) {
+        .capture-galerie {
+          flex-direction: column;
+        }
+
+        .grille-2col {
+          grid-template-columns: 1fr;
+        }
+
+        .entete {
+          grid-template-columns: 1fr;
+          text-align: center;
+          gap: 10px;
+        }
+
+        .entete-gauche {
+          justify-content: center;
+        }
+
+        .entete-droite {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================================================
+         EN-TÊTE ÉTABLISSEMENT — 3 ZONES
+         ============================================================ -->
+    <div class="entete">
+      <!-- Zone gauche : logo + établissement -->
+      <div class="entete-gauche">
+        <div class="logo">
+          <img src="media/STI_by_AE.ico" alt="Logo STI" />
+        </div>
+        <div class="etab-info">
+          <span class="etab-nom">Lycée Rafèha</span>
+          <span class="etab-niveau">3/4<sup>ème</sup> SI</span>
+        </div>
+      </div>
+
+      <!-- Zone centrale : Matière -->
+      <div class="entete-centre">
+        <span class="label">Matière</span>
+        <span class="matiere">STI: HTML,CSS,Js</span>
+      </div>
+
+      <!-- Zone droite : enseignant -->
+      <div class="entete-droite">
+        <div class="label">Enseignant</div>
+        <div class="nom">Aymen Essouyah</div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE DE GARDE ============ -->
+    <div class="page-garde">
+      <h1>Exercice — Carte bancaire animée</h1>
+      <p class="sous-titre">
+        Formulaire de paiement interactif avec retournement 3D
+      </p>
+
+      <div class="capture">
+        <div class="capture-galerie">
+          <div class="capture-item">
+            <img
+              src="media/cap1.png"
+              alt="Capture 1 — Face avant de la carte"
+            />
+            <div class="legende-item">Face avant (saisie en cours)</div>
+          </div>
+          <div class="capture-item">
+            <img
+              src="media/cap2.png"
+              alt="Capture 2 — Face arrière de la carte"
+            />
+            <div class="legende-item">Face arrière (CVV)</div>
+          </div>
+        </div>
+        <div class="capture-legende">
+          Rendu final attendu : carte à gauche, formulaire à droite
+        </div>
+      </div>
+
+      <div class="meta">
+        <span>⏱ Durée : 2h</span>
+        <span>📊 Barème : 50 points</span>
+      </div>
+    </div>
+
+    <!-- ============ CONTEXTE ============ -->
+    <h2>🎯 Contexte</h2>
+    <p>
+      Vous devez réaliser une
+      <strong>interface de paiement interactive</strong> dans laquelle une carte
+      bancaire se remplit <strong>en temps réel</strong> pendant que
+      l'utilisateur saisit ses informations dans un formulaire. La carte doit se
+      <strong>retourner</strong> pour afficher le CVV au dos lorsqu'on clique
+      dans le champ correspondant.
+    </p>
+
+    <h2>🚫 Contraintes techniques imposées</h2>
+    <table>
+      <tr>
+        <th>Interdit</th>
+        <th>Remplacé par</th>
+      </tr>
+      <tr>
+        <td><code>addEventListener</code></td>
+        <td>
+          Attributs HTML (<code>oninput</code>, <code>onfocus</code>,
+          <code>onblur</code>)
+        </td>
+      </tr>
+      <tr>
+        <td><code>classList.add/remove</code></td>
+        <td>
+          <code>element.style.transform</code> ou <code>input.className</code>
+        </td>
+      </tr>
+      <tr>
+        <td><code>event.target</code></td>
+        <td>Passage de <code>this</code> en paramètre</td>
+      </tr>
+      <tr>
+        <td><code>::before</code> / <code>::after</code></td>
+        <td><code>&lt;div&gt;</code> décoratives dédiées</td>
+      </tr>
+      <tr>
+        <td>Regex (<code>/\d/</code>, <code>/\s/</code>…)</td>
+        <td>Boucles <code>for</code> + <code>charCodeAt</code></td>
+      </tr>
+      <tr>
+        <td>
+          <code>slice</code>, <code>substring</code>, <code>trim</code>,
+          <code>split</code>, <code>join</code>, <code>parseInt</code>,
+          <code>padEnd</code>, <code>replace</code>
+        </td>
+        <td>Boucles <code>for</code> / <code>while</code></td>
+      </tr>
+    </table>
+
+    <!-- ============ PARTIE 1 ============ -->
+    <div class="page-break"></div>
+    <h2>📄 PARTIE 1 — HTML (10 pts)</h2>
+
+    <div class="grille-2col">
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q1.1</h3>
+          <p>
+            Décrivez la structure globale de la page. Quels sont les deux blocs
+            principaux ? Dans quel conteneur sont-ils placés et comment sont-ils
+            disposés (gauche/droite) ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.2</h3>
+          <p>
+            Complétez le tableau des contraintes HTML sur les
+            <code>&lt;input&gt;</code> :
+          </p>
+          <table>
+            <tr>
+              <th>Champ</th>
+              <th>maxlength</th>
+              <th>inputmode</th>
+              <th>Événements</th>
+            </tr>
+            <tr>
+              <td>Numéro de carte</td>
+              <td>?</td>
+              <td>?</td>
+              <td>?</td>
+            </tr>
+            <tr>
+              <td>Nom du titulaire</td>
+              <td>?</td>
+              <td>?</td>
+              <td>?</td>
+            </tr>
+            <tr>
+              <td>Expiration</td>
+              <td>?</td>
+              <td>?</td>
+              <td>?</td>
+            </tr>
+            <tr>
+              <td>CVV</td>
+              <td>?</td>
+              <td>?</td>
+              <td>?</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.3</h3>
+          <p>
+            Le champ CVV doit déclencher le retournement de la carte. Donnez la
+            syntaxe exacte des deux attributs HTML à utiliser (au focus et au
+            blur).
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.4</h3>
+          <p>
+            Que signifie l'attribut <code>inputmode="numeric"</code> ? Quel est
+            son intérêt sur mobile ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.5</h3>
+          <p>
+            Comment passe-t-on l'élément <code>&lt;input&gt;</code> courant à
+            une fonction JavaScript appelée depuis un attribut HTML, sans
+            utiliser <code>event.target</code> ?
+          </p>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q1.6</h3>
+          <p>
+            Écrivez la structure HTML complète de la
+            <strong>face avant</strong> de la carte (effet lumineux, puce dorée,
+            numéro, nom, date, logo).
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.7</h3>
+          <p>
+            Écrivez la structure HTML de la <strong>face arrière</strong> de la
+            carte (bande magnétique, label CVV, boîte blanche, logo).
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.8</h3>
+          <p>
+            Quelle est la structure HTML d'un champ du formulaire complet (label
+            + input + erreur + compteur) ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.9</h3>
+          <p>
+            Pourquoi le formulaire doit-il avoir
+            <code>onsubmit="event.preventDefault();"</code> ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q1.10</h3>
+          <p>
+            Quelle balise sémantique utiliser pour regrouper les deux champs
+            Expiration + CVV sur la même ligne ?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PARTIE 2 ============ -->
+    <div class="page-break"></div>
+    <h2>🎨 PARTIE 2 — CSS (10 pts)</h2>
+
+    <div class="grille-2col">
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q2.1</h3>
+          <p>
+            Décrivez la technique CSS pour créer l'effet 3D de retournement
+            (parent, <code>.card</code>, <code>.card-face</code>).
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.2</h3>
+          <p>
+            Quelle propriété CSS cache la face non visible pendant la rotation ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.3</h3>
+          <p>
+            Comment positionner la face arrière pour qu'elle soit déjà
+            "retournée" au chargement ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.4</h3>
+          <p>
+            Différence entre <code>rotateY(180deg)</code> sur
+            <code>.card</code> et sur <code>.card-back</code> ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.5</h3>
+          <p>
+            Comment créer un effet de lumière radiale décorative
+            <strong>sans <code>::before</code></strong> ?
+          </p>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q2.6</h3>
+          <p>
+            Comment dessiner le contour intérieur de la puce
+            <strong>sans <code>::after</code></strong> ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.7</h3>
+          <p>
+            Quelle propriété CSS assure la fluidité de l'animation ? Donnez la
+            syntaxe avec <code>cubic-bezier</code>.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.8</h3>
+          <p>
+            Comment appliquer un état visuel d'erreur sur un champ sans
+            <code>classList</code> ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.9</h3>
+          <p>
+            Comment adapter la mise en page pour les petits écrans (&lt; 850px)
+            ?
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q2.10</h3>
+          <p>Quelle technique CSS pour un dégradé diagonal (violet → bleu) ?</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PARTIE 3 ============ -->
+    <div class="page-break"></div>
+    <h2>⚙️ PARTIE 3 — JavaScript (30 pts)</h2>
+
+    <div class="grille-2col">
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q3.1 — Filtrage des chiffres</h3>
+          <p>
+            Écrivez <code>garderChiffres(texte, max)</code> : filtre les
+            chiffres via code ASCII et limite à <code>max</code>.
+          </p>
+          <p class="interdit">❌ Interdit : regex, slice, substring, replace</p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.2 — Conversion en nombre</h3>
+          <p>
+            Écrivez <code>versNombre(texte)</code> équivalent à
+            <code>parseInt(texte, 10)</code> sans <code>parseInt</code>.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.3 — Numéro de carte</h3>
+          <p>
+            Écrivez <code>majNumero(input)</code> : filtre 16 chiffres, formate
+            par blocs de 4, complète avec <code>#</code>.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.4 — Nettoyage des espaces</h3>
+          <p>Écrivez deux fonctions :</p>
+          <ul>
+            <li>
+              <code>reduireEspacesMultiples(texte)</code> : réduit les espaces
+              multiples à un seul, <strong>conserve</strong> un espace final
+            </li>
+            <li>
+              <code>supprimerEspacesExtremes(texte)</code> : supprime les
+              espaces en début et fin (utilisé au blur)
+            </li>
+          </ul>
+          <p class="interdit">❌ Interdit : trim, split, join, regex</p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.5 — Nom du titulaire</h3>
+          <p>
+            Écrivez <code>majNom(input)</code> : lettres + espaces uniquement,
+            réduction des espaces multiples, troncature à 20 caractères, mise à
+            jour du compteur. Puis <code>finaliserNom(input)</code> au blur.
+          </p>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="q-bloc">
+          <h3>Q3.6 — Validation de l'expiration</h3>
+          <p>
+            Écrivez <code>majExpiry(input)</code> : filtre 4 chiffres, valide le
+            mois (01–12), valide l'année vs date système, insère
+            <code>/</code> après le mois.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.7 — CVV strict</h3>
+          <p>
+            Écrivez <code>majCvv(input)</code> : 3 chiffres exactement, message
+            d'erreur si incomplet.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.8 — Retournement</h3>
+          <p>
+            Écrivez <code>retournerCarte()</code> et
+            <code>remettreCarte()</code> sans <code>classList</code>.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.9 — Récupération des éléments</h3>
+          <p>
+            Écrivez la série de <code>let</code> pour récupérer tous les
+            éléments du DOM.
+          </p>
+        </div>
+
+        <div class="q-bloc">
+          <h3>Q3.10 — Synthèse</h3>
+          <p>
+            Expliquez le flux de données : frappe → mise à jour de l'input →
+            mise à jour de la carte. Pourquoi réécrire
+            <code>input.value</code> ? Pourquoi ne nettoyer l'espace final qu'au
+            blur ?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BARÈME + TESTS ============ -->
+    <div class="page-break"></div>
+    <h2>✅ Barème indicatif</h2>
+
+    <div class="grille-2col">
+      <div class="col">
+        <table>
+          <tr>
+            <th>Partie</th>
+            <th>Questions</th>
+            <th>Points</th>
+          </tr>
+          <tr>
+            <td>HTML</td>
+            <td>10</td>
+            <td>10 pts</td>
+          </tr>
+          <tr>
+            <td>CSS</td>
+            <td>10</td>
+            <td>10 pts</td>
+          </tr>
+          <tr>
+            <td>JavaScript</td>
+            <td>10</td>
+            <td>30 pts</td>
+          </tr>
+          <tr>
+            <th>Total</th>
+            <th></th>
+            <th>50 pts</th>
+          </tr>
+        </table>
+
+        <h2>💡 Indices</h2>
+        <div class="encadre">
+          <ul>
+            <li>
+              <strong>Retournement 3D</strong> : <code>perspective</code> sur le
+              parent, <code>transform-style: preserve-3d</code> sur la carte.
+            </li>
+            <li>
+              <strong>Codes ASCII</strong> : <code>'0'=48</code>,
+              <code>'9'=57</code>, <code>'A'=65</code>, <code>'Z'=90</code>,
+              <code>'a'=97</code>, <code>'z'=122</code>.
+            </li>
+            <li>
+              <strong>Nettoyage des espaces</strong> : drapeau
+              <code>dernierEtaitEspace</code> initialisé à <code>true</code>.
+            </li>
+            <li>
+              <strong>Troncature</strong> :
+              <code
+                >for (let i = 0; i &lt; texte.length &amp;&amp; i &lt; max;
+                i++)</code
+              >.
+            </li>
+            <li>
+              <strong>Réécriture</strong> :
+              <code>input.value = nouvelleValeur</code> supprime les caractères
+              excédentaires.
+            </li>
+            <li>
+              <strong>Espace final au blur</strong> : ne pas supprimer l'espace
+              final pendant la frappe, sinon impossible de taper un second mot.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col">
+        <h2>🧪 Jeu de tests à valider</h2>
+        <table>
+          <tr>
+            <th>#</th>
+            <th>Action</th>
+            <th>Résultat attendu</th>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>Taper <code>1234 5678</code></td>
+            <td>Carte : <code>1234 5678 #### ####</code></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Taper <code>Ali Ben</code></td>
+            <td>Carte : <code>ALI BEN</code>, compteur <code>7/20</code></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Taper <code>Ali Ben</code></td>
+            <td>Carte : <code>ALI BEN</code> (espaces réduits)</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><code> Ali </code> puis blur</td>
+            <td>Champ final : <code>Ali</code></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Taper <code>30</code> dans le mois</td>
+            <td>❌ "Le mois doit être entre 01 et 12"</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Taper <code>0520</code> (si 2026)</td>
+            <td>❌ "La carte est expirée"</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Taper <code>1230</code></td>
+            <td>✅ Input <code>12/30</code>, carte <code>12/30</code></td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Cliquer dans le CVV</td>
+            <td>🔄 La carte se retourne</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Taper <code>12</code> dans le CVV</td>
+            <td>❌ "Le CVV doit contenir exactement 3 chiffres"</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Taper <code>123</code></td>
+            <td>✅ Carte affiche <code>123</code></td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Quitter le CVV</td>
+            <td>🔄 Carte revient en</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

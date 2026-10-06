@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <link rel="icon" href="../../../assets/icons/STI_by_AE.ico" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>
+      Guide Pratique HTML &amp; CSS — Header, Carte Badge &amp; Titre avec Ligne
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --navy: #0f1c47;
+        --navy-light: #1e326e;
+        --orange: #e2691a;
+        --orange-soft: #fff3eb;
+        --line-color: #dfe3f3;
+        --bg-page: #f4f6fb;
+        --bg-card: #ffffff;
+        --text-main: #1c243c;
+        --text-muted: #5a6582;
+        --code-bg: #111827;
+        --code-text: #e5e7eb;
+        --border: #e2e8f0;
+        --radius: 16px;
+        --shadow: 0 10px 30px rgba(15, 28, 71, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background: var(--bg-page);
+        color: var(--text-main);
+        line-height: 1.6;
+      }
+
+      /* ====== BARRE DE NAVIGATION SUPÉRIEURE ====== */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(15, 28, 71, 0.96);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 14px 24px;
+        box-shadow: 0 4px 20px rgba(15, 28, 71, 0.2);
+      }
+
+      .topbar-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: -0.01em;
+      }
+
+      .brand-badge {
+        background: var(--orange);
+        color: #fff;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .nav-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .nav-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+      }
+
+      .nav-btn.active {
+        background: var(--orange);
+        border-color: var(--orange);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(226, 105, 26, 0.4);
+      }
+
+      /* ====== CONTENEUR PRINCIPAL ====== */
+      .container {
+        max-width: 1200px;
+        margin: 28px auto 60px;
+        padding: 0 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      .intro-banner {
+        background: linear-gradient(
+          135deg,
+          var(--navy) 0%,
+          var(--navy-light) 100%
+        );
+        color: #fff;
+        border-radius: var(--radius);
+        padding: 24px 30px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .intro-banner h1 {
+        margin: 0 0 6px;
+        font-size: 1.5rem;
+      }
+
+      .intro-banner p {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 0.95rem;
+      }
+
+      /* ====== CARTES DE SECTION ====== */
+      .section-card {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: transform 0.2s ease;
+      }
+
+      .section-card.hidden {
+        display: none;
+      }
+
+      .card-header {
+        padding: 20px 26px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #fafbfe;
+      }
+
+      .card-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .step-num {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--navy);
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: var(--navy);
+      }
+
+      .card-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 2px 0 0;
+      }
+
+      .file-tag {
+        background: #eef2ff;
+        color: var(--navy-light);
+        border: 1px solid #c7d2fe;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-weight: 600;
+      }
+
+      .card-body {
+        padding: 26px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      .card-body > div {
+        min-width: 0;
+      }
+
+      @media (max-width: 920px) {
+        .card-body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      /* ====== BLOCS DE CODE ET EXPLICATIONS ====== */
+      .panel-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      .code-box {
+        background: var(--code-bg);
+        color: var(--code-text);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+        border: 1px solid #1f2937;
+      }
+
+      .code-box-header {
+        background: #1f2937;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: #9ca3af;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .copy-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e5e7eb;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        padding: 3px 10px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .code-box pre {
+        margin: 0;
+        padding: 16px;
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.84rem;
+        line-height: 1.55;
+      }
+
+      .principe-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-left: 4px solid #f59e0b;
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 0.9rem;
+        color: #78350f;
+      }
+
+      .principe-box strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #92400e;
+      }
+
+      .tree-diagram {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-top: 8px;
+        white-space: pre;
+        overflow-x: auto;
+        font-size: 0.83rem;
+        color: var(--navy);
+        border: 1px dashed #fcd34d;
+      }
+
+      /* ====== ZONE DE RENDU VISUEL & CONTRÔLES ====== */
+      .preview-stage {
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 260px;
+      }
+
+      .interactive-bar {
+        margin-top: 14px;
+        width: 100%;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.84rem;
+      }
+
+      .interactive-bar label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--navy);
+      }
+
+      /* ====================================================================
+         STYLES EXACTS DES 3 FICHIERS ORIGINAUX (AVEC FALLBACKS D'IMAGES)
+         ==================================================================== */
+
+      /* --- 1. De header-details.html --- */
+      .fond {
+        width: 100%;
+        height: 360px;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        /* Charge ../images/nord.jpg s'il est présent, sinon un paysage SVG intégré */
+        background: url("../images/nord.jpg") center / cover no-repeat,
+          url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%23e0f2fe'/></linearGradient></defs><rect width='800' height='400' fill='url(%23sky)'/><circle cx='650' cy='90' r='45' fill='%23fde047'/><path d='M0 280 Q200 180 420 260 T800 230 L800 400 L0 400 Z' fill='%2315803d'/><path d='M0 320 Q260 240 520 310 T800 290 L800 400 L0 400 Z' fill='%23166534'/><rect y='340' width='800' height='60' fill='%230284c7'/></svg>")
+            center / cover no-repeat;
+      }
+
+      .voile {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f1c47;
+        opacity: 0.86;
+        transition: opacity 0.2s ease;
+      }
+
+      .contenu {
+        position: relative;
+        color: aliceblue;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 8px;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .contenu h1 {
+        margin: 0;
+        font-size: 2.2rem;
+      }
+
+      .contenu p {
+        margin: 0;
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      /* --- 2. De carte-timbre-droite-haut.html --- */
+      .hero-img {
+        width: 300px;
+        height: 460px;
+        position: relative;
+        margin: 14px auto 0;
+      }
+
+      .hero-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 20px;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0 15px 30px rgba(15, 28, 71, 0.25);
+      }
+
+      .badge-promo {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #e2691a;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        transform: rotate(8deg);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s ease;
+      }
+
+      /* --- 3. De titre-suivi-ligne-hor.html --- */
+      .titre-sec {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      }
+
+      .ligne {
+        display: inline-block;
+        width: 300px;
+        flex: 0 1 300px;
+        min-width: 40px;
+        height: 2px;
+        background: #dfe3f3;
+        margin-left: 15px;
+        position: relative;
+        top: -3px;
+      }
+
+      /* Tableau des entités HTML */
+      .entities-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .entities-table th,
+      .entities-table td {
+        border: 1px solid #e2e8f0;
+        padding: 10px 16px;
+        text-align: center;
+        font-size: 0.92rem;
+      }
+
+      .entities-table th {
+        background: #f1f5f9;
+        color: var(--navy);
+        font-weight: 700;
+      }
+
+      .entities-table code {
+        background: #eef2ff;
+        color: var(--navy-light);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+      }
+
+      .demo-textarea {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        background: #fff;
+        color: #334155;
+        resize: vertical;
+      }
+
+      /* --- 4. Fieldset .bloc & legend --- */
+      .bloc {
+        width: 100%;
+        background: white;
+        border: 2px solid #4f46e5;
+        border-radius: 12px;
+        padding: 25px;
+      }
+
+      .bloc legend {
+        color: white;
+        background: #4f46e5;
+        border: 2px solid #4f46e5;
+        border-radius: 8px;
+        padding: 6px 15px;
+        font-weight: bold;
+        transition: 0.3s;
+        cursor: pointer;
+      }
+
+      .bloc legend:hover {
+        transform: translateY(-4px);
+      }
+
+      /* ====== APERÇU GLOBAL COMBINÉ (BONUS) ====== */
+      .combined-demo {
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .combined-hero {
+        min-height: 440px;
+        position: relative;
+        background: url("../images/nord.jpg") center / cover no-repeat,
+          url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='sky2' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%23e0f2fe'/></linearGradient></defs><rect width='800' height='400' fill='url(%23sky2)'/><circle cx='650' cy='90' r='45' fill='%23fde047'/><path d='M0 280 Q200 180 420 260 T800 230 L800 400 L0 400 Z' fill='%2315803d'/></svg>")
+            center / cover no-repeat;
+      }
+
+      .combined-hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 40px 28px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        color: aliceblue;
+      }
+
+      .combined-hero-text {
+        flex: 1 1 320px;
+      }
+
+      .combined-hero-text h1 {
+        font-size: 2.3rem;
+        margin: 0 0 12px;
+      }
+
+      .combined-hero-text p {
+        font-size: 1.05rem;
+        color: #dbeafe;
+        margin: 0;
+      }
+
+      .combined-section-body {
+        padding: 32px 28px;
+        background: #fff;
+      }
+      /* ====== RESPONSIVE MOBILE (@media) ====== */
+      @media (max-width: 768px) {
+        .topbar {
+          padding: 10px 14px;
+        }
+
+        .topbar-inner {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .brand {
+          justify-content: space-between;
+          font-size: 0.98rem;
+        }
+
+        .nav-tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+          display: none;
+        }
+
+        .nav-btn {
+          white-space: nowrap;
+          flex-shrink: 0;
+          padding: 6px 12px;
+          font-size: 0.8rem;
+        }
+
+        .container {
+          margin: 16px auto 40px;
+          padding: 0 12px;
+          gap: 20px;
+        }
+
+        .intro-banner {
+          padding: 18px;
+        }
+
+        .intro-banner h1 {
+          font-size: 1.2rem;
+        }
+
+        .card-header {
+          padding: 14px 16px;
+        }
+
+        .card-header h2 {
+          font-size: 1.05rem;
+        }
+
+        .card-body {
+          grid-template-columns: 1fr;
+          padding: 16px;
+          gap: 18px;
+        }
+
+        .preview-stage {
+          padding: 16px 12px;
+        }
+
+        .fond {
+          height: 240px;
+        }
+
+        .contenu h1 {
+          font-size: 1.6rem;
+        }
+
+        .hero-img {
+          width: 100%;
+          max-width: 240px;
+          height: 360px;
+        }
+
+        .titre-sec {
+          font-size: 16px;
+        }
+
+        .ligne {
+          width: 120px;
+          flex: 1 1 60px;
+          margin-left: 10px;
+        }
+
+        .bloc {
+          padding: 16px;
+        }
+
+        .bloc legend {
+          font-size: 0.9rem;
+          padding: 5px 12px;
+        }
+
+        .combined-hero-content {
+          flex-direction: column;
+          text-align: center;
+          padding: 24px 16px;
+          gap: 20px;
+        }
+
+        .combined-hero-text {
+          flex: 1 1 auto;
+        }
+
+        .combined-hero-text h1 {
+          font-size: 1.65rem;
+        }
+
+        .combined-section-body {
+          padding: 20px 16px;
+        }
+
+        .entities-table th,
+        .entities-table td {
+          padding: 8px 10px;
+          font-size: 0.82rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .brand {
+          font-size: 0.9rem;
+        }
+
+        .intro-banner h1 {
+          font-size: 1.1rem;
+        }
+
+        .intro-banner p {
+          font-size: 0.85rem;
+        }
+
+        .code-box pre {
+          padding: 12px;
+          font-size: 0.78rem;
+        }
+
+        .hero-img {
+          max-width: 200px;
+          height: 310px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- BARRE DE NAVIGATION -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span>🇹🇳 Correction partie Site Tunisie HTML &amp; CSS</span>
+          <span class="brand-badge">4 fiches fusionnées</span>
+        </div>
+        <nav class="nav-tabs" aria-label="Filtrer les sections">
+          <button class="nav-btn active" onclick="filterSections('all', this)">
+            Tout afficher
+          </button>
+          <button class="nav-btn" onclick="filterSections('sec-header', this)">
+            1. Header &amp; Voile
+          </button>
+          <button class="nav-btn" onclick="filterSections('sec-carte', this)">
+            2. Carte &amp; Badge
+          </button>
+          <button class="nav-btn" onclick="filterSections('sec-titre', this)">
+            3. Titre &amp; Ligne + Entités HTML
+          </button>
+          <button
+            class="nav-btn"
+            onclick="filterSections('sec-fieldset', this)"
+          >
+            4. Fieldset &amp; Legend
+          </button>
+          <button class="nav-btn" onclick="filterSections('sec-combine', this)">
+            ✨ Aperçu Combiné
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- BANNIÈRE D'INTRODUCTION -->
+      <section class="intro-banner">
+        <div>
+          <h1>Mémo Visuel &amp; Interactif — Techniques HTML / CSS</h1>
+          <p>
+            Retrouvez dans une seule page vos 4 exemples de cours (superposition
+            de voile, badge en position absolue, titre suivi d'une ligne +
+            entités HTML, et encadré fieldset avec legend animé) avec leur code
+            source copiable et leur rendu en direct.
+          </p>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           FICHE 1 : HEADER-DETAILS.HTML (IMAGE DE FOND + VOILE + CONTENU)
+           ================================================================= -->
+      <section class="section-card" id="sec-header">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-num">1</span>
+            <div>
+              <h2>Bannière avec image de fond et voile semi-transparent</h2>
+              <p class="card-subtitle">
+                Superposer un calque sombre (<code>.voile</code>) entre l'image
+                de fond et le texte (<code>.contenu</code>)
+              </p>
+            </div>
+          </div>
+          <span class="file-tag">header-details.html</span>
+        </div>
+
+        <div class="card-body">
+          <!-- Colonne gauche : Code & Principe -->
+          <div>
+            <div class="panel-label">
+              <span>Code CSS &amp; HTML</span>
+            </div>
+
+            <div class="code-box">
+              <div class="code-box-header">
+                <span>CSS + HTML</span>
+                <button
+                  class="copy-btn"
+                  onclick="copyCode(this, 'code-header')"
+                >
+                  Copier le code
+                </button>
+              </div>
+              <pre id="code-header"><code>&lt;style&gt;
+  .fond {
+    height: 400px;
+    position: relative;
+    background: url("../images/nord.jpg") center / cover no-repeat;
+  }
+
+  .voile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0f1c47;
+    opacity: 0.86;
+  }
+
+  .contenu {
+    position: relative;
+    color: aliceblue;
+    display: flex;
+    justify-content: center;
+  }
+&lt;/style&gt;
+
+&lt;div class="fond"&gt;
+  &lt;div class="voile"&gt;&lt;/div&gt;
+
+  &lt;div class="contenu"&gt;
+    &lt;h1&gt;Bienvenue&lt;/h1&gt;
+    &lt;p&gt;Mon texte&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="principe-box">
+              <strong>💡 Principe de superposition :</strong>
+              Le parent <code>.fond</code> est en
+              <code>position: relative</code> pour servir de repère. Le
+              <code>.voile</code> en <code>position: absolute</code> couvre
+              toute la surface, et <code>.contenu</code> en
+              <code>position: relative</code> passe automatiquement au-dessus du
+              voile.
+              <div class="tree-diagram">
+                .fond (position: relative) │ ├── .voile ← bleu (#0f1c47) +
+                opacity (0.86) en position: absolute │ └── .contenu ← texte
+                au-dessus (position: relative + color: aliceblue)
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne droite : Rendu en direct -->
+          <div>
+            <div class="panel-label">
+              <span>Rendu visuel en direct</span>
+            </div>
+
+            <div class="preview-stage">
+              <div class="fond">
+                <div class="voile" id="demo-voile"></div>
+                <div class="contenu">
+                  <h1>Bienvenue</h1>
+                  <p>Mon texte</p>
+                </div>
+              </div>
+
+              <div class="interactive-bar">
+                <label for="opacity-slider">
+                  Tester l'opacité du <code>.voile</code> :
+                  <span id="opacity-val">0.86</span>
+                </label>
+                <input
+                  type="range"
+                  id="opacity-slider"
+                  min="0"
+                  max="1"
+                  step="0.02"
+                  value="0.86"
+                  oninput="
+                    document.getElementById('demo-voile').style.opacity = this.value;
+                    document.getElementById('opacity-val').textContent = this.value;
+                  "
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           FICHE 2 : CARTE-TIMBRE-DROITE-HAUT.HTML (CARTE + BADGE INCLINÉ)
+           ================================================================= -->
+      <section class="section-card" id="sec-carte">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-num">2</span>
+            <div>
+              <h2>Carte image avec badge promo en haut à droite</h2>
+              <p class="card-subtitle">
+                Positionner une étiquette inclinée (<code>.badge-promo</code>)
+                sur le coin d'un conteneur (<code>.hero-img</code>)
+              </p>
+            </div>
+          </div>
+          <span class="file-tag">carte-timbre-droite-haut.html</span>
+        </div>
+
+        <div class="card-body">
+          <!-- Colonne gauche : Code -->
+          <div>
+            <div class="panel-label">
+              <span>Code CSS &amp; HTML</span>
+            </div>
+
+            <div class="code-box">
+              <div class="code-box-header">
+                <span>CSS + HTML</span>
+                <button class="copy-btn" onclick="copyCode(this, 'code-carte')">
+                  Copier le code
+                </button>
+              </div>
+              <pre id="code-carte"><code>&lt;style&gt;
+  .hero-img {
+    width: 300px;
+    height: 500px;
+    position: relative;
+  }
+  .hero-img img {
+    width: 100%;
+    border-radius: 20px;
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0 15px 30px rgba(15, 28, 71, 0.25);
+  }
+  .badge-promo {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #e2691a;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    transform: rotate(8deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+  }
+&lt;/style&gt;
+
+&lt;div class="hero-img"&gt;
+  &lt;img
+    src="../images/carte-tunisie.png"
+    alt="Carte stylisée de la Tunisie"
+    title="La Tunisie, du Nord au Sud"
+  /&gt;
+  &lt;span class="badge-promo"&gt; 3 régions&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="principe-box">
+              <strong>💡 Points clés à retenir :</strong>
+              • <code>position: relative</code> sur <code>.hero-img</code> sert
+              d'ancre au badge.<br />
+              • <code>top: -10px; right: -10px;</code> fait légèrement déborder
+              le badge sur le coin supérieur droit.<br />
+              • <code>border-radius: 999px</code> crée la forme pilule et
+              <code>transform: rotate(8deg)</code> donne l'effet timbre incliné.
+            </div>
+          </div>
+
+          <!-- Colonne droite : Rendu en direct -->
+          <div>
+            <div class="panel-label">
+              <span>Rendu visuel en direct</span>
+            </div>
+
+            <div class="preview-stage">
+              <div class="hero-img">
+                <img
+                  src="../images/carte-tunisie.png"
+                  alt="Carte stylisée de la Tunisie"
+                  title="La Tunisie, du Nord au Sud"
+                  onerror='
+                    this.onerror = null;
+                    this.src =
+                      &apos;data:image/svg+xml;utf8,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 460"&gt;&lt;rect width="300" height="460" rx="16" fill="%23f0f7ff"/&gt;&lt;path d="M145 35 C175 30, 200 50, 195 80 C185 110, 205 135, 195 165 C180 195, 165 215, 180 245 C160 270, 145 290, 155 330 C145 370, 130 410, 115 430 C100 400, 90 360, 85 315 C75 270, 95 235, 105 195 C100 150, 110 105, 120 70 C125 50, 135 40, 145 35 Z" fill="%230f1c47" stroke="%23e2691a" stroke-width="4"/&gt;&lt;circle cx="165" cy="75" r="6" fill="%23e2691a"/&gt;&lt;text x="150" y="115" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;NORD&lt;/text&gt;&lt;text x="145" y="205" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;CENTRE&lt;/text&gt;&lt;text x="125" y="320" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;SUD&lt;/text&gt;&lt;text x="150" y="448" text-anchor="middle" fill="%230f1c47" font-family="sans-serif" font-size="12" font-weight="bold"&gt;La Tunisie, du Nord au Sud&lt;/text&gt;&lt;/svg&gt;&apos;;
+                  '
+                />
+                <span class="badge-promo" id="demo-badge"> 3 régions</span>
+              </div>
+
+              <div class="interactive-bar">
+                <label for="rot-slider">
+                  Inclinaison <code>rotate()</code> :
+                  <span id="rot-val">8deg</span>
+                </label>
+                <input
+                  type="range"
+                  id="rot-slider"
+                  min="-20"
+                  max="20"
+                  step="1"
+                  value="8"
+                  oninput="
+                    document.getElementById('demo-badge').style.transform =
+                      'rotate(' + this.value + 'deg)';
+                    document.getElementById('rot-val').textContent = this.value + 'deg';
+                  "
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           FICHE 3 : TITRE-SUIVI-LIGNE-HOR.HTML (TITRE + LIGNE & ENTITÉS HTML)
+           ================================================================= -->
+      <section class="section-card" id="sec-titre">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-num">3</span>
+            <div>
+              <h2>
+                Titre suivi d'une ligne horizontale &amp; Affichage du code HTML
+              </h2>
+              <p class="card-subtitle">
+                Aligner un filet décoratif (<code>.ligne</code>) après un titre
+                et afficher des balises HTML brutes sans interprétation
+              </p>
+            </div>
+          </div>
+          <span class="file-tag">titre-suivi-ligne-hor.html</span>
+        </div>
+
+        <div class="card-body">
+          <!-- Colonne gauche : Code Titre + Ligne -->
+          <div>
+            <div class="panel-label">
+              <span>Code CSS &amp; HTML du Titre avec ligne</span>
+            </div>
+
+            <div class="code-box">
+              <div class="code-box-header">
+                <span>CSS + HTML</span>
+                <button class="copy-btn" onclick="copyCode(this, 'code-titre')">
+                  Copier le code
+                </button>
+              </div>
+              <pre id="code-titre"><code>&lt;style&gt;
+  .titre-sec {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .ligne {
+    display: inline-block;
+    width: 300px;
+    height: 2px;
+    background: #dfe3f3;
+    margin-left: 15px;
+    position: relative;
+    top: -3px;
+  }
+&lt;/style&gt;
+
+&lt;div class="titre-sec"&gt;
+  🗺️ La carte chargée dans un iframe
+  &lt;div class="ligne"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+            </div>
+
+            <div class="principe-box">
+              <strong
+                >💡 Astuce d'affichage de code HTML dans une page :</strong
+              >
+              Il n'existe pas de balise qui désactive l'interprétation du HTML
+              de façon fiable. Pour afficher
+              <code>&lt;html&gt; &lt;span&gt;</code> à l'écran, on utilise soit
+              :
+              <br />
+              1️⃣ <strong>Les entités HTML</strong> (dans
+              <code>&lt;pre&gt;&lt;code&gt;</code>)
+              <br />
+              2️⃣
+              <strong>Une zone <code>&lt;textarea readonly&gt;</code></strong>
+            </div>
+          </div>
+
+          <!-- Colonne droite : Rendu en direct + Tableau des entités -->
+          <div>
+            <div class="panel-label">
+              <span>Rendu visuel du titre suivi d'une ligne</span>
+            </div>
+
+            <div
+              class="preview-stage"
+              style="min-height: 120px; margin-bottom: 20px"
+            >
+              <div class="titre-sec" style="width: 100%">
+                🗺️ La carte chargée dans un iframe
+                <div class="ligne"></div>
+              </div>
+            </div>
+
+            <div class="panel-label">
+              <span
+                >Méthode 1 : Échapper les chevrons avec des entités HTML</span
+              >
+            </div>
+
+            <table class="entities-table">
+              <thead>
+                <tr>
+                  <th>Caractère affiché</th>
+                  <th>Entité HTML à écrire</th>
+                  <th>Exemple</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>&lt;</strong></td>
+                  <td><code>&amp;lt;</code></td>
+                  <td><code>&amp;lt;html&amp;gt;</code> → &lt;html&gt;</td>
+                </tr>
+                <tr>
+                  <td><strong>&gt;</strong></td>
+                  <td><code>&amp;gt;</code></td>
+                  <td><code>&amp;lt;span&amp;gt;</code> → &lt;span&gt;</td>
+                </tr>
+                <tr>
+                  <td><strong>&amp;</strong></td>
+                  <td><code>&amp;amp;</code></td>
+                  <td><code>&amp;amp;lt;</code> → &amp;lt;</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="panel-label" style="margin-top: 18px">
+              <span>Méthode 2 : Utiliser un &lt;textarea readonly&gt;</span>
+            </div>
+            <textarea class="demo-textarea" rows="5" readonly>
+<div class="titre-sec">
+  🗺️ La carte chargée dans un iframe
+  <div class="ligne"></div>
+</div></textarea
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           FICHE 4 : FIELDSET .BLOC & LEGEND ANIMÉ AU SURVOL
+           ================================================================= -->
+      <section class="section-card" id="sec-fieldset">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-num">4</span>
+            <div>
+              <h2>
+                Encadré <code>&lt;fieldset&gt;</code> avec
+                <code>&lt;legend&gt;</code> animé au survol
+              </h2>
+              <p class="card-subtitle">
+                Créer un bloc encadré avec un titre surélevé qui s'anime au
+                passage de la souris (<code>:hover</code> +
+                <code>translateY</code>)
+              </p>
+            </div>
+          </div>
+          <span class="file-tag">fieldset-legend.html</span>
+        </div>
+
+        <div class="card-body">
+          <div>
+            <div class="panel-label">
+              <span>Code CSS &amp; HTML</span>
+            </div>
+
+            <div class="code-box">
+              <div class="code-box-header">
+                <span>CSS + HTML</span>
+                <button
+                  class="copy-btn"
+                  onclick="copyCode(this, 'code-fieldset')"
+                >
+                  Copier le code
+                </button>
+              </div>
+              <pre id="code-fieldset"><code>&lt;style&gt;
+  .bloc {
+    background: white;
+    border: 2px solid #4f46e5;
+    border-radius: 12px;
+    padding: 25px;
+  }
+
+  .bloc legend {
+    color: white;
+    background: #4f46e5;
+    border: 2px solid #4f46e5;
+    border-radius: 8px;
+    padding: 6px 15px;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .bloc legend:hover {
+    transform: translateY(-4px);
+  }
+&lt;/style&gt;
+
+&lt;fieldset class="bloc"&gt;
+  &lt;legend&gt;🗺️ La carte chargée dans un iframe&lt;/legend&gt;
+
+  &lt;p&gt;Contenu du bloc...&lt;/p&gt;
+&lt;/fieldset&gt;</code></pre>
+            </div>
+
+            <div class="principe-box">
+              <strong>💡 Points clés à retenir :</strong>
+              • La balise <code>&lt;legend&gt;</code> se place automatiquement à
+              cheval sur la bordure haute de son parent
+              <code>&lt;fieldset&gt;</code>.<br />
+              • <code>transition: 0.3s</code> associée à
+              <code>transform: translateY(-4px)</code> sur
+              <code>:hover</code> soulève doucement le titre vers le haut au
+              survol.
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-label">
+              <span>Rendu visuel en direct (survolez le titre)</span>
+            </div>
+
+            <div class="preview-stage">
+              <fieldset class="bloc">
+                <legend>🗺️ La carte chargée dans un iframe</legend>
+
+                <p>Contenu du bloc...</p>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           SECTION BONUS : APERÇU DES 4 COMPOSANTS RÉUNIS DANS UNE MÊME PAGE
+           ================================================================= -->
+      <section class="section-card" id="sec-combine">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="step-num" style="background: var(--orange)">✨</span>
+            <div>
+              <h2>Mise en situation : Les 4 composants assemblés ensemble</h2>
+              <p class="card-subtitle">
+                Voici le résultat lorsque l'on combine le
+                <strong>Header avec voile</strong>, la
+                <strong>Carte avec badge</strong>, le
+                <strong>Titre suivi d'une ligne</strong> et le
+                <strong>Fieldset avec Legend animé</strong>
+              </p>
+            </div>
+          </div>
+          <span class="file-tag">Rendu final combiné</span>
+        </div>
+
+        <div style="padding: 26px">
+          <div class="combined-demo">
+            <!-- 1. Le fond + voile + contenu avec la carte badge à droite -->
+            <div class="combined-hero">
+              <div class="voile"></div>
+              <div class="combined-hero-content">
+                <div class="combined-hero-text">
+                  <h1>Bienvenue en Tunisie</h1>
+                  <p>
+                    Découvrez la diversité des paysages du Nord au Sud : côtes
+                    méditerranéennes, hauts plateaux et oasis du Grand Sud.
+                  </p>
+                </div>
+
+                <!-- 2. La carte avec son badge promo -->
+                <div
+                  class="hero-img"
+                  style="height: 360px; width: 240px; margin: 0"
+                >
+                  <img
+                    src="../images/carte-tunisie.png"
+                    alt="Carte stylisée de la Tunisie"
+                    title="La Tunisie, du Nord au Sud"
+                    onerror='
+                      this.onerror = null;
+                      this.src =
+                        &apos;data:image/svg+xml;utf8,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 460"&gt;&lt;rect width="300" height="460" rx="16" fill="%23f0f7ff"/&gt;&lt;path d="M145 35 C175 30, 200 50, 195 80 C185 110, 205 135, 195 165 C180 195, 165 215, 180 245 C160 270, 145 290, 155 330 C145 370, 130 410, 115 430 C100 400, 90 360, 85 315 C75 270, 95 235, 105 195 C100 150, 110 105, 120 70 C125 50, 135 40, 145 35 Z" fill="%230f1c47" stroke="%23e2691a" stroke-width="4"/&gt;&lt;text x="150" y="115" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;NORD&lt;/text&gt;&lt;text x="145" y="205" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;CENTRE&lt;/text&gt;&lt;text x="125" y="320" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="13" font-weight="bold"&gt;SUD&lt;/text&gt;&lt;/svg&gt;&apos;;
+                    '
+                  />
+                  <span class="badge-promo"> 3 régions</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Le titre suivi de sa ligne horizontale + 4. Le fieldset avec legend animé -->
+            <div class="combined-section-body">
+              <div class="titre-sec" style="margin-bottom: 24px">
+                🗺️ La carte chargée dans un iframe
+                <div class="ligne"></div>
+              </div>
+
+              <fieldset class="bloc">
+                <legend>🗺️ La carte chargée dans un iframe</legend>
+
+                <p>Contenu du bloc...</p>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // Filtrage par onglets pour naviguer facilement entre les fiches
+      function filterSections(targetId, btn) {
+        const buttons = document.querySelectorAll(".nav-btn");
+        buttons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const sections = document.querySelectorAll(".section-card");
+        sections.forEach((sec) => {
+          if (targetId === "all" || sec.id === targetId) {
+            sec.classList.remove("hidden");
+          } else {
+            sec.classList.add("hidden");
+          }
+        });
+      }
+
+      // Bouton "Copier le code" avec retour visuel
+      function copyCode(button, elementId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = button.textContent;
+          button.textContent = "Copié ✓";
+          button.style.background = "#16a34a";
+          setTimeout(() => {
+            button.textContent = original;
+            button.style.background = "";
+          }, 1600);
+        });
+      }
+    </script>
+    
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../../assets/css/protection.css" />
+<script src="../../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

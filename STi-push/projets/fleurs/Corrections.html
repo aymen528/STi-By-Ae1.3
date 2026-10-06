@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8">
+       
+    <title>Correction </title>
+	<link rel="stylesheet" type="text/css" href="stylecorrection.css">
+</head>
+<body>
+    <h1>Correction (Partie Javascript):::</h1>
+    <button id="togg1" class="b1">Affichage Age</button>
+    <button id="togg2" class="b2">Vérification champ Nom & Prénom </button>
+	<button id="togg3" class="b3"> Tèl </button>
+	<button id="togg4" class="b4"> Mail </button>
+	<button id="togg5" class="b5"> Ajout Ville </button>
+	<button id="togg6" class="b6"> Verif choix Ville </button>
+	<button id="togg7" class="b7"> Controle du champ Remarque</button>
+	<button id="togg8" class="b8">Déblocage boutton Submit </button>
+	<button id="togg9" class="b9">La fonction verif</button>
+	<button id="togg10" class="b10">La fonction verif alphabétique</button>
+	<button id="togg11" class="b11">La fonction verif Numérique</button>
+    <div id="d1">
+        <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>On prépare une fonction pour afficher la valeur de l'âge</td>
+				<td><p class="titrefn">function afficheage(){</p>
+					<p>
+                let a = document.getElementById(&quot;age&quot;);<br>
+                //on va tester si l'age est &gt; 30 la bordure serait avec la couleur rouge sinn avec la couleur verte<br>
+                if (a.value&gt;30)<br>
+  &nbsp;{<br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.borderColor=&quot;red&quot;;<br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.backgroundColor=&quot;red&quot;	;<br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.color=&quot;black&quot;; <br>
+  &nbsp;document.getElementById(&quot;affage&quot;).value= a.value;<br>
+                }<br>
+                else<br>
+  &nbsp;{<br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.borderColor=&quot;black&quot;; <br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.backgroundColor=&quot;green&quot;	;<br>
+  &nbsp;document.getElementById(&quot;affage&quot;).style.color=&quot;white&quot;; <br>
+  &nbsp;document.getElementById(&quot;affage&quot;).value= a.value;<br>
+						}</p>
+              <p class="titrefn">}</p>
+              <p >// l'appel de la fonction afficheage qui permet d'afficher l'age <br>
+                document.getElementById(&quot;age&quot;).addEventListener(&quot;click&quot;, afficheage);<br>
+              </p></td>
+              <td>//Rappel: le mot let avant le nom d'une varaible précise que la variable ne circule que dans le bloc actuel===&gt;dans notre cas elle circule dans le bloc de la fonction</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+    <div id="d2">
+        <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>La fonction verifnom permet de vérifier que le champ nom et prénom n'est composé que<br>
+de letres alphabétiques ou éspace.<br>
+On ajoute qu'il faut avoir au max 5 mots</td>
+				<td><p>/**----------------------------------------------------------------------<br>
+				  On prépare une fonction pour vérifier les chaines alphabétiques<br>
+				  -------------------------------------------------------------------------**/</p>
+				  <p>function alpha(ch){<br>
+				    //on prépare une constante qui contient toutes les lettres alphabétiques ainsi l'éspace<br>
+				    const alphabet=&quot; AZERTYUIOPQSDFGHJKLMWXCVBN&quot;;<br>
+				    let nb=0;<br>
+				    //parcourir toute la chaine donnée pour chercher <br>
+				    //pour que la variable i ne soit visiualisée que dans la boucle for on utiulise &quot;let&quot;<br>
+				    for(let i=0;i&lt;ch.length;i++)<br>
+				    {<br>
+				    if (alphabet.indexOf(ch.charAt(i))&gt;=0) <br>
+				    nb++;<br>
+				    }<br>
+				    return (ch.length==nb);<br>
+				    }<br>
+				    /**----------------------------------------------------------------------<br>
+				    La fonction verifnom permet de vérifier que le champ nom et prénom n'est composé que<br>
+				    de letres alphabétiques ou éspace.<br>
+				    On ajoute qu'il faut avoir au max 5 mots<br>
+				    -------------------------------------------------------------------------**/</p>
+				  <p>function verifnom()<br>
+				    {<br>
+				    let np =document.getElementById(&quot;np&quot;).value;<br>
+				    let ok =true;<br>
+				    //tout d'abord on va nettoyer la chaine de tous les ésapaces avant et aprés chaine(voir page 31)<br>
+				    np=np.trim();<br>
+				    document.getElementById(&quot;np&quot;).value=np;<br>
+				    //il vaut mieux ajouter cette inner afin d'éliminer le message au cas où l'utilisateur coorige l'erreur<br>
+				    document.getElementById(&quot;npa&quot;).innerHTML=&quot;&quot;;<br>
+				    //tester si la chaine est formée seulement par des lettres et/ou espace<br>
+				    if ( (!alpha(np.toUpperCase())) || (np.length==0))<br>
+				    {<br>
+				    document.getElementById(&quot;np&quot;).select();//le champ sera sélectionné de nouveau<br>
+				    document.getElementById(&quot;npa&quot;).style.color=&quot;red&quot;;<br>
+				    document.getElementById(&quot;npa&quot;).innerHTML=&quot;Attention&quot;;<br>
+				    ok=false; <br>
+				    }<br>
+				    //tester si la chaine est composée 5 mots au plus <br>
+				    // pour cette raison on va décomposer la chaine suivant l'éesapce en utilisant la fonction split (voir page 31)<br>
+				    let tableaumot = np.split(&quot; &quot;);<br>
+				    let tailletableaumot = tableaumot.length;<br>
+				    if( tailletableaumot &gt; 5)<br>
+				    {<br>
+				    document.getElementById(&quot;npa&quot;).style.color=&quot;red&quot;;<br>
+				    document.getElementById(&quot;npa&quot;).innerHTML=&quot;Attention le nombre de mots est plus que 5&quot;;<br>
+				    ok=false;<br>
+				    }<br>
+				    //si le champ est valable on change la couleur du champ avec la couleur verte et le rendre disabled....on change la couleur du texte en blanc aussi<br>
+				    if  (ok)<br>
+				    {<br>
+				    document.getElementById(&quot;np&quot;).style.backgroundColor=&quot;green&quot;;<br>
+				    document.getElementById(&quot;np&quot;).style.color=&quot;white&quot;;<br>
+				    document.getElementById(&quot;np&quot;).disabled=true;<br>
+				    }<br>
+				    return ok;<br>
+  <br>
+				    }<br>
+				    //vider le champ tout d'abord<br>
+				    document.getElementById(&quot;np&quot;).addEventListener(&quot;click&quot; , function (){document.getElementById(&quot;np&quot;).value=&quot;&quot;})</p>
+				  <p>//l'appel de la fonction vérification du champ nom<br>
+				    document.getElementById(&quot;np&quot;).addEventListener(&quot;blur&quot;, verifnom);<br>
+		        </p>				  <p class="titrefn">&nbsp;</p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+<div id="d3">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>On prépare une fonction qui permet de vérifier que le numéro de téléphone commence par + ou par 00 suivi de 11 chiffres</td>
+				<td><p class="titrefn">&nbsp;</p>
+				  <p><br>
+				    /**----------------------------------------------------------------------<br>
+				    Tèl<br>
+				    -------------------------------------------------------------------------/<br>
+				    On prépare une fonction pour vérifier les chaines contenant seulement des chiffres<br>
+				    -------------------------------------------------------------------------**/<br>
+				    // voici la 1ère solution<br>
+				    /*<br>
+				    function numerique(ch){<br>
+				    const chiffre=&quot;0123456789&quot;;<br>
+				    let nb=0;<br>
+				    for(let i=0;i&lt;ch.length;i++)<br>
+				    {<br>
+				    if (chiffre.indexOf(ch.charAt(i))&gt;=0) <br>
+				    nb++;<br>
+				    }<br>
+				    return (ch.length==nb);<br>
+				    }<br>
+				    */<br>
+				    /* 2ème solution<br>
+				    Remarque la fonction parseint convertit les chiffres de la chaine*/<br>
+				    function numerique(ch){<br>
+				    let convers = Number.parseInt(ch,10);//la base est 10 est par défaut==c'est donc facultatif<br>
+				    //par la suite on converti la variable &quot;convers&quot; en chaine afin de la comparer avec la chaine en entrée<br>
+				    return (convers.toString() == ch);<br>
+				    }<br>
+				    function veriftel(){<br>
+				    let t = document.getElementById(&quot;tel&quot;).value;<br>
+				    let ok=true;<br>
+				    let ok1=false;<br>
+				    let apres0 = &quot;&quot;<br>
+				    let msg=&quot;&quot;;</p>
+				  <p>if (t==&quot;&quot;)<br>
+				    {<br>
+				    msg = &quot;Champ Vide&quot; ; <br>
+				    ok=false;<br>
+				    }<br>
+				    //vérifier le début du numéro de tel<br>
+  <br>
+				    else if(t.substr(0,2) == &quot;00&quot; )<br>
+				    {<br>
+				    ok1=true;<br>
+				    apres0 = t.substring(2)	;<br>
+				    }<br>
+				    //en cas d'erreur afficher en rouge et focus <br>
+				    else if (!  (t.substr(0,1) == &quot;+&quot;))<br>
+				    {<br>
+				    ok=false;<br>
+				    msg = &quot;ça doit commerncer par 0 ou +&quot; ;<br>
+				    }<br>
+				    else if (  (t.substr(0,1) == &quot;+&quot;))<br>
+				    { <br>
+				    ok1=true;<br>
+				    apres0 = t.substring(1);<br>
+				    }<br>
+			      </p>
+				  <p>if (!( (numerique(apres0) )&amp;&amp; ( apres0.length == 11) &amp;&amp; (ok1) ))<br>
+				    {<br>
+				    document.getElementById(&quot;tela&quot;).style.color=&quot;red&quot;;<br>
+				    document.getElementById(&quot;tel&quot;).style.backgroundColor=&quot;red&quot;;<br>
+				    document.getElementById(&quot;tela&quot;).innerHTML= msg;<br>
+				    document.getElementById(&quot;tel&quot;).select(); <br>
+				    ok=false;<br>
+				    }</p>
+				  <p>else <br>
+				    {<br>
+				    document.getElementById(&quot;tel&quot;).style.backgroundColor=&quot;green&quot;;<br>
+				    document.getElementById(&quot;tel&quot;).style.color=&quot;white&quot;;<br>
+				    document.getElementById(&quot;tel&quot;).disabled=true;<br>
+				    }<br>
+  <br>
+				    return (ok);<br>
+				    }</p>
+				  <p>document.getElementById(&quot;tel&quot;).addEventListener(&quot;blur&quot; ,veriftel);<br>
+				    document.getElementById(&quot;tel&quot;).addEventListener(&quot;click&quot; , function (){document.getElementById(&quot;tel&quot;).value=&quot;&quot;})</p>
+				  <p>&nbsp;</p>
+			    <p></p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+<div id="d4">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>On prépare une fonction qui permet de vérifier le format du champ Mail</td>
+				<td><p class="titrefn">&nbsp;</p>
+				  <p>/**----------------------------------------------------------------------<br>
+				    Mail<br>
+				    -------------------------------------------------------------------------**/<br>
+				    function alphanumpt(ch){<br>
+				    const alphanum=&quot;AZERTYUIOPMLKJHGFDSQWXCVBN.0123456789&quot;;<br>
+				    let ok = true;<br>
+				    for (let i = 0;i&lt;ch.length; i++)<br>
+				    if (alphanum.indexOf(ch.charAt(i).toUpperCase())&lt;0)<br>
+				    ok =false;<br>
+				    return ok;<br>
+				    }<br>
+				    /*   1. le mail doit comporter @<br>
+				    2.  on doit trouver au moins 2 mots aprés @ séparés par .<br>
+				    3. la dernière chaine doit être alphabétique<br>
+  <br>
+  <br>
+  <br>
+				    */<br>
+				    function verifmail()<br>
+				    {<br>
+				    let msg=&quot;&quot;;<br>
+				    let ok=true;<br>
+				    let ok1=true;<br>
+				    let ok2=true;<br>
+				    let ok3=true;<br>
+				    let mail = document.getElementById(&quot;mail&quot;);<br>
+  <br>
+				    //extraire la chaine avant &quot;@&quot;<br>
+				    let av = mail.value.substr(0,mail.value.indexOf('@'));<br>
+				    if (mail.value.indexOf('@')&lt; 0)<br>
+				    {<br>
+				    msg = &quot;mail invalide abscence de @&quot;;<br>
+				    ok1 = false; <br>
+				    }<br>
+				    else<br>
+				    if (!alphanumpt(av))<br>
+				    {<br>
+				    msg = &quot;mail invalide chaine non alphnumérique avant @&quot;;<br>
+				    ok1 = false; <br>
+				    }<br>
+				    //la chaine aprés &quot;@&quot;<br>
+				    let ap = mail.value.substr(mail.value.indexOf('@')+1);<br>
+				    //j'ai mis les mots séparés par point dans un tableau<br>
+				    let tabap = ap.split('.');<br>
+				    //je vais boucler dans le tableau afin de vérifier chaque mot<br>
+				    if (( tabap.length&lt;1) || ( tabap.length&gt;3))<br>
+				    {<br>
+				    msg = &quot;il faut avoir au max 3 mots séparés par point aprés @&quot;<br>
+				    ok2 = false;<br>
+				    }<br>
+				    else<br>
+				    {<br>
+				    for (let i=0 ;i&lt;tabap.length;i++)<br>
+				    if (! alpha(tabap[i].toUpperCase()))<br>
+				    {<br>
+				    msg= &quot; Vérifier les mots aprés @&quot;;<br>
+				    ok3=false;<br>
+				    }<br>
+				    }<br>
+				    ok = ok1 &amp;&amp; ok2 &amp;&amp; ok3  ;<br>
+  <br>
+				    if (!ok)<br>
+				    {<br>
+				    document.getElementById(&quot;maila&quot;).style.color=&quot;red&quot;;<br>
+				    document.getElementById(&quot;mail&quot;).style.backgroundColor=&quot;red&quot;;<br>
+				    document.getElementById(&quot;maila&quot;).innerHTML= msg;<br>
+				    document.getElementById(&quot;mail&quot;).select(); <br>
+				    ok=false;<br>
+				    }<br>
+				    else <br>
+				    {<br>
+				    document.getElementById(&quot;mail&quot;).style.backgroundColor=&quot;green&quot;;<br>
+				    document.getElementById(&quot;mail&quot;).style.color=&quot;white&quot;;<br>
+				    document.getElementById(&quot;mail&quot;).disabled=true;<br>
+				    }<br>
+  <br>
+				    return ok<br>
+  <br>
+				    }</p>
+				  <p>document.getElementById(&quot;mail&quot;).addEventListener(&quot;blur&quot; , verifmail);<br>
+				    //.........................................<br>
+				    document.getElementById(&quot;mail&quot;).addEventListener(&quot;click&quot; , function (){document.getElementById(&quot;mail&quot;).value=&quot;&quot;})</p>
+			    <p></p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d5">
+       <table width="929" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="638" class="titre">Code</td>
+              <td width="135"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>On prépare une fonction pour afficher la valeur de l'âge</td>
+				<td><p>/**----------------------------------------------------------------------<br>
+				  Ajouter ville<br>
+				  avant d'ajouter une ville il faut vérifier est ce déjà existante et/ou le code postal est déjà utilisé<br>
+				  le code postal doit etre un entier composé de 4 chiffres<br>
+				  -------------------------------------------------------------------------**/</p>
+				  <p>function verifville(ch)<br>
+				    {let indice = -1;<br>
+				    //Remarque: Ne pas oublier de comparer les majuscules des chaînes<br>
+				    for (let i=0; i&lt; document.getElementById(&quot;ville&quot;).options.length ;i++)<br>
+				    if (document.getElementById(&quot;ville&quot;).options[i].text.toUpperCase()== ch.toUpperCase() )<br>
+				    {<br>
+				    indice =  i;<br>
+				    }<br>
+				    return indice;<br>
+				    }<br>
+				    function verifcodepostal(ch)<br>
+				    {<br>
+				    let indice = -1;<br>
+				    //Remarque: Ne pas oublier de comparer les majuscules des chaînes<br>
+				    for (let i=0; i&lt; document.getElementById(&quot;ville&quot;).options.length ;i++)<br>
+				    if (document.getElementById(&quot;ville&quot;).options[i].value== ch )<br>
+				    {<br>
+				    indice =  i;<br>
+				    }<br>
+				    return indice;<br>
+				    }</p>
+				  <p>function ajoutville()<br>
+				    {<br>
+				    let villenew = prompt(&quot;Donner la nouvelle ville à ajouter&quot;).trim()<br>
+				    if (verifville(villenew) &gt; -1)<br>
+				    {<br>
+				    alert(&quot;ville déjà exitante&quot;)<br>
+				    }<br>
+				    else<br>
+				    {<br>
+				    let codep = prompt(&quot;Donner le code postal de la ville&quot;).trim()<br>
+				    //vérifier format du code postal sinon redemander une autre fois<br>
+				    if (!((codep.length==4)&amp;&amp; (numerique(codep))))<br>
+				    codep = prompt(&quot;Code postal érroné, Veuillez entrer un code de 4 chiffres &quot;).trim()<br>
+				    else if (! verifcodepostal(codep))<br>
+				    codep = prompt(&quot;Code postal déjà existant, Merci de réintègrer le code postal&quot;)<br>
+				    else <br>
+				    {<br>
+				    let l = document.getElementById(&quot;ville&quot;).options.length;<br>
+				    //remarque trés importante:::si on utilise getelementbyid on ne met pas la méthode .value<br>
+				    document.getElementById(&quot;ville&quot;).options[l] = new Option(villenew,codep);<br>
+				    document.getElementById(&quot;ville&quot;).style.borderColor=&quot;blue&quot;<br>
+				    }<br>
+				    }<br>
+  <br>
+				    }</p>
+				  <p>document.getElementById(&quot;aville&quot;).addEventListener(&quot;click&quot;,ajoutville);</p>
+			    <p></p>				  <p class="titrefn">&nbsp;</p></td>
+              <td>//remarque trés importante:::si on utilise getelementbyid on ne met pas la méthode .value</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d6">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>On prépare une fonction pour afficher la valeur de l'âge</td>
+				<td><p >/**----------------------------------------------------------------------<br>
+Choix ville<br>
+-------------------------------------------------------------------------**/<br>
+function verifchoixville()<br>
+{<br>
+let ok=true;<br>
+if (document.getElementById(&quot;ville&quot;).options.selectedIndex == 0 )<br>
+{<br>
+document.getElementById(&quot;ville&quot;).style.borderColor=&quot;red&quot;<br>
+document.getElementById(&quot;ville&quot;).style.backgroundColor=&quot;red&quot;<br>
+document.getElementById(&quot;ville&quot;).style.color=&quot;white&quot; <br>
+ok=false<br>
+}<br>
+else<br>
+{<br>
+document.getElementById(&quot;ville&quot;).style.borderColor=&quot;green&quot;<br>
+document.getElementById(&quot;ville&quot;).style.backgroundColor=&quot;green&quot;<br>
+document.getElementById(&quot;ville&quot;).style.color=&quot;white&quot;<br>
+<br>
+ok=true;<br>
+}<br>
+return ok;<br>
+}<br>
+document.getElementById(&quot;ville&quot;).addEventListener(&quot;blur&quot;,verifchoixville);<br>
+				</p></td>
+              <td>//Rappel: le mot let avant le nom d'une varaible précise que la variable ne circule que dans le bloc actuel===&gt;dans notre cas elle circule dans le bloc de la fonction</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d7">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td><p>On prépare une fonction qui contôle le champ remarque</p>
+              <p>==&gt;longueur maximale =30 et si on l'atteint on bloque la zone du texte</p></td>
+				<td><p class="titrefn">&nbsp;</p>
+				  <p>/**----------------------------------------------------------------------<br>
+				    Champ Remarque:<br>
+				    on n'accepte que 30 caractère, une fois le nombre est éteint on bloque le champ<br>
+				    on prévoit à afficher le nombre de cractères restant à chaque touche<br>
+				    -------------------------------------------------------------------------**/<br>
+				    //il faut initialiser le compteur en dehors de la fonction <br>
+				    compteur = 31;</p>
+				  <p>function remarque()<br>
+				    {<br>
+				    compteur--;<br>
+				    document.getElementById(&quot;nc&quot;).value = compteur;<br>
+				    if (compteur==0){<br>
+				    document.getElementById(&quot;rq&quot;).disabled=true;<br>
+				    document.getElementById(&quot;rq&quot;).style.borderColor=&quot;black&quot;<br>
+				    document.getElementById(&quot;rq&quot;).style.backgroundColor=&quot;grey&quot;<br>
+				    }<br>
+  <br>
+				    }<br>
+				    document.getElementById(&quot;rq&quot;).addEventListener(&quot;keypress&quot;,remarque);<br>
+		        </p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d8">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>Le boutton submit ne serait débloqué que lorsque la case est cochée</td>
+				<td><p>/**----------------------------------------------------------------------<br>
+Accepter terme<br>
+le bouton envoyer ne sera actif que lorsq'on coche la case de validation<br>
+-------------------------------------------------------------------------**/<br>
+function faccepter()<br>
+{<br>
+let acc=document.getElementById(&quot;accepter&quot;);<br>
+if (acc.checked)<br>
+document.getElementById(&quot;envoyer&quot;).disabled=false; <br>
+<br>
+}<br>
+document.getElementById(&quot;accepter&quot;).addEventListener(&quot;click&quot;,faccepter);</p>
+			    <p></p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d9">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td>Et enfin la fonction return qui fait appel à toutes les fonctions précédentes</td>
+				<td><p>/**----------------------------------------------------------------------<br>
+**************************************************************<br>
+Et enfin la fonction verif qui controle tt le formulaire<br>
+***************************************************************<br>
+-------------------------------------------------------------------------**/<br>
+function verif()<br>
+{<br>
+let ok=true;<br>
+if(!verifnom() )<br>
+ok= false;<br>
+<br>
+if(!choixcv() )<br>
+ok = false;<br>
+/*<br>
+if(!veriftel() )<br>
+ok = false;<br>
+*/<br>
+if(! verifmail() )<br>
+ok =false;<br>
+if(! verifchoixville() )<br>
+ok = false;<br>
+if(! veriftel() )<br>
+ok = false;<br>
+<br>
+return ok<br>
+<br>
+}<br>
+/**************************************************************************************<br>
+Remarque trop importante:Notez que l’événement submit se déclenche uniquement sur l’élement form, et pas sur les éléments button ou input submit. (Les formulaires sont soumis, pas les boutons.)<br>
+document.getElementById(&quot;f&quot;).addEventListener(&quot;submit&quot;,verif); ===&gt; provoque une erreur<br>
+*/</p>
+			    <p></p></td>
+              <td>Remarque trop importante:Notez que l’événement submit se déclenche uniquement sur l’élement form, et pas sur les éléments button ou input submit. (Les formulaires sont soumis, pas les boutons.)<br>
+document.getElementById(&quot;f&quot;).addEventListener(&quot;submit&quot;,verif); ===&gt; provoque une erreur</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d10">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td><p>Fonction qui vérifie est ce une chaine est alphabétique ou non.</p>
+              <p>Ici on ajouté l'éspace aussi</p></td>
+				<td><p>&nbsp;</p>
+			    <p>/**----------------------------------------------------------------------<br>
+On prépare une fonction pour vérifier les chaines alphabétiques<br>
+-------------------------------------------------------------------------**/</p>
+			    <p>function alpha(ch){<br>
+			      //on prépare une constante qui contient toutes les lettres alphabétiques ainsi l'éspace<br>
+			      const alphabet=&quot; AZERTYUIOPQSDFGHJKLMWXCVBN&quot;;<br>
+			      let nb=0;<br>
+			      //parcourir toute la chaine donnée pour chercher <br>
+			      //pour que la variable i ne soit visiualisée que dans la boucle for on utiulise &quot;let&quot;<br>
+			      for(let i=0;i&lt;ch.length;i++)<br>
+			      {<br>
+			      if (alphabet.indexOf(ch.charAt(i))&gt;=0) <br>
+			      nb++;<br>
+			      }<br>
+			      return (ch.length==nb);<br>
+			      }<br>
+		        </p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<div id="d11">
+       <table width="902" height="460" border="1">
+          <tbody>
+            <tr>
+              <td width="134" class="titre">Description</td>
+              <td width="495" class="titre">Code</td>
+              <td width="251"class="titre">Rappel</td>
+            </tr>
+            <tr>
+              <td><p>Fonction qui vérifie est ce une chaine est Numérique ou non.</p>
+              </td>
+			  <td><p>/*----------------------------------------</p>
+			    <p> On prépare une fonction pour vérifier les chaines composés seulement par des chiffres<br>
+		        -------------------------------------------------------------------------*/<br>
+		        // voici la 1ère solution<br>
+		        /*<br>
+		        function numerique(ch){<br>
+const chiffre=&quot;0123456789&quot;;<br>
+let nb=0;<br>
+for(let i=0;i&lt;ch.length;i++)<br>
+{<br>
+if (chiffre.indexOf(ch.charAt(i))&gt;=0) <br>
+nb++;<br>
+}<br>
+return (ch.length==nb);<br>
+}<br>
+*/<br>
+/* 2ème solution<br>
+Remarque la fonction parseint convertit les preirs chiffres de la chaine*/<br>
+function numerique(ch){<br>
+let convers = Number.parseInt(ch,10);//la base est 10 est par défaut==c'est donc facultatif<br>
+//par la suite on converti la variable &quot;convers&quot; en chaine afin de la comparer avec la chaine en entrée<br>
+return (convers.toString() == ch);<br>
+}<br>
+			    </p></td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+	<script src="controlecorrection.js"></script>
+<!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

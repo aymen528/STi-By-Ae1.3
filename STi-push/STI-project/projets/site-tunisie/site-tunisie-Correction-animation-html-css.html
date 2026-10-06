@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Animation HTML &amp; CSS — 4ème SI</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #20233c;
+        --panel: #2a2e4d;
+        --line: #414876;
+        --text: #f2efe4;
+        --muted: #a8adcf;
+        --js: #ffe066;
+        --ink: #2b2410;
+        --tag: #ff9c9c;
+        --attr: #ffe066;
+        --val: #8de0b0;
+        --sel: #8db8ff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Manrope", system-ui, sans-serif;
+        display: flex;
+        flex-direction: column;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      .bar h1 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        flex: 1 1 auto;
+        white-space: nowrap;
+      }
+      button {
+        font: inherit;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+      }
+      button:hover {
+        transform: translateY(-1px);
+      }
+      #play {
+        background: var(--js);
+        color: var(--ink);
+        border-color: var(--js);
+        min-width: 110px;
+      }
+      .speed {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .speed input {
+        width: 90px;
+        accent-color: var(--js);
+      }
+      .prog {
+        flex: 1 1 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+      }
+      .prog .lbl {
+        color: var(--js);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .track {
+        flex: 1;
+        height: 6px;
+        border-radius: 6px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+      .fill {
+        height: 100%;
+        width: 0;
+        background: var(--js);
+        transition: width 0.15s;
+      }
+      main {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+      }
+      .pane {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .pane > header {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .pane.active .dot {
+        background: var(--js);
+        box-shadow: 0 0 8px var(--js);
+      }
+      pre {
+        flex: 1;
+        margin: 0;
+        padding: 12px 14px;
+        overflow: auto;
+        font: 400 0.9rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .t {
+        color: var(--tag);
+      }
+      .a {
+        color: var(--attr);
+      }
+      .v {
+        color: var(--val);
+      }
+      .s {
+        color: var(--sel);
+      }
+      .p {
+        color: var(--attr);
+      }
+      .m {
+        color: var(--muted);
+      }
+      .cur {
+        display: inline-block;
+        width: 8px;
+        height: 1.05em;
+        vertical-align: text-bottom;
+        background: var(--js);
+        animation: blink 1s steps(1) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      iframe {
+        flex: 1;
+        width: 100%;
+        border: 0;
+        background: #fff;
+      }
+      @media (max-width: 900px) {
+        body {
+          height: auto;
+        }
+        main {
+          flex-direction: column;
+        }
+        .pane {
+          flex: none;
+          height: 38vh;
+        }
+        iframe {
+          min-height: 38vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <h1>⌨️ Écrire une page web pas à pas</h1>
+      <button id="play">⏸ Pause</button>
+      <button id="skip" title="Terminer l'étape en cours">⏭ Étape</button>
+      <button id="reset">↺ Recommencer</button>
+      <label class="speed"
+        >Vitesse
+        <input
+          id="speed"
+          type="range"
+          min="0.5"
+          max="5"
+          step="0.5"
+          value="1"
+        /><span id="sv">×1</span></label
+      >
+      <div class="prog">
+        <span class="lbl" id="lbl">Étape 1/7</span>
+        <div class="track"><div class="fill" id="fill"></div></div>
+      </div>
+    </div>
+    <main>
+      <section class="pane" id="p-html">
+        <header><span class="dot"></span>HTML — index.html (body)</header>
+        <pre id="c-html"></pre>
+      </section>
+      <section class="pane" id="p-css">
+        <header><span class="dot"></span>CSS — style.css</header>
+        <pre id="c-css"></pre>
+      </section>
+      <section class="pane" style="flex-grow: 1.25">
+        <header>
+          <span class="dot" style="background: var(--val)"></span>Aperçu
+          instantané
+        </header>
+        <iframe
+          id="view"
+          title="Aperçu"
+          srcdoc='<!DOCTYPE html><meta charset="utf-8"><style id="s"></style><body>'
+        ></iframe>
+      </section>
+    </main>
+
+    <script>
+      var STEPS = [
+        {
+          t: "L'en-tête (header, h1, p)",
+          html: `<header>
+  <h1>Tunisie Explorer</h1>
+  <p>De Carthage aux dunes du Sahara</p>
+</header>
+`,
+          css: `body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #eef1fb;
+  color: #1c2440;
+}
+
+header {
+  background: linear-gradient(#0f1c47, #24357a);
+  color: #fff;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 32px;
+}
+`,
+        },
+        {
+          t: "Le menu de navigation (nav, a)",
+          html: `
+<nav>
+  <a href="#nord">Nord</a>
+  <a href="#centre">Centre</a>
+  <a href="#sud">Sud</a>
+</nav>
+`,
+          css: `
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  background: #0f1c47;
+  padding: 10px;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+nav a:hover {
+  background: #d6336c;
+}
+`,
+        },
+        {
+          t: "Les cartes des régions (flex)",
+          html: `
+<main>
+  <section class="carte">
+    <h2>Nord</h2>
+    <p>Tunis, Carthage, Sidi Bou Saïd</p>
+  </section>
+  <section class="carte">
+    <h2>Centre</h2>
+    <p>Sousse, Kairouan, El Jem</p>
+  </section>
+  <section class="carte">
+    <h2>Sud</h2>
+    <p>Djerba, Tozeur, Douz</p>
+  </section>
+</main>
+`,
+          css: `
+main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 20px;
+}
+
+.carte {
+  flex: 1 1 200px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.carte h2 {
+  margin: 0 0 6px;
+  color: #d6336c;
+}
+`,
+        },
+        {
+          t: "Un bouton avec effet (transition)",
+          html: `
+<p class="centre">
+  <a class="btn" href="#">Découvrir la carte</a>
+</p>
+`,
+          css: `
+.centre {
+  text-align: center;
+}
+
+.btn {
+  display: inline-block;
+  background: #d6336c;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  transition: transform 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+}
+`,
+        },
+        {
+          t: "Reconnaissance faciale (onclick + @keyframes)",
+          html: `
+<section class="visage">
+  <div class="scan-box">
+    <div class="portrait">🧑</div>
+    <div class="scan-bar" id="bar"></div>
+  </div>
+  <div class="visage-txt">
+    <h2>Reconnaissance faciale</h2>
+    <button onclick="var b=document.getElementById('bar');b.style.display='block';b.style.animation='scan 1.6s linear infinite'">
+      🔎 Lancer l'analyse
+    </button>
+  </div>
+</section>
+`,
+          css: `
+.visage {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  margin: 20px;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.scan-box {
+  position: relative;
+  width: 110px;
+  height: 130px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #dfe5f7;
+}
+
+.portrait {
+  font-size: 80px;
+  line-height: 130px;
+  text-align: center;
+}
+
+.scan-bar {
+  display: none;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #0e9e86;
+  box-shadow: 0 0 12px #0e9e86;
+}
+
+@keyframes scan {
+  from { top: 0; }
+  to { top: 100%; }
+}
+
+.visage-txt h2 {
+  margin: 0 0 10px;
+}
+
+.visage-txt button {
+  background: #0e9e86;
+  color: #fff;
+  border: 0;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+`,
+        },
+        {
+          t: "Le formulaire (input, select, textarea)",
+          html: `
+<form class="formulaire" onsubmit="return false">
+  <h2>Demande de voyage</h2>
+  <label for="nom">Nom complet</label>
+  <input type="text" id="nom" placeholder="Ex : Mohamed Ben Ali" required />
+  <label for="mail">E-mail</label>
+  <input type="email" id="mail" placeholder="vous@exemple.tn" required />
+  <label for="region">Région</label>
+  <select id="region">
+    <option>Nord</option>
+    <option>Centre</option>
+    <option>Sud</option>
+  </select>
+  <label for="msg">Message</label>
+  <textarea id="msg" rows="3"></textarea>
+  <button type="submit">Envoyer</button>
+</form>
+`,
+          css: `
+.formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  margin: 20px;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.formulaire h2 {
+  margin: 0 0 6px;
+  color: #d6336c;
+}
+
+.formulaire label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.formulaire input,
+.formulaire select,
+.formulaire textarea {
+  padding: 8px;
+  border: 1px solid #b9c2e6;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.formulaire input:focus {
+  outline: 2px solid #0e9e86;
+}
+
+.formulaire button {
+  align-self: flex-start;
+  background: #0e9e86;
+  color: #fff;
+  border: 0;
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+`,
+        },
+        {
+          t: "Le pied de page (footer)",
+          html: `
+<footer>
+  © 2026 Tunisie Explorer — 3/4ème SI
+</footer>
+`,
+          css: `
+footer {
+  text-align: center;
+  padding: 18px;
+  color: #75708f;
+  font-size: 13px;
+}
+`,
+        },
+      ];
+
+      var TASKS = [];
+      STEPS.forEach(function (s, i) {
+        TASKS.push({ pane: "html", text: s.html, step: i });
+        TASKS.push({ pane: "css", text: s.css, step: i });
+      });
+      var TOTAL = TASKS.reduce(function (n, t) {
+        return n + t.text.length;
+      }, 0);
+
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var els = { html: $("c-html"), css: $("c-css") },
+        panes = { html: $("p-html"), css: $("p-css") };
+      var buf,
+        ti,
+        ci,
+        typed,
+        playing,
+        timer,
+        skip,
+        speed = 1,
+        active = "html";
+
+      function esc(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function hlHtml(src) {
+        return esc(src).replace(
+          /(&lt;\/?)([\w-]+)|(\s)([\w-]+)(=)("[^"]*"?)|(&gt;)/g,
+          function (m, a, b, c, d, e, f, g) {
+            if (b) return a + '<span class="t">' + b + "</span>";
+            if (d)
+              return (
+                c +
+                '<span class="a">' +
+                d +
+                "</span>" +
+                e +
+                '<span class="v">' +
+                f +
+                "</span>"
+              );
+            return m;
+          }
+        );
+      }
+      function hlCss(src) {
+        return esc(src).replace(
+          /([^{};]+?)(\{)|([\w-]+)(\s*:\s*)([^;{}]*)(;?)/g,
+          function (m, sel, br, p, c, v, sc) {
+            if (br) return '<span class="s">' + sel + "</span>" + br;
+            return (
+              '<span class="p">' +
+              p +
+              "</span>" +
+              c +
+              '<span class="v">' +
+              v +
+              "</span>" +
+              sc
+            );
+          }
+        );
+      }
+      function render() {
+        ["html", "css"].forEach(function (k) {
+          var h = (k === "html" ? hlHtml : hlCss)(buf[k]);
+          els[k].innerHTML =
+            h + (k === active ? '<span class="cur"></span>' : "");
+          panes[k].classList.toggle("active", k === active && playing);
+          els[k].scrollTop = els[k].scrollHeight;
+        });
+      }
+      function preview() {
+        try {
+          var d = $("view").contentDocument;
+          d.getElementById("s").textContent = buf.css;
+          d.body.innerHTML = buf.html;
+          d.defaultView.scrollTo(0, d.body.scrollHeight);
+        } catch (e) {
+          $("view").srcdoc =
+            "<!DOCTYPE html><meta charset='utf-8'><style>" +
+            buf.css +
+            "</style><body>" +
+            buf.html;
+        }
+      }
+      function progress() {
+        var t = TASKS[Math.min(ti, TASKS.length - 1)];
+        $("lbl").textContent =
+          "Étape " +
+          (t.step + 1) +
+          "/" +
+          STEPS.length +
+          " — " +
+          STEPS[t.step].t;
+        $("fill").style.width = (100 * typed) / TOTAL + "%";
+      }
+      function tick() {
+        if (!playing) return;
+        var task = TASKS[ti];
+        if (!task) {
+          finish();
+          return;
+        }
+        var txt = task.text,
+          end = ci + 1;
+        if (skip) end = txt.length;
+        else
+          while (
+            txt[end] === " " &&
+            (txt[end - 1] === "\n" || txt[end - 1] === " ")
+          )
+            end++;
+        active = task.pane;
+        buf[task.pane] += txt.slice(ci, end);
+        typed += end - ci;
+        ci = end;
+        var last = txt[ci - 1],
+          done = ci >= txt.length,
+          delay;
+        render();
+        progress();
+        if ("\n>;}".indexOf(last) >= 0 || ci % 6 === 0 || done) preview();
+        if (done) {
+          ti++;
+          ci = 0;
+          delay = 450;
+          if (skip && (!TASKS[ti] || TASKS[ti].step !== task.step))
+            skip = false;
+          if (!TASKS[ti]) {
+            finish();
+            return;
+          }
+        } else delay = last === "\n" ? 140 : 20 + Math.random() * 25;
+        timer = setTimeout(tick, skip ? 0 : delay / speed);
+      }
+      function finish() {
+        playing = false;
+        $("play").textContent = "↺ Rejouer";
+        render();
+        $("lbl").textContent = "Terminé ✔ — page complète";
+      }
+      function reset() {
+        clearTimeout(timer);
+        buf = { html: "", css: "" };
+        ti = 0;
+        ci = 0;
+        typed = 0;
+        playing = false;
+        skip = false;
+        active = "html";
+        $("play").textContent = "▶ Lecture";
+        render();
+        preview();
+        progress();
+      }
+      function play() {
+        if (ti >= TASKS.length) reset();
+        playing = true;
+        $("play").textContent = "⏸ Pause";
+        clearTimeout(timer);
+        tick();
+      }
+      $("play").onclick = function () {
+        if (playing) {
+          playing = false;
+          clearTimeout(timer);
+          $("play").textContent = "▶ Lecture";
+          render();
+        } else play();
+      };
+      $("skip").onclick = function () {
+        if (ti < TASKS.length) {
+          skip = true;
+          if (!playing) play();
+          else {
+            clearTimeout(timer);
+            tick();
+          }
+        }
+      };
+      $("reset").onclick = function () {
+        reset();
+        play();
+      };
+      $("speed").oninput = function () {
+        speed = +this.value;
+        $("sv").textContent = "×" + speed;
+      };
+
+      function start() {
+        reset();
+        setTimeout(play, 500);
+      }
+      var f = $("view");
+      function ready() {
+        try {
+          return (
+            f.contentDocument &&
+            f.contentDocument.readyState === "complete" &&
+            f.contentDocument.getElementById("s")
+          );
+        } catch (e) {
+          return false;
+        }
+      }
+      if (ready()) start();
+      else f.addEventListener("load", start, { once: true });
+    </script>
+  </body>
+</html>

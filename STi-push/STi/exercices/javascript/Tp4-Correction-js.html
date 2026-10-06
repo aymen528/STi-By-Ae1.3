@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <title>TP4 JavaScript - Corrigé</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.4em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      .js-logo {
+        width: 42px;
+        height: 42px;
+        background: #f7df1e;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        border-radius: 0 4px 4px 0;
+      }
+      pre {
+        background-color: #2d3748;
+        color: #f7fafc;
+        padding: 12px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.85em;
+        margin: 8px 0;
+        border-left: 4px solid #3182ce;
+      }
+      ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../../cours/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">📚 Cours JavaScript</a><a href="../../quiz/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a><a href="../../exercices/series-exercices.html#javascript" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">≡ Séries</a></nav>
+
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A.E</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          CORRIGÉ TP N°4 : JavaScript<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Systèmes, Technologies & Internet</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          2026-2027<br /><span style="font-weight: normal; font-size: 0.9em"
+            >3<sup>ème</sup> Science Info</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="js-logo">JS</div>
+      <h1>Corrigé Officiel TP N°4</h1>
+    </div>
+
+    <h2>Correction Exercice 1 : Objet Math et Styles CSS</h2>
+    <ul>
+      <li>
+        <strong>1. Rôle de <code>Math</code> :</strong> C'est un objet prédéfini
+        de JavaScript qui permet d'effectuer des tâches mathématiques et fournit
+        des propriétés et méthodes mathématiques constantes[cite: 7].
+      </li>
+      <li>
+        <strong
+          >2. Rôle de <code>p1.style.fontFamily = "valeur"</code> :</strong
+        >
+        Permet de modifier dynamiquement le style CSS (la police de caractères)
+        de l'élément HTML référencé par <code>p1</code>[cite: 7].
+      </li>
+      <li>
+        <strong>3. Rôle de <code>Math.PI</code> :</strong> Propriété
+        représentant la constante mathématique Pi ($\approx 3.14159$)[cite: 7].
+      </li>
+      <li>
+        <strong>4. Rôle de <code>Math.pow()</code> :</strong> Renvoie la base
+        élevée à la puissance de l'exposant (ex:
+        <code>Math.pow(2, 3)</code> donne <code>8</code>)[cite: 7].
+      </li>
+      <li>
+        <strong>5. Rôle de <code>Math.abs()</code> :</strong> Renvoie la valeur
+        absolue d'un nombre (ex: <code>Math.abs(-3)</code> donne
+        <code>3</code>)[cite: 7].
+      </li>
+      <li>
+        <strong>6. Rôle de <code>Math.ceil()</code> :</strong> Arrondit un
+        nombre vers le haut au nombre entier supérieur ou égal le plus proche
+        (ex: <code>Math.ceil(4.4)</code> donne <code>5</code>)[cite: 7].
+        Résultat affiché dans <code>p4</code> : <strong>5</strong>[cite: 7].
+      </li>
+    </ul>
+
+    <h2>Correction Exercice 2 : Chaînes de Caractères (String)</h2>
+    <ul>
+      <li>
+        <strong>1. <code>innerHTML.length</code> :</strong> Propriété qui
+        retourne le nombre total de caractères de la chaîne contenue dans le
+        paragraphe <code>p1</code> ("Classe num 3 Sciences de l'informatique
+        num1")[cite: 7]. Résultat affiché : <strong>44</strong>[cite: 7].
+      </li>
+      <li>
+        <strong>2. <code>indexOf()</code> :</strong> Méthode qui recherche la
+        première occurrence d'une sous-chaîne et renvoie son indice de
+        départ[cite: 7]. <code>indexOf("Sciences")</code> retourne la position
+        de la sous-chaîne, soit l'indice <strong>13</strong>[cite: 7].
+      </li>
+      <li>
+        <strong>3. <code>slice()</code> :</strong> Méthode qui extrait une
+        portion d'une chaîne de caractères entre un indice de début et un indice
+        de fin[cite: 7]. <code>slice(10, 18)</code> extrait les caractères de
+        l'indice 10 à 17 ("3 Scien")[cite: 7]. Résultat affiché :
+        <strong>3 Scien</strong>[cite: 7].
+      </li>
+      <li>
+        <strong>4. <code>lastIndexOf()</code> :</strong> Méthode qui recherche
+        la dernière occurrence d'une sous-chaîne dans la chaîne[cite: 7].
+        <code>lastIndexOf("num")</code> renvoie l'indice de la dernière
+        apparition de "num", soit l'indice <strong>41</strong>[cite: 7].
+      </li>
+    </ul>
+
+    <h2>Correction Exercice 3 : Objet Date</h2>
+    <ul>
+      <li>
+        <strong>1. <code>getFullYear()</code> :</strong> Renvoie l'année
+        courante sur 4 chiffres d'une date (ex: <strong>2026</strong>)[cite: 7].
+      </li>
+      <li>
+        <strong>2. <code>getMonth()</code> :</strong> Renvoie le mois de l'année
+        sous forme d'indice de 0 à 11 (0 pour janvier, 1 pour février,
+        etc.)[cite: 7]. Combiné au tableau <code>mois[...]</code>, il affiche le
+        nom textuel du mois actuel (ex: <strong>Septembre</strong>)[cite: 7].
+      </li>
+      <li>
+        <strong>3. <code>getDate()</code> :</strong> Renvoie le jour du mois
+        (valeur entière de 1 à 31) correspondant à la date actuelle[cite: 7].
+      </li>
+    </ul>
+
+    <h2>Correction Exercice 4 : Tableaux (Array)</h2>
+    <ul>
+      <li>
+        <strong>1. <code>toString()</code> :</strong> Convertit un tableau en
+        une chaîne de caractères constituée des éléments séparés par des
+        virgules[cite: 7]. Résultat affiché :
+        <code>Banane,Orange,fraise,Manga</code>[cite: 7].
+      </li>
+      <li>
+        <strong>2. <code>join()</code> :</strong> Joint tous les éléments d'un
+        tableau en une chaîne de caractères en utilisant un séparateur
+        personnalisé[cite: 7]. Résultat affiché pour <code>join(" * ")</code> :
+        <code>Banane * Orange * fraise * Manga</code>[cite: 7].
+      </li>
+      <li>
+        <strong>3. <code>pop()</code> et <code>push()</code> :</strong>
+        <ul>
+          <li>
+            <code>pop()</code> supprime le dernier élément du tableau
+            ("Manga")[cite: 7].
+          </li>
+          <li>
+            <code>push("Kiwi")</code> ajoute un nouvel élément à la fin du
+            tableau ("Kiwi")[cite: 7].
+          </li>
+          <li>
+            Résultat final affiché dans <code>demo4</code> :
+            <code>Banane,Orange,fraise,Kiwi</code>[cite: 7].
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>Correction Exercice 5 : Objets Littéraux</h2>
+    <ul>
+      <li>
+        <strong>1. Objet <code>voiture</code> :</strong> Variable structurée de
+        type objet littéral contenant des propriétés clés-valeurs décrivant une
+        voiture (type: "Fiat", modele: "500", couleur: "bleu")[cite: 7].
+      </li>
+      <li>
+        <strong>2. Objet <code>eleve</code> :</strong> Objet littéral stockant
+        les informations descriptives d'un élève (id: 12345, nom: "foulen",
+        prenom: "foulani", age: 16)[cite: 7].
+      </li>
+      <li>
+        <strong
+          >3. Contenu affiché par
+          <code>eleve.nom + " " + eleve.prenom</code> :</strong
+        >
+        Affiche la concaténation du nom et du prénom séparés par un espace, soit
+        : <strong>foulen foulani</strong>[cite: 7].
+      </li>
+    </ul>
+
+    <div class="footer-page">
+      3ème Science Info - Lycée Rafèha | Corrigé TP4 JavaScript
+    </div>
+  </body>
+</html>

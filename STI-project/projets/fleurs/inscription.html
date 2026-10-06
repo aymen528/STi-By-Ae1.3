@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lycée Rafèha</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <form id="f" name="f" onSubmit="return verif()" action="ajout.php" method="get">
+      <center>
+        <table border="1">
+          <caption>
+            Veuillez remplir le formulaire Inscription
+          </caption>
+          <th colspan="4">Inscription</th>
+          <tr>
+            <td id="Civilite">
+              Civilité :
+              <ul class="sexe">
+                <li class="femme">
+                  <input type="radio" name="cv" class="cv1" id="" value="femme" />
+                  Femme
+                </li>
+                <li class="homme">
+                  <input type="radio" name="cv" class="cv1" id="" value="homme" />
+                  Homme
+                </li>
+              </ul>
+            </td>
+
+            <td colspan="2">
+              Nom &amp; Prénom :
+              <input name="np" type="text" id="np" value="[Entrer Votre nom SVP]" /><span id="npa"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Age:
+              <input
+                name="age"
+                type="range"
+                autofocus="autofocus"
+                id="age"
+                max="70"
+                min="10"
+                autocomplete="off"
+              />
+              <input name="affage" type="text" disabled id="affage" size="2" />
+            </td>
+
+            <td>
+              Tèl :
+              <input
+                name="tel"
+                type="text"
+                id="tel"
+                value="[le num de tel doit commencer par + ou par 00 suivi par 11 chiffres]"
+                size="60"
+              /><span id="tela"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              EMail:
+              <input name="mail" type="text" id="mail" value="[Votre adresse EMail SVP]" />
+              <span id="maila"></span>
+              Confirmation E-mail
+              <input type="text" name="mailc" id="mailc" />
+            </td>
+
+            <td>
+              Adresse et Nationnalité:
+              Ville
+              <label for="ville">:</label>
+              <select name="ville" id="ville">
+                <option value="0">Choisir Ville</option>
+                <optgroup label="Gov de Ariana">
+                  <option value="2005">Rafèha</option>
+                  <option value="2006">Mnihla</option>
+                </optgroup>
+                <optgroup label="Gov de Tunis">
+                  <option value="1000">TGM</option>
+                  <option value="1001">Beb Souika</option>
+                </optgroup>
+              </select>
+              <input type="button" name="aville" id="aville" value="Ajouter ville" />
+              <fieldset>
+                <legend>Votre <cite>Nationalité</cite></legend>
+                <input type="text" id="pays" list="Natioanilté" />
+                <datalist id="Natioanilté">
+                  <option value="Tunisienne">Tunisienne</option>
+                  <option value="Doublenat">Double Nationalité</option>
+                  <option value="etrangere">Etrangère</option>
+                </datalist>
+              </fieldset>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2">
+              Remarques:
+              <textarea name="rq" cols="60" rows="5" id="rq"></textarea>
+              Nombre caractères restants
+              <input name="nc" type="text" disabled="disabled" id="nc" size="2" value="30" />
+            </td>
+            <td>
+              <input name="accepter" type="checkbox" id="accepter" />
+              j'accepte les termes et conditions
+              <label for="accepter"></label>
+
+              <input name="envoyer" type="submit" disabled="disabled" id="envoyer" value="Envoyer" />
+              <input type="reset" name="annuler" id="annuler" value="Annuler" />
+            </td>
+          </tr>
+          <tfoot>
+            <td colspan="2">
+              <figure>
+                <figcaption><cite>Tous droits réservées par</cite> Lycée Rafèha</figcaption>
+                <video controls width="250">
+                  <source src="media/flower.webm" type="video/webm" />
+                  <source src="media/flower.webm" type="video/mp4" />
+                  Votre navigateur ne prend pas en charge les vidéos HTML5. Voici les liens de
+                  téléchargement
+                  <a href="/media/cc0-videos/flower.webm">WEBM</a>
+                  ou
+                  <a href="/media/cc0-videos/flower.mp4">MP4</a>
+                  video.
+                </video>
+              </figure>
+            </td>
+          </tfoot>
+        </table>
+      </center>
+    </form>
+    <script src="controle.js"></script>
+  </body>
+</html>

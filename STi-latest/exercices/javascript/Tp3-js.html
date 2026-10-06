@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <title>TP3 JavaScript - Énoncé</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+
+      /* En-tête officiel */
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+
+      /* Logo JS & Titre Principal */
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.5em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      .js-logo {
+        width: 42px;
+        height: 42px;
+        background: #f7df1e;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Titres des Activités */
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 22px;
+        margin-bottom: 10px;
+        border-radius: 0 4px 4px 0;
+      }
+
+      /* Blocs de code & Encadrés */
+      .code-box {
+        background-color: #f7fafc;
+        border: 1px solid #cbd5e0;
+        border-left: 4px solid #4a5568;
+        padding: 10px 14px;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.9em;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+
+      /* Tables */
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.85em;
+      }
+      table.data-table th,
+      table.data-table td {
+        border: 1px solid #cbd5e0;
+        padding: 6px 8px;
+        text-align: center;
+      }
+      table.data-table th {
+        background-color: #2b6cb0;
+        color: #fff;
+        font-weight: 600;
+      }
+      table.data-table tr:nth-child(even) {
+        background-color: #f7fafc;
+      }
+
+      ul,
+      ol {
+        margin-top: 5px;
+        margin-bottom: 8px;
+        padding-left: 22px;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../../cours/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">📚 Cours JavaScript</a><a href="../../quiz/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a><a href="../../exercices/series-exercices.html#javascript" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">≡ Séries</a></nav>
+
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A.E</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          TP N°3 : JavaScript<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Systèmes, Technologies & Internet</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          2026-2027<br /><span style="font-weight: normal; font-size: 0.9em"
+            >3<sup>ème</sup> Science Info</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="js-logo">JS</div>
+      <h1>Travaux Pratiques N°3</h1>
+    </div>
+
+    <p><strong>Objectifs de la séance :</strong></p>
+    <ul>
+      <li>
+        Manipulation des objets prédéfinis (`Date`, `String`, `Array`,
+        `Math`)[cite: 4].
+      </li>
+      <li>
+        Contrôles de saisie personnalisés et validation de formulaires HTML sans
+        expressions régulières (Regex)[cite: 4].
+      </li>
+      <li>
+        Gestion des structures conditionnelles et itératives en JavaScript[cite:
+        4].
+      </li>
+    </ul>
+
+    <h2>Activité 1 : Découverte des méthodes de l'objet Date</h2>
+    <p>
+      Taper et exécuter le script suivant, puis préciser le rôle de chaque
+      méthode employée :
+    </p>
+    <div class="code-box">
+      function Tester() {<br />
+      &nbsp;&nbsp;var d = new Date();<br />
+      &nbsp;&nbsp;alert(d); alert(d.getDay()); alert(d.getMonth());
+      alert(d.getFullYear());<br />
+      &nbsp;&nbsp;alert(d.getHours()); alert(d.getMinutes());
+      alert(d.getSeconds());<br />
+      &nbsp;&nbsp;alert(d.getTime()); alert(d.getDate()); alert(Date.now());<br />
+      }
+    </div>
+
+    <h2>Activité 2 : Calcul d'Âge et Prochain Anniversaire</h2>
+    <p>
+      Créer un formulaire permettant à l'utilisateur de saisir sa date de
+      naissance. Au clic sur le bouton "Calculer", afficher :
+    </p>
+    <ul>
+      <li>Son âge exact en années.</li>
+      <li>Le nombre de jours restants avant son prochain anniversaire.</li>
+    </ul>
+
+    <h2>Activité 3 : Suivi de Croissance d'un Bébé</h2>
+    <p>
+      Créer un formulaire recevant le genre (Fille / Garçon), l'âge (1 à 12
+      mois), le poids (kg) et la taille (cm) d'un bébé. Afficher le message
+      <strong>"Croissance Normale"</strong> ou
+      <strong>"Croissance Anormale"</strong> d'après le tableau de référence
+      ci-dessous :
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Âge (mois)</th>
+          <th colspan="2">Fille</th>
+          <th colspan="2">Garçon</th>
+        </tr>
+        <tr>
+          <th>Poids (kg)</th>
+          <th>Taille (cm)</th>
+          <th>Poids (kg)</th>
+          <th>Taille (cm)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>4.1</td>
+          <td>53.4</td>
+          <td>4.4</td>
+          <td>54.4</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>5.0</td>
+          <td>56.6</td>
+          <td>5.4</td>
+          <td>57.9</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>5.8</td>
+          <td>59.8</td>
+          <td>6.4</td>
+          <td>61.4</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>6.4</td>
+          <td>62.1</td>
+          <td>7.0</td>
+          <td>63.9</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>6.9</td>
+          <td>64.0</td>
+          <td>7.5</td>
+          <td>65.9</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>7.3</td>
+          <td>65.7</td>
+          <td>7.9</td>
+          <td>67.6</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>9.5</td>
+          <td>73.0</td>
+          <td>9.8</td>
+          <td>73.0</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>10.2</td>
+          <td>74.0</td>
+          <td>10.2</td>
+          <td>74.0</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>10.8</td>
+          <td>75.0</td>
+          <td>10.8</td>
+          <td>75.0</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>11.2</td>
+          <td>77.0</td>
+          <td>11.2</td>
+          <td>77.0</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>11.5</td>
+          <td>78.0</td>
+          <td>11.5</td>
+          <td>78.0</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>11.8</td>
+          <td>79.0</td>
+          <td>13.9</td>
+          <td>87.0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Activité 4 : Jeu de Devinette</h2>
+    <p>Concevoir une interface interactive pour un jeu de devinette :</p>
+    <ol>
+      <li>L'utilisateur saisit un nombre $N$ d'éléments ($6 \le N \le 10$).</li>
+      <li>
+        Le programme génère un tableau de $N$ entiers aléatoires uniques compris
+        entre 1 et 100, puis affiche le Min et le Max.
+      </li>
+      <li>
+        L'utilisateur devine un nombre : la page indique la liste générée et
+        affiche <strong>"Vous avez gagné"</strong> ou
+        <strong>"Vous avez perdu"</strong>.
+      </li>
+    </ol>
+
+    <h2>Activité 5 : Calculateur d'IMC</h2>
+    <p>
+      Créer une interface calculant l'Indice de Masse Corporelle ($\text{IMC} =
+      \text{Poids} / \text{Taille}^2$) et affichant le bilan médical. Assurer le
+      contrôle de saisie des données numériques.
+    </p>
+
+    <h2>Activité 6 : Générateur Automatique de Mot de Passe (Sans Regex)</h2>
+    <p>
+      Créer un formulaire d'inscription. Contrôler l'adresse e-mail en utilisant
+      uniquement les méthodes de l'objet <code>String</code> :
+    </p>
+    <ul>
+      <li>Contient un seul symbole `@`.</li>
+      <li>
+        L'identifiant comporte au moins 6 caractères, contient exactement un
+        point `.`, et commence/finit obligatoirement par une lettre.
+      </li>
+    </ul>
+    <p>
+      <strong>Calcul du mot de passe :</strong>
+      <code>ch1 + ch2 + ch3 + posPoint</code> (avec <code>ch1</code> = Année de
+      naissance, <code>ch2</code> = Identifiant en majuscules,
+      <code>ch3</code> = <code>ch2</code> avec dernier caractère remplacé par
+      'F', et <code>posPoint</code> = indice du dernier point de l'e-mail).
+    </p>
+
+    <h2>Activité 7 : Correction Automatique d'Examen</h2>
+    <p>
+      Concevoir la page <code>Examen.html</code> (CIN, Nom, Prénom, 3 questions
+      QCM). La fonction <code>verif()</code> doit :
+    </p>
+    <ul>
+      <li>
+        Vérifier sans Regex que le CIN comprend 8 chiffres exacts et que
+        Nom/Prénom contiennent uniquement des lettres.
+      </li>
+      <li>
+        Calculer et afficher dans un message le nombre de réponses correctes et
+        incorrectes.
+      </li>
+    </ul>
+
+    <h2>Activité 8 : Calculateur de Moyenne STI</h2>
+    <p>
+      Calculer la moyenne trimestrielle ($\text{Moy} = \frac{\text{DC1} +
+      \text{DC2} + 2 \times \text{DS}}{4}$) et afficher automatiquement la
+      mention.
+    </p>
+
+    <div class="footer-page">
+      3ème Science Info - Lycée Rafèha | TP3 JavaScript
+    </div>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tunisie Explorer — Site pédagogique HTML5 &amp; CSS3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #eef1fb;
+        color: #1c2440;
+        font-family: "Inter", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Poppins", system-ui, sans-serif;
+      }
+      .mono {
+        font-family: "Fira Code", ui-monospace, Consolas, monospace;
+      }
+
+      /* ===== HEADER : fond image + dégradé + animation ===== */
+      header {
+        background: linear-gradient(
+            rgba(15, 28, 71, 0.86),
+            rgba(15, 28, 71, 0.94)
+          ),
+          url("images/nord.jpg") center / cover no-repeat;
+        color: #fff;
+        padding: 40px 0 34px;
+        animation: entete 0.9s ease-out;
+      }
+      @keyframes entete {
+        from {
+          opacity: 0;
+          transform: translateY(-16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .head-in {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 22px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        width: 66px;
+        height: 66px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #d6336c, #a11b4e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        transform: rotate(-5deg);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+      }
+      header h1 {
+        margin: 0;
+        font-size: clamp(24px, 4vw, 36px);
+        font-weight: 800;
+        text-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+      }
+      .sous-titre {
+        margin: 6px 0 0;
+        color: #c6d0f0;
+        font-size: 13.5px;
+      }
+      .soleil {
+        margin-left: auto;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ffd86b 20%, #ff9d3d 70%);
+        animation: tourner 9s linear infinite;
+        box-shadow: 0 0 26px rgba(255, 200, 80, 0.7);
+      }
+      @keyframes tourner {
+        from {
+          transform: rotate(0deg) scale(1);
+        }
+        50% {
+          transform: rotate(180deg) scale(1.08);
+        }
+        to {
+          transform: rotate(360deg) scale(1);
+        }
+      }
+
+      /* ===== NAV : sticky + liens LoVe/HAte ===== */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #0f1c47;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding: 10px 18px;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(15, 28, 71, 0.35);
+      }
+      nav a {
+        display: inline-block;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 7px 14px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+      nav a:link {
+        color: #fff;
+      }
+      nav a:visited {
+        color: #e3d1ff;
+      }
+      nav a:hover {
+        background: #243a8a;
+        color: #ffd86b;
+        transform: translateY(-2px);
+      }
+      nav a:active {
+        background: #d6336c;
+        color: #fff;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 26px 22px 10px;
+      }
+      section {
+        margin-bottom: 44px;
+      }
+      .titre-sec {
+        font-size: 21px;
+        font-weight: 700;
+        color: #0f1c47;
+        margin: 0 0 4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .titre-sec::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #dfe3f3;
+      }
+      .intro-sec {
+        font-size: 13px;
+        color: #5b6584;
+        margin: 4px 0 16px;
+      }
+
+      /* ===== HERO ===== */
+      .hero {
+        display: flex;
+        gap: 26px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .hero-txt {
+        flex: 1 1 380px;
+      }
+      .hero-txt h2 {
+        font-size: clamp(22px, 3.2vw, 30px);
+        margin: 0 0 10px;
+        text-shadow: 2px 3px 6px rgba(15, 28, 71, 0.18);
+      }
+      .hero-txt p::first-letter {
+        font-size: 2.1em;
+        font-weight: 800;
+        color: #d6336c;
+      }
+      .hero-txt p {
+        font-size: 14px;
+        line-height: 1.65;
+        color: #3c4560;
+      }
+      .btn {
+        display: inline-block;
+        background: #0f1c47;
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 700;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        box-shadow: 0 5px 14px rgba(15, 28, 71, 0.25);
+      }
+      .btn:hover {
+        background: #d6336c;
+        transform: translateY(-3px) scale(1.04);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .hero-img {
+        flex: 0 1 330px;
+        position: relative;
+      }
+      .hero-img img {
+        width: 100%;
+        border-radius: 22px;
+        background: #fff;
+        padding: 10px;
+        box-shadow: 0 14px 34px rgba(15, 28, 71, 0.25);
+        animation: flotter 5s ease-in-out infinite;
+      }
+      @keyframes flotter {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .badge-promo {
+        position: absolute;
+        top: -10px;
+        right: -8px;
+        background: #e2691a;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        transform: rotate(8deg);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+      }
+
+      /* ===== CARTE + IFRAME ===== */
+      .carte-zone {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .carte-main {
+        flex: 1 1 560px;
+      }
+      .liens-regions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .btn-region {
+        display: inline-block;
+        text-decoration: none;
+        color: #0f1c47;
+        background: #fff;
+        border: 2px solid #29abe2;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 700;
+        transition: background-color 0.3s ease, color 0.3s ease,
+          transform 0.3s ease;
+      }
+      .btn-region:hover {
+        background: #29abe2;
+        color: #fff;
+        transform: translateY(-2px);
+      }
+      .btn-region:active {
+        background: #d6336c;
+        border-color: #d6336c;
+        color: #fff;
+      }
+      iframe.cadre {
+        width: 100%;
+        height: 430px;
+        border: none;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 10px 26px rgba(15, 28, 71, 0.18);
+        overflow: hidden;
+      }
+      aside {
+        flex: 1 1 240px;
+        background: #fff5e0;
+        border: 1px solid #f3e3ae;
+        border-radius: 16px;
+        padding: 16px 18px;
+      }
+      aside h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: #8a5a00;
+      }
+      aside ul {
+        margin: 0;
+        padding-left: 20px;
+        list-style-type: square;
+        font-size: 12.5px;
+        line-height: 1.7;
+        color: #5c4a17;
+      }
+      aside details {
+        margin-top: 12px;
+        font-size: 12.5px;
+        color: #5c4a17;
+      }
+      aside summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .code-note {
+        display: inline-block;
+        margin-top: 10px;
+        background: #141a2e;
+        color: #9fe3c2;
+        font-family: "Fira Code", monospace;
+        font-size: 11px;
+        padding: 6px 10px;
+        border-radius: 8px;
+      }
+
+      /* ===== GALERIE : transformations sur images ===== */
+      .galerie {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .galerie figure {
+        flex: 1 1 260px;
+        margin: 0;
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(15, 28, 71, 0.12);
+        position: relative;
+      }
+      .galerie img {
+        display: block;
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+        transition: transform 0.55s ease, opacity 0.55s ease;
+      }
+      .galerie figure figcaption {
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #3c4560;
+      }
+      .galerie figure figcaption .mono {
+        display: block;
+        font-size: 10.5px;
+        color: #6c4fe0;
+        margin-top: 2px;
+      }
+      .tr-rot:hover img {
+        transform: rotate(3deg) scale(1.12);
+      }
+      .tr-zoom:hover img {
+        transform: scale(1.18) translateY(-6px);
+        opacity: 0.92;
+      }
+      .tr-skew:hover img {
+        transform: skew(-4deg) scale(1.08);
+      }
+      .etiquette {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(15, 28, 71, 0.8);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+
+      /* ===== EFFETS : transitions & animations ===== */
+      .effets {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .carte-effet {
+        flex: 1 1 220px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #dfe3f3;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        text-align: center;
+      }
+      .carte-effet h3 {
+        margin: 0;
+        font-size: 13.5px;
+      }
+      .carte-effet p {
+        margin: 0;
+        font-size: 11.5px;
+        color: #5b6584;
+      }
+      .demo-trans {
+        width: 110px;
+        height: 56px;
+        background: #29abe2;
+        color: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        transition: background-color 0.4s ease, transform 0.4s ease,
+          border-radius 0.4s ease;
+        cursor: pointer;
+      }
+      .demo-trans:hover {
+        background: #ff6a3d;
+        transform: rotate(6deg) scale(1.15);
+        border-radius: 28px;
+      }
+      .demo-an {
+        width: 110px;
+        height: 56px;
+        color: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        animation: pulsation 2.6s ease-in-out infinite;
+      }
+      @keyframes pulsation {
+        0%,
+        100% {
+          background-color: #6c4fe0;
+          transform: scale(0.97);
+        }
+        50% {
+          background-color: #2ecc91;
+          transform: scale(1.06);
+        }
+      }
+      .demo-transl {
+        width: 110px;
+        height: 56px;
+        background: #0e9e86;
+        color: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        transition: transform 0.4s ease;
+        cursor: pointer;
+      }
+      .demo-transl:hover {
+        transform: translate(14px, -8px);
+      }
+      .compteur-btn {
+        background: #d6336c;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 14px 22px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      .compteur-btn:hover {
+        transform: scale(1.07);
+      }
+      .compteur-btn:active {
+        transform: scale(0.94);
+      }
+
+      /* ===== MÉDIAS ===== */
+      .medias {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .media-box {
+        flex: 1 1 320px;
+      }
+      .media-box figure {
+        margin: 0;
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(15, 28, 71, 0.12);
+      }
+      .media-box video {
+        display: block;
+        width: 100%;
+        background: #000;
+      }
+      .media-box figcaption {
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .etat-media {
+        display: block;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #0e9e86;
+        font-weight: 700;
+      }
+      audio {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      /* ===== RECONNAISSANCE FACIALE ===== */
+      .visage {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .scan-box {
+        position: relative;
+        flex: 0 1 280px;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(15, 28, 71, 0.25);
+      }
+      .scan-box img {
+        display: block;
+        width: 100%;
+        transition: transform 0.5s ease;
+      }
+      .scan-box:hover img {
+        transform: scale(1.05);
+      }
+      .scan-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 4px;
+        display: none;
+        background: #2ecc91;
+        box-shadow: 0 0 18px 4px rgba(46, 204, 145, 0.8);
+      }
+      .scan-box.on .scan-bar {
+        display: block;
+        animation: scan 1.1s ease-in-out 2;
+      }
+      @keyframes scan {
+        from {
+          top: 0;
+        }
+        to {
+          top: 100%;
+        }
+      }
+      .coins {
+        position: absolute;
+        inset: 12px;
+        border: 3px solid rgba(46, 204, 145, 0);
+        border-radius: 14px;
+        transition: border-color 0.6s ease;
+      }
+      .scan-box.on .coins {
+        border-color: rgba(46, 204, 145, 0.9);
+      }
+      .visage-txt {
+        flex: 1 1 340px;
+      }
+      .visage-txt h3 {
+        margin: 0 0 6px;
+        font-size: 16px;
+      }
+      .visage-txt p {
+        font-size: 13px;
+        line-height: 1.6;
+        color: #3c4560;
+      }
+      .res-scan {
+        display: block;
+        margin-top: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0e9e86;
+        min-height: 20px;
+      }
+
+      /* ===== FORMULAIRE ===== */
+      form.voyage {
+        background: #fff;
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgba(15, 28, 71, 0.12);
+      }
+      fieldset {
+        border: 1px solid #dfe3f3;
+        border-radius: 12px;
+        margin: 0 0 16px;
+        padding: 14px 16px;
+      }
+      legend {
+        font-weight: 700;
+        font-size: 13px;
+        color: #0f1c47;
+        padding: 0 8px;
+      }
+      .ligne {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+      .champ {
+        flex: 1 1 200px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #3c4560;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 9px 10px;
+        font-size: 13px;
+        border: 1px solid #c9d2ef;
+        border-radius: 8px;
+        background: #fafbff;
+        color: #1c2440;
+        transition: box-shadow 0.3s ease, background-color 0.3s ease;
+      }
+      input:hover,
+      select:hover,
+      textarea:hover {
+        background: #f1f4ff;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(41, 171, 226, 0.35);
+        background: #fff;
+      }
+      input[required] {
+        border-left: 4px solid #e2691a;
+      }
+      input[type="color"] {
+        height: 40px;
+        padding: 4px;
+      }
+      input[type="range"],
+      input[type="checkbox"],
+      input[type="radio"] {
+        width: auto;
+      }
+      .cases {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 13px;
+      }
+      .cases label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        font-weight: 500;
+      }
+      input[type="submit"] {
+        background: #0f1c47;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        padding: 12px 26px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+      input[type="submit"]:hover {
+        background: #2e86de;
+        transform: translateY(-2px);
+      }
+      input[type="reset"] {
+        background: #f0f2f5;
+        color: #5b6584;
+        border: none;
+        font-weight: 700;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      input[type="reset"]:hover {
+        background: #dde3f5;
+      }
+      button.secondaire {
+        background: #6c4fe0;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        padding: 12px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      output {
+        display: inline-block;
+        background: #eaf4fd;
+        color: #2e86de;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        margin-left: 8px;
+      }
+      .msg-form {
+        display: block;
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #0e9e86;
+        min-height: 18px;
+      }
+
+      /* ===== FOOTER + lien fixe ===== */
+      footer {
+        background: #0f1c47;
+        color: #fff;
+        margin-top: 30px;
+        padding: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      footer a {
+        color: #ffd86b;
+      }
+      .pied-nom {
+        font-family: "Poppins";
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .pied-fin {
+        background: rgba(255, 255, 255, 0.12);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12.5px;
+      }
+      .haut-fix {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 60;
+        background: #d6336c;
+        color: #fff;
+        text-decoration: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, background-color 0.3s ease;
+      }
+      .haut-fix:hover {
+        transform: translateY(-4px) scale(1.08);
+        background: #e2691a;
+      }
+
+      @media (max-width: 700px) {
+        .soleil {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body
+    onload="document.getElementById('msg-load').textContent='✔ onload : la page est complètement chargée à ' + new Date().toLocaleTimeString()"
+  >
+    <header>
+      <div class="head-in">
+        <div class="badge">🐪</div>
+        <div>
+          <h1>Tunisie Explorer</h1>
+          <p class="sous-titre">
+            Site pédagogique construit uniquement avec les balises &amp;
+            propriétés des fiches HTML5 et CSS3 —
+            <span id="msg-load">Chargement…</span>
+          </p>
+        </div>
+        <div
+          class="soleil"
+          title="Animation @keyframes : rotation infinie"
+        ></div>
+      </div>
+    </header>
+
+    <nav>
+      <a href="#accueil">🏠 Accueil</a>
+      <a href="#carte">🗺️ Carte &amp; iframe</a>
+      <a href="#galerie">🖼️ Galerie (transform)</a>
+      <a href="#effets">✨ Transitions &amp; animations</a>
+      <a href="#media">🎬 Vidéo &amp; audio</a>
+      <a href="#visage">🤳 Reconnaissance faciale</a>
+      <a href="#formulaire">📝 Formulaire complet</a>
+    </nav>
+
+    <main>
+      <!-- ===== HERO ===== -->
+      <section id="accueil">
+        <div class="hero">
+          <div class="hero-txt">
+            <h2>De Carthage aux dunes du Sahara</h2>
+            <p>
+              Explorez la Tunisie région par région : chargez chaque destination
+              dans l'iframe de la carte, admirez la galerie qui pivote, zoom et
+              s'incline au survol, puis planifiez votre voyage avec le
+              formulaire le plus complet du cours — tous les types de champs y
+              sont !
+            </p>
+            <a class="btn" href="#carte">Découvrir la carte</a>
+            <a
+              class="btn"
+              href="#formulaire"
+              style="background: #e2691a; margin-left: 8px"
+              >Planifier mon voyage</a
+            >
+          </div>
+          <div class="hero-img">
+            <img
+              src="images/carte-tunisie.png"
+              alt="Carte stylisée de la Tunisie"
+              title="La Tunisie, du Nord au Sud"
+            />
+            <span class="badge-promo"> 3 régions</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CARTE + IFRAME ===== -->
+      <section id="carte">
+        <h2 class="titre-sec">🗺️ La carte chargée dans un iframe</h2>
+        <p class="intro-sec">
+          Chaque lien ci-dessous ouvre sa page <b>dans le cadre</b> grâce à
+          l'attribut <b>target="carte"</b> qui pointe sur le nom de l'iframe.
+        </p>
+        <div class="carte-zone">
+          <div class="carte-main">
+            <div class="liens-regions">
+              <a class="btn-region" href="pages/accueil.html" target="carte">
+                Accueil carte</a
+              >
+              <a class="btn-region" href="pages/nord.html" target="carte"
+                >🏛️ Nord</a
+              >
+              <a class="btn-region" href="pages/centre.html" target="carte"
+                >🏺 Centre</a
+              >
+              <a class="btn-region" href="pages/sud.html" target="carte"
+                >🏜️ Sud</a
+              >
+            </div>
+            <iframe
+              class="cadre"
+              id="carte-frame"
+              name="carte"
+              src="pages/accueil.html"
+              title="Carte des régions de Tunisie"
+            ></iframe>
+            <span class="code-note"
+              >&lt;a href="pages/nord.html" target="carte"&gt;</span
+            >
+          </div>
+          <aside>
+            <h3>⭐ Le saviez-vous ?</h3>
+            <ul>
+              <li>
+                La Tunisie compte <b>1 300 km</b> de côtes méditerranéennes.
+              </li>
+              <li>El Jem est l'un des 3 plus grands amphithéâtres romains.</li>
+              <li>Le désert couvre près de <b>40 %</b> du territoire.</li>
+            </ul>
+            <details>
+              <summary>💡 Astuce target=</summary>
+              <p>
+                <b>_blank</b> : nouvel onglet · <b>_self</b> : même onglet ·
+                <b>nom d'iframe</b> : charge la page dans ce cadre.
+              </p>
+            </details>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ===== GALERIE ===== -->
+      <section id="galerie">
+        <h2 class="titre-sec">🖼️ Galerie — transform sur les images</h2>
+        <p class="intro-sec">
+          Survolez chaque photo : une transformation différente est appliquée
+          avec une transition douce.
+        </p>
+        <div class="galerie">
+          <figure class="tr-rot">
+            <span class="etiquette">📍 Nord</span>
+            <img src="images/nord.jpg" alt="Sidi Bou Saïd" />
+            <figcaption>
+              Sidi Bou Saïd<span class="mono">rotate(3deg) scale(1.12)</span>
+            </figcaption>
+          </figure>
+          <figure class="tr-zoom">
+            <span class="etiquette">📍 Centre</span>
+            <img src="images/centre.jpg" alt="Amphithéâtre d'El Jem" />
+            <figcaption>
+              El Jem<span class="mono">scale(1.18) translateY(-6px)</span>
+            </figcaption>
+          </figure>
+          <figure class="tr-skew">
+            <span class="etiquette">📍 Sud</span>
+            <img src="images/sud.jpg" alt="Dunes du Sahara" />
+            <figcaption>
+              Dunes de Tozeur<span class="mono">skew(-4deg) scale(1.08)</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ===== EFFETS ===== -->
+      <section id="effets">
+        <h2 class="titre-sec">✨ Transitions &amp; animations</h2>
+        <p class="intro-sec">
+          Quatre démonstrations : transition au survol, animation infinie,
+          translation et événement onclick.
+        </p>
+        <div class="effets">
+          <article class="carte-effet">
+            <h3>Transition</h3>
+            <div class="demo-trans">Survolez-moi</div>
+            <p class="mono">transition .4s ease</p>
+          </article>
+          <article class="carte-effet">
+            <h3>Animation ∞</h3>
+            <div class="demo-an">Pulsation</div>
+            <p class="mono">@keyframes pulsation</p>
+          </article>
+          <article class="carte-effet">
+            <h3>Translation</h3>
+            <div class="demo-transl">translate()</div>
+            <p class="mono">translate(14px, -8px)</p>
+          </article>
+          <article class="carte-effet">
+            <h3>Événement onclick</h3>
+            <button
+              class="compteur-btn"
+              onclick="var n=(parseInt(this.dataset.n)||0)+1;this.dataset.n=n;document.getElementById('nb-clics').textContent='❤️ Merci ! '+n+' vote(s)'"
+            >
+              ❤️ J'aime ce site
+            </button>
+            <p id="nb-clics">❤️ 0 j'aime(s)</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===== MÉDIAS ===== -->
+      <section id="media">
+        <h2 class="titre-sec">🎬 Vidéo &amp; audio + événements</h2>
+        <p class="intro-sec">
+          Lancez ou mettez en pause la vidéo : les événements <b>onplay</b> et
+          <b>onpause</b> réagissent en direct.
+        </p>
+        <div class="medias">
+          <div class="media-box">
+            <figure>
+              <video
+                controls
+                poster="images/nord.jpg"
+                onplay="document.getElementById('etat-video').textContent='▶ onplay : la lecture a commencé'"
+                onpause="document.getElementById('etat-video').textContent='⏸ onpause : la vidéo est en pause'"
+              >
+                <source src="images/sidibou.mp4" type="video/mp4" />
+                Votre navigateur ne prend pas en charge la balise vidéo.
+              </video>
+              <figcaption>
+                Vidéo de démonstration (Sidi Bou Said en timelapse)
+              </figcaption>
+            </figure>
+            <span class="etat-media" id="etat-video"
+              >⏳ En attente de lecture…</span
+            >
+          </div>
+          <div class="media-box">
+            <p style="margin: 0 0 6px; font-size: 13px; font-weight: 600">
+              🎧 Audio de démonstration :
+            </p>
+            <audio controls>
+              <source src="images/oud-c-arabian.mp3" type="audio/mpeg" />
+              Votre navigateur ne prend pas en charge la balise audio.
+            </audio>
+            <p style="font-size: 12px; color: #5b6584; margin-top: 8px">
+              Astuce : la même logique d'événements fonctionne sur l'audio
+              (onplay, onpause…).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== RECONNAISSANCE FACIALE ===== -->
+      <section id="visage">
+        <h2 class="titre-sec">🤳 Reconnaissance faciale (démo pédagogique)</h2>
+        <p class="intro-sec">
+          Une image + un événement <b>onclick</b> + une animation
+          <b>@keyframes</b> : un scan « reconnaissance faciale » simulé, sans
+          aucun traitement réel.
+        </p>
+        <div class="visage">
+          <div class="scan-box" id="scan-box">
+            <img
+              src="images/portrait.jpg"
+              alt="Portrait d'essai pour le scan"
+              onmouseover="document.getElementById('scan-conseil').textContent='🖱️ onmouseover : portrait survolé'"
+              onmouseout="document.getElementById('scan-conseil').textContent='🖱️ onmouseout : survol terminé'"
+            />
+            <div class="scan-bar"></div>
+            <div class="coins"></div>
+          </div>
+          <div class="visage-txt">
+            <h3>Analyser le portrait</h3>
+            <p>
+              Cliquez sur « Lancer l'analyse » : une barre de scan verte balaye
+              l'image (animation <span class="mono">scan</span>) puis un cadre
+              de détection apparaît. Vous pouvez aussi charger
+              <b>votre propre photo</b> avec le champ
+              <span class="mono">type="file"</span> du formulaire ci-dessous.
+            </p>
+            <button
+              class="compteur-btn"
+              style="background: #0e9e86"
+              onclick="var b=document.getElementById('scan-box');b.classList.add('on');document.getElementById('res-scan').textContent='🔎 Analyse en cours…';setTimeout(function(){document.getElementById('res-scan').textContent='✔ Visage détecté : 1 — confiance 98 % (simulation)';},2400)"
+            >
+              🔎 Lancer l'analyse
+            </button>
+            <button
+              class="compteur-btn"
+              style="background: #5b6584; margin-left: 8px"
+              onclick="document.getElementById('scan-box').classList.remove('on');document.getElementById('res-scan').textContent='Analyse réinitialisée.'"
+            >
+              ↺ Réinitialiser
+            </button>
+            <span class="res-scan" id="res-scan"></span>
+            <span
+              style="
+                display: block;
+                margin-top: 4px;
+                font-size: 11.5px;
+                color: #5b6584;
+              "
+              id="scan-conseil"
+              >🖱️ Survolez le portrait pour tester onmouseover/onmouseout</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FORMULAIRE ===== -->
+      <section id="formulaire">
+        <h2 class="titre-sec">📝 Formulaire : tous les types de champs</h2>
+        <p class="intro-sec">
+          Les <b>20 types</b> d'<span class="mono">&lt;input&gt;</span> des
+          fiches, plus <span class="mono">select</span>,
+          <span class="mono">textarea</span>,
+          <span class="mono">datalist</span> et
+          <span class="mono">output</span>.
+        </p>
+        <form
+          class="voyage"
+          onsubmit="document.getElementById('msg-form').textContent='✔ onsubmit : demande « '+document.getElementById('f-nom').value+' » envoyée (démonstration, aucun envoi réel)';return false"
+        >
+          <fieldset>
+            <legend>👤 Vos coordonnées</legend>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-nom">Nom complet (text, required)</label>
+                <input
+                  type="text"
+                  id="f-nom"
+                  required
+                  placeholder="Ex : Mohamed Ben Ali"
+                  title="Votre nom complet"
+                  onfocus="document.getElementById('aide-nom').textContent='✔ onfocus : champ actif'"
+                  onblur="document.getElementById('aide-nom').textContent='✔ onblur : champ quitté'"
+                />
+                <span
+                  style="font-size: 11px; color: #0e9e86; font-weight: 600"
+                  id="aide-nom"
+                  >Cliquez dans le champ…</span
+                >
+              </div>
+              <div class="champ">
+                <label for="f-email">E-mail (email, required)</label>
+                <input
+                  type="email"
+                  id="f-email"
+                  required
+                  placeholder="vous@exemple.tn"
+                />
+              </div>
+              <div class="champ">
+                <label for="f-pwd">Mot de passe (password)</label>
+                <input type="password" id="f-pwd" placeholder="••••••••" />
+              </div>
+            </div>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-tel">Téléphone (tel)</label>
+                <input type="tel" id="f-tel" placeholder="71 123 456" />
+              </div>
+              <div class="champ">
+                <label for="f-url">Votre blog de voyage (url)</label>
+                <input type="url" id="f-url" placeholder="https://…" />
+              </div>
+              <div class="champ">
+                <label for="f-search"
+                  >Rechercher une destination (search + datalist)</label
+                >
+                <input
+                  type="search"
+                  id="f-search"
+                  list="destinations"
+                  placeholder="Tapez « Sidi »…"
+                />
+                <datalist id="destinations">
+                  <option value="Sidi Bou Saïd"></option>
+                  <option value="Tozeur"></option>
+                  <option value="Djerba"></option>
+                  <option value="Dougga"></option>
+                  <option value="Kairouan"></option>
+                  <option value="Matmata"></option>
+                </datalist>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>🧭 Votre voyage</legend>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-region"
+                  >Région (select — change aussi l'iframe !)</label
+                >
+                <select
+                  id="f-region"
+                  onchange="document.getElementById('carte-frame').src='pages/'+this.value+'.html';document.getElementById('choix-region').textContent='✔ onchange : la carte affiche « '+this.options[this.selectedIndex].text+' »'"
+                >
+                  <option value="accueil">— Choisir —</option>
+                  <option value="nord">Nord</option>
+                  <option value="centre">Centre</option>
+                  <option value="sud">Sud</option>
+                </select>
+                <span
+                  style="font-size: 11px; color: #0e9e86; font-weight: 600"
+                  id="choix-region"
+                  >Le choix met à jour la carte plus haut.</span
+                >
+              </div>
+              <div class="champ">
+                <label for="f-nb">Voyageurs (number, min 1, max 10)</label>
+                <input type="number" id="f-nb" min="1" max="10" value="2" />
+              </div>
+              <div class="champ">
+                <label for="f-budget"
+                  >Budget par personne (range + output)</label
+                >
+                <input
+                  type="range"
+                  id="f-budget"
+                  min="100"
+                  max="2000"
+                  step="50"
+                  value="600"
+                  oninput="document.getElementById('out-budget').value=this.value+' DT'"
+                />
+                <output id="out-budget" name="budget">600 DT</output>
+              </div>
+            </div>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-date">Départ (date)</label>
+                <input type="date" id="f-date" />
+              </div>
+              <div class="champ">
+                <label for="f-heure">Heure de prise en charge (time)</label>
+                <input type="time" id="f-heure" />
+              </div>
+              <div class="champ">
+                <label for="f-rdv">Rendez-vous agence (datetime-local)</label>
+                <input type="datetime-local" id="f-rdv" />
+              </div>
+            </div>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-mois">Mois souhaité (month)</label>
+                <input type="month" id="f-mois" />
+              </div>
+              <div class="champ">
+                <label for="f-semaine">Semaine souhaitée (week)</label>
+                <input type="week" id="f-semaine" />
+              </div>
+              <div class="champ">
+                <label for="f-couleur">Couleur de votre carnet (color)</label>
+                <input type="color" id="f-couleur" value="#d6336c" />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Préférences</legend>
+            <p style="font-size: 12.5px; font-weight: 600; margin: 0 0 6px">
+              Style de voyage (radio) :
+            </p>
+            <div class="cases" style="margin-bottom: 10px">
+              <label
+                ><input type="radio" name="style" value="plage" checked /> 🏖️
+                Plage</label
+              >
+              <label
+                ><input type="radio" name="style" value="desert" /> 🏜️
+                Désert</label
+              >
+              <label
+                ><input type="radio" name="style" value="culture" /> 🏛️
+                Culture</label
+              >
+            </div>
+            <p style="font-size: 12.5px; font-weight: 600; margin: 0 0 6px">
+              Options (checkbox) :
+            </p>
+            <div class="cases">
+              <label><input type="checkbox" checked /> Assurance voyage</label>
+              <label><input type="checkbox" /> Guide francophone</label>
+              <label><input type="checkbox" /> Nuit en bivouac</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>📎 Photo &amp; message</legend>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-photo">Votre photo pour le scan (file)</label>
+                <input
+                  type="file"
+                  id="f-photo"
+                  accept="image/*"
+                  onchange="var f=this.files[0];document.getElementById('fichier-msg').textContent=f?('📎 Fichier prêt : '+f.name):'Aucun fichier'"
+                />
+                <span
+                  style="font-size: 11px; color: #6c4fe0; font-weight: 600"
+                  id="fichier-msg"
+                  >Aucun fichier choisi</span
+                >
+              </div>
+              <div class="champ">
+                <label for="f-msg-txt">Votre message (textarea)</label>
+                <textarea
+                  id="f-msg-txt"
+                  rows="3"
+                  placeholder="Ex : je veux voir le désert au coucher du soleil…"
+                ></textarea>
+              </div>
+            </div>
+            <div class="ligne">
+              <div class="champ">
+                <label for="f-miroir"
+                  >Testez oninput : tapez, ça se recopie</label
+                >
+                <input
+                  type="text"
+                  id="f-miroir"
+                  placeholder="Tapez ici…"
+                  oninput="document.getElementById('miroir').textContent=this.value?('Miroir : « '+this.value+' »'):''"
+                />
+                <span
+                  style="font-size: 11.5px; color: #d6336c; font-weight: 700"
+                  id="miroir"
+                ></span>
+              </div>
+              <div class="champ">
+                <label for="f-touche">Testez onkeydown / onkeyup</label>
+                <input
+                  type="text"
+                  id="f-touche"
+                  placeholder="Pressez une touche…"
+                  onkeydown="document.getElementById('touche').textContent='⬇ onkeydown : « '+event.key+' »'"
+                  onkeyup="document.getElementById('touche').textContent='⬆ onkeyup : « '+event.key+' »'"
+                />
+                <span
+                  style="font-size: 11.5px; color: #0e9e86; font-weight: 700"
+                  id="touche"
+                ></span>
+              </div>
+            </div>
+          </fieldset>
+
+          <input type="submit" value="✈️ Envoyer ma demande" />
+          <input type="reset" value="🧽 Effacer" />
+          <button
+            type="button"
+            class="secondaire"
+            onclick="document.getElementById('msg-form').textContent='🔘 Bouton type=button pressé : aucune soumission.'"
+          >
+            🔘 Bouton secondaire
+          </button>
+          <span class="msg-form" id="msg-form"></span>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <div class="pied-nom">Tunisie Explorer</div>
+      <div>
+        Site pédagogique — balises HTML5 &amp; propriétés CSS3 des fiches
+        uniquement · <a href="#accueil">revenir en haut</a>
+      </div>
+      <div class="pied-fin">Bon voyage ! 🐪</div>
+    </footer>
+
+    <a class="haut-fix" href="#accueil" title="Haut de page (position: fixed)"
+      >⬆</a
+    >
+  </body>
+</html>

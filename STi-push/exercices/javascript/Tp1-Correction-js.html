@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" /><link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <title>TP1 JavaScript - Corrigé</title>
+    <style>
+      @page {
+        margin: 15mm;
+        size: A4;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #1a202c;
+        line-height: 1.4;
+        background-color: #fff;
+      }
+      .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      .header-table td {
+        border: 2px solid #1a365d;
+        padding: 8px 12px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .header-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #1a365d;
+      }
+      .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 20px 0;
+        border-bottom: 3px solid #1a365d;
+        padding-bottom: 10px;
+      }
+      .title-container h1 {
+        font-size: 1.4em;
+        color: #1a365d;
+        text-transform: uppercase;
+        margin: 0;
+      }
+      .js-logo {
+        width: 42px;
+        height: 42px;
+        background: #f7df1e;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 22px;
+        color: #000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        color: #2b6cb0;
+        background-color: #ebf8ff;
+        padding: 6px 12px;
+        font-size: 1.05em;
+        border-left: 5px solid #2b6cb0;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        border-radius: 0 4px 4px 0;
+      }
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 0.85em;
+      }
+      table.data-table th,
+      table.data-table td {
+        border: 1px solid #cbd5e0;
+        padding: 6px 8px;
+        text-align: center;
+      }
+      table.data-table th {
+        background-color: #2b6cb0;
+        color: #fff;
+        font-weight: 600;
+      }
+      table.data-table tr:nth-child(even) {
+        background-color: #f7fafc;
+      }
+      pre {
+        background-color: #2d3748;
+        color: #f7fafc;
+        padding: 12px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-family: "Consolas", "Courier New", monospace;
+        font-size: 0.85em;
+        margin: 8px 0;
+        border-left: 4px solid #3182ce;
+      }
+      ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
+      .footer-page {
+        text-align: right;
+        font-size: 0.8em;
+        color: #718096;
+        margin-top: 30px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../../cours/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">📚 Cours JavaScript</a><a href="../../quiz/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a><a href="../../exercices/series-exercices.html#javascript" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">≡ Séries</a></nav>
+
+    <table class="header-table">
+      <tr>
+        <td width="30%" class="header-title">
+          Lycée Rafèha<br /><span style="font-weight: normal; font-size: 0.9em"
+            >Prof : A.E</span
+          >
+        </td>
+        <td width="40%" class="header-title">
+          CORRIGÉ TP N°1 : JavaScript<br /><span
+            style="font-weight: normal; font-size: 0.85em"
+            >Systèmes, Technologies & Internet</span
+          >
+        </td>
+        <td width="30%" class="header-title">
+          2026-2027<br /><span style="font-weight: normal; font-size: 0.9em"
+            >3<sup>ème</sup> Science Info</span
+          >
+        </td>
+      </tr>
+    </table>
+
+    <div class="title-container">
+      <div class="js-logo">JS</div>
+      <h1>Corrigé Officiel TP N°1</h1>
+    </div>
+
+    <h2>Activité 1 : Généralités et Rôle de JavaScript</h2>
+    <ul>
+      <li>
+        <strong>Chemin critique du rendu :</strong> Le navigateur analyse
+        d'abord le HTML pour créer le <strong>DOM</strong> (Document Object
+        Model) et le CSS pour le <strong>CSSOM</strong>[cite: 5]. La combinaison
+        des deux produit l'arbre de rendu (<strong>Render Tree</strong>), qui
+        permet ensuite le calcul des positions (<em>Layout</em>) et le dessin à
+        l'écran (<em>Paint</em>)[cite: 5].
+      </li>
+      <li>
+        <strong>Rôle Côté Client :</strong> Manipule dynamiquement la structure
+        HTML et le CSS via l'API DOM, réagit aux événements utilisateur (clics,
+        survol) et contrôle la validité des données saisies dans les
+        formulaires[cite: 5].
+      </li>
+      <li>
+        <strong>Rôle Côté Serveur :</strong> Avec <strong>Node.js</strong>,
+        JavaScript peut aussi s'exécuter sur le serveur pour gérer les bases de
+        données, les accès fichiers et la logique métier[cite: 5].
+      </li>
+    </ul>
+
+    <h2>Activité 2 : Emplacement du Code & Analyse de la Figure</h2>
+    <ul>
+      <li>
+        <strong>Emplacement du Script :</strong> En-tête du document (entre les
+        balises <code>&lt;head&gt;</code> et <code>&lt;/head&gt;</code>)[cite:
+        5].
+      </li>
+      <li>
+        <strong>Déclenchement :</strong> Événement <code>onclick</code> situé
+        dans la balise HTML <code>&lt;a&gt;</code>[cite: 5].
+      </li>
+      <li>
+        <strong>Analyse de la figure :</strong>
+        <ul>
+          <li>
+            <code>&lt;script&gt; ... &lt;/script&gt;</code> : Balises
+            d'insertion du code JS[cite: 5].
+          </li>
+          <li>
+            <code>function action()</code> : Entête de déclaration d'une
+            fonction[cite: 5].
+          </li>
+          <li>
+            <code>var age = prompt(...)</code> : Déclaration d'une variable
+            locale et boîte de saisie interactive[cite: 5].
+          </li>
+          <li>
+            <code>if (...) { ... } else { ... }</code> : Structure
+            conditionnelle complète (Alternative)[cite: 5].
+          </li>
+          <li>
+            <code>alert(...)</code> : Boîte de dialogue d'affichage de message
+            d'avertissement[cite: 5].
+          </li>
+          <li>
+            <code>return true / return false</code> : Valeur de retour envoyée à
+            l'appelant[cite: 5].
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>Activité 3 : Structures et Opérateurs</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code / Instruction</th>
+          <th>Rôle / Nom de la structure</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>if (condition)</code></td>
+          <td>Structure conditionnelle simple (Si ... Alors)[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>if ... else</code></td>
+          <td>Structure conditionnelle alternative (Si ... Sinon)[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>switch ... case</code></td>
+          <td>Structure de choix multiple (Selon les cas)[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>for (...)</code></td>
+          <td>Boucle pour répéter un nombre déterminé de fois[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>do ... while</code></td>
+          <td>Boucle Répéter... Jusqu'à (au moins 1 exécution)[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>while (...)</code></td>
+          <td>Boucle Tant que (évaluation préalable)[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>function nom()</code></td>
+          <td>Déclaration d'une fonction personnalisée[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>prompt() / getElementById()</code></td>
+          <td>Instructions de lecture / entrée de données[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>alert() / write() / innerHTML</code></td>
+          <td>Instructions de sortie / affichage[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>parseInt(), Number(), String()</code></td>
+          <td>Fonctions de conversion de type[cite: 5]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Signe</th>
+          <th>Signification</th>
+          <th>Exemple</th>
+          <th>Résultat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>%</code></td>
+          <td>Modulo (reste de la division entière)[cite: 5]</td>
+          <td><code>4 % 3</code></td>
+          <td><strong>1</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>==</code></td>
+          <td>Test d'égalité de valeur[cite: 5]</td>
+          <td><code>4 == 3</code></td>
+          <td><strong>false</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>!=</code></td>
+          <td>Test de différence[cite: 5]</td>
+          <td><code>4 != 3</code></td>
+          <td><strong>true</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>&amp;&amp;</code></td>
+          <td>Opérateur logique ET[cite: 5]</td>
+          <td><code>(4 &gt; 0) &amp;&amp; (3 &gt; 0)</code></td>
+          <td><strong>true</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>||</code></td>
+          <td>Opérateur logique OU[cite: 5]</td>
+          <td><code>(4 == 0) || (3 &gt; 0)</code></td>
+          <td><strong>true</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>!</code></td>
+          <td>Opérateur logique NON[cite: 5]</td>
+          <td><code>!(4 == 3)</code></td>
+          <td><strong>true</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>x++</code></td>
+          <td>Incrémentation (ajoute 1)[cite: 5]</td>
+          <td><code>x = 4; y = x++;</code></td>
+          <td><strong>y = 4, x = 5</strong>[cite: 5]</td>
+        </tr>
+        <tr>
+          <td><code>+=</code></td>
+          <td>Affectation avec addition[cite: 5]</td>
+          <td><code>x = 4; x += 3;</code></td>
+          <td><strong>x = 7</strong>[cite: 5]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-page">
+      3ème Science Info - Lycée Rafèha | Corrigé TP1 JavaScript
+    </div>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

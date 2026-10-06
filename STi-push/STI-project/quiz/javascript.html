@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="../assets/images/lycee_logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz JavaScript - Testez vos connaissances</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f7df1e 0%, #f0db4f 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      /* Écran de transition avec logo JavaScript */
+      .splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f7df1e 0%, #f0db4f 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: opacity 0.8s ease, visibility 0.8s ease;
+      }
+
+      .splash-screen .js-logo {
+        text-align: center;
+        animation: pulse 1s ease infinite;
+      }
+
+      .splash-screen .js-logo span {
+        font-size: 6em;
+        display: block;
+        animation: bounce 0.8s ease;
+      }
+
+      .splash-screen .js-logo p {
+        font-size: 1.5em;
+        color: #323330;
+        margin-top: 20px;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.9);
+          opacity: 0.7;
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+
+      .splash-screen.fade-out {
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      /* Logo JS flottant à gauche */
+      .js-float-logo {
+        position: fixed;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 50%;
+        padding: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-align: center;
+      }
+
+      .js-float-logo:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .js-float-logo span {
+        font-size: 2.5em;
+        display: block;
+      }
+
+      .js-float-logo p {
+        font-size: 0.7em;
+        font-weight: bold;
+        color: #f7df1e;
+        margin-top: 5px;
+      }
+
+      .home-link img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      @media (max-width: 768px) {
+        .js-float-logo {
+          left: 5px;
+          padding: 8px;
+        }
+        .js-float-logo span {
+          font-size: 1.8em;
+        }
+        .js-float-logo p {
+          font-size: 0.6em;
+        }
+      }
+
+      .header {
+        background: linear-gradient(135deg, #323330 0%, #000000 100%);
+        color: #f7df1e;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+        color: white;
+      }
+
+      .home-link {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(247, 223, 30, 0.2);
+        color: #f7df1e;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .home-link:hover {
+        background: rgba(247, 223, 30, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .main-content {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .quiz-section {
+        flex: 2;
+        min-width: 300px;
+      }
+
+      .exercise-section {
+        flex: 1.2;
+        min-width: 320px;
+        background: #f8f9fa;
+        border-left: 2px solid #e0e0e0;
+        padding: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .category-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 0;
+        margin: 0;
+      }
+
+      .category-tab {
+        flex: 1;
+        padding: 12px 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        font-size: 0.8em;
+      }
+
+      .category-tab:hover {
+        background: #e9ecef;
+      }
+
+      .category-tab.active {
+        color: #f7df1e;
+        background: #323330;
+        border-bottom-color: #f7df1e;
+      }
+
+      .quiz-info {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 30px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .question-counter,
+      .score,
+      .category-name {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #323330;
+      }
+
+      .quiz-content {
+        padding: 30px;
+      }
+
+      .question-text {
+        font-size: 1.4em;
+        color: #333;
+        margin-bottom: 25px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      .options-list {
+        list-style: none;
+      }
+
+      .option-item {
+        background: #f8f9fa;
+        margin: 12px 0;
+        padding: 15px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        font-size: 1.05em;
+      }
+
+      .option-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .option-item.selected {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+      }
+
+      .radio-custom {
+        margin-right: 15px;
+        font-weight: bold;
+      }
+
+      .nav-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        gap: 15px;
+      }
+
+      button {
+        padding: 12px 30px;
+        font-size: 1em;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+      }
+
+      .btn-prev,
+      .btn-next {
+        background: #323330;
+        color: #f7df1e;
+      }
+
+      .btn-prev:hover,
+      .btn-next:hover {
+        background: #000000;
+        transform: translateY(-2px);
+      }
+
+      .btn-submit {
+        background: #28a745;
+        color: white;
+        flex: 1;
+      }
+
+      .btn-submit:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+
+      .btn-reset {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-reset:hover {
+        background: #c82333;
+      }
+
+      .result-container {
+        margin-top: 30px;
+        padding: 20px;
+        background: #e7f3ff;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .result-container.show {
+        display: block;
+        animation: slideIn 0.5s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .final-score {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #323330;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .feedback {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        display: none;
+      }
+
+      .feedback.show {
+        display: block;
+      }
+
+      .feedback.correct {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+
+      .feedback.wrong {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 3px;
+        background: #e0e0e0;
+        position: relative;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #f7df1e;
+        transition: width 0.3s ease;
+      }
+
+      /* Styles pour la section exercice */
+      .exercise-title {
+        color: #323330;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f7df1e;
+      }
+
+      .exercise-box {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .exercise-box h4 {
+        color: #323330;
+        margin-bottom: 10px;
+      }
+
+      .exercise-code {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 12px;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+        font-size: 0.85em;
+        overflow-x: auto;
+        margin: 10px 0;
+      }
+
+      .exercise-textarea {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        resize: vertical;
+      }
+
+      .exercise-btn {
+        background: #323330;
+        color: #f7df1e;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+        width: 100%;
+      }
+
+      .exercise-btn:hover {
+        background: #000000;
+      }
+
+      .exercise-result {
+        margin-top: 15px;
+        padding: 15px;
+        background: #e8f5e9;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+        font-family: monospace;
+        font-size: 0.9em;
+      }
+
+      .exercise-result.error {
+        background: #ffebee;
+        border-left-color: #dc3545;
+      }
+
+      @media (max-width: 900px) {
+        .main-content {
+          flex-direction: column;
+        }
+        .exercise-section {
+          border-left: none;
+          border-top: 2px solid #e0e0e0;
+          max-height: none;
+        }
+        .question-text {
+          font-size: 1.2em;
+        }
+        .option-item {
+          padding: 12px 15px;
+          font-size: 0.95em;
+        }
+        button {
+          padding: 10px 20px;
+        }
+        .category-tab {
+          font-size: 0.6em;
+          padding: 8px 4px;
+        }
+        .home-link {
+          position: static;
+          display: inline-block;
+          margin-bottom: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Écran de transition avec logo JavaScript -->
+    <div class="splash-screen" id="splashScreen">
+      <div class="js-logo">
+        <span>📜</span>
+        <p>JavaScript</p>
+      </div>
+    </div>
+
+    <!-- Logo JS flottant à gauche -->
+    <div class="js-float-logo" onclick="window.location.href='../index.html'">
+      <span>⚡📜</span>
+      <p>JS</p>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <a href="../index.html" class="home-link">
+          <img
+            src="../assets/images/lycee_logo.png"
+            alt="Logo Lycée"
+            onerror="this.src='https://via.placeholder.com/24?text=LR'"
+          />
+          Accueil
+        </a>
+        <h1>📜 Quiz JavaScript</h1>
+        <p>
+          Testez vos connaissances sur JavaScript et pratiquez avec des
+          exercices interactifs
+        </p>
+      </div>
+
+      <div class="main-content">
+        <div class="quiz-section">
+          <div class="category-tabs" id="categoryTabs">
+            <div class="category-tab active" data-category="general">
+              📚 Généralités
+            </div>
+            <div class="category-tab" data-category="chaines">📝 Chaînes</div>
+            <div class="category-tab" data-category="nombres">
+              🔢 Nombres & Math
+            </div>
+            <div class="category-tab" data-category="tableaux">📊 Tableaux</div>
+            <div class="category-tab" data-category="dates">📅 Dates</div>
+            <div class="category-tab" data-category="dom">🖱️ DOM</div>
+          </div>
+
+          <div class="quiz-info">
+            <div class="category-name" id="categoryName">📚 Généralités</div>
+            <div class="question-counter">
+              Question <span id="currentQuestion">1</span>/<span
+                id="totalQuestions"
+                >0</span
+              >
+            </div>
+            <div class="score">
+              Score: <span id="score">0</span>/<span id="maxScore">0</span>
+            </div>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="quiz-content">
+            <div class="question-text" id="questionText"></div>
+            <ul class="options-list" id="optionsList"></ul>
+            <div class="feedback" id="feedback"></div>
+            <div class="nav-buttons">
+              <button
+                class="btn-prev"
+                id="prevBtn"
+                onclick="previousQuestion()"
+              >
+                ◀ Précédent
+              </button>
+              <button class="btn-next" id="nextBtn" onclick="nextQuestion()">
+                Suivant ▶
+              </button>
+              <button
+                class="btn-submit"
+                id="submitBtn"
+                onclick="submitQuiz()"
+                style="display: none"
+              >
+                📊 Voir le résultat
+              </button>
+              <button class="btn-reset" onclick="resetQuiz()">
+                🔄 Recommencer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise-section">
+          <h3 class="exercise-title">💻 Exercices interactifs</h3>
+          <p style="margin-bottom: 15px; color: #666; font-size: 0.9em">
+            ✍️ Écrivez votre code dans chaque exercice, puis cliquez sur
+            "Exécuter" pour tester votre solution.
+          </p>
+
+          <!-- Exercice 1 : Conversion Celsius → Fahrenheit -->
+          <div class="exercise-box">
+            <h4>🌡️ Exercice 1 : Conversion Celsius → Fahrenheit</h4>
+            <p>Formule : °F = (°C × 9/5) + 32</p>
+            <div class="exercise-code">
+              function celsiusToFahrenheit(celsius) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici<br />
+              }<br /><br />
+              // Test : celsiusToFahrenheit(25) devrait retourner 77
+            </div>
+            <textarea
+              id="codeEx1"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(1)">
+              ▶ Exécuter l'exercice 1
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(1)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx1"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 2 : Calcul de l'âge -->
+          <div class="exercise-box">
+            <h4>🎂 Exercice 2 : Calculer l'âge</h4>
+            <div class="exercise-code">
+              function calculerAge(anneeNaissance) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici (utilisez new
+              Date().getFullYear())<br />
+              }<br /><br />
+              // Test : calculerAge(2000) devrait retourner l'âge actuel
+            </div>
+            <textarea
+              id="codeEx2"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(2)">
+              ▶ Exécuter l'exercice 2
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(2)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx2"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 3 : Pair ou Impair -->
+          <div class="exercise-box">
+            <h4>🔢 Exercice 3 : Pair ou Impair</h4>
+            <div class="exercise-code">
+              function estPairOuImpair(nombre) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici (retourner "Pair" ou
+              "Impair")<br />
+              }<br /><br />
+              // Test : estPairOuImpair(7) devrait retourner "Impair"
+            </div>
+            <textarea
+              id="codeEx3"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(3)">
+              ▶ Exécuter l'exercice 3
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(3)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx3"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 4 : Compteur de caractères -->
+          <div class="exercise-box">
+            <h4>📝 Exercice 4 : Compteur de caractères</h4>
+            <div class="exercise-code">
+              function compterCaracteres(phrase) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici (compter sans les
+              espaces)<br />
+              }<br /><br />
+              // Test : compterCaracteres("Bonjour le monde") devrait retourner
+              14
+            </div>
+            <textarea
+              id="codeEx4"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(4)">
+              ▶ Exécuter l'exercice 4
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(4)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx4"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 5 : Table de multiplication -->
+          <div class="exercise-box">
+            <h4>✖️ Exercice 5 : Table de multiplication</h4>
+            <div class="exercise-code">
+              function tableMultiplication(n) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici (afficher n x 1 à n x
+              10)<br />
+              }<br /><br />
+              // Test : tableMultiplication(5)
+            </div>
+            <textarea
+              id="codeEx5"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(5)">
+              ▶ Exécuter l'exercice 5
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(5)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx5"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 6 : Palindrome -->
+          <div class="exercise-box">
+            <h4>🔄 Exercice 6 : Vérificateur de palindrome</h4>
+            <div class="exercise-code">
+              function estPalindrome(mot) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Votre code ici (retourner true ou
+              false)<br />
+              }<br /><br />
+              // Test : estPalindrome("radar") devrait retourner true
+            </div>
+            <textarea
+              id="codeEx6"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(6)">
+              ▶ Exécuter l'exercice 6
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(6)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx6"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 7 : parseInt() -->
+          <div class="exercise-box">
+            <h4>🔢 Exercice 7 : parseInt()</h4>
+            <div class="exercise-code">
+              function extraireEntier(chaine) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Utilisez parseInt()<br />
+              }<br /><br />
+              // Test : extraireEntier("42px") devrait retourner 42
+            </div>
+            <textarea
+              id="codeEx7"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(7)">
+              ▶ Exécuter l'exercice 7
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(7)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx7"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 8 : parseFloat() -->
+          <div class="exercise-box">
+            <h4>💧 Exercice 8 : parseFloat()</h4>
+            <div class="exercise-code">
+              function extraireDecimal(chaine) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Utilisez parseFloat()<br />
+              }<br /><br />
+              // Test : extraireDecimal("3.14abc") devrait retourner 3.14
+            </div>
+            <textarea
+              id="codeEx8"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(8)">
+              ▶ Exécuter l'exercice 8
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(8)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx8"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 9 : Number() -->
+          <div class="exercise-box">
+            <h4>🔢 Exercice 9 : Number()</h4>
+            <div class="exercise-code">
+              function convertirEnNombre(valeur) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Utilisez Number()<br />
+              }<br /><br />
+              // Test : convertirEnNombre("42") devrait retourner 42
+            </div>
+            <textarea
+              id="codeEx9"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(9)">
+              ▶ Exécuter l'exercice 9
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(9)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx9"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 10 : Validation email -->
+          <div class="exercise-box">
+            <h4>📧 Exercice 10 : Validation d'email</h4>
+            <div class="exercise-code">
+              function estEmailValide(email) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Vérifiez @ et un point après (sans
+              regex)<br />
+              }<br /><br />
+              // Test : estEmailValide("test@gmail.com") devrait retourner true
+            </div>
+            <textarea
+              id="codeEx10"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(10)">
+              ▶ Exécuter l'exercice 10
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(10)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx10"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 11 : Validation mot de passe -->
+          <div class="exercise-box">
+            <h4>🔒 Exercice 11 : Validation mot de passe</h4>
+            <div class="exercise-code">
+              function validerMotDePasse(mdp) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Vérifiez : 8+ caractères, majuscule,
+              chiffre<br />
+              }<br /><br />
+              // Test : validerMotDePasse("PassWord123") devrait retourner true
+            </div>
+            <textarea
+              id="codeEx11"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(11)">
+              ▶ Exécuter l'exercice 11
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(11)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx11"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Exercice 12 : Addition -->
+          <div class="exercise-box">
+            <h4>➕ Exercice 12 : Addition</h4>
+            <div class="exercise-code">
+              function additionner(a, b) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;// Retournez la somme de a et b<br />
+              }<br /><br />
+              // Test : additionner(5, 3) devrait retourner 8
+            </div>
+            <textarea
+              id="codeEx12"
+              class="exercise-textarea"
+              rows="6"
+              placeholder="Écrivez votre code ici..."
+            ></textarea>
+            <button class="exercise-btn" onclick="executeExercise(12)">
+              ▶ Exécuter l'exercice 12
+            </button>
+            <button
+              class="exercise-btn"
+              onclick="loadExerciseTemplate(12)"
+              style="background: #6c757d"
+            >
+              📋 Charger le modèle
+            </button>
+            <div
+              id="resultEx12"
+              class="exercise-result"
+              style="display: none"
+            ></div>
+          </div>
+
+          <!-- Rappel des opérateurs -->
+          <div class="exercise-box">
+            <h4>💡 Rappel des opérateurs</h4>
+            <div class="exercise-code">
+              + : Addition / Concaténation<br />
+              - : Soustraction<br />
+              * : Multiplication<br />
+              / : Division<br />
+              % : Modulo (reste)<br />
+              == : Égalité (valeur)<br />
+              ===: Égalité stricte (valeur + type)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-container" id="resultContainer">
+        <div class="final-score" id="finalScore"></div>
+        <div id="resultDetails"></div>
+      </div>
+    </div>
+
+    <script>
+      // ==================== QUESTIONS DU QUIZ ====================
+      const questionsData = {
+        general: [
+          {
+            text: "Quel opérateur effectue l'addition en JavaScript ?",
+            options: ["-", "*", "/", "+"],
+            correct: 3,
+          },
+          {
+            text: "Quel opérateur effectue la soustraction ?",
+            options: ["+", "*", "/", "-"],
+            correct: 3,
+          },
+          {
+            text: "Quel opérateur effectue la multiplication ?",
+            options: ["+", "-", "/", "*"],
+            correct: 3,
+          },
+          {
+            text: "Quel opérateur effectue la division ?",
+            options: ["+", "-", "*", "/"],
+            correct: 3,
+          },
+          {
+            text: "Quel opérateur retourne le reste de la division euclidienne ?",
+            options: ["/", "//", "%", "mod"],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode affiche un message dans une boîte de dialogue ?",
+            options: [
+              "console.log()",
+              "document.write()",
+              "alert()",
+              "prompt()",
+            ],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode affiche directement dans le document HTML ?",
+            options: [
+              "alert()",
+              "console.log()",
+              "document.write()",
+              "innerHTML",
+            ],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode affiche une boîte de dialogue avec une zone de saisie ?",
+            options: ["alert()", "confirm()", "prompt()", "console.log()"],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode retourne true si l'utilisateur clique sur OK ?",
+            options: ["alert()", "prompt()", "confirm()", "console.log()"],
+            correct: 2,
+          },
+          {
+            text: "Quel opérateur logique représente le ET ?",
+            options: ["||", "&&", "!", "&"],
+            correct: 1,
+          },
+          {
+            text: "Quel opérateur logique représente le OU ?",
+            options: ["&&", "||", "!", "|"],
+            correct: 1,
+          },
+          {
+            text: "Quel opérateur logique représente la négation NON ?",
+            options: ["&&", "||", "not", "!"],
+            correct: 3,
+          },
+          {
+            text: "Quel opérateur de comparaison vérifie l'égalité ?",
+            options: ["=", "==", "===", "!="],
+            correct: 1,
+          },
+          {
+            text: "Quel opérateur vérifie l'inégalité ?",
+            options: ["=", "==", "!==", "!="],
+            correct: 3,
+          },
+          {
+            text: "Quel est l'opérateur de concaténation en JavaScript ?",
+            options: [".", "&", "+", "concat"],
+            correct: 2,
+          },
+        ],
+        chaines: [
+          {
+            text: "Quelle propriété retourne la longueur d'une chaîne ?",
+            options: ["size", "length", "count", "long"],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode indexOf() sur une chaîne ?",
+            options: [
+              "Retourne l'indice de la 1ère occurrence",
+              "Supprime un caractère",
+              "Remplace du texte",
+              "Découpe la chaîne",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Que fait la méthode substring() ?",
+            options: [
+              "Remplace du texte",
+              "Extrait une sous-chaîne",
+              "Supprime des caractères",
+              "Convertit en majuscules",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode replace() sur une chaîne ?",
+            options: [
+              "Supprime du texte",
+              "Remplace du texte",
+              "Ajoute du texte",
+              "Découpe du texte",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode toLowerCase() ?",
+            options: [
+              "Convertit en majuscules",
+              "Convertit en minuscules",
+              "Supprime les espaces",
+              "Inverse la casse",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode toUpperCase() ?",
+            options: [
+              "Convertit en minuscules",
+              "Convertit en majuscules",
+              "Supprime les espaces",
+              "Inverse la casse",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode trim() ?",
+            options: [
+              "Supprime les espaces au début et à la fin",
+              "Supprime tous les espaces",
+              "Ajoute des espaces",
+              "Compte les espaces",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Que fait String.fromCharCode(65,66,67) ?",
+            options: [
+              "Retourne 65,66,67",
+              "Retourne ABC",
+              "Retourne 656667",
+              "Retourne une erreur",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait lastIndexOf() ?",
+            options: [
+              "1ère occurrence",
+              "Dernière occurrence",
+              "Toutes les occurrences",
+              "Supprime les occurrences",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Quelle méthode convertit une chaîne en majuscules ?",
+            options: [
+              "toUpper()",
+              "toUpperCase()",
+              "upperCase()",
+              "toUppercase()",
+            ],
+            correct: 1,
+          },
+        ],
+        nombres: [
+          {
+            text: "Que fait la fonction isNaN() ?",
+            options: [
+              "Teste si c'est un nombre",
+              "Teste si ce n'est pas un nombre",
+              "Convertit en nombre",
+              "Arrondit un nombre",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Number.isNaN(NaN) retourne ?",
+            options: ["true", "false", "undefined", "null"],
+            correct: 0,
+          },
+          {
+            text: "Number.isNaN('blabla') retourne ?",
+            options: ["true", "false", "NaN", "undefined"],
+            correct: 1,
+          },
+          {
+            text: "Que fait la fonction Number() ?",
+            options: [
+              "Convertit en nombre",
+              "Convertit en chaîne",
+              "Convertit en booléen",
+              "Arrondit un nombre",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Number('37.5') retourne ?",
+            options: ["37", "37.5", "NaN", "37,5"],
+            correct: 1,
+          },
+          {
+            text: "Number('blabla') retourne ?",
+            options: ["0", "null", "NaN", "undefined"],
+            correct: 2,
+          },
+          {
+            text: "Que fait parseFloat() ?",
+            options: [
+              "Convertit en entier",
+              "Convertit en décimal",
+              "Convertit en chaîne",
+              "Arrondit un nombre",
+            ],
+            correct: 1,
+          },
+          {
+            text: "parseFloat('3.14abc') retourne ?",
+            options: ["3.14", "NaN", "3", "3.14abc"],
+            correct: 0,
+          },
+          {
+            text: "Que fait parseInt() ?",
+            options: [
+              "Convertit en décimal",
+              "Convertit en entier",
+              "Convertit en chaîne",
+              "Arrondit un nombre",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Math.abs(-5) retourne ?",
+            options: ["-5", "5", "0", "NaN"],
+            correct: 1,
+          },
+          {
+            text: "Math.sqrt(16) retourne ?",
+            options: ["4", "8", "16", "256"],
+            correct: 0,
+          },
+          {
+            text: "Math.round(3.6) retourne ?",
+            options: ["3", "4", "3.6", "3.5"],
+            correct: 1,
+          },
+          {
+            text: "Math.random() retourne un nombre entre ?",
+            options: ["0 et 1", "0 et 100", "1 et 100", "0 et 10"],
+            correct: 0,
+          },
+          {
+            text: "Math.floor(3.9) retourne ?",
+            options: ["4", "3", "3.9", "3.5"],
+            correct: 1,
+          },
+        ],
+        tableaux: [
+          {
+            text: "Comment créer un tableau vide en JavaScript ?",
+            options: ["new array()", "[]", "{}", "Les deux a et b"],
+            correct: 3,
+          },
+          {
+            text: "Quelle propriété donne la longueur d'un tableau ?",
+            options: ["size", "length", "count", "long"],
+            correct: 1,
+          },
+          {
+            text: "Comment accéder au premier élément d'un tableau ?",
+            options: ["tab[0]", "tab[1]", "tab.first", "tab.start"],
+            correct: 0,
+          },
+          {
+            text: "Quelle méthode ajoute un élément à la fin d'un tableau ?",
+            options: ["push()", "pop()", "shift()", "unshift()"],
+            correct: 0,
+          },
+          {
+            text: "Quelle méthode supprime le dernier élément d'un tableau ?",
+            options: ["push()", "pop()", "shift()", "unshift()"],
+            correct: 1,
+          },
+          {
+            text: "Quelle méthode transforme un tableau en chaîne ?",
+            options: ["split()", "join()", "concat()", "slice()"],
+            correct: 1,
+          },
+          {
+            text: "Quelle méthode transforme une chaîne en tableau ?",
+            options: ["join()", "concat()", "split()", "slice()"],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode fusionne deux tableaux ?",
+            options: ["join()", "concat()", "merge()", "combine()"],
+            correct: 1,
+          },
+        ],
+        dates: [
+          {
+            text: "Comment créer un objet Date pour la date courante ?",
+            options: [
+              "new Date()",
+              "Date.now()",
+              "new Date(now)",
+              "Date.current()",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Quelle méthode retourne le jour du mois (1-31) ?",
+            options: ["getDay()", "getDate()", "getMonth()", "getFullYear()"],
+            correct: 1,
+          },
+          {
+            text: "Quelle méthode retourne le mois (0-11) ?",
+            options: ["getDay()", "getDate()", "getMonth()", "getFullYear()"],
+            correct: 2,
+          },
+          {
+            text: "Quelle méthode retourne l'année sur 4 chiffres ?",
+            options: [
+              "getYear()",
+              "getFullYear()",
+              "getYear4()",
+              "getYearFull()",
+            ],
+            correct: 1,
+          },
+          {
+            text: "getMonth() retourne janvier comme ?",
+            options: ["1", "0", "01", "Jan"],
+            correct: 1,
+          },
+          {
+            text: "Comment créer une date spécifique ?",
+            options: [
+              "new Date(2024,11,25)",
+              "new Date('2024-12-25')",
+              "Les deux",
+              "Aucune",
+            ],
+            correct: 2,
+          },
+        ],
+        dom: [
+          {
+            text: "Comment sélectionner un élément par son id ?",
+            options: [
+              "getElementById()",
+              "getElementsByName()",
+              "querySelector()",
+              "Les deux a et c",
+            ],
+            correct: 3,
+          },
+          {
+            text: "Comment sélectionner tous les éléments par leur nom ?",
+            options: [
+              "getElementById()",
+              "getElementsByName()",
+              "querySelector()",
+              "getElementByTagName()",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Quelle propriété modifie le contenu HTML d'un élément ?",
+            options: ["textContent", "innerHTML", "innerText", "value"],
+            correct: 1,
+          },
+          {
+            text: "Quelle propriété modifie le texte brut d'un élément ?",
+            options: ["innerHTML", "textContent", "innerText", "value"],
+            correct: 1,
+          },
+          {
+            text: "Comment modifier le style d'un élément ?",
+            options: [
+              "element.style.propriete = valeur",
+              "element.css.propriete = valeur",
+              "element.styles = valeur",
+              "element.propriete = valeur",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Que fait la méthode play() sur un élément vidéo ?",
+            options: [
+              "Met en pause",
+              "Démarre la lecture",
+              "Arrête la lecture",
+              "Recharge la vidéo",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Que fait la méthode pause() ?",
+            options: [
+              "Met en pause",
+              "Démarre la lecture",
+              "Arrête définitivement",
+              "Recharge",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Comment récupérer l'indice sélectionné dans un select ?",
+            options: [
+              "selectedOption",
+              "selectedIndex",
+              "optionIndex",
+              "indexSelected",
+            ],
+            correct: 1,
+          },
+          {
+            text: "Comment récupérer la valeur d'un input ?",
+            options: [
+              "element.value",
+              "element.text",
+              "element.innerHTML",
+              "element.content",
+            ],
+            correct: 0,
+          },
+          {
+            text: "Comment récupérer l'état d'une checkbox ?",
+            options: [
+              "element.value",
+              "element.checked",
+              "element.state",
+              "element.status",
+            ],
+            correct: 1,
+          },
+        ],
+      };
+
+      let currentCategory = "general";
+      let currentIndex = 0;
+      let userAnswers = {};
+      let quizSubmitted = false;
+      let score = 0;
+
+      function getCategoryKeys() {
+        return Object.keys(questionsData);
+      }
+      function initAnswers() {
+        const categories = getCategoryKeys();
+        for (let i = 0; i < categories.length; i++) {
+          let cat = categories[i];
+          if (!userAnswers[cat])
+            userAnswers[cat] = new Array(questionsData[cat].length).fill(null);
+        }
+      }
+      function getCurrentQuestions() {
+        return questionsData[currentCategory];
+      }
+      function getCurrentQuestion() {
+        return getCurrentQuestions()[currentIndex];
+      }
+      function getTotalInCategory() {
+        return getCurrentQuestions().length;
+      }
+      function getTotalAllQuestions() {
+        let total = 0;
+        const categories = getCategoryKeys();
+        for (let i = 0; i < categories.length; i++)
+          total += questionsData[categories[i]].length;
+        return total;
+      }
+      function getCategoryName(cat) {
+        const names = {
+          general: "📚 Généralités",
+          chaines: "📝 Chaînes",
+          nombres: "🔢 Nombres & Math",
+          tableaux: "📊 Tableaux",
+          dates: "📅 Dates",
+          dom: "🖱️ DOM",
+        };
+        return names[cat] || cat;
+      }
+
+      function updateDisplay() {
+        if (quizSubmitted) return;
+        const question = getCurrentQuestion();
+        if (!question) return;
+        document.getElementById("questionText").innerHTML =
+          currentIndex + 1 + ". " + question.text;
+        document.getElementById("currentQuestion").textContent =
+          currentIndex + 1;
+        document.getElementById("totalQuestions").textContent =
+          getTotalInCategory();
+        document.getElementById("categoryName").textContent =
+          getCategoryName(currentCategory);
+        const optionsList = document.getElementById("optionsList");
+        optionsList.innerHTML = "";
+        for (let i = 0; i < question.options.length; i++) {
+          const li = document.createElement("li");
+          li.className = "option-item";
+          if (userAnswers[currentCategory][currentIndex] === i)
+            li.classList.add("selected");
+          li.innerHTML =
+            '<span class="radio-custom">' +
+            String.fromCharCode(65 + i) +
+            ".</span> " +
+            question.options[i];
+          li.onclick = (function (idx) {
+            return function () {
+              selectOption(idx);
+            };
+          })(i);
+          optionsList.appendChild(li);
+        }
+        updateScore();
+        const progress = ((currentIndex + 1) / getTotalInCategory()) * 100;
+        document.getElementById("progressFill").style.width = progress + "%";
+        document.getElementById("prevBtn").style.display =
+          currentIndex === 0 ? "none" : "block";
+        const isLast = currentIndex === getTotalInCategory() - 1;
+        document.getElementById("nextBtn").style.display = isLast
+          ? "none"
+          : "block";
+        document.getElementById("submitBtn").style.display = isLast
+          ? "block"
+          : "none";
+        const feedback = document.getElementById("feedback");
+        feedback.classList.remove("show", "correct", "wrong");
+        feedback.innerHTML = "";
+      }
+
+      function selectOption(optionIndex) {
+        if (quizSubmitted) return;
+        userAnswers[currentCategory][currentIndex] = optionIndex;
+        const optionsItems = document.querySelectorAll(".option-item");
+        for (let i = 0; i < optionsItems.length; i++) {
+          if (i === optionIndex) optionsItems[i].classList.add("selected");
+          else optionsItems[i].classList.remove("selected");
+        }
+        const question = getCurrentQuestion();
+        const isCorrect = optionIndex === question.correct;
+        const feedback = document.getElementById("feedback");
+        if (isCorrect) {
+          feedback.innerHTML = "✓ Bonne réponse !";
+          feedback.classList.add("show", "correct");
+          feedback.classList.remove("wrong");
+        } else {
+          feedback.innerHTML =
+            "✗ Mauvaise réponse. La bonne réponse était : " +
+            String.fromCharCode(65 + question.correct) +
+            ". " +
+            question.options[question.correct];
+          feedback.classList.add("show", "wrong");
+          feedback.classList.remove("correct");
+        }
+        updateScore();
+      }
+
+      function nextQuestion() {
+        if (currentIndex < getTotalInCategory() - 1) {
+          currentIndex++;
+          updateDisplay();
+        }
+      }
+      function previousQuestion() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateDisplay();
+        }
+      }
+
+      function updateScore() {
+        let tempScore = 0;
+        const categories = getCategoryKeys();
+        for (let c = 0; c < categories.length; c++) {
+          let cat = categories[c];
+          for (let i = 0; i < questionsData[cat].length; i++) {
+            if (
+              userAnswers[cat] &&
+              userAnswers[cat][i] !== null &&
+              userAnswers[cat][i] === questionsData[cat][i].correct
+            )
+              tempScore++;
+          }
+        }
+        score = tempScore;
+        document.getElementById("score").textContent = score;
+        document.getElementById("maxScore").textContent =
+          getTotalAllQuestions();
+      }
+
+      function submitQuiz() {
+        let unanswered = 0;
+        const categories = getCategoryKeys();
+        for (let c = 0; c < categories.length; c++) {
+          let cat = categories[c];
+          for (let i = 0; i < questionsData[cat].length; i++) {
+            if (userAnswers[cat][i] === null) unanswered++;
+          }
+        }
+        if (
+          unanswered > 0 &&
+          !confirm(
+            "Vous avez " +
+              unanswered +
+              " question(s) sans réponse. Voulez-vous quand même voir votre résultat ?"
+          )
+        )
+          return;
+        quizSubmitted = true;
+        updateScore();
+        const resultContainer = document.getElementById("resultContainer");
+        resultContainer.classList.add("show");
+        const total = getTotalAllQuestions();
+        const percentage = (score / total) * 100;
+        let grade = "",
+          gradeColor = "";
+        if (percentage >= 90) {
+          grade = "Excellent ! 🎉";
+          gradeColor = "#28a745";
+        } else if (percentage >= 75) {
+          grade = "Très bien ! 👍";
+          gradeColor = "#17a2b8";
+        } else if (percentage >= 60) {
+          grade = "Bien ! 📚";
+          gradeColor = "#ffc107";
+        } else if (percentage >= 40) {
+          grade = "Peut mieux faire 💪";
+          gradeColor = "#fd7e14";
+        } else {
+          grade = "Besoin de révision 📖";
+          gradeColor = "#dc3545";
+        }
+        document.getElementById("finalScore").innerHTML =
+          "Votre score : " +
+          score +
+          "/" +
+          total +
+          " (" +
+          percentage.toFixed(1) +
+          "%)<br><span style='color: " +
+          gradeColor +
+          "; font-size: 1.2rem;'>" +
+          grade +
+          "</span>";
+        let detailsHTML =
+          '<h3 style="margin-top: 20px;">Détail des réponses par catégorie :</h3>';
+        for (let c = 0; c < categories.length; c++) {
+          let cat = categories[c];
+          let catScore = 0,
+            catTotal = questionsData[cat].length;
+          for (let i = 0; i < catTotal; i++)
+            if (userAnswers[cat][i] === questionsData[cat][i].correct)
+              catScore++;
+          detailsHTML +=
+            '<h4 style="margin-top: 20px; color: #323330;">' +
+            getCategoryName(cat) +
+            " (" +
+            catScore +
+            "/" +
+            catTotal +
+            ")</h4>";
+          for (let i = 0; i < questionsData[cat].length; i++) {
+            const isCorrect =
+              userAnswers[cat][i] === questionsData[cat][i].correct;
+            const userAnswerText =
+              userAnswers[cat][i] !== null
+                ? questionsData[cat][i].options[userAnswers[cat][i]]
+                : "Non répondue";
+            const correctAnswerText =
+              questionsData[cat][i].options[questionsData[cat][i].correct];
+            detailsHTML +=
+              '<div style="margin: 10px 0; padding: 10px; background: ' +
+              (isCorrect ? "#d4edda" : "#f8d7da") +
+              '; border-radius: 8px;"><strong>Q' +
+              (i + 1) +
+              ".</strong> " +
+              questionsData[cat][i].text +
+              '<br><span style="color: ' +
+              (isCorrect ? "#155724" : "#721c24") +
+              '">' +
+              (isCorrect ? "✓" : "✗") +
+              " Votre réponse : " +
+              userAnswerText +
+              "<br>" +
+              (!isCorrect ? "Bonne réponse : " + correctAnswerText : "") +
+              "</span></div>";
+          }
+        }
+        document.getElementById("resultDetails").innerHTML = detailsHTML;
+        document.querySelector(".quiz-section .nav-buttons").style.display =
+          "none";
+        document.querySelector(".category-tabs").style.pointerEvents = "none";
+      }
+
+      function resetQuiz() {
+        currentIndex = 0;
+        userAnswers = {};
+        quizSubmitted = false;
+        score = 0;
+        initAnswers();
+        document.getElementById("resultContainer").classList.remove("show");
+        document.querySelector(".quiz-section .nav-buttons").style.display =
+          "flex";
+        document.querySelector(".category-tabs").style.pointerEvents = "auto";
+        document
+          .getElementById("feedback")
+          .classList.remove("show", "correct", "wrong");
+        updateDisplay();
+      }
+
+      function changeCategory(category) {
+        if (quizSubmitted) return;
+        currentCategory = category;
+        currentIndex = 0;
+        updateDisplay();
+        const tabs = document.querySelectorAll(".category-tab");
+        for (let i = 0; i < tabs.length; i++) {
+          if (tabs[i].dataset.category === category)
+            tabs[i].classList.add("active");
+          else tabs[i].classList.remove("active");
+        }
+      }
+
+      const tabs = document.querySelectorAll(".category-tab");
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener(
+          "click",
+          (function (cat) {
+            return function () {
+              changeCategory(cat);
+            };
+          })(tabs[i].dataset.category)
+        );
+      }
+      initAnswers();
+      updateDisplay();
+
+      // Gestion de l'écran de transition
+      const splashScreen = document.getElementById("splashScreen");
+      setTimeout(() => {
+        splashScreen.classList.add("fade-out");
+        setTimeout(() => {
+          splashScreen.style.display = "none";
+        }, 800);
+      }, 2000);
+
+      // ==================== FONCTIONS DES EXERCICES ====================
+
+      function executeExercise(exNum) {
+        const codeInput = document.getElementById("codeEx" + exNum);
+        const resultDiv = document.getElementById("resultEx" + exNum);
+        const code = codeInput.value;
+
+        if (!code.trim()) {
+          resultDiv.style.display = "block";
+          resultDiv.className = "exercise-result error";
+          resultDiv.innerHTML = "❌ Veuillez écrire votre code JavaScript.";
+          return;
+        }
+
+        try {
+          let output = "";
+          const originalLog = console.log;
+          console.log = function (...args) {
+            output +=
+              args
+                .map((arg) => {
+                  if (typeof arg === "object")
+                    return JSON.stringify(arg, null, 2);
+                  return String(arg);
+                })
+                .join(" ") + "\n";
+            originalLog.apply(console, args);
+          };
+
+          const evalCode = new Function(code);
+          const result = evalCode();
+
+          console.log = originalLog;
+
+          resultDiv.style.display = "block";
+          resultDiv.className = "exercise-result";
+
+          let resultHtml =
+            "✅ <strong>Code exécuté avec succès !</strong><br><br>";
+
+          if (output) {
+            resultHtml +=
+              '📤 <strong>Sortie console :</strong><br><code style="background:#1e1e1e; color:#d4d4d4; padding:10px; display:block; border-radius:5px;">' +
+              output.replace(/\n/g, "<br>") +
+              "</code><br><br>";
+          }
+
+          if (result !== undefined) {
+            resultHtml +=
+              "📊 <strong>Valeur retournée :</strong> " +
+              (typeof result === "object"
+                ? JSON.stringify(result, null, 2)
+                : result);
+          } else if (!output) {
+            resultHtml +=
+              "📊 <strong>Résultat :</strong> Code exécuté (aucune sortie)";
+          }
+
+          resultDiv.innerHTML = resultHtml;
+        } catch (error) {
+          resultDiv.style.display = "block";
+          resultDiv.className = "exercise-result error";
+          resultDiv.innerHTML =
+            "❌ <strong>Erreur :</strong><br>" + error.message;
+        }
+      }
+
+      function loadExerciseTemplate(exNum) {
+        let code = "";
+        switch (exNum) {
+          case 1:
+            code = `function celsiusToFahrenheit(celsius) {
+    return (celsius * 9/5) + 32;
+}
+
+console.log("25°C = " + celsiusToFahrenheit(25) + "°F");
+console.log("0°C = " + celsiusToFahrenheit(0) + "°F");
+console.log("100°C = " + celsiusToFahrenheit(100) + "°F");`;
+            break;
+          case 2:
+            code = `function calculerAge(anneeNaissance) {
+    let anneeActuelle = new Date().getFullYear();
+    return anneeActuelle - anneeNaissance;
+}
+
+console.log("Âge pour 2000 : " + calculerAge(2000) + " ans");
+console.log("Âge pour 1995 : " + calculerAge(1995) + " ans");`;
+            break;
+          case 3:
+            code = `function estPairOuImpair(nombre) {
+    if (nombre % 2 === 0) {
+        return "Pair";
+    } else {
+        return "Impair";
+    }
+}
+
+console.log("7 est : " + estPairOuImpair(7));
+console.log("10 est : " + estPairOuImpair(10));`;
+            break;
+          case 4:
+            code = `function compterCaracteres(phrase) {
+    let compteur = 0;
+    for (let i = 0; i < phrase.length; i++) {
+        if (phrase[i] !== ' ') {
+            compteur++;
+        }
+    }
+    return compteur;
+}
+
+console.log("'Bonjour le monde' a " + compterCaracteres("Bonjour le monde") + " caractères");`;
+            break;
+          case 5:
+            code = `function tableMultiplication(n) {
+    for (let i = 1; i <= 10; i++) {
+        console.log(n + " × " + i + " = " + (n * i));
+    }
+}
+
+tableMultiplication(5);`;
+            break;
+          case 6:
+            code = `function estPalindrome(mot) {
+    let inverse = "";
+    for (let i = mot.length - 1; i >= 0; i--) {
+        inverse += mot[i];
+    }
+    return mot === inverse;
+}
+
+console.log("'radar' est un palindrome : " + estPalindrome("radar"));
+console.log("'javascript' est un palindrome : " + estPalindrome("javascript"));`;
+            break;
+          case 7:
+            code = `function extraireEntier(chaine) {
+    return parseInt(chaine, 10);
+}
+
+console.log("extraireEntier('42px') = " + extraireEntier("42px"));
+console.log("extraireEntier('3.14') = " + extraireEntier("3.14"));`;
+            break;
+          case 8:
+            code = `function extraireDecimal(chaine) {
+    return parseFloat(chaine);
+}
+
+console.log("extraireDecimal('3.14abc') = " + extraireDecimal("3.14abc"));
+console.log("extraireDecimal('42.5px') = " + extraireDecimal("42.5px"));`;
+            break;
+          case 9:
+            code = `function convertirEnNombre(valeur) {
+    return Number(valeur);
+}
+
+console.log("convertirEnNombre('42') = " + convertirEnNombre("42"));
+console.log("convertirEnNombre('3.14') = " + convertirEnNombre("3.14"));
+console.log("convertirEnNombre(true) = " + convertirEnNombre(true));`;
+            break;
+          case 10:
+            code = `function estEmailValide(email) {
+    let arobase = false;
+    let pointApres = false;
+    let posArobase = -1;
+    for (let i = 0; i < email.length; i++) {
+        if (email[i] === '@') {
+            arobase = true;
+            posArobase = i;
+        }
+        if (arobase && email[i] === '.' && i > posArobase + 1) {
+            pointApres = true;
+        }
+    }
+    return arobase && pointApres;
+}
+
+console.log("test@gmail.com : " + estEmailValide("test@gmail.com"));
+console.log("test@gmail : " + estEmailValide("test@gmail"));`;
+            break;
+          case 11:
+            code = `function validerMotDePasse(mdp) {
+    if (mdp.length < 8) return false;
+    let aMajuscule = false;
+    let aChiffre = false;
+    for (let i = 0; i < mdp.length; i++) {
+        if (mdp[i] >= 'A' && mdp[i] <= 'Z') aMajuscule = true;
+        if (mdp[i] >= '0' && mdp[i] <= '9') aChiffre = true;
+    }
+    return aMajuscule && aChiffre;
+}
+
+console.log("'PassWord123' : " + validerMotDePasse("PassWord123"));
+console.log("'password' : " + validerMotDePasse("password"));`;
+            break;
+          case 12:
+            code = `function additionner(a, b) {
+    return a + b;
+}
+
+console.log("5 + 3 = " + additionner(5, 3));
+console.log("10 + 7 = " + additionner(10, 7));`;
+            break;
+        }
+        document.getElementById("codeEx" + exNum).value = code;
+        executeExercise(exNum);
+      }
+    </script>
+  </body>
+</html>

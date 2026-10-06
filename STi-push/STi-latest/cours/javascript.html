@@ -1,0 +1,4656 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+  <head>
+    <meta name="robots" content="noai, noimageai" />
+    <meta name="description" content="Cours JavaScript complet : variables, fonctions, DOM, événements et validation de formulaires — annexes et quiz STI." />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" />
+    <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="dark" />
+    <title>Annexe JavaScript — Cours · 3ème/4ème SI</title>
+
+    <!-- Prism en mode manuel : la coloration est lancée après préparation des blocs <pre> -->
+    <script>
+      window.Prism = window.Prism || {};
+      window.Prism.manual = true;
+    </script>
+    <!-- PrismJS : coloration des extraits de code (intégré, identique au quiz) -->
+    <script>
+      /* PrismJS 1.29.0 — intégré */
+      var _self =
+          "undefined" != typeof window
+            ? window
+            : "undefined" != typeof WorkerGlobalScope &&
+              self instanceof WorkerGlobalScope
+            ? self
+            : {},
+        Prism = (function (l) {
+          var n = /(?:^|\s)lang(?:uage)?-([\w-]+)(?=\s|$)/i,
+            t = 0,
+            e = {},
+            j = {
+              manual: l.Prism && l.Prism.manual,
+              disableWorkerMessageHandler:
+                l.Prism && l.Prism.disableWorkerMessageHandler,
+              util: {
+                encode: function e(t) {
+                  return t instanceof C
+                    ? new C(t.type, e(t.content), t.alias)
+                    : Array.isArray(t)
+                    ? t.map(e)
+                    : t
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/\u00a0/g, " ");
+                },
+                type: function (e) {
+                  return Object.prototype.toString.call(e).slice(8, -1);
+                },
+                objId: function (e) {
+                  return (
+                    e.__id || Object.defineProperty(e, "__id", { value: ++t }),
+                    e.__id
+                  );
+                },
+                clone: function n(e, a) {
+                  var r, t;
+                  switch (((a = a || {}), j.util.type(e))) {
+                    case "Object":
+                      if (((t = j.util.objId(e)), a[t])) return a[t];
+                      for (var s in ((r = {}), (a[t] = r), e))
+                        e.hasOwnProperty(s) && (r[s] = n(e[s], a));
+                      return r;
+                    case "Array":
+                      return ((t = j.util.objId(e)), a[t])
+                        ? a[t]
+                        : ((r = []),
+                          (a[t] = r),
+                          e.forEach(function (e, t) {
+                            r[t] = n(e, a);
+                          }),
+                          r);
+                    default:
+                      return e;
+                  }
+                },
+                getLanguage: function (e) {
+                  for (; e; ) {
+                    var t = n.exec(e.className);
+                    if (t) return t[1].toLowerCase();
+                    e = e.parentElement;
+                  }
+                  return "none";
+                },
+                setLanguage: function (e, t) {
+                  (e.className = e.className.replace(RegExp(n, "gi"), "")),
+                    e.classList.add("language-" + t);
+                },
+                currentScript: function () {
+                  if ("undefined" == typeof document) return null;
+                  if ("currentScript" in document)
+                    return document.currentScript;
+                  try {
+                    throw new Error();
+                  } catch (e) {
+                    var t = (/at [^(\r\n]*\((.*):[^:]+:[^:]+\)$/i.exec(
+                      e.stack
+                    ) || [])[1];
+                    if (t) {
+                      var n,
+                        a = document.getElementsByTagName("script");
+                      for (n in a) if (a[n].src == t) return a[n];
+                    }
+                    return null;
+                  }
+                },
+                isActive: function (e, t, n) {
+                  for (var a = "no-" + t; e; ) {
+                    var r = e.classList;
+                    if (r.contains(t)) return !0;
+                    if (r.contains(a)) return !1;
+                    e = e.parentElement;
+                  }
+                  return !!n;
+                },
+              },
+              languages: {
+                plain: e,
+                plaintext: e,
+                text: e,
+                txt: e,
+                extend: function (e, t) {
+                  var n,
+                    a = j.util.clone(j.languages[e]);
+                  for (n in t) a[n] = t[n];
+                  return a;
+                },
+                insertBefore: function (n, e, t, a) {
+                  var r,
+                    s = (a = a || j.languages)[n],
+                    i = {};
+                  for (r in s)
+                    if (s.hasOwnProperty(r)) {
+                      if (r == e)
+                        for (var o in t) t.hasOwnProperty(o) && (i[o] = t[o]);
+                      t.hasOwnProperty(r) || (i[r] = s[r]);
+                    }
+                  var l = a[n];
+                  return (
+                    (a[n] = i),
+                    j.languages.DFS(j.languages, function (e, t) {
+                      t === l && e != n && (this[e] = i);
+                    }),
+                    i
+                  );
+                },
+                DFS: function e(t, n, a, r) {
+                  r = r || {};
+                  var s,
+                    i,
+                    o,
+                    l = j.util.objId;
+                  for (s in t)
+                    t.hasOwnProperty(s) &&
+                      (n.call(t, s, t[s], a || s),
+                      (i = t[s]),
+                      "Object" !== (o = j.util.type(i)) || r[l(i)]
+                        ? "Array" !== o ||
+                          r[l(i)] ||
+                          ((r[l(i)] = !0), e(i, n, s, r))
+                        : ((r[l(i)] = !0), e(i, n, null, r)));
+                },
+              },
+              plugins: {},
+              highlightAll: function (e, t) {
+                j.highlightAllUnder(document, e, t);
+              },
+              highlightAllUnder: function (e, t, n) {
+                var a = {
+                  callback: n,
+                  container: e,
+                  selector:
+                    'code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code',
+                };
+                j.hooks.run("before-highlightall", a),
+                  (a.elements = Array.prototype.slice.apply(
+                    a.container.querySelectorAll(a.selector)
+                  )),
+                  j.hooks.run("before-all-elements-highlight", a);
+                for (var r, s = 0; (r = a.elements[s++]); )
+                  j.highlightElement(r, !0 === t, a.callback);
+              },
+              highlightElement: function (e, t, n) {
+                var a = j.util.getLanguage(e),
+                  r = j.languages[a],
+                  s = (j.util.setLanguage(e, a), e.parentElement);
+                s &&
+                  "pre" === s.nodeName.toLowerCase() &&
+                  j.util.setLanguage(s, a);
+                var i = {
+                  element: e,
+                  language: a,
+                  grammar: r,
+                  code: e.textContent,
+                };
+                function o(e) {
+                  (i.highlightedCode = e),
+                    j.hooks.run("before-insert", i),
+                    (i.element.innerHTML = i.highlightedCode),
+                    j.hooks.run("after-highlight", i),
+                    j.hooks.run("complete", i),
+                    n && n.call(i.element);
+                }
+                if (
+                  (j.hooks.run("before-sanity-check", i),
+                  (s = i.element.parentElement) &&
+                    "pre" === s.nodeName.toLowerCase() &&
+                    !s.hasAttribute("tabindex") &&
+                    s.setAttribute("tabindex", "0"),
+                  !i.code)
+                )
+                  return (
+                    j.hooks.run("complete", i), void (n && n.call(i.element))
+                  );
+                j.hooks.run("before-highlight", i),
+                  i.grammar
+                    ? t && l.Worker
+                      ? (((a = new Worker(j.filename)).onmessage = function (
+                          e
+                        ) {
+                          o(e.data);
+                        }),
+                        a.postMessage(
+                          JSON.stringify({
+                            language: i.language,
+                            code: i.code,
+                            immediateClose: !0,
+                          })
+                        ))
+                      : o(j.highlight(i.code, i.grammar, i.language))
+                    : o(j.util.encode(i.code));
+              },
+              highlight: function (e, t, n) {
+                e = { code: e, grammar: t, language: n };
+                if ((j.hooks.run("before-tokenize", e), e.grammar))
+                  return (
+                    (e.tokens = j.tokenize(e.code, e.grammar)),
+                    j.hooks.run("after-tokenize", e),
+                    C.stringify(j.util.encode(e.tokens), e.language)
+                  );
+                throw new Error(
+                  'The language "' + e.language + '" has no grammar.'
+                );
+              },
+              tokenize: function (e, t) {
+                var n = t.rest;
+                if (n) {
+                  for (var a in n) t[a] = n[a];
+                  delete t.rest;
+                }
+                for (
+                  var r = new u(),
+                    s =
+                      (z(r, r.head, e),
+                      !(function e(t, n, a, r, s, i) {
+                        for (var o in a)
+                          if (a.hasOwnProperty(o) && a[o]) {
+                            var l = a[o];
+                            l = Array.isArray(l) ? l : [l];
+                            for (var u = 0; u < l.length; ++u) {
+                              if (i && i.cause == o + "," + u) return;
+                              for (
+                                var g,
+                                  c = l[u],
+                                  d = c.inside,
+                                  p = !!c.lookbehind,
+                                  m = !!c.greedy,
+                                  h = c.alias,
+                                  f =
+                                    (m &&
+                                      !c.pattern.global &&
+                                      ((g = c.pattern
+                                        .toString()
+                                        .match(/[imsuy]*$/)[0]),
+                                      (c.pattern = RegExp(
+                                        c.pattern.source,
+                                        g + "g"
+                                      ))),
+                                    c.pattern || c),
+                                  b = r.next,
+                                  y = s;
+                                b !== n.tail && !(i && y >= i.reach);
+                                y += b.value.length, b = b.next
+                              ) {
+                                var v = b.value;
+                                if (n.length > t.length) return;
+                                if (!(v instanceof C)) {
+                                  var F,
+                                    x = 1;
+                                  if (m) {
+                                    if (
+                                      !(F = L(f, y, t, p)) ||
+                                      F.index >= t.length
+                                    )
+                                      break;
+                                    var k = F.index,
+                                      w = F.index + F[0].length,
+                                      A = y;
+                                    for (A += b.value.length; A <= k; )
+                                      (b = b.next), (A += b.value.length);
+                                    if (
+                                      ((A -= b.value.length),
+                                      (y = A),
+                                      b.value instanceof C)
+                                    )
+                                      continue;
+                                    for (
+                                      var P = b;
+                                      P !== n.tail &&
+                                      (A < w || "string" == typeof P.value);
+                                      P = P.next
+                                    )
+                                      x++, (A += P.value.length);
+                                    x--, (v = t.slice(y, A)), (F.index -= y);
+                                  } else if (!(F = L(f, 0, v, p))) continue;
+                                  var k = F.index,
+                                    $ = F[0],
+                                    S = v.slice(0, k),
+                                    E = v.slice(k + $.length),
+                                    v = y + v.length,
+                                    _ =
+                                      (i && v > i.reach && (i.reach = v),
+                                      b.prev),
+                                    S =
+                                      (S && ((_ = z(n, _, S)), (y += S.length)),
+                                      O(n, _, x),
+                                      new C(o, d ? j.tokenize($, d) : $, h, $));
+                                  (b = z(n, _, S)),
+                                    E && z(n, b, E),
+                                    1 < x &&
+                                      (($ = { cause: o + "," + u, reach: v }),
+                                      e(t, n, a, b.prev, y, $),
+                                      i &&
+                                        $.reach > i.reach &&
+                                        (i.reach = $.reach));
+                                }
+                              }
+                            }
+                          }
+                      })(e, r, t, r.head, 0),
+                      r),
+                    i = [],
+                    o = s.head.next;
+                  o !== s.tail;
+
+                )
+                  i.push(o.value), (o = o.next);
+                return i;
+              },
+              hooks: {
+                all: {},
+                add: function (e, t) {
+                  var n = j.hooks.all;
+                  (n[e] = n[e] || []), n[e].push(t);
+                },
+                run: function (e, t) {
+                  var n = j.hooks.all[e];
+                  if (n && n.length) for (var a, r = 0; (a = n[r++]); ) a(t);
+                },
+              },
+              Token: C,
+            };
+          function C(e, t, n, a) {
+            (this.type = e),
+              (this.content = t),
+              (this.alias = n),
+              (this.length = 0 | (a || "").length);
+          }
+          function L(e, t, n, a) {
+            e.lastIndex = t;
+            t = e.exec(n);
+            return (
+              t &&
+                a &&
+                t[1] &&
+                ((e = t[1].length), (t.index += e), (t[0] = t[0].slice(e))),
+              t
+            );
+          }
+          function u() {
+            var e = { value: null, prev: null, next: null },
+              t = { value: null, prev: e, next: null };
+            (e.next = t), (this.head = e), (this.tail = t), (this.length = 0);
+          }
+          function z(e, t, n) {
+            var a = t.next,
+              n = { value: n, prev: t, next: a };
+            return (t.next = n), (a.prev = n), e.length++, n;
+          }
+          function O(e, t, n) {
+            for (var a = t.next, r = 0; r < n && a !== e.tail; r++) a = a.next;
+            ((t.next = a).prev = t), (e.length -= r);
+          }
+          if (
+            ((l.Prism = j),
+            (C.stringify = function t(e, n) {
+              if ("string" == typeof e) return e;
+              var a;
+              if (Array.isArray(e))
+                return (
+                  (a = ""),
+                  e.forEach(function (e) {
+                    a += t(e, n);
+                  }),
+                  a
+                );
+              var r,
+                s = {
+                  type: e.type,
+                  content: t(e.content, n),
+                  tag: "span",
+                  classes: ["token", e.type],
+                  attributes: {},
+                  language: n,
+                },
+                e = e.alias,
+                i =
+                  (e &&
+                    (Array.isArray(e)
+                      ? Array.prototype.push.apply(s.classes, e)
+                      : s.classes.push(e)),
+                  j.hooks.run("wrap", s),
+                  "");
+              for (r in s.attributes)
+                i +=
+                  " " +
+                  r +
+                  '="' +
+                  (s.attributes[r] || "").replace(/"/g, "&quot;") +
+                  '"';
+              return (
+                "<" +
+                s.tag +
+                ' class="' +
+                s.classes.join(" ") +
+                '"' +
+                i +
+                ">" +
+                s.content +
+                "</" +
+                s.tag +
+                ">"
+              );
+            }),
+            !l.document)
+          )
+            return (
+              l.addEventListener &&
+                (j.disableWorkerMessageHandler ||
+                  l.addEventListener(
+                    "message",
+                    function (e) {
+                      var e = JSON.parse(e.data),
+                        t = e.language,
+                        n = e.code,
+                        e = e.immediateClose;
+                      l.postMessage(j.highlight(n, j.languages[t], t)),
+                        e && l.close();
+                    },
+                    !1
+                  )),
+              j
+            );
+          var a,
+            e = j.util.currentScript();
+          function r() {
+            j.manual || j.highlightAll();
+          }
+          return (
+            e &&
+              ((j.filename = e.src),
+              e.hasAttribute("data-manual") && (j.manual = !0)),
+            j.manual ||
+              ("loading" === (a = document.readyState) ||
+              ("interactive" === a && e && e.defer)
+                ? document.addEventListener("DOMContentLoaded", r)
+                : window.requestAnimationFrame
+                ? window.requestAnimationFrame(r)
+                : window.setTimeout(r, 16)),
+            j
+          );
+        })(_self);
+      "undefined" != typeof module &&
+        module.exports &&
+        (module.exports = Prism),
+        "undefined" != typeof global && (global.Prism = Prism),
+        (Prism.languages.markup = {
+          comment: { pattern: /<!--(?:(?!<!--)[\s\S])*?-->/, greedy: !0 },
+          prolog: { pattern: /<\?[\s\S]+?\?>/, greedy: !0 },
+          doctype: {
+            pattern:
+              /<!DOCTYPE(?:[^>"'[\]]|"[^"]*"|'[^']*')+(?:\[(?:[^<"'\]]|"[^"]*"|'[^']*'|<(?!!--)|<!--(?:[^-]|-(?!->))*-->)*\]\s*)?>/i,
+            greedy: !0,
+            inside: {
+              "internal-subset": {
+                pattern: /(^[^\[]*\[)[\s\S]+(?=\]>$)/,
+                lookbehind: !0,
+                greedy: !0,
+                inside: null,
+              },
+              string: { pattern: /"[^"]*"|'[^']*'/, greedy: !0 },
+              punctuation: /^<!|>$|[[\]]/,
+              "doctype-tag": /^DOCTYPE/i,
+              name: /[^\s<>'"]+/,
+            },
+          },
+          cdata: { pattern: /<!\[CDATA\[[\s\S]*?\]\]>/i, greedy: !0 },
+          tag: {
+            pattern:
+              /<\/?(?!\d)[^\s>\/=$<%]+(?:\s(?:\s*[^\s>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+(?=[\s>]))|(?=[\s/>])))+)?\s*\/?>/,
+            greedy: !0,
+            inside: {
+              tag: {
+                pattern: /^<\/?[^\s>\/]+/,
+                inside: { punctuation: /^<\/?/, namespace: /^[^\s>\/:]+:/ },
+              },
+              "special-attr": [],
+              "attr-value": {
+                pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+)/,
+                inside: {
+                  punctuation: [
+                    { pattern: /^=/, alias: "attr-equals" },
+                    { pattern: /^(\s*)["']|["']$/, lookbehind: !0 },
+                  ],
+                },
+              },
+              punctuation: /\/?>/,
+              "attr-name": {
+                pattern: /[^\s>\/]+/,
+                inside: { namespace: /^[^\s>\/:]+:/ },
+              },
+            },
+          },
+          entity: [
+            { pattern: /&[\da-z]{1,8};/i, alias: "named-entity" },
+            /&#x?[\da-f]{1,8};/i,
+          ],
+        }),
+        (Prism.languages.markup.tag.inside["attr-value"].inside.entity =
+          Prism.languages.markup.entity),
+        (Prism.languages.markup.doctype.inside["internal-subset"].inside =
+          Prism.languages.markup),
+        Prism.hooks.add("wrap", function (e) {
+          "entity" === e.type &&
+            (e.attributes.title = e.content.replace(/&amp;/, "&"));
+        }),
+        Object.defineProperty(Prism.languages.markup.tag, "addInlined", {
+          value: function (e, t) {
+            var n = {},
+              n =
+                ((n["language-" + t] = {
+                  pattern: /(^<!\[CDATA\[)[\s\S]+?(?=\]\]>$)/i,
+                  lookbehind: !0,
+                  inside: Prism.languages[t],
+                }),
+                (n.cdata = /^<!\[CDATA\[|\]\]>$/i),
+                {
+                  "included-cdata": {
+                    pattern: /<!\[CDATA\[[\s\S]*?\]\]>/i,
+                    inside: n,
+                  },
+                }),
+              t =
+                ((n["language-" + t] = {
+                  pattern: /[\s\S]+/,
+                  inside: Prism.languages[t],
+                }),
+                {});
+            (t[e] = {
+              pattern: RegExp(
+                /(<__[^>]*>)(?:<!\[CDATA\[(?:[^\]]|\](?!\]>))*\]\]>|(?!<!\[CDATA\[)[\s\S])*?(?=<\/__>)/.source.replace(
+                  /__/g,
+                  function () {
+                    return e;
+                  }
+                ),
+                "i"
+              ),
+              lookbehind: !0,
+              greedy: !0,
+              inside: n,
+            }),
+              Prism.languages.insertBefore("markup", "cdata", t);
+          },
+        }),
+        Object.defineProperty(Prism.languages.markup.tag, "addAttribute", {
+          value: function (e, t) {
+            Prism.languages.markup.tag.inside["special-attr"].push({
+              pattern: RegExp(
+                /(^|["'\s])/.source +
+                  "(?:" +
+                  e +
+                  ")" +
+                  /\s*=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+(?=[\s>]))/.source,
+                "i"
+              ),
+              lookbehind: !0,
+              inside: {
+                "attr-name": /^[^\s=]+/,
+                "attr-value": {
+                  pattern: /=[\s\S]+/,
+                  inside: {
+                    value: {
+                      pattern: /(^=\s*(["']|(?!["'])))\S[\s\S]*(?=\2$)/,
+                      lookbehind: !0,
+                      alias: [t, "language-" + t],
+                      inside: Prism.languages[t],
+                    },
+                    punctuation: [
+                      { pattern: /^=/, alias: "attr-equals" },
+                      /"|'/,
+                    ],
+                  },
+                },
+              },
+            });
+          },
+        }),
+        (Prism.languages.html = Prism.languages.markup),
+        (Prism.languages.mathml = Prism.languages.markup),
+        (Prism.languages.svg = Prism.languages.markup),
+        (Prism.languages.xml = Prism.languages.extend("markup", {})),
+        (Prism.languages.ssml = Prism.languages.xml),
+        (Prism.languages.atom = Prism.languages.xml),
+        (Prism.languages.rss = Prism.languages.xml),
+        (function (e) {
+          var t =
+              /(?:"(?:\\(?:\r\n|[\s\S])|[^"\\\r\n])*"|'(?:\\(?:\r\n|[\s\S])|[^'\\\r\n])*')/,
+            t =
+              ((e.languages.css = {
+                comment: /\/\*[\s\S]*?\*\//,
+                atrule: {
+                  pattern: RegExp(
+                    "@[\\w-](?:" +
+                      /[^;{\s"']|\s+(?!\s)/.source +
+                      "|" +
+                      t.source +
+                      ")*?" +
+                      /(?:;|(?=\s*\{))/.source
+                  ),
+                  inside: {
+                    rule: /^@[\w-]+/,
+                    "selector-function-argument": {
+                      pattern:
+                        /(\bselector\s*\(\s*(?![\s)]))(?:[^()\s]|\s+(?![\s)])|\((?:[^()]|\([^()]*\))*\))+(?=\s*\))/,
+                      lookbehind: !0,
+                      alias: "selector",
+                    },
+                    keyword: {
+                      pattern: /(^|[^\w-])(?:and|not|only|or)(?![\w-])/,
+                      lookbehind: !0,
+                    },
+                  },
+                },
+                url: {
+                  pattern: RegExp(
+                    "\\burl\\((?:" +
+                      t.source +
+                      "|" +
+                      /(?:[^\\\r\n()"']|\\[\s\S])*/.source +
+                      ")\\)",
+                    "i"
+                  ),
+                  greedy: !0,
+                  inside: {
+                    function: /^url/i,
+                    punctuation: /^\(|\)$/,
+                    string: {
+                      pattern: RegExp("^" + t.source + "$"),
+                      alias: "url",
+                    },
+                  },
+                },
+                selector: {
+                  pattern: RegExp(
+                    "(^|[{}\\s])[^{}\\s](?:[^{};\"'\\s]|\\s+(?![\\s{])|" +
+                      t.source +
+                      ")*(?=\\s*\\{)"
+                  ),
+                  lookbehind: !0,
+                },
+                string: { pattern: t, greedy: !0 },
+                property: {
+                  pattern:
+                    /(^|[^-\w\xA0-\uFFFF])(?!\s)[-_a-z\xA0-\uFFFF](?:(?!\s)[-\w\xA0-\uFFFF])*(?=\s*:)/i,
+                  lookbehind: !0,
+                },
+                important: /!important\b/i,
+                function: {
+                  pattern: /(^|[^-a-z0-9])[-a-z0-9]+(?=\()/i,
+                  lookbehind: !0,
+                },
+                punctuation: /[(){};:,]/,
+              }),
+              (e.languages.css.atrule.inside.rest = e.languages.css),
+              e.languages.markup);
+          t &&
+            (t.tag.addInlined("style", "css"),
+            t.tag.addAttribute("style", "css"));
+        })(Prism),
+        (Prism.languages.clike = {
+          comment: [
+            {
+              pattern: /(^|[^\\])\/\*[\s\S]*?(?:\*\/|$)/,
+              lookbehind: !0,
+              greedy: !0,
+            },
+            { pattern: /(^|[^\\:])\/\/.*/, lookbehind: !0, greedy: !0 },
+          ],
+          string: {
+            pattern: /(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,
+            greedy: !0,
+          },
+          "class-name": {
+            pattern:
+              /(\b(?:class|extends|implements|instanceof|interface|new|trait)\s+|\bcatch\s+\()[\w.\\]+/i,
+            lookbehind: !0,
+            inside: { punctuation: /[.\\]/ },
+          },
+          keyword:
+            /\b(?:break|catch|continue|do|else|finally|for|function|if|in|instanceof|new|null|return|throw|try|while)\b/,
+          boolean: /\b(?:false|true)\b/,
+          function: /\b\w+(?=\()/,
+          number: /\b0x[\da-f]+\b|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:e[+-]?\d+)?/i,
+          operator: /[<>]=?|[!=]=?=?|--?|\+\+?|&&?|\|\|?|[?*/~^%]/,
+          punctuation: /[{}[\];(),.:]/,
+        }),
+        (Prism.languages.javascript = Prism.languages.extend("clike", {
+          "class-name": [
+            Prism.languages.clike["class-name"],
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$A-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\.(?:constructor|prototype))/,
+              lookbehind: !0,
+            },
+          ],
+          keyword: [
+            { pattern: /((?:^|\})\s*)catch\b/, lookbehind: !0 },
+            {
+              pattern:
+                /(^|[^.]|\.\.\.\s*)\b(?:as|assert(?=\s*\{)|async(?=\s*(?:function\b|\(|[$\w\xA0-\uFFFF]|$))|await|break|case|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally(?=\s*(?:\{|$))|for|from(?=\s*(?:['"]|$))|function|(?:get|set)(?=\s*(?:[#\[$\w\xA0-\uFFFF]|$))|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)\b/,
+              lookbehind: !0,
+            },
+          ],
+          function:
+            /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*(?:\.\s*(?:apply|bind|call)\s*)?\()/,
+          number: {
+            pattern: RegExp(
+              /(^|[^\w$])/.source +
+                "(?:" +
+                /NaN|Infinity/.source +
+                "|" +
+                /0[bB][01]+(?:_[01]+)*n?/.source +
+                "|" +
+                /0[oO][0-7]+(?:_[0-7]+)*n?/.source +
+                "|" +
+                /0[xX][\dA-Fa-f]+(?:_[\dA-Fa-f]+)*n?/.source +
+                "|" +
+                /\d+(?:_\d+)*n/.source +
+                "|" +
+                /(?:\d+(?:_\d+)*(?:\.(?:\d+(?:_\d+)*)?)?|\.\d+(?:_\d+)*)(?:[Ee][+-]?\d+(?:_\d+)*)?/
+                  .source +
+                ")" +
+                /(?![\w$])/.source
+            ),
+            lookbehind: !0,
+          },
+          operator:
+            /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|<<=?|>>>?=?|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
+        })),
+        (Prism.languages.javascript["class-name"][0].pattern =
+          /(\b(?:class|extends|implements|instanceof|interface|new)\s+)[\w.\\]+/),
+        Prism.languages.insertBefore("javascript", "keyword", {
+          regex: {
+            pattern: RegExp(
+              /((?:^|[^$\w\xA0-\uFFFF."'\])\s]|\b(?:return|yield))\s*)/.source +
+                /\//.source +
+                "(?:" +
+                /(?:\[(?:[^\]\\\r\n]|\\.)*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}/
+                  .source +
+                "|" +
+                /(?:\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.|\[(?:[^[\]\\\r\n]|\\.)*\])*\])*\]|\\.|[^/\\\[\r\n])+\/[dgimyus]{0,7}v[dgimyus]{0,7}/
+                  .source +
+                ")" +
+                /(?=(?:\s|\/\*(?:[^*]|\*(?!\/))*\*\/)*(?:$|[\r\n,.;:})\]]|\/\/))/
+                  .source
+            ),
+            lookbehind: !0,
+            greedy: !0,
+            inside: {
+              "regex-source": {
+                pattern: /^(\/)[\s\S]+(?=\/[a-z]*$)/,
+                lookbehind: !0,
+                alias: "language-regex",
+                inside: Prism.languages.regex,
+              },
+              "regex-delimiter": /^\/|\/$/,
+              "regex-flags": /^[a-z]+$/,
+            },
+          },
+          "function-variable": {
+            pattern:
+              /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*[=:]\s*(?:async\s*)?(?:\bfunction\b|(?:\((?:[^()]|\([^()]*\))*\)|(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)\s*=>))/,
+            alias: "function",
+          },
+          parameter: [
+            {
+              pattern:
+                /(function(?:\s+(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)?\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\))/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$a-z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*=>)/i,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*=>)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /((?:\b|\s|^)(?!(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)(?![$\w\xA0-\uFFFF]))(?:(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*)\(\s*|\]\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*\{)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+          ],
+          constant: /\b[A-Z](?:[A-Z_]|\dx?)*\b/,
+        }),
+        Prism.languages.insertBefore("javascript", "string", {
+          hashbang: { pattern: /^#!.*/, greedy: !0, alias: "comment" },
+          "template-string": {
+            pattern:
+              /`(?:\\[\s\S]|\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}|(?!\$\{)[^\\`])*`/,
+            greedy: !0,
+            inside: {
+              "template-punctuation": { pattern: /^`|`$/, alias: "string" },
+              interpolation: {
+                pattern:
+                  /((?:^|[^\\])(?:\\{2})*)\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}/,
+                lookbehind: !0,
+                inside: {
+                  "interpolation-punctuation": {
+                    pattern: /^\$\{|\}$/,
+                    alias: "punctuation",
+                  },
+                  rest: Prism.languages.javascript,
+                },
+              },
+              string: /[\s\S]+/,
+            },
+          },
+          "string-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(["'])(?:\\(?:\r\n|[\s\S])|(?!\2)[^\\\r\n])*\2(?=\s*:)/m,
+            lookbehind: !0,
+            greedy: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.insertBefore("javascript", "operator", {
+          "literal-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*:)/m,
+            lookbehind: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.markup &&
+          (Prism.languages.markup.tag.addInlined("script", "javascript"),
+          Prism.languages.markup.tag.addAttribute(
+            /on(?:abort|blur|change|click|composition(?:end|start|update)|dblclick|error|focus(?:in|out)?|key(?:down|up)|load|mouse(?:down|enter|leave|move|out|over|up)|reset|resize|scroll|select|slotchange|submit|unload|wheel)/
+              .source,
+            "javascript"
+          )),
+        (Prism.languages.js = Prism.languages.javascript),
+        (function () {
+          var l, u, g, c, e;
+          void 0 !== Prism &&
+            "undefined" != typeof document &&
+            (Element.prototype.matches ||
+              (Element.prototype.matches =
+                Element.prototype.msMatchesSelector ||
+                Element.prototype.webkitMatchesSelector),
+            (l = {
+              js: "javascript",
+              py: "python",
+              rb: "ruby",
+              ps1: "powershell",
+              psm1: "powershell",
+              sh: "bash",
+              bat: "batch",
+              h: "c",
+              tex: "latex",
+            }),
+            (c =
+              "pre[data-src]:not([" +
+              (u = "data-src-status") +
+              '="loaded"]):not([' +
+              u +
+              '="' +
+              (g = "loading") +
+              '"])'),
+            Prism.hooks.add("before-highlightall", function (e) {
+              e.selector += ", " + c;
+            }),
+            Prism.hooks.add("before-sanity-check", function (e) {
+              var r,
+                t,
+                n,
+                a,
+                s,
+                i,
+                o = e.element;
+              o.matches(c) &&
+                ((e.code = ""),
+                o.setAttribute(u, g),
+                ((r = o.appendChild(
+                  document.createElement("CODE")
+                )).textContent = "Loading…"),
+                (t = o.getAttribute("data-src")),
+                "none" === (e = e.language) &&
+                  ((n = (/\.(\w+)$/.exec(t) || [, "none"])[1]),
+                  (e = l[n] || n)),
+                Prism.util.setLanguage(r, e),
+                Prism.util.setLanguage(o, e),
+                (n = Prism.plugins.autoloader) && n.loadLanguages(e),
+                (n = t),
+                (a = function (e) {
+                  o.setAttribute(u, "loaded");
+                  var t,
+                    n,
+                    a = (function (e) {
+                      var t, n;
+                      if (
+                        (e = /^\s*(\d+)\s*(?:(,)\s*(?:(\d+)\s*)?)?$/.exec(
+                          e || ""
+                        ))
+                      )
+                        return (
+                          (t = Number(e[1])),
+                          (n = e[2]),
+                          (e = e[3]),
+                          n ? (e ? [t, Number(e)] : [t, void 0]) : [t, t]
+                        );
+                    })(o.getAttribute("data-range"));
+                  a &&
+                    ((t = e.split(/\r\n?|\n/g)),
+                    (n = a[0]),
+                    (a = null == a[1] ? t.length : a[1]),
+                    n < 0 && (n += t.length),
+                    (n = Math.max(0, Math.min(n - 1, t.length))),
+                    a < 0 && (a += t.length),
+                    (a = Math.max(0, Math.min(a, t.length))),
+                    (e = t.slice(n, a).join("\n")),
+                    o.hasAttribute("data-start") ||
+                      o.setAttribute("data-start", String(n + 1))),
+                    (r.textContent = e),
+                    Prism.highlightElement(r);
+                }),
+                (s = function (e) {
+                  o.setAttribute(u, "failed"), (r.textContent = e);
+                }),
+                (i = new XMLHttpRequest()).open("GET", n, !0),
+                (i.onreadystatechange = function () {
+                  4 == i.readyState &&
+                    (i.status < 400 && i.responseText
+                      ? a(i.responseText)
+                      : 400 <= i.status
+                      ? s(
+                          "✖ Error " +
+                            i.status +
+                            " while fetching file: " +
+                            i.statusText
+                        )
+                      : s("✖ Error: File does not exist or is empty"));
+                }),
+                i.send(null));
+            }),
+            (e = !(Prism.plugins.fileHighlight = {
+              highlight: function (e) {
+                for (
+                  var t, n = (e || document).querySelectorAll(c), a = 0;
+                  (t = n[a++]);
+
+                )
+                  Prism.highlightElement(t);
+              },
+            })),
+            (Prism.fileHighlight = function () {
+              e ||
+                (console.warn(
+                  "Prism.fileHighlight is deprecated. Use `Prism.plugins.fileHighlight.highlight` instead."
+                ),
+                (e = !0)),
+                Prism.plugins.fileHighlight.highlight.apply(this, arguments);
+            }));
+        })();
+    </script>
+    <script>
+      /* PrismJS — grammaire JavaScript — intégrée */
+      (Prism.languages.javascript = Prism.languages.extend("clike", {
+        "class-name": [
+          Prism.languages.clike["class-name"],
+          {
+            pattern:
+              /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$A-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\.(?:constructor|prototype))/,
+            lookbehind: !0,
+          },
+        ],
+        keyword: [
+          { pattern: /((?:^|\})\s*)catch\b/, lookbehind: !0 },
+          {
+            pattern:
+              /(^|[^.]|\.\.\.\s*)\b(?:as|assert(?=\s*\{)|async(?=\s*(?:function\b|\(|[$\w\xA0-\uFFFF]|$))|await|break|case|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally(?=\s*(?:\{|$))|for|from(?=\s*(?:['"]|$))|function|(?:get|set)(?=\s*(?:[#\[$\w\xA0-\uFFFF]|$))|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)\b/,
+            lookbehind: !0,
+          },
+        ],
+        function:
+          /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*(?:\.\s*(?:apply|bind|call)\s*)?\()/,
+        number: {
+          pattern: RegExp(
+            "(^|[^\\w$])(?:NaN|Infinity|0[bB][01]+(?:_[01]+)*n?|0[oO][0-7]+(?:_[0-7]+)*n?|0[xX][\\dA-Fa-f]+(?:_[\\dA-Fa-f]+)*n?|\\d+(?:_\\d+)*n|(?:\\d+(?:_\\d+)*(?:\\.(?:\\d+(?:_\\d+)*)?)?|\\.\\d+(?:_\\d+)*)(?:[Ee][+-]?\\d+(?:_\\d+)*)?)(?![\\w$])"
+          ),
+          lookbehind: !0,
+        },
+        operator:
+          /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|<<=?|>>>?=?|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/,
+      })),
+        (Prism.languages.javascript["class-name"][0].pattern =
+          /(\b(?:class|extends|implements|instanceof|interface|new)\s+)[\w.\\]+/),
+        Prism.languages.insertBefore("javascript", "keyword", {
+          regex: {
+            pattern: RegExp(
+              "((?:^|[^$\\w\\xA0-\\uFFFF.\"'\\])\\s]|\\b(?:return|yield))\\s*)/(?:(?:\\[(?:[^\\]\\\\\r\n]|\\\\.)*\\]|\\\\.|[^/\\\\\\[\r\n])+/[dgimyus]{0,7}|(?:\\[(?:[^[\\]\\\\\r\n]|\\\\.|\\[(?:[^[\\]\\\\\r\n]|\\\\.|\\[(?:[^[\\]\\\\\r\n]|\\\\.)*\\])*\\])*\\]|\\\\.|[^/\\\\\\[\r\n])+/[dgimyus]{0,7}v[dgimyus]{0,7})(?=(?:\\s|/\\*(?:[^*]|\\*(?!/))*\\*/)*(?:$|[\r\n,.;:})\\]]|//))"
+            ),
+            lookbehind: !0,
+            greedy: !0,
+            inside: {
+              "regex-source": {
+                pattern: /^(\/)[\s\S]+(?=\/[a-z]*$)/,
+                lookbehind: !0,
+                alias: "language-regex",
+                inside: Prism.languages.regex,
+              },
+              "regex-delimiter": /^\/|\/$/,
+              "regex-flags": /^[a-z]+$/,
+            },
+          },
+          "function-variable": {
+            pattern:
+              /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*[=:]\s*(?:async\s*)?(?:\bfunction\b|(?:\((?:[^()]|\([^()]*\))*\)|(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)\s*=>))/,
+            alias: "function",
+          },
+          parameter: [
+            {
+              pattern:
+                /(function(?:\s+(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)?\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\))/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$a-z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*=>)/i,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /(\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*=>)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+            {
+              pattern:
+                /((?:\b|\s|^)(?!(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)(?![$\w\xA0-\uFFFF]))(?:(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*)\(\s*|\]\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*\{)/,
+              lookbehind: !0,
+              inside: Prism.languages.javascript,
+            },
+          ],
+          constant: /\b[A-Z](?:[A-Z_]|\dx?)*\b/,
+        }),
+        Prism.languages.insertBefore("javascript", "string", {
+          hashbang: { pattern: /^#!.*/, greedy: !0, alias: "comment" },
+          "template-string": {
+            pattern:
+              /`(?:\\[\s\S]|\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}|(?!\$\{)[^\\`])*`/,
+            greedy: !0,
+            inside: {
+              "template-punctuation": { pattern: /^`|`$/, alias: "string" },
+              interpolation: {
+                pattern:
+                  /((?:^|[^\\])(?:\\{2})*)\$\{(?:[^{}]|\{(?:[^{}]|\{[^}]*\})*\})+\}/,
+                lookbehind: !0,
+                inside: {
+                  "interpolation-punctuation": {
+                    pattern: /^\$\{|\}$/,
+                    alias: "punctuation",
+                  },
+                  rest: Prism.languages.javascript,
+                },
+              },
+              string: /[\s\S]+/,
+            },
+          },
+          "string-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(["'])(?:\\(?:\r\n|[\s\S])|(?!\2)[^\\\r\n])*\2(?=\s*:)/m,
+            lookbehind: !0,
+            greedy: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.insertBefore("javascript", "operator", {
+          "literal-property": {
+            pattern:
+              /((?:^|[,{])[ \t]*)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*:)/m,
+            lookbehind: !0,
+            alias: "property",
+          },
+        }),
+        Prism.languages.markup &&
+          (Prism.languages.markup.tag.addInlined("script", "javascript"),
+          Prism.languages.markup.tag.addAttribute(
+            "on(?:abort|blur|change|click|composition(?:end|start|update)|dblclick|error|focus(?:in|out)?|key(?:down|up)|load|mouse(?:down|enter|leave|move|out|over|up)|reset|resize|scroll|select|slotchange|submit|unload|wheel)",
+            "javascript"
+          )),
+        (Prism.languages.js = Prism.languages.javascript);
+    </script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700;800&display=swap");
+
+      /* ==== Thème Prism « tomorrow » (intégré) ==== */
+      code[class*="language-"],
+      pre[class*="language-"] {
+        color: #ccc;
+        background: 0 0;
+        font-family: "Fira Code", Consolas, Monaco, "Andale Mono", "Ubuntu Mono",
+          monospace;
+        font-size: 1em;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+      }
+      .token.block-comment,
+      .token.cdata,
+      .token.comment,
+      .token.doctype,
+      .token.prolog {
+        color: #999;
+      }
+      .token.punctuation {
+        color: #ccc;
+      }
+      .token.attr-name,
+      .token.deleted,
+      .token.namespace,
+      .token.tag {
+        color: #e2777a;
+      }
+      .token.function-name {
+        color: #6196cc;
+      }
+      .token.boolean,
+      .token.function,
+      .token.number {
+        color: #f08d49;
+      }
+      .token.class-name,
+      .token.constant,
+      .token.property,
+      .token.symbol {
+        color: #f8c555;
+      }
+      .token.atrule,
+      .token.builtin,
+      .token.important,
+      .token.keyword,
+      .token.selector {
+        color: #cc99cd;
+      }
+      .token.attr-value,
+      .token.char,
+      .token.regex,
+      .token.string,
+      .token.variable {
+        color: #7ec699;
+      }
+      .token.entity,
+      .token.operator,
+      .token.url {
+        color: #67cdcc;
+      }
+      .token.bold,
+      .token.important {
+        font-weight: 700;
+      }
+      .token.italic {
+        font-style: italic;
+      }
+      .token.entity {
+        cursor: help;
+      }
+      .token.inserted {
+        color: green;
+      }
+
+      /* ==== Variables du thème « Arène JavaScript » ==== */
+      :root {
+        --js-yellow: #f7df1e;
+        --js: #f7df1e;
+        --js-ink: #0a0c14;
+        --neon-blue: #00f3ff;
+        --neon-pink: #ff2d78;
+        --neon-green: #22ff88;
+        --cyber-dark: #0a0c14;
+        --text: #e2e8f0;
+        --muted: #9ca3af;
+        --dim: #6b7280;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --code-bg: #0d1120;
+        --code-line: #1e293b;
+        --blue: #60a5fa;
+        --cyan: #22d3ee;
+        --green: #34d399;
+        --red: #fb7185;
+        --glass: rgba(16, 20, 34, 0.72);
+        --glass-line: rgba(255, 255, 255, 0.08);
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: calc(var(--topbar-h, 96px) + 8px);
+        scroll-behavior: smooth;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .bg-mesh,
+        .grid-floor,
+        .title-glow,
+        .ping {
+          animation: none !important;
+        }
+      }
+      body {
+        margin: 0;
+        background-color: var(--cyber-dark);
+        color: var(--text);
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Arial,
+          sans-serif;
+        line-height: 1.55;
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+      code,
+      .mono,
+      table td code,
+      .sig,
+      .font-mono-code {
+        font-family: "Fira Code", Consolas, "Courier New", monospace;
+      }
+      h1,
+      h2,
+      h3,
+      .brand-name,
+      .font-heading {
+        font-family: "Orbitron", "Trebuchet MS", "Arial Black", sans-serif;
+        letter-spacing: 1px;
+      }
+
+      /* ==== Calques de fond (identiques au quiz) ==== */
+      .bg-mesh {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(
+            ellipse 60% 50% at 15% 20%,
+            rgba(247, 223, 30, 0.08),
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 85% 80%,
+            rgba(0, 243, 255, 0.08),
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse 40% 40% at 60% 10%,
+            rgba(255, 45, 120, 0.05),
+            transparent 50%
+          );
+        animation: meshDrift 16s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+      @keyframes meshDrift {
+        0% {
+          filter: hue-rotate(0deg) saturate(1);
+          transform: scale(1);
+        }
+        100% {
+          filter: hue-rotate(40deg) saturate(1.3);
+          transform: scale(1.08);
+        }
+      }
+      #particle-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .grid-floor {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 45vh;
+        z-index: 0;
+        background-image: linear-gradient(
+            rgba(0, 243, 255, 0.07) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 243, 255, 0.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        transform: perspective(420px) rotateX(62deg) scale(1.6);
+        transform-origin: bottom;
+        opacity: 0.5;
+        animation: gridScroll 3.5s linear infinite;
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        -webkit-mask-image: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.9),
+          transparent
+        );
+        pointer-events: none;
+      }
+      @keyframes gridScroll {
+        to {
+          background-position: 0 44px, 0 44px;
+        }
+      }
+      .scanlines {
+        position: relative;
+      }
+      .scanlines::before {
+        content: " ";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+            rgba(18, 16, 16, 0) 50%,
+            rgba(0, 0, 0, 0.22) 50%
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.02),
+            rgba(0, 255, 0, 0.01),
+            rgba(0, 0, 255, 0.02)
+          );
+        z-index: 60;
+        background-size: 100% 3px, 3px 100%;
+        pointer-events: none;
+        opacity: 0.55;
+      }
+
+      /* ==== Effet verre ==== */
+      .glass-panel,
+      .card,
+      .fn-box,
+      aside#side {
+        background: var(--glass);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--glass-line);
+        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.8),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      /* ==== Barre du haut ==== */
+      nav.topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        padding-top: env(safe-area-inset-top, 0px);
+        background: rgba(13, 16, 26, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+      }
+      .topbar-inner {
+        margin: 0 auto;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand-col {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--text);
+        min-width: 0;
+      }
+      .js-badge {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Fira Code", monospace;
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        box-shadow: 0 0 16px rgba(247, 223, 30, 0.55);
+        transition: transform 0.2s;
+      }
+      .logo:hover .js-badge {
+        transform: rotate(6deg);
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        line-height: 1.25;
+      }
+      .brand-name {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #fff;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .brand-name em {
+        font-style: normal;
+        color: var(--js-yellow);
+      }
+      .ver {
+        font-family: "Fira Code", monospace;
+        font-size: 10px;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: rgba(247, 223, 30, 0.1);
+        color: var(--js-yellow);
+        border: 1px solid rgba(247, 223, 30, 0.3);
+      }
+      .brand-sub {
+        font-family: "Fira Code", monospace;
+        font-size: 11px;
+        color: var(--dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        padding-left: 46px;
+      }
+      .author-logo {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: 6px;
+        flex: 0 0 auto;
+      }
+      .author-mono {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        font-size: 0.6rem;
+      }
+      .author-txt {
+        font-family: "Fira Code", monospace;
+        font-weight: 600;
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .navlinks {
+        display: flex;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+      .navbtn {
+        font-family: "Fira Code", Consolas, monospace;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        color: #d1d5db;
+        background: rgba(31, 41, 55, 0.8);
+        transition: all 0.2s;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .navbtn:hover {
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.5);
+        transform: translateY(-2px);
+      }
+      .navbtn.active {
+        background: var(--js-yellow);
+        color: #000;
+        border-color: var(--js-yellow);
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+      .navbtn.active:hover {
+        background: #fde047;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.4);
+        color: #000;
+      }
+      .menu-btn {
+        display: none;
+        font-size: 1.1rem;
+        line-height: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        background: rgba(31, 41, 55, 0.8);
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .menu-btn:hover {
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.5);
+      }
+
+      /* ==== Bandeau de progression ==== */
+      .course-bar {
+        border-top: 1px solid rgba(31, 41, 55, 0.8);
+        background: rgba(10, 12, 20, 0.6);
+        position: relative;
+      }
+      .course-bar-inner {
+        padding: 5px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 0.78rem;
+        font-family: "Fira Code", monospace;
+      }
+      .course-bar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        flex: 1;
+      }
+      .course-level-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 243, 255, 0.08);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        padding: 2px 9px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+      .course-sep {
+        color: var(--dim);
+        flex: 0 0 auto;
+      }
+      .course-sec-step {
+        font-weight: 700;
+        font-size: 0.7rem;
+        background: var(--js-yellow);
+        color: #000;
+        padding: 1px 7px;
+        border-radius: 999px;
+        flex: 0 0 auto;
+      }
+      .course-sec-name {
+        font-weight: 600;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.72rem;
+      }
+      .course-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+      .course-mini-track {
+        width: 84px;
+        height: 6px;
+        background: var(--gray-800);
+        border: 1px solid var(--gray-700);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .course-mini-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--cyan), var(--js-yellow));
+        border-radius: 999px;
+        transition: width 0.12s ease-out;
+      }
+      .course-pct {
+        font-weight: 700;
+        font-size: 0.74rem;
+        color: var(--js-yellow);
+        min-width: 3.4ch;
+        text-align: right;
+      }
+      .course-progress-track {
+        height: 3px;
+        width: 100%;
+        background: rgba(31, 41, 55, 0.6);
+        overflow: hidden;
+      }
+      .course-progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--cyan), var(--js-yellow));
+        box-shadow: 0 0 10px rgba(247, 223, 30, 0.6);
+        transition: width 0.1s ease-out;
+      }
+
+      /* ==== Mise en page ==== */
+      .layout {
+        display: flex;
+        align-items: flex-start;
+        position: relative;
+        z-index: 10;
+      }
+      .content {
+        flex: 1;
+        min-width: 0;
+      }
+      aside#side {
+        position: sticky;
+        top: var(--topbar-h, 64px);
+        flex: 0 0 210px;
+        width: 210px;
+        max-height: calc(100vh - var(--topbar-h, 64px));
+        overflow-y: auto;
+        padding: 12px 8px 20px 10px;
+        border: none;
+        border-right: 1px solid rgba(31, 41, 55, 0.8);
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      aside#side a {
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+        position: relative;
+        counter-increment: side;
+      }
+      aside#side {
+        counter-reset: side;
+      }
+      aside#side a::before {
+        content: counter(side, decimal-leading-zero) " ";
+        color: var(--dim);
+        font-size: 0.68rem;
+      }
+      aside#side a:hover {
+        background: rgba(31, 41, 55, 0.6);
+        color: #fff;
+        transform: translateX(4px);
+      }
+      aside#side a.active {
+        background: rgba(247, 223, 30, 0.1);
+        color: var(--js-yellow);
+        border-color: rgba(247, 223, 30, 0.3);
+        box-shadow: 0 0 14px rgba(247, 223, 30, 0.12);
+      }
+      aside#side a.active::before {
+        color: var(--js-yellow);
+      }
+
+      /* ==== En-tête de la page ==== */
+      header {
+        padding: 28px 18px 10px;
+        text-align: left;
+        margin: 0 auto;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: rgba(247, 223, 30, 0.1);
+        border: 1px solid rgba(247, 223, 30, 0.3);
+        color: var(--js-yellow);
+        font-family: "Fira Code", monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .eyebrow .ping {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        position: relative;
+      }
+      .eyebrow .ping::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+      @keyframes ping {
+        75%,
+        100% {
+          transform: scale(2.4);
+          opacity: 0;
+        }
+      }
+      h1 {
+        font-size: clamp(1.8rem, 4.5vw, 3rem);
+        margin: 0.4em 0 0.25em;
+        font-weight: 900;
+        line-height: 1.1;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(90deg, #fef08a, #fcd34d, #eab308);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .title-glow {
+        animation: titleGlow 3s ease-in-out infinite;
+      }
+      @keyframes titleGlow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 10px rgba(247, 223, 30, 0.35));
+        }
+        50% {
+          filter: drop-shadow(0 0 22px rgba(247, 223, 30, 0.6));
+        }
+      }
+      header p {
+        color: var(--muted);
+        max-width: 64ch;
+        margin: 0;
+        font-size: 0.98rem;
+      }
+      header p .kbd {
+        margin: 0 2px;
+      }
+      .kbd {
+        font-family: "Fira Code", Consolas, monospace;
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom-width: 3px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #d1d5db;
+      }
+
+      main {
+        margin: 0 auto;
+        padding: 8px 18px 48px;
+      }
+
+      /* ==== Sections ==== */
+      .section {
+        margin-bottom: 34px;
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      @keyframes popIn {
+        0% {
+          transform: scale(0.97);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .section h2 {
+        font-size: 1.05rem;
+        font-weight: 800;
+        margin: 0 0 14px;
+        padding: 8px 16px 8px 14px;
+        background: rgba(16, 20, 34, 0.8);
+        border: 1px solid var(--gray-700);
+        border-left: 3px solid var(--js-yellow);
+        border-radius: 10px;
+        display: inline-block;
+        max-width: 100%;
+        color: #fff;
+        text-transform: uppercase;
+        line-height: 1.35;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.08);
+      }
+      .section h2::before {
+        content: "// ";
+        color: var(--js-yellow);
+        font-family: "Fira Code", monospace;
+        font-weight: 700;
+      }
+      .section h2 .note {
+        font-family: "Fira Code", monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0;
+        text-transform: none;
+        margin: 0 0 0 8px;
+        font-weight: 400;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(0, 243, 255, 0.08);
+        color: var(--cyan);
+        border: 1px solid rgba(0, 243, 255, 0.25);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+        gap: 14px;
+      }
+
+      /* ==== Cartes ==== */
+      .card {
+        border-radius: 16px;
+        padding: 18px 20px;
+        overflow-x: auto;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-color 0.25s, box-shadow 0.25s;
+      }
+      .card:hover {
+        border-color: rgba(247, 223, 30, 0.25);
+        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.8),
+          0 0 24px rgba(247, 223, 30, 0.06),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--js-yellow);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card h3::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--js-yellow);
+        box-shadow: 0 0 8px var(--js-yellow);
+        flex: 0 0 auto;
+      }
+      .card h3 code {
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--cyan);
+      }
+      .card p {
+        color: #cbd5e1;
+      }
+      .card strong {
+        color: #fff;
+      }
+
+      /* ==== Tableaux ==== */
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.9rem;
+      }
+      table.wide {
+        min-width: 0;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 9px 10px;
+        border-bottom: 1px solid rgba(55, 65, 81, 0.6);
+        vertical-align: top;
+      }
+      th {
+        color: var(--dim);
+        font-weight: 600;
+        font-size: 0.72rem;
+        font-family: "Fira Code", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      td {
+        color: #cbd5e1;
+      }
+      td code,
+      th code,
+      p code,
+      li code,
+      .fn-desc code,
+      .exo-txt code,
+      .note code {
+        color: var(--blue);
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 0.85em;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .ok {
+        color: var(--neon-green);
+      }
+      .no {
+        color: var(--neon-pink);
+      }
+
+      /* ==== Blocs de code (style « exercice.js » du quiz) ==== */
+      pre {
+        position: relative;
+        background: var(--code-bg) !important;
+        border: 1px solid var(--code-line);
+        border-radius: 0.75rem;
+        padding: 36px 16px 14px !important;
+        overflow-x: auto;
+        font-size: 0.82rem;
+        margin: 10px 0 0;
+        line-height: 1.6;
+        box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.7);
+        font-family: "Fira Code", Consolas, monospace;
+        color: #ccc;
+      }
+      pre::before {
+        content: "";
+        position: absolute;
+        top: 11px;
+        left: 14px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.7);
+        box-shadow: 16px 0 0 rgba(234, 179, 8, 0.7),
+          32px 0 0 rgba(34, 197, 94, 0.7);
+      }
+      pre::after {
+        content: attr(data-file);
+        position: absolute;
+        top: 7px;
+        right: 12px;
+        font-family: "Fira Code", monospace;
+        font-size: 10px;
+        color: var(--dim);
+      }
+      pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+      pre .c,
+      .token.comment {
+        color: #6b7280;
+      }
+      .note {
+        color: var(--muted);
+        font-size: 0.84rem;
+        margin-top: 8px;
+        font-style: italic;
+      }
+
+      /* ==== Exercices ==== */
+      .exo {
+        border-bottom: 1px solid rgba(55, 65, 81, 0.6);
+        padding: 12px 0;
+      }
+      .exo:last-child {
+        border-bottom: none;
+      }
+      .exo summary {
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        font-size: 0.92rem;
+        color: #e5e7eb;
+        padding: 6px 8px;
+        margin: -6px -8px;
+        border-radius: 10px;
+        transition: background 0.2s, transform 0.15s;
+      }
+      .exo summary:hover {
+        background: rgba(255, 255, 255, 0.03);
+        transform: translateX(5px);
+      }
+      .exo summary::-webkit-details-marker {
+        display: none;
+      }
+      .exo summary::before {
+        content: "▸";
+        color: var(--js-yellow);
+        flex: 0 0 auto;
+        transition: transform 0.15s;
+      }
+      .exo[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .exo[open] summary {
+        color: #fff;
+      }
+      .exo-num {
+        color: #000;
+        background: var(--js-yellow);
+        border-radius: 6px;
+        font-family: "Fira Code", monospace;
+        font-weight: 700;
+        font-size: 0.72rem;
+        flex: 0 0 auto;
+        min-width: 1.8em;
+        text-align: center;
+        padding: 2px 4px;
+        box-shadow: 0 0 10px rgba(247, 223, 30, 0.35);
+      }
+      .exo-txt {
+        flex: 1;
+      }
+      .exo pre {
+        margin-top: 12px;
+        animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+
+      .compare {
+        overflow-x: auto;
+      }
+      .compare table {
+        min-width: 0;
+      }
+
+      /* ==== Boutons / boîtes extensibles (fonctions Math, chaînes…) ==== */
+      .fn-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .fnbtn {
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--gray-700);
+        background: rgba(31, 41, 55, 0.8);
+        color: var(--cyan);
+        transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s,
+          background 0.2s, color 0.2s;
+      }
+      .fnbtn::after {
+        content: " ▾";
+        color: var(--js-yellow);
+      }
+      .fnbtn:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 243, 255, 0.5);
+        box-shadow: 0 0 14px rgba(0, 243, 255, 0.15);
+      }
+      .fnbtn:focus-visible {
+        outline: 2px solid var(--js-yellow);
+        outline-offset: 2px;
+      }
+      .fnbtn[aria-expanded="true"] {
+        background: var(--js-yellow);
+        color: #000;
+        border-color: var(--js-yellow);
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.4);
+      }
+      .fnbtn[aria-expanded="true"]::after {
+        content: " ▴";
+        color: #000;
+      }
+      .fn-panel {
+        display: grid;
+        grid-template-rows: 0fr;
+        visibility: hidden;
+        transition: grid-template-rows 0.25s ease, visibility 0.25s;
+      }
+      .fn-panel.open {
+        grid-template-rows: 1fr;
+        visibility: visible;
+        margin-top: 12px;
+      }
+      .fn-inner {
+        overflow: hidden;
+        min-height: 0;
+      }
+      .fn-box {
+        border-left: 4px solid var(--js-yellow);
+        border-radius: 16px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+        column-gap: 24px;
+        align-content: start;
+        padding: 18px 22px;
+      }
+      .fn-box .sig,
+      .fn-box .fn-desc,
+      .fn-box .note {
+        grid-column: 1;
+      }
+      .fn-box .sig {
+        color: var(--js-yellow);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+      .fn-desc {
+        font-size: 0.95rem;
+        color: #cbd5e1;
+      }
+      .fn-box pre {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        margin: 0;
+        font-size: 0.88rem;
+        align-self: start;
+      }
+      .fn-box .note {
+        margin-top: 10px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fn-panel {
+          transition: none;
+        }
+      }
+
+      /* ==== Pied de page ==== */
+      footer {
+        margin: 20px auto 0;
+        text-align: center;
+        color: var(--dim);
+        font-family: "Fira Code", monospace;
+        font-size: 0.78rem;
+        padding: 22px 14px 32px;
+        border-top: 1px solid rgba(31, 41, 55, 0.6);
+        position: relative;
+        z-index: 10;
+      }
+      footer .credit {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #d1d5db;
+        margin-bottom: 12px;
+      }
+      footer .credit .js-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+      }
+
+      /* ==== Bouton « revenir en haut » ==== */
+      .back-to-top {
+        position: fixed;
+        right: 18px;
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        z-index: 40;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 50%;
+        border: none;
+        background: var(--js-yellow);
+        color: #000;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        font-size: 1.1rem;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(247, 223, 30, 0.55);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(14px) scale(0.92);
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s,
+          background 0.15s;
+      }
+      .back-to-top span {
+        display: none;
+      }
+      .back-to-top.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+      .back-to-top:hover {
+        background: #fde047;
+        transform: translateY(-3px) scale(1.04);
+      }
+      .back-to-top:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .back-to-top:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      /* ==== Barre de défilement ==== */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0d1117;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #2a3448;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #f7df1e;
+      }
+
+      /* ==== Responsive ==== */
+      @media (max-width: 900px) {
+        .menu-btn {
+          display: inline-block;
+        }
+        aside#side {
+          position: fixed;
+          left: 0;
+          z-index: 45;
+          background: rgba(13, 16, 26, 0.96);
+          transform: translateX(-105%);
+          transition: transform 0.2s;
+          border-right: 1px solid var(--gray-700);
+          border-radius: 0 12px 12px 0;
+        }
+        aside#side.open {
+          transform: none;
+        }
+        .fn-box {
+          grid-template-columns: 1fr;
+        }
+        .fn-box pre {
+          grid-column: 1;
+          grid-row: auto;
+          margin-top: 10px;
+        }
+      }
+      @media (max-width: 600px) {
+        .course-mini-track {
+          display: none;
+        }
+        .brand-sub,
+        .author {
+          display: none;
+        }
+        .back-to-top {
+          right: 14px;
+          bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        }
+        .navbtn span.lbl {
+          display: none;
+        }
+        .brand-name {
+          font-size: 0.72rem;
+          white-space: normal;
+          display: block;
+          line-height: 1.2;
+        }
+        .navbtn.active {
+          font-size: 0.65rem;
+          padding: 8px 9px;
+        }
+        .brand-name .ver {
+          display: none;
+        }
+        .section h2 {
+          font-size: 0.9rem;
+          letter-spacing: 0.5px;
+        }
+        header {
+          padding: 20px 14px 8px;
+        }
+        main {
+          padding: 8px 12px 40px;
+        }
+        .card {
+          padding: 14px 14px;
+        }
+      }
+    </style>
+  </head>
+  <body class="scanlines">
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:78px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../exercices/series-exercices.html#javascript" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🏋️ Exercices</a><a href="../quiz/javascript.html" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">🎯 Quiz</a></nav>
+
+    <!-- Calques de fond -->
+    <div class="bg-mesh"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div class="grid-floor"></div>
+
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-col">
+          <a class="logo" href="#top">
+            <span class="js-badge">JS</span>
+            <span class="brand-text">
+              <span class="brand-name">
+                Annexe <em>JavaScript</em>
+                <span class="ver">3ème/4ème SI</span>
+              </span>
+              <span class="brand-sub"
+                >Conforme à l'Annexe JavaScript officielle</span
+              >
+            </span>
+          </a>
+          <div class="author">
+            <img
+              class="author-logo"
+              src="../assets/icons/STI_by_AE.ico"
+              alt="Logo de A. Essouyah"
+              width="26"
+              height="26"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            />
+            <span class="author-mono" style="display: none" aria-hidden="true"
+              >AE</span
+            >
+            <span class="author-txt">Travail élaboré par A. Essouyah</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="menu-btn"
+          id="menu-btn"
+          aria-label="Sommaire"
+        >
+          ☰
+        </button>
+        <div class="navlinks">
+          <a
+            class="navbtn"
+            href="../index.html#cours"
+            title="Retourner à la page d'accueil"
+            >◀ <span class="lbl">Accueil</span></a
+          >
+          <a
+            class="navbtn active"
+            href="../documents/annexes/annexe-javascript.pdf.html"
+            target="_blank"
+            >📄 ANNEXE JS</a
+          >
+        </div>
+      </div>
+      <div
+        class="course-bar"
+        role="status"
+        aria-live="polite"
+        aria-label="Niveau et progression du cours"
+      >
+        <div class="course-bar-inner">
+          <div class="course-bar-left">
+            <span class="course-level-badge">🎓 Niveau : 3ème/4ème SI</span>
+            <span class="course-sep" aria-hidden="true">•</span>
+            <span class="course-sec-step" id="course-sec-step">1 / 16</span>
+            <span class="course-sec-name" id="course-sec-name"
+              >Présentation</span
+            >
+          </div>
+          <div class="course-bar-right" title="Progression de lecture du cours">
+            <div class="course-mini-track" aria-hidden="true">
+              <div class="course-mini-fill" id="course-mini-fill"></div>
+            </div>
+            <span class="course-pct" id="course-pct">0%</span>
+          </div>
+        </div>
+        <div class="course-progress-track" aria-hidden="true">
+          <div class="course-progress-fill" id="course-progress-fill"></div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside id="side" aria-label="Sommaire">
+        <a href="#sec1">Présentation</a>
+        <a href="#sec2">Où placer le code</a>
+        <a href="#sec3">Variables</a>
+        <a href="#sec4">Opérateurs</a>
+        <a href="#sec5">Entrées / sorties</a>
+        <a href="#sec6">Comparatifs</a>
+        <a href="#sec7">Fonctions globales</a>
+        <a href="#sec8">Math</a>
+        <a href="#sec9">Chaînes</a>
+        <a href="#sec10">Tableaux</a>
+        <a href="#sec11">Objet Date</a>
+        <a href="#sec12">Conditions</a>
+        <a href="#sec13">Boucles</a>
+        <a href="#sec14">Fonctions</a>
+        <a href="#sec15">DOM</a>
+        <a href="#sec16">Exercices</a>
+      </aside>
+      <div class="content">
+        <header id="top">
+          <div class="eyebrow">
+            <span class="ping"></span>3ème/4ème SI — Web &amp; bases de données
+          </div>
+          <h1 class="title-glow">Annexe JavaScript</h1>
+          <p>
+            Référence rapide : opérateurs, fonctions natives, chaînes, tableaux,
+            dates et manipulation du DOM.
+            <br /><span class="kbd">CLIC</span> sur une fonction ou un énoncé
+            d'exercice pour afficher le détail.
+          </p>
+        </header>
+
+        <main>
+          <div class="section" id="sec1">
+            <h2>Qu'est-ce que JavaScript ?</h2>
+            <div class="card">
+              <p style="margin: 0">
+                JavaScript est un langage de programmation qui s'exécute dans le
+                navigateur (côté client). Il permet de rendre une page HTML
+                <strong>dynamique et interactive</strong> : réagir aux clics,
+                valider un formulaire, modifier le contenu ou le style d'un
+                élément, faire des calculs, etc.
+              </p>
+            </div>
+          </div>
+
+          <div class="section" id="sec2">
+            <h2>Où placer le code JavaScript ?</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Script interne</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Dans une balise <code>&lt;script&gt;</code>, en général juste
+                  avant <code>&lt;/body&gt;</code>.
+                </p>
+                <pre>
+&lt;body&gt;
+  ...
+  &lt;script&gt;
+    alert("Bonjour !");
+  &lt;/script&gt;
+&lt;/body&gt;</pre
+                >
+              </div>
+              <div class="card">
+                <h3>Script externe</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Le code est écrit dans un fichier <code>.js</code> séparé,
+                  plus facile à réutiliser.
+                </p>
+                <pre>&lt;script src="script.js"&gt;&lt;/script&gt;</pre>
+              </div>
+              <div class="card">
+                <h3>Script en ligne (inline)</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Directement dans un attribut d'événement HTML. À réserver aux
+                  tests rapides.
+                </p>
+                <pre>
+&lt;button onclick="alert('Clic !')"&gt;
+  Cliquer
+&lt;/button&gt;</pre
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec3">
+            <h2>Variables : portée et déclaration</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Règles de nommage</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Ces règles valent aussi pour les noms de fonctions.
+                </p>
+                <ul
+                  style="
+                    margin: 0;
+                    padding-left: 18px;
+                    font-size: 0.9rem;
+                    line-height: 1.8;
+                  "
+                >
+                  <li>
+                    Doit <strong>commencer</strong> par une lettre,
+                    <code>$</code> ou <code>_</code> — jamais par un chiffre
+                  </li>
+                  <li>
+                    Peut ensuite contenir lettres, chiffres, <code>$</code>,
+                    <code>_</code> — pas d'espace ni d'accent
+                  </li>
+                  <li>
+                    Sensible à la casse : <code>age</code> ≠ <code>Age</code>
+                  </li>
+                  <li>
+                    Ne peut pas être un mot réservé (<code>let</code>,
+                    <code>function</code>, <code>if</code>…)
+                  </li>
+                </ul>
+                <pre
+                  style="margin-top: 10px"
+                >let age = 15;        <span class="c">// ✔ valide</span>
+let _total = 0;       <span class="c">// ✔ valide</span>
+let $prix = 9.9;       <span class="c">// ✔ valide</span>
+let nombre2 = 4;        <span class="c">// ✔ valide</span>
+
+let 2nombre = 4;   <span class="c">// ✘ commence par un chiffre</span>
+let mon age = 15;  <span class="c">// ✘ contient un espace</span>
+let let = 1;         <span class="c">// ✘ mot réservé</span></pre>
+              </div>
+              <div class="card">
+                <h3>Locale ou globale ?</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Une variable <strong>globale</strong> est accessible partout
+                  dans le script. Une variable <strong>locale</strong> n'existe
+                  qu'à l'intérieur de la fonction (ou du bloc) où elle est
+                  déclarée.
+                </p>
+                <pre>let compteur = 0; <span class="c">// globale</span>
+
+function incrementer() {
+  let pas = 1;     <span class="c">// locale à la fonction</span>
+  compteur += pas;
+}
+
+incrementer();
+console.log(compteur); <span class="c">// 1 — accessible</span>
+console.log(pas);      <span class="c">// erreur — pas n'existe pas ici</span></pre>
+              </div>
+              <div class="card">
+                <h3>let, var, const</h3>
+                <table>
+                  <tr>
+                    <th>Critère</th>
+                    <th><code>let</code></th>
+                    <th><code>var</code></th>
+                    <th><code>const</code></th>
+                  </tr>
+                  <tr>
+                    <td>Portée</td>
+                    <td>Le bloc <code>{ }</code></td>
+                    <td>La fonction entière</td>
+                    <td>Le bloc <code>{ }</code></td>
+                  </tr>
+                  <tr>
+                    <td>Redéclaration</td>
+                    <td class="no">✘</td>
+                    <td class="ok">✔</td>
+                    <td class="no">✘</td>
+                  </tr>
+                  <tr>
+                    <td>Réaffectation</td>
+                    <td class="ok">✔ possible</td>
+                    <td class="ok">✔ possible</td>
+                    <td class="no">✘ interdite</td>
+                  </tr>
+                  <tr>
+                    <td>Recommandé ?</td>
+                    <td class="ok">Oui, si la valeur change</td>
+                    <td class="no">Non — ancien</td>
+                    <td class="ok">Oui, si la valeur ne change pas</td>
+                  </tr>
+                </table>
+                <pre style="margin-top: 12px">if (true) {
+  let a = 10;
+  var b = 20;
+}
+console.log(a); <span class="c">// erreur : a n'existe pas hors du bloc</span>
+console.log(b); <span class="c">// 20 : var ignore le bloc if</span>
+
+const PI = 3.14;
+PI = 3;            <span class="c">// erreur : réaffectation interdite</span></pre>
+              </div>
+              <div class="card">
+                <h3>let : changer sa valeur dans un bloc</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Tout dépend si on écrit un nouveau <code>let</code> dans le
+                  bloc ou non.
+                </p>
+                <p class="note" style="margin: 0 0 4px">
+                  <strong>Sans nouveau <code>let</code></strong> → on modifie la
+                  variable existante, le changement reste après le bloc :
+                </p>
+                <pre>let x = 10;
+if (true) {
+  x = 20; <span class="c">// pas de "let" → même variable</span>
+}
+console.log(x); <span class="c">// 20</span></pre>
+                <p class="note" style="margin: 12px 0 4px">
+                  <strong>Avec un nouveau <code>let</code></strong> → une
+                  variable locale au bloc est créée, distincte de celle de
+                  l'extérieur :
+                </p>
+                <pre>let y = 10;
+if (true) {
+  let y = 20; <span class="c">// "let" → nouvelle variable, propre au bloc</span>
+  console.log(y); <span class="c">// 20 (la variable du bloc)</span>
+}
+console.log(y); <span class="c">// 10 (inchangée en dehors du bloc)</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec4">
+            <h2>Opérateurs</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Logiques</h3>
+                <table>
+                  <tr>
+                    <td><code>&amp;&amp;</code></td>
+                    <td>ET</td>
+                  </tr>
+                  <tr>
+                    <td><code>||</code></td>
+                    <td>OU</td>
+                  </tr>
+                  <tr>
+                    <td><code>!</code></td>
+                    <td>NON</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card">
+                <h3>Comparaison</h3>
+                <table>
+                  <tr>
+                    <td><code>==</code></td>
+                    <td>Égal</td>
+                  </tr>
+                  <tr>
+                    <td><code>!=</code></td>
+                    <td>Différent</td>
+                  </tr>
+                  <tr>
+                    <td><code>&gt;</code></td>
+                    <td>Supérieur à</td>
+                  </tr>
+                  <tr>
+                    <td><code>&gt;=</code></td>
+                    <td>Supérieur ou égal à</td>
+                  </tr>
+                  <tr>
+                    <td><code>&lt;</code></td>
+                    <td>Inférieur à</td>
+                  </tr>
+                  <tr>
+                    <td><code>&lt;=</code></td>
+                    <td>Inférieur ou égal à</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card">
+                <h3>Arithmétiques</h3>
+                <table>
+                  <tr>
+                    <td><code>+</code></td>
+                    <td>Addition</td>
+                  </tr>
+                  <tr>
+                    <td><code>-</code></td>
+                    <td>Soustraction</td>
+                  </tr>
+                  <tr>
+                    <td><code>*</code></td>
+                    <td>Multiplication</td>
+                  </tr>
+                  <tr>
+                    <td><code>/</code></td>
+                    <td>Division</td>
+                  </tr>
+                  <tr>
+                    <td><code>%</code></td>
+                    <td>Reste (division euclidienne)</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec5">
+            <h2>Entrées / sorties</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Afficher une sortie</h3>
+                <table>
+                  <tr>
+                    <td><code>alert()</code></td>
+                    <td>Boîte de dialogue avec un message</td>
+                  </tr>
+                  <tr>
+                    <td><code>document.write()</code></td>
+                    <td>Écrit directement dans le document HTML</td>
+                  </tr>
+                </table>
+                <p class="note">
+                  Pour un contenu dynamique, utiliser
+                  <code>innerHTML</code> d'un élément.
+                </p>
+              </div>
+              <div class="card">
+                <h3>Saisir une entrée</h3>
+                <table>
+                  <tr>
+                    <td><code>prompt()</code></td>
+                    <td>Boîte de dialogue avec zone de saisie</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec6">
+            <h2>Comparatifs</h2>
+            <div class="grid">
+              <div class="card compare">
+                <h3>prompt() · alert() · confirm()</h3>
+                <table>
+                  <tr>
+                    <th>Critère</th>
+                    <th>prompt()</th>
+                    <th>alert()</th>
+                    <th>confirm()</th>
+                  </tr>
+                  <tr>
+                    <td>Rôle</td>
+                    <td>Demander une valeur</td>
+                    <td>Afficher un message</td>
+                    <td>Poser une question Oui/Non</td>
+                  </tr>
+                  <tr>
+                    <td>Interaction</td>
+                    <td class="ok">✔ Saisie de texte</td>
+                    <td class="no">✘ Aucun choix</td>
+                    <td class="ok">✔ Deux choix</td>
+                  </tr>
+                  <tr>
+                    <td>Retourne</td>
+                    <td><code>texte</code> ou <code>null</code></td>
+                    <td><code>undefined</code></td>
+                    <td><code>true</code>/<code>false</code></td>
+                  </tr>
+                  <tr>
+                    <td>Bloque le code ?</td>
+                    <td class="ok">Oui</td>
+                    <td class="ok">Oui</td>
+                    <td class="ok">Oui</td>
+                  </tr>
+                  <tr>
+                    <td>Cas d'usage</td>
+                    <td>Demander un nom, une valeur</td>
+                    <td>Avertissement simple</td>
+                    <td>Validation (« Supprimer ? »)</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card compare">
+                <h3>document.write() · innerHTML · textContent</h3>
+                <table>
+                  <tr>
+                    <th>Critère</th>
+                    <th>document.write()</th>
+                    <th>innerHTML</th>
+                    <th>textContent</th>
+                  </tr>
+                  <tr>
+                    <td>Usage</td>
+                    <td>Écrire au chargement</td>
+                    <td>Modifier le HTML d'un élément</td>
+                    <td>Insérer du texte brut</td>
+                  </tr>
+                  <tr>
+                    <td>Accepte le HTML ?</td>
+                    <td class="ok">Oui</td>
+                    <td class="ok">Oui</td>
+                    <td class="no">Non</td>
+                  </tr>
+                  <tr>
+                    <td>Efface tout après chargement ?</td>
+                    <td class="ok">Oui</td>
+                    <td class="no">Non</td>
+                    <td class="no">Non</td>
+                  </tr>
+                  <tr>
+                    <td>Recommandé ?</td>
+                    <td class="no">Non — obsolète</td>
+                    <td class="ok">Oui</td>
+                    <td class="ok">Oui</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec7">
+            <h2>Fonctions/méthodes globales</h2>
+            <div class="card">
+              <table class="wide">
+                <tr>
+                  <td><code>isNaN(ch)</code></td>
+                  <td>true si ch n'est pas convertible en nombre</td>
+                </tr>
+                <tr>
+                  <td><code>Number(ch)</code></td>
+                  <td>Convertit ch en nombre (sinon <code>NaN</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>parseFloat(ch)</code></td>
+                  <td>Convertit ch en réel</td>
+                </tr>
+                <tr>
+                  <td><code>parseInt(ch [,b])</code></td>
+                  <td>Convertit ch en entier, base b</td>
+                </tr>
+                <tr>
+                  <td><code>String(a)</code></td>
+                  <td>Convertit a en chaîne</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="grid" style="margin-top: 16px">
+              <div class="card">
+                <h3>isNaN() vs Number.isNaN()</h3>
+                <table>
+                  <tr>
+                    <th></th>
+                    <th>Comportement</th>
+                    <th><code>"blabla"</code></th>
+                  </tr>
+                  <tr>
+                    <td><code>isNaN()</code></td>
+                    <td>Convertit d'abord en nombre</td>
+                    <td class="ok">true</td>
+                  </tr>
+                  <tr>
+                    <td><code>Number.isNaN()</code></td>
+                    <td>Teste strictement, sans conversion</td>
+                    <td class="no">false</td>
+                  </tr>
+                </table>
+                <p class="note">
+                  <code>Number.isNaN()</code> est plus robuste.
+                </p>
+              </div>
+              <div class="card">
+                <h3>Number(ch)</h3>
+                <pre>Number("37");       <span class="c">// 37</span>
+Number("blabla");   <span class="c">// NaN</span>
+Number(true);        <span class="c">// 1</span>
+Number(null);         <span class="c">// 0</span>
+Number(undefined);   <span class="c">// NaN</span></pre>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>parseInt(ch [, base])</h3>
+              <p class="note" style="margin: 0 0 8px">
+                La base par défaut n'est pas 10 — toujours la préciser.
+              </p>
+              <pre>function roughScale(x, base) {
+  const parsed = Number.parseInt(x, base);
+  if (Number.isNaN(parsed)) { return 0; }
+  return parsed * 100;
+}
+roughScale('0xF', 16); <span class="c">// 1500</span>
+roughScale('321', 2);  <span class="c">// 0</span></pre>
+              <h3 style="margin-top: 16px">parseFloat(ch)</h3>
+              <pre>function circumference(r) {
+  if (Number.isNaN(Number.parseFloat(r))) { return 0; }
+  return parseFloat(r) * 2.0 * Math.PI;
+}
+circumference('4.567abcdefgh'); <span class="c">// 28.695...</span>
+circumference('abcdefgh');      <span class="c">// 0</span></pre>
+              <h3 style="margin-top: 16px">Encore quelques exemples</h3>
+              <pre>parseInt("42px");      <span class="c">// 42  (s'arrête au 1er caractère non numérique)</span>
+parseInt("3.99", 10);   <span class="c">// 3   (parseInt ignore les décimales)</span>
+parseFloat("3.99abc"); <span class="c">// 3.99</span>
+parseInt("101", 2);     <span class="c">// 5   (binaire → décimal)</span>
+parseInt("FF", 16);     <span class="c">// 255 (hexadécimal → décimal)</span>
+parseInt("abc");        <span class="c">// NaN</span></pre>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Conversion chaîne ↔ nombre</h3>
+              <table class="wide">
+                <tr>
+                  <td><code>Number("12")</code></td>
+                  <td><code>12</code></td>
+                </tr>
+                <tr>
+                  <td><code>Number("12,5")</code></td>
+                  <td><code>NaN</code> (virgule non reconnue)</td>
+                </tr>
+                <tr>
+                  <td><code>Number(" 8 ")</code></td>
+                  <td><code>8</code> (espaces ignorés)</td>
+                </tr>
+                <tr>
+                  <td><code>String(12)</code></td>
+                  <td><code>"12"</code></td>
+                </tr>
+                <tr>
+                  <td><code>String(3.5)</code></td>
+                  <td><code>"3.5"</code></td>
+                </tr>
+                <tr>
+                  <td><code>12 + ""</code></td>
+                  <td><code>"12"</code> (astuce nombre → chaîne)</td>
+                </tr>
+                <tr>
+                  <td><code>"12" - 0</code></td>
+                  <td><code>12</code> (astuce chaîne → nombre)</td>
+                </tr>
+                <tr>
+                  <td><code>(12).toString()</code></td>
+                  <td><code>"12"</code></td>
+                </tr>
+              </table>
+              <p class="note">
+                À retenir : <code>+</code> concatène dès qu'une chaîne est
+                présente ; <code>-</code>, <code>*</code>,
+                <code>/</code> convertissent toujours en nombre.
+              </p>
+            </div>
+          </div>
+
+          <div class="section" id="sec8">
+            <h2>Math</h2>
+            <div class="card">
+              <table class="wide">
+                <tr>
+                  <td><code>Math.abs(x)</code></td>
+                  <td>Valeur absolue</td>
+                </tr>
+                <tr>
+                  <td><code>Math.sqrt(x)</code></td>
+                  <td>Racine carrée</td>
+                </tr>
+                <tr>
+                  <td><code>Math.round(x)</code></td>
+                  <td>Entier le plus proche</td>
+                </tr>
+                <tr>
+                  <td><code>Math.trunc(x)</code></td>
+                  <td>Troncature entière (retire la partie décimale)</td>
+                </tr>
+                <tr>
+                  <td><code>Math.random()</code></td>
+                  <td>Réel aléatoire dans [0, 1[</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="fn-group" style="margin-top: 16px">
+              <p class="note" style="margin: 0 0 10px">
+                Cliquez sur une fonction pour afficher son détail.
+              </p>
+              <div class="fn-bar">
+                <button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="m-abs"
+                >
+                  Math.abs()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="m-sqrt"
+                >
+                  Math.sqrt()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="m-round"
+                >
+                  Math.round()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="m-trunc"
+                >
+                  Math.trunc()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="m-random"
+                >
+                  Math.random()
+                </button>
+              </div>
+              <div class="fn-panel" id="m-abs" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">Math.abs(x)</div>
+                    <div class="fn-desc">
+                      Valeur absolue de x (x sans son signe).
+                    </div>
+                    <pre>Math.abs(-5);    <span class="c">// 5</span>
+Math.abs(3.2);   <span class="c">// 3.2</span>
+Math.abs(0);     <span class="c">// 0</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="m-sqrt" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">Math.sqrt(x)</div>
+                    <div class="fn-desc">
+                      Racine carrée de x. Renvoie <code>NaN</code> si x est
+                      négatif.
+                    </div>
+                    <pre>Math.sqrt(16);   <span class="c">// 4</span>
+Math.sqrt(2);    <span class="c">// 1.4142135623730951</span>
+Math.sqrt(-4);   <span class="c">// NaN</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="m-round" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">Math.round(x)</div>
+                    <div class="fn-desc">
+                      Entier le plus proche de x. Pour une partie décimale de
+                      .5, arrondit vers le haut (+∞).
+                    </div>
+                    <pre>Math.round(2.4);   <span class="c">// 2</span>
+Math.round(2.5);   <span class="c">// 3</span>
+Math.round(2.6);   <span class="c">// 3</span>
+Math.round(-2.5);  <span class="c">// -2</span>
+Math.round(-2.6);  <span class="c">// -3</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="m-trunc" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">Math.trunc(x)</div>
+                    <div class="fn-desc">
+                      Retire la partie décimale de x, sans arrondir.
+                    </div>
+                    <pre>Math.trunc(4.9);    <span class="c">// 4  (round donnerait 5)</span>
+Math.trunc(-4.9);   <span class="c">// -4 (round donnerait -5)</span>
+Math.trunc(7);      <span class="c">// 7</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="m-random" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">Math.random()</div>
+                    <div class="fn-desc">
+                      Réel aléatoire dans [0, 1[ (0 inclus, 1 exclu). Combiné à
+                      <code>Math.trunc()</code>, il donne un entier aléatoire.
+                    </div>
+                    <pre>Math.random();                             <span class="c">// ex. 0.5327…</span>
+Math.trunc(Math.random() * 10);            <span class="c">// entier de 0 à 9</span>
+Math.trunc(Math.random() * 6) + 1;         <span class="c">// entier de 1 à 6 (dé)</span>
+Math.trunc(Math.random() * (max - min + 1)) + min; <span class="c">// de min à max</span></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec9">
+            <h2>
+              Chaînes de caractères
+              <span class="note" style="font-style: normal"
+                >(ch : objet String)</span
+              >
+            </h2>
+            <div class="card">
+              <table class="wide">
+                <tr>
+                  <td><code>+</code></td>
+                  <td>Concaténation</td>
+                </tr>
+                <tr>
+                  <td><code>ch.length</code></td>
+                  <td>Longueur de ch</td>
+                </tr>
+                <tr>
+                  <td><code>ch.indexOf(ch1 [,p])</code></td>
+                  <td>Position de la 1ère occurrence de ch1 (sinon -1)</td>
+                </tr>
+                <tr>
+                  <td><code>ch.lastIndexOf(ch1 [,p])</code></td>
+                  <td>Position de la dernière occurrence de ch1</td>
+                </tr>
+                <tr>
+                  <td><code>ch.substring(d, f)</code></td>
+                  <td>Sous-chaîne — voir détail ci-dessous</td>
+                </tr>
+                <tr>
+                  <td><code>ch.replace(ch1, ch2)</code></td>
+                  <td>Remplace la 1ère occurrence de ch1 par ch2</td>
+                </tr>
+                <tr>
+                  <td><code>ch.toLowerCase()</code></td>
+                  <td>Convertit en minuscules</td>
+                </tr>
+                <tr>
+                  <td><code>ch.toUpperCase()</code></td>
+                  <td>Convertit en majuscules</td>
+                </tr>
+                <tr>
+                  <td><code>ch.trim()</code></td>
+                  <td>Supprime les espaces en début/fin</td>
+                </tr>
+                <tr>
+                  <td><code>String.fromCharCode(n1,…)</code></td>
+                  <td>Chaîne à partir de codes ASCII/UTF-16</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="fn-group" style="margin-top: 16px">
+              <p class="note" style="margin: 0 0 10px">
+                Cliquez sur une fonction pour afficher son détail.
+              </p>
+              <div class="fn-bar">
+                <button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-plus"
+                >
+                  +</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-length"
+                >
+                  ch.length</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-indexof"
+                >
+                  ch.indexOf()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-lastindexof"
+                >
+                  ch.lastIndexOf()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-substring"
+                >
+                  ch.substring()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-replace"
+                >
+                  ch.replace()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-lower"
+                >
+                  ch.toLowerCase()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-upper"
+                >
+                  ch.toUpperCase()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-trim"
+                >
+                  ch.trim()</button
+                ><button
+                  type="button"
+                  class="fnbtn"
+                  aria-expanded="false"
+                  aria-controls="s-fromcharcode"
+                >
+                  String.fromCharCode()
+                </button>
+              </div>
+              <div class="fn-panel" id="s-plus" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">+</div>
+                    <div class="fn-desc">
+                      Concatène (colle bout à bout) deux chaînes. Si l'un des
+                      opérandes est une chaîne, l'autre est converti en chaîne.
+                    </div>
+                    <pre>let prenom = "Aymen";
+"Bonjour " + prenom;   <span class="c">// "Bonjour Aymen"</span>
+"Note : " + 15;        <span class="c">// "Note : 15"</span>
+5 + "5";               <span class="c">// "55"</span></pre>
+                    <p class="note">
+                      Attention à l'ordre des opérandes : voir la carte « Nombre
+                      + chaîne » plus bas.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-length" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.length</div>
+                    <div class="fn-desc">
+                      Propriété (sans parenthèses) : nombre de caractères de ch,
+                      espaces compris.
+                    </div>
+                    <pre>let s = "Mozilla";
+s.length;                 <span class="c">// 7</span>
+"".length;                <span class="c">// 0</span>
+s[s.length - 1];          <span class="c">// "a" (dernier caractère)</span></pre>
+                    <p class="note">
+                      Les indices vont de 0 à <code>length - 1</code>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-indexof" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.indexOf(ch1 [, p])</div>
+                    <div class="fn-desc">
+                      Position de la <strong>première</strong> occurrence de
+                      ch1, en cherchant à partir de l'indice p (0 par défaut).
+                      Renvoie <code>-1</code> si absente. Sensible à la casse.
+                    </div>
+                    <pre>let s = "Bonjour tout le monde";
+s.indexOf("o");        <span class="c">// 1</span>
+s.indexOf("o", 2);     <span class="c">// 4  (recherche à partir de l'indice 2)</span>
+s.indexOf("tout");     <span class="c">// 8</span>
+s.indexOf("z");        <span class="c">// -1 (absente)</span>
+s.indexOf("bon");      <span class="c">// -1 (casse différente)</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-lastindexof" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.lastIndexOf(ch1 [, p])</div>
+                    <div class="fn-desc">
+                      Position de la <strong>dernière</strong> occurrence de
+                      ch1. La recherche se fait de la fin vers le début, en
+                      partant de l'indice p (fin de ch par défaut). Renvoie
+                      <code>-1</code> si absente.
+                    </div>
+                    <pre>let s = "Bonjour tout le monde";
+s.lastIndexOf("o");      <span class="c">// 17</span>
+s.lastIndexOf("o", 10);  <span class="c">// 9  (on ignore ce qui est après l'indice 10)</span>
+s.lastIndexOf("z");      <span class="c">// -1</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-substring" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.substring(d [, f])</div>
+                    <div class="fn-desc">
+                      Extrait les caractères de l'indice <code>d</code> (inclus)
+                      à l'indice <code>f</code> (<strong>exclu</strong>).
+                    </div>
+                    <pre>var s = "Mozilla";
+s.substring(0,3);  <span class="c">// "Moz"</span>
+s.substring(3,0);  <span class="c">// "Moz" (inversé)</span>
+s.substring(4,7);  <span class="c">// "lla"</span>
+s.substring(4);    <span class="c">// "lla"</span>
+s.substring(0,6);  <span class="c">// "Mozill"</span>
+s.substring(0,10); <span class="c">// "Mozilla"</span></pre>
+                    <p class="note">
+                      Règles : d = f → chaîne vide · f omis → jusqu'à la fin ·
+                      négatif ou NaN → 0 · valeur &gt; length → length · d &gt;
+                      f → les deux valeurs sont interverties.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-replace" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.replace(ch1, ch2)</div>
+                    <div class="fn-desc">
+                      Remplace la <strong>première</strong> occurrence de ch1
+                      par ch2. Renvoie une <strong>nouvelle</strong> chaîne : ch
+                      n'est pas modifiée.
+                    </div>
+                    <pre>let s = "a-b-c";
+s.replace("-", "+");   <span class="c">// "a+b-c" (une seule occurrence)</span>
+s;                     <span class="c">// "a-b-c" (inchangée)</span>
+s = s.replace("-", "+"); <span class="c">// pour conserver le résultat</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-lower" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.toLowerCase()</div>
+                    <div class="fn-desc">
+                      Renvoie ch convertie en minuscules (ch n'est pas
+                      modifiée).
+                    </div>
+                    <pre>"TUNIS Ariana".toLowerCase();  <span class="c">// "tunis ariana"</span></pre>
+                    <p class="note">
+                      Pratique pour comparer sans tenir compte de la casse.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-upper" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.toUpperCase()</div>
+                    <div class="fn-desc">
+                      Renvoie ch convertie en majuscules (ch n'est pas
+                      modifiée).
+                    </div>
+                    <pre>"Tunis Ariana".toUpperCase();  <span class="c">// "TUNIS ARIANA"</span></pre>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-trim" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">ch.trim()</div>
+                    <div class="fn-desc">
+                      Supprime les espaces au début et à la fin de ch. Les
+                      espaces intérieurs sont conservés.
+                    </div>
+                    <pre>"   salut  le monde  ".trim();  <span class="c">// "salut  le monde"</span></pre>
+                    <p class="note">
+                      Utile pour nettoyer la saisie d'un
+                      <code>prompt()</code> ou d'un champ de formulaire.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="fn-panel" id="s-fromcharcode" role="region">
+                <div class="fn-inner">
+                  <div class="fn-box">
+                    <div class="sig">String.fromCharCode(num, …, numN)</div>
+                    <div class="fn-desc">
+                      Méthode appelée sur <code>String</code> (et non sur ch) :
+                      construit une chaîne à partir de codes ASCII / UTF-16.
+                    </div>
+                    <pre>String.fromCharCode(65,66,67); <span class="c">// "ABC"</span>
+String.fromCharCode(97);       <span class="c">// "a"</span>
+String.fromCharCode(0x2014);   <span class="c">// "—"</span>
+String.fromCharCode(8212);     <span class="c">// "—"</span></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Nombre + chaîne : attention à l'ordre !</h3>
+              <p class="note" style="margin: 0 0 8px">
+                Avec <code>+</code>, dès qu'une chaîne apparaît, JavaScript
+                convertit et <strong>concatène</strong> ; s'il n'y a que des
+                nombres, il <strong>additionne</strong>.
+              </p>
+              <pre>5 + "5";        <span class="c">// "55"  (entier + chaîne → concaténation)</span>
+"5" + 5;        <span class="c">// "55"  (chaîne + entier → concaténation)</span>
+5 + 5;          <span class="c">// 10    (entier + entier → addition)</span>
+5 + 5 + "5";    <span class="c">// "105" (addition d'abord, puis concaténation)</span>
+"5" + 5 + 5;    <span class="c">// "555" (concaténation depuis le début)</span>
+"Note : " + 15; <span class="c">// "Note : 15"</span></pre>
+            </div>
+          </div>
+
+          <div class="section" id="sec10">
+            <h2>Tableaux</h2>
+            <div class="card">
+              <table>
+                <tr>
+                  <td><code>tableau.length</code></td>
+                  <td>Nombre d'éléments dans le tableau</td>
+                </tr>
+              </table>
+              <p class="note">
+                Pour créer un tableau, utiliser les littéraux <code>[ ]</code>.
+              </p>
+            </div>
+          </div>
+
+          <div class="section" id="sec11">
+            <h2>
+              Objet Date
+              <span class="note" style="font-style: normal"
+                >(d : objet Date)</span
+              >
+            </h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Essayez ! — <code>new Date()</code></h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Cet exemple s'exécute dans votre navigateur et affiche la date
+                  du jour.
+                </p>
+                <pre id="date-demo">let d = new Date();
+d.toString(); <span class="c">// calcul en cours…</span></pre>
+              </div>
+              <div class="card">
+                <h3>Créer une date</h3>
+                <pre>
+new Date()
+new Date(chaîne)
+new Date(année, mois)
+new Date(année, mois, jour)
+new Date(année, mois, jour, h)
+new Date(année, mois, jour, h, min)
+new Date(année, mois, jour, h, min, s)
+new Date(année, mois, jour, h, min, s, ms)
+new Date(millisecondes)</pre
+                >
+                <p class="note">
+                  Les mois vont de 0 (janvier) à 11 (décembre).
+                </p>
+              </div>
+              <div class="card">
+                <h3>Méthodes</h3>
+                <table>
+                  <tr>
+                    <td><code>d.getDate()</code></td>
+                    <td>Jour du mois (1–31)</td>
+                  </tr>
+                  <tr>
+                    <td><code>d.getMonth()</code></td>
+                    <td>Mois (0–11)</td>
+                  </tr>
+                  <tr>
+                    <td><code>d.getFullYear()</code></td>
+                    <td>Année sur 4 chiffres</td>
+                  </tr>
+                  <tr>
+                    <td><code>d.toString()</code></td>
+                    <td>Chaîne représentant la date</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card">
+                <h3>Formats de chaîne acceptés</h3>
+                <table>
+                  <tr>
+                    <td>ISO Date</td>
+                    <td><code>"2025-11-21"</code></td>
+                  </tr>
+                  <tr>
+                    <td>Short Date</td>
+                    <td><code>"11/21/2025"</code></td>
+                  </tr>
+                  <tr>
+                    <td>Long Date</td>
+                    <td><code>"Nov 21 2025"</code></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec12">
+            <h2>Structures conditionnelles</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>if / else if / else</h3>
+                <pre>
+if (note >= 10) {
+  résultat = "Admis";
+} else if (note >= 8) {
+  résultat = "Rattrapage";
+} else {
+  résultat = "Ajourné";
+}</pre
+                >
+              </div>
+              <div class="card">
+                <h3>switch</h3>
+                <pre>
+switch (jour) {
+  case 0:
+    nom = "Dimanche";
+    break;
+  case 6:
+    nom = "Samedi";
+    break;
+  default:
+    nom = "Jour ouvré";
+}</pre
+                >
+                <p class="note">
+                  Ne pas oublier <code>break</code> — sinon les cas suivants
+                  s'exécutent aussi.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="sec13">
+            <h2>Boucles</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>for</h3>
+                <pre>
+for (let i = 0; i &lt; 10; i++) {
+  console.log(i);
+}</pre
+                >
+              </div>
+              <div class="card">
+                <h3>while</h3>
+                <pre>
+let i = 0;
+while (i &lt; 10) {
+  console.log(i);
+  i++;
+}</pre
+                >
+              </div>
+              <div class="card">
+                <h3>do … while</h3>
+                <pre>
+let i = 0;
+do {
+  console.log(i);
+  i++;
+} while (i &lt; 10);</pre
+                >
+                <p class="note">
+                  Le bloc s'exécute au moins une fois, même si la condition est
+                  fausse.
+                </p>
+              </div>
+              <div class="card">
+                <h3>for … of (parcourir un tableau)</h3>
+                <pre>
+let fruits = ["pomme", "poire", "kiwi"];
+for (let f of fruits) {
+  console.log(f);
+}</pre
+                >
+              </div>
+            </div>
+            <div class="card" style="margin-top: 16px">
+              <h3>break / continue</h3>
+              <table>
+                <tr>
+                  <td><code>break</code></td>
+                  <td>Sort immédiatement de la boucle</td>
+                </tr>
+                <tr>
+                  <td><code>continue</code></td>
+                  <td>
+                    Passe à l'itération suivante sans exécuter le reste du bloc
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="section" id="sec14">
+            <h2>Fonctions</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Déclarer et appeler</h3>
+                <pre>function saluer(nom) {
+  alert("Bonjour " + nom);
+}
+
+saluer("Amine"); <span class="c">// appel de la fonction</span></pre>
+              </div>
+              <div class="card">
+                <h3>Appeler une fonction depuis le HTML</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  En pratique, une fonction n'est presque jamais appelée « toute
+                  seule » dans le script : elle est déclenchée par un
+                  <strong>événement HTML</strong> (<code>onclick</code>,
+                  <code>onchange</code>…).
+                </p>
+                <pre>
+&lt;script&gt;
+function saluer(nom) {
+  alert("Bonjour " + nom);
+}
+&lt;/script&gt;
+
+&lt;button onclick="saluer('Amine')"&gt;Saluer&lt;/button&gt;</pre
+                >
+              </div>
+              <div class="card">
+                <h3>Nommer une fonction</h3>
+                <p class="note" style="margin: 0 0 8px">
+                  Une fonction suit les mêmes règles de nommage qu'une variable
+                  (voir plus haut) : commence par une lettre, <code>$</code> ou
+                  <code>_</code>, pas d'espace ni de mot réservé.
+                </p>
+                <pre>function calculerMoyenne() { ... } <span class="c">// ✔</span>
+function 2emeFonction() { ... }     <span class="c">// ✘ commence par un chiffre</span></pre>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Appel avec ou sans <code>return</code></h3>
+              <table>
+                <tr>
+                  <th>Critère</th>
+                  <th>Avec <code>return</code></th>
+                  <th>Sans <code>return</code></th>
+                </tr>
+                <tr>
+                  <td>Résultat</td>
+                  <td>Une valeur exploitable</td>
+                  <td><code>undefined</code></td>
+                </tr>
+                <tr>
+                  <td>Utilisation</td>
+                  <td>Dans une expression : <code>let x = f();</code></td>
+                  <td>Seule, comme instruction : <code>f();</code></td>
+                </tr>
+              </table>
+              <pre style="margin-top: 12px">function carre(n) {
+  return n * n;       <span class="c">// renvoie une valeur</span>
+}
+let resultat = carre(4); <span class="c">// resultat vaut 16</span>
+alert(carre(5));         <span class="c">// utilisable directement</span>
+
+function afficherMessage() {
+  alert("Bonjour !"); <span class="c">// ne renvoie rien</span>
+}
+let x = afficherMessage(); <span class="c">// x vaut undefined</span>
+afficherMessage();          <span class="c">// s'utilise seule</span></pre>
+            </div>
+          </div>
+
+          <div class="section" id="sec15">
+            <h2>Manipulation du DOM</h2>
+            <div class="grid">
+              <div class="card">
+                <h3>Sélectionner des éléments</h3>
+                <table>
+                  <tr>
+                    <td><code>document.getElementById()</code></td>
+                    <td>Un élément unique, par son identifiant</td>
+                  </tr>
+                  <tr>
+                    <td><code>document.getElementsByName()</code></td>
+                    <td>Tous les éléments ayant le même <code>name</code></td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card">
+                <h3>Contenu, attributs, styles</h3>
+                <table>
+                  <tr>
+                    <td><code>élément.attribut = valeur</code></td>
+                    <td>
+                      Change un attribut (<code>value</code>,
+                      <code>checked</code>, <code>disabled</code>,
+                      <code>readonly</code>, <code>src</code>,
+                      <code>muted</code>)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>élément.style.propriété = valeur</code></td>
+                    <td>
+                      Change un style (<code>color</code>,
+                      <code>background</code>, <code>border</code>,
+                      <code>font</code>, <code>width</code>,
+                      <code>height</code>)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>élément.méthode()</code></td>
+                    <td>Actions <code>play()</code>, <code>pause()</code></td>
+                  </tr>
+                </table>
+                <p class="note">
+                  Liste déroulante <code>&lt;select&gt;</code> : utiliser
+                  <code>selectedIndex</code> pour l'option sélectionnée.
+                </p>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>play() / pause()</h3>
+              <pre>video.currentTime = 10;   <span class="c">// position (s)</span>
+video.volume = 0.5;       <span class="c">// 0 à 1</span>
+video.playbackRate = 1.5; <span class="c">// vitesse, 0.5 à 2</span>
+video.play();
+video.pause();</pre>
+            </div>
+          </div>
+          <div class="section" id="sec16">
+            <h2>Exercices</h2>
+            <p class="note" style="margin: -6px 0 16px">
+              Cliquer sur un énoncé pour afficher/masquer sa solution.
+            </p>
+
+            <div class="card">
+              <h3>Opérateurs &amp; conditions</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">1</span
+                  ><span class="exo-txt"
+                    >Écrire un script qui demande deux nombres et affiche le
+                    plus grand (<code>prompt</code> +
+                    <code>if/else</code>).</span
+                  >
+                </summary>
+                <pre>
+let a = Number(prompt("1er nombre :"));
+let b = Number(prompt("2e nombre :"));
+if (a &gt; b) {
+  alert("Le plus grand est " + a);
+} else {
+  alert("Le plus grand est " + b);
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">2</span
+                  ><span class="exo-txt"
+                    >Demander une note (0–20) et afficher une mention (Excellent
+                    ≥16, Bien ≥14, Assez bien ≥12, Passable ≥10, Ajourné
+                    sinon).</span
+                  >
+                </summary>
+                <pre>
+let note = Number(prompt("Note (0-20) :"));
+let mention;
+if (note &gt;= 16) mention = "Excellent";
+else if (note &gt;= 14) mention = "Bien";
+else if (note &gt;= 12) mention = "Assez bien";
+else if (note &gt;= 10) mention = "Passable";
+else mention = "Ajourné";
+alert(mention);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">3</span
+                  ><span class="exo-txt"
+                    >Demander une année et indiquer, avec <code>%</code>, si
+                    elle est bissextile.</span
+                  >
+                </summary>
+                <pre>
+let annee = Number(prompt("Année :"));
+if ((annee % 4 == 0 &amp;&amp; annee % 100 != 0) || annee % 400 == 0) {
+  alert(annee + " est bissextile");
+} else {
+  alert(annee + " n'est pas bissextile");
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">4</span
+                  ><span class="exo-txt"
+                    >Demander un numéro de mois (1–12) et afficher son nom avec
+                    un <code>switch</code>.</span
+                  >
+                </summary>
+                <pre>let mois = Number(prompt("Numéro du mois (1-12) :"));
+let nom;
+switch (mois) {
+  case 1: nom = "Janvier"; break;
+  case 2: nom = "Février"; break;
+  case 3: nom = "Mars"; break;
+  <span class="c">// ... cas 4 à 11 sur le même modèle</span>
+  case 12: nom = "Décembre"; break;
+  default: nom = "Mois invalide";
+}
+alert(nom);</pre>
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">5</span
+                  ><span class="exo-txt"
+                    >Demander l'âge d'une personne et afficher sa catégorie
+                    (enfant &lt; 12, adolescent &lt; 18, adulte sinon) sans
+                    utiliser <code>else if</code> plus de deux fois.</span
+                  >
+                </summary>
+                <pre>
+let age = Number(prompt("Âge :"));
+let categorie = age &lt; 12 ? "Enfant" : (age &lt; 18 ? "Adolescent" : "Adulte");
+alert(categorie);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">6</span
+                  ><span class="exo-txt"
+                    >Demander trois côtés et déterminer, par <code>if</code>,
+                    s'ils peuvent former un triangle.</span
+                  >
+                </summary>
+                <pre>
+let a = Number(prompt("Côté a :"));
+let b = Number(prompt("Côté b :"));
+let c = Number(prompt("Côté c :"));
+if (a + b &gt; c &amp;&amp; a + c &gt; b &amp;&amp; b + c &gt; a) {
+  alert("Triangle possible");
+} else {
+  alert("Triangle impossible");
+}</pre
+                >
+              </details>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Boucles</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">7</span
+                  ><span class="exo-txt"
+                    >Afficher les nombres de 1 à 100 avec <code>for</code>, en
+                    remplaçant les multiples de 3 par « Fizz » et les multiples
+                    de 5 par « Buzz ».</span
+                  >
+                </summary>
+                <pre>
+for (let i = 1; i &lt;= 100; i++) {
+  if (i % 15 == 0) console.log("FizzBuzz");
+  else if (i % 3 == 0) console.log("Fizz");
+  else if (i % 5 == 0) console.log("Buzz");
+  else console.log(i);
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">8</span
+                  ><span class="exo-txt"
+                    >Calculer la somme et la moyenne de n nombres saisis par
+                    <code>prompt()</code> dans une boucle
+                    <code>while</code>.</span
+                  >
+                </summary>
+                <pre>
+let n = Number(prompt("Combien de nombres ?"));
+let i = 0, somme = 0;
+while (i &lt; n) {
+  somme += Number(prompt("Nombre :"));
+  i++;
+}
+alert("Moyenne : " + (somme / n));</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">9</span
+                  ><span class="exo-txt"
+                    >Écrire une fonction qui teste si un nombre est premier, en
+                    utilisant une boucle et <code>break</code>.</span
+                  >
+                </summary>
+                <pre>
+function estPremier(n) {
+  if (n &lt; 2) return false;
+  for (let i = 2; i &lt; n; i++) {
+    if (n % i == 0) return false;
+  }
+  return true;
+}
+let x = Number(prompt("Nombre :"));
+alert(estPremier(x) ? "Premier" : "Non premier");</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">10</span
+                  ><span class="exo-txt"
+                    >Afficher la table de multiplication d'un nombre saisi, de 1
+                    à 10.</span
+                  >
+                </summary>
+                <pre>
+let n = Number(prompt("Nombre :"));
+for (let i = 1; i &lt;= 10; i++) {
+  console.log(n + " x " + i + " = " + (n * i));
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">11</span
+                  ><span class="exo-txt"
+                    >Calculer la factorielle d'un nombre avec une boucle
+                    <code>for</code>.</span
+                  >
+                </summary>
+                <pre>
+let n = Number(prompt("Nombre :"));
+let fact = 1;
+for (let i = 2; i &lt;= n; i++) {
+  fact *= i;
+}
+alert(n + "! = " + fact);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">12</span
+                  ><span class="exo-txt"
+                    >Demander des notes une à une jusqu'à ce que l'utilisateur
+                    saisisse -1 (<code>do…while</code>), puis afficher la
+                    moyenne.</span
+                  >
+                </summary>
+                <pre>
+let somme = 0, count = 0, note;
+do {
+  note = Number(prompt("Note (-1 pour arrêter) :"));
+  if (note != -1) { somme += note; count++; }
+} while (note != -1);
+alert("Moyenne : " + (somme / count));</pre
+                >
+              </details>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Chaînes de caractères</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">13</span
+                  ><span class="exo-txt"
+                    >Demander un mot et afficher s'il s'agit d'un palindrome
+                    (comparer avec sa version inversée).</span
+                  >
+                </summary>
+                <pre>
+let mot = prompt("Mot :");
+let inverse = "";
+for (let i = mot.length - 1; i &gt;= 0; i--) {
+  inverse += mot[i];
+}
+alert(mot == inverse ? "Palindrome" : "Pas un palindrome");</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">14</span
+                  ><span class="exo-txt"
+                    >Compter le nombre de voyelles dans une chaîne saisie, en
+                    parcourant caractère par caractère.</span
+                  >
+                </summary>
+                <pre>
+let ch = prompt("Chaîne :").toLowerCase();
+let voyelles = "aeiouy";
+let count = 0;
+for (let i = 0; i &lt; ch.length; i++) {
+  if (voyelles.indexOf(ch[i]) != -1) count++;
+}
+alert("Voyelles : " + count);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">15</span
+                  ><span class="exo-txt"
+                    >Demander un nom et un prénom, et afficher les initiales en
+                    majuscules (<code>substring</code> +
+                    <code>toUpperCase</code>).</span
+                  >
+                </summary>
+                <pre>
+let nom = prompt("Nom :");
+let prenom = prompt("Prénom :");
+let initiales = nom.substring(0,1).toUpperCase() + prenom.substring(0,1).toUpperCase();
+alert(initiales);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">16</span
+                  ><span class="exo-txt"
+                    >Extraire le nom de domaine d'une adresse e-mail saisie,
+                    avec <code>indexOf</code> et <code>substring</code>.</span
+                  >
+                </summary>
+                <pre>
+let email = prompt("E-mail :");
+let pos = email.indexOf("@");
+let domaine = email.substring(pos + 1);
+alert(domaine);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">17</span
+                  ><span class="exo-txt"
+                    >Remplacer tous les espaces d'une phrase par des tirets,
+                    sans utiliser d'expression régulière.</span
+                  >
+                </summary>
+                <pre>
+let phrase = prompt("Phrase :");
+let resultat = "";
+for (let i = 0; i &lt; phrase.length; i++) {
+  resultat += (phrase[i] == " ") ? "-" : phrase[i];
+}
+alert(resultat);</pre
+                >
+              </details>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Tableaux</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">18</span
+                  ><span class="exo-txt"
+                    >Remplir un tableau de 10 nombres saisis, puis afficher le
+                    minimum, le maximum et la somme.</span
+                  >
+                </summary>
+                <pre>
+let tab = [];
+for (let i = 0; i &lt; 10; i++) {
+  tab[i] = Number(prompt("Nombre " + (i + 1) + " :"));
+}
+let min = tab[0], max = tab[0], somme = 0;
+for (let v of tab) {
+  if (v &lt; min) min = v;
+  if (v &gt; max) max = v;
+  somme += v;
+}
+alert("Min: " + min + " Max: " + max + " Somme: " + somme);</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">19</span
+                  ><span class="exo-txt"
+                    >Écrire une fonction qui inverse un tableau sans utiliser de
+                    méthode native.</span
+                  >
+                </summary>
+                <pre>
+function inverserTableau(tab) {
+  let res = [];
+  for (let i = tab.length - 1; i &gt;= 0; i--) {
+    res.push(tab[i]);
+  }
+  return res;
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">20</span
+                  ><span class="exo-txt"
+                    >Compter combien de fois une valeur donnée apparaît dans un
+                    tableau.</span
+                  >
+                </summary>
+                <pre>
+function compterOccurrences(tab, valeur) {
+  let count = 0;
+  for (let v of tab) {
+    if (v == valeur) count++;
+  }
+  return count;
+}</pre
+                >
+              </details>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>Math &amp; Date</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">21</span
+                  ><span class="exo-txt"
+                    >Simuler un lancer de dé (1 à 6) avec
+                    <code>Math.random()</code> et <code>Math.trunc()</code>,
+                    répété 10 fois dans une boucle.</span
+                  >
+                </summary>
+                <pre>
+for (let i = 0; i &lt; 10; i++) {
+  let de = Math.trunc(Math.random() * 6) + 1;
+  console.log(de);
+}</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">22</span
+                  ><span class="exo-txt"
+                    >Calculer l'âge exact d'une personne (années) à partir de sa
+                    date de naissance saisie, avec l'objet
+                    <code>Date</code>.</span
+                  >
+                </summary>
+                <pre>
+let naissance = new Date(prompt("Date de naissance (AAAA-MM-JJ) :"));
+let aujourdhui = new Date();
+let age = aujourdhui.getFullYear() - naissance.getFullYear();
+if (aujourdhui.getMonth() &lt; naissance.getMonth() ||
+   (aujourdhui.getMonth() == naissance.getMonth() &amp;&amp; aujourdhui.getDate() &lt; naissance.getDate())) {
+  age--;
+}
+alert("Âge : " + age + " ans");</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">23</span
+                  ><span class="exo-txt"
+                    >Afficher le nombre de jours restants avant la fin de
+                    l'année scolaire (date cible fixe).</span
+                  >
+                </summary>
+                <pre>
+let finAnnee = new Date("2027-06-30");
+let aujourdhui = new Date();
+let jours = Math.round((finAnnee - aujourdhui) / (1000 * 60 * 60 * 24));
+alert(jours + " jours restants");</pre
+                >
+              </details>
+            </div>
+
+            <div class="card" style="margin-top: 16px">
+              <h3>DOM</h3>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">24</span
+                  ><span class="exo-txt"
+                    >Créer un formulaire avec un champ texte et un bouton ; au
+                    clic, afficher le contenu saisi dans une
+                    <code>&lt;div&gt;</code> via <code>innerHTML</code>.</span
+                  >
+                </summary>
+                <pre>
+&lt;input id="texte" type="text"&gt;
+&lt;button onclick="afficher()"&gt;Valider&lt;/button&gt;
+&lt;div id="resultat"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+function afficher() {
+  document.getElementById("resultat").innerHTML =
+    document.getElementById("texte").value;
+}
+&lt;/script&gt;</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">25</span
+                  ><span class="exo-txt"
+                    >Créer une checklist (cases à cocher) et compter, via
+                    <code>getElementsByName</code>, le nombre de cases
+                    cochées.</span
+                  >
+                </summary>
+                <pre>
+&lt;input type="checkbox" name="case"&gt; A
+&lt;input type="checkbox" name="case"&gt; B
+&lt;input type="checkbox" name="case"&gt; C
+&lt;button onclick="compter()"&gt;Compter&lt;/button&gt;
+
+&lt;script&gt;
+function compter() {
+  let cases = document.getElementsByName("case");
+  let n = 0;
+  for (let c of cases) { if (c.checked) n++; }
+  alert(n + " case(s) cochée(s)");
+}
+&lt;/script&gt;</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">26</span
+                  ><span class="exo-txt"
+                    >Créer un lecteur vidéo simple avec des boutons Lecture /
+                    Pause utilisant <code>play()</code> et
+                    <code>pause()</code>.</span
+                  >
+                </summary>
+                <pre>
+&lt;video id="v" src="film.mp4"&gt;&lt;/video&gt;
+&lt;button onclick="document.getElementById('v').play()"&gt;Lecture&lt;/button&gt;
+&lt;button onclick="document.getElementById('v').pause()"&gt;Pause&lt;/button&gt;</pre
+                >
+              </details>
+
+              <details class="exo">
+                <summary>
+                  <span class="exo-num">27</span
+                  ><span class="exo-txt"
+                    >Créer une liste déroulante de couleurs ; au changement,
+                    appliquer la couleur choisie au fond de la page (<code
+                      >selectedIndex</code
+                    >
+                    + <code>style.background</code>).</span
+                  >
+                </summary>
+                <pre>
+&lt;select id="couleur" onchange="changer()"&gt;
+  &lt;option value="white"&gt;Blanc&lt;/option&gt;
+  &lt;option value="lightblue"&gt;Bleu&lt;/option&gt;
+  &lt;option value="lightgreen"&gt;Vert&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;script&gt;
+function changer() {
+  let sel = document.getElementById("couleur");
+  document.body.style.background = sel.options[sel.selectedIndex].value;
+}
+&lt;/script&gt;</pre
+                >
+              </details>
+            </div>
+          </div>
+        </main>
+
+        <footer>
+          <div class="credit">
+            <span class="js-badge">JS</span>
+            Travail élaboré par A. Essouyah
+          </div>
+          <div>
+            <a class="navbtn" href="#top" style="margin-right: 8px">↑ HAUT</a>
+            <a
+              class="navbtn active"
+              href="../documents/annexes/annexe-javascript.pdf.html"
+              >📄 ANNEXE JS</a
+            >
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="back-to-top"
+      id="back-to-top"
+      aria-label="Remonter en haut de la page"
+      title="Remonter en haut de la page"
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 15l-6-6-6 6" />
+      </svg>
+      <span>Haut</span>
+    </button>
+
+    <!-- ==== PARTICULES FLOTTANTES (symboles JS) ==== -->
+    <script>
+      (function () {
+        const canvas = document.getElementById("particle-canvas");
+        const ctx = canvas.getContext("2d");
+        const SYMBOLS = [
+          "let",
+          "const",
+          "var",
+          "prompt()",
+          "parseInt()",
+          "alert()",
+          "for…of",
+          "if…else",
+          "&&",
+          "===",
+          "getElementById",
+          "Math.random()",
+          "new Date()",
+          "innerHTML",
+          "toUpperCase()",
+          "push()",
+        ];
+        let particles = [];
+        let W, H;
+        function resize() {
+          W = canvas.width = window.innerWidth;
+          H = canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resize);
+        resize();
+        function makeParticle() {
+          return {
+            x: Math.random() * W,
+            y: H + 20,
+            size: 10 + Math.random() * 12,
+            speed: 0.25 + Math.random() * 0.6,
+            drift: (Math.random() - 0.5) * 0.3,
+            rot: Math.random() * Math.PI,
+            rotSpeed: (Math.random() - 0.5) * 0.005,
+            text: SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)],
+            hue: Math.random() < 0.35 ? 52 : 190,
+            alpha: 0.06 + Math.random() * 0.14,
+          };
+        }
+        for (let i = 0; i < 26; i++) {
+          const p = makeParticle();
+          p.y = Math.random() * H;
+          particles.push(p);
+        }
+        function tick() {
+          ctx.clearRect(0, 0, W, H);
+          particles.forEach((p) => {
+            p.y -= p.speed;
+            p.x += p.drift;
+            p.rot += p.rotSpeed;
+            if (p.y < -30) Object.assign(p, makeParticle());
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.font = `${p.size}px 'Fira Code', monospace`;
+            ctx.fillStyle = `hsla(${p.hue}, 90%, 65%, ${p.alpha})`;
+            ctx.textAlign = "center";
+            ctx.fillText(p.text, 0, 0);
+            ctx.restore();
+          });
+          requestAnimationFrame(tick);
+        }
+        tick();
+      })();
+    </script>
+
+    <!-- ==== COLORATION DES EXTRAITS DE CODE (Prism) ==== -->
+    <script>
+      (function () {
+        function highlightPre(pre) {
+          var txt = pre.textContent.replace(/^\n+/, "").replace(/\s+$/, "");
+          var isHtml = /^\s*</.test(txt);
+          var lang = isHtml ? "markup" : "javascript";
+          pre.className = "language-" + lang;
+          pre.setAttribute(
+            "data-file",
+            isHtml ? "page.html · HTML" : "script.js · JavaScript"
+          );
+          var code = document.createElement("code");
+          code.className = "language-" + lang;
+          code.textContent = txt;
+          pre.innerHTML = "";
+          pre.appendChild(code);
+          if (window.Prism) Prism.highlightElement(code);
+        }
+        document.querySelectorAll("pre").forEach(highlightPre);
+        window.__highlightPre = highlightPre;
+      })();
+    </script>
+
+    <script>
+      try {
+        var el = document.getElementById("date-demo");
+        if (el) {
+          var d = new Date();
+          el.textContent =
+            "let d = new Date();\nd.toString(); // " + d.toString();
+          if (window.__highlightPre) window.__highlightPre(el);
+        }
+      } catch (e) {}
+    </script>
+    <script>
+      document.querySelectorAll(".fn-group").forEach(function (g) {
+        var btns = g.querySelectorAll(".fnbtn");
+        btns.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var wasOpen = btn.getAttribute("aria-expanded") === "true";
+            btns.forEach(function (b) {
+              var open = b === btn && !wasOpen;
+              b.setAttribute("aria-expanded", open);
+              document
+                .getElementById(b.getAttribute("aria-controls"))
+                .classList.toggle("open", open);
+            });
+          });
+        });
+      });
+    </script>
+    <script>
+      (function () {
+        var nav = document.querySelector("nav.topbar");
+        function setH() {
+          document.documentElement.style.setProperty(
+            "--topbar-h",
+            nav.offsetHeight + "px"
+          );
+        }
+        setH();
+        window.addEventListener("resize", setH);
+
+        var side = document.getElementById("side");
+        document
+          .getElementById("menu-btn")
+          .addEventListener("click", function () {
+            side.classList.toggle("open");
+          });
+        var links = Array.prototype.slice.call(side.querySelectorAll("a"));
+        links.forEach(function (a) {
+          a.addEventListener("click", function () {
+            side.classList.remove("open");
+          });
+        });
+
+        var sections = Array.prototype.slice.call(
+          document.querySelectorAll(".section[id]")
+        );
+        var secStepEl = document.getElementById("course-sec-step");
+        var secNameEl = document.getElementById("course-sec-name");
+        var pctEl = document.getElementById("course-pct");
+        var miniFillEl = document.getElementById("course-mini-fill");
+        var progFillEl = document.getElementById("course-progress-fill");
+        var backToTopBtn = document.getElementById("back-to-top");
+
+        if (backToTopBtn) {
+          backToTopBtn.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        }
+
+        function updateScrollState() {
+          var scrollTop =
+            window.scrollY || document.documentElement.scrollTop || 0;
+          var docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
+          var pct =
+            docHeight > 0
+              ? Math.min(
+                  100,
+                  Math.max(0, Math.round((scrollTop / docHeight) * 100))
+                )
+              : 0;
+
+          if (pctEl) pctEl.textContent = pct + "%";
+          if (miniFillEl) miniFillEl.style.width = pct + "%";
+          if (progFillEl) progFillEl.style.width = pct + "%";
+
+          if (backToTopBtn) {
+            backToTopBtn.classList.toggle("visible", scrollTop > 220);
+          }
+
+          if (sections.length > 0) {
+            var triggerY = (nav ? nav.offsetHeight : 90) + 60;
+            var activeIdx = 0;
+
+            for (var i = 0; i < sections.length; i++) {
+              var rect = sections[i].getBoundingClientRect();
+              if (rect.top <= triggerY) {
+                activeIdx = i;
+              } else {
+                break;
+              }
+            }
+
+            if (docHeight > 0 && scrollTop >= docHeight - 10) {
+              activeIdx = sections.length - 1;
+            }
+
+            var activeSec = sections[activeIdx];
+            var activeId = activeSec.id;
+            var activeTitle = "";
+
+            links.forEach(function (a) {
+              var isMatch = a.getAttribute("href") === "#" + activeId;
+              a.classList.toggle("active", isMatch);
+              if (isMatch) {
+                activeTitle = a.textContent.trim();
+              }
+            });
+
+            if (!activeTitle) {
+              var h2 = activeSec.querySelector("h2");
+              if (h2) activeTitle = h2.textContent.trim();
+            }
+
+            if (secStepEl) {
+              secStepEl.textContent = activeIdx + 1 + " / " + sections.length;
+            }
+            if (secNameEl && activeTitle) {
+              secNameEl.textContent = activeTitle;
+            }
+          }
+        }
+
+        var ticking = false;
+        function requestUpdate() {
+          if (!ticking) {
+            window.requestAnimationFrame(function () {
+              updateScrollState();
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }
+
+        window.addEventListener("scroll", requestUpdate, { passive: true });
+        window.addEventListener("resize", requestUpdate);
+        document.addEventListener("toggle", requestUpdate, true);
+        document.querySelectorAll(".fnbtn").forEach(function (b) {
+          b.addEventListener("click", function () {
+            setTimeout(requestUpdate, 260);
+          });
+        });
+
+        updateScrollState();
+      })();
+    </script>
+    
+  <script id="stix-top">(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest('a[href="#top"]'):null;if(!a)return;e.preventDefault();var de=document.documentElement,pr=de.style.scrollBehavior;de.style.scrollBehavior="auto";window.scrollTo(0,0);if(pr)de.style.scrollBehavior=pr;else de.style.removeProperty("scroll-behavior");if(location.hash==="#top"&&history.replaceState)history.replaceState(null,"",location.pathname+location.search);});})();</script>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../assets/css/protection.css" />
+<script src="../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

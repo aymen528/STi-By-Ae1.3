@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+  <link rel="icon" href="../../assets/icons/STI_by_AE.ico" />
+    <meta name="robots" content="noai, noimageai" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formulaire d'Inscription Complet - Registration Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --vert-fonce: #0a3a33;
+        --vert-clair: #2ecc71;
+        --fond-gris: #e2e8f0;
+        --couleur-bordure: #cbd5e1;
+        --texte-sombre: #1e293b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: radial-gradient(
+            circle at 15% 0%,
+            #eafaf1 0%,
+            transparent 45%
+          ),
+          radial-gradient(circle at 100% 20%, #e6f4ff 0%, transparent 40%),
+          var(--fond-gris);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+      }
+
+      /* Apparition douce du formulaire au chargement */
+      @keyframes apparitionDouce {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Dialogue Obligatoire Initial & Dialogue de Démonstration */
+      dialog {
+        border: none;
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+        max-width: 480px;
+        width: 90%;
+        margin: auto;
+        animation: apparitionDouce 0.35s ease both;
+      }
+
+      dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+      }
+
+      .entete-dialogue {
+        font-size: 1.15rem;
+        font-weight: bold;
+        color: var(--vert-fonce);
+        margin-bottom: 0.75rem;
+        border-bottom: 2px solid var(--vert-clair);
+        padding-bottom: 0.5rem;
+      }
+
+      .corps-dialogue {
+        font-size: 0.875rem;
+        color: var(--texte-sombre);
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+      }
+
+      .form-initial {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+
+      .form-initial label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        width: 100%;
+      }
+
+      .form-initial input {
+        padding: 0.5rem;
+        border: 1px solid var(--couleur-bordure);
+        border-radius: 4px;
+        width: 100%;
+      }
+
+      /* Barre d'actions supérieure */
+      .barre-actions {
+        background: #ffffff;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        max-width: 800px;
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .bouton {
+        padding: 0.55rem 1.2rem;
+        border: none;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 6px 14px rgba(10, 58, 51, 0.18);
+      }
+
+      .bouton:hover {
+        opacity: 0.95;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(10, 58, 51, 0.25);
+      }
+
+      .bouton:active {
+        transform: translateY(0);
+      }
+
+      .bouton-principal {
+        background: linear-gradient(135deg, var(--vert-fonce), #167a63);
+        color: white;
+      }
+      .bouton-secondaire {
+        background: linear-gradient(135deg, var(--vert-clair), #58e39a);
+        color: white;
+      }
+      .bouton-danger {
+        background: linear-gradient(135deg, #e74c3c, #ff7b6b);
+        color: white;
+        box-shadow: 0 6px 14px rgba(231, 76, 60, 0.25);
+      }
+
+      /* Conteneur principal */
+      .conteneur-formulaire {
+        width: 100%;
+        max-width: 800px;
+        background: #ffffff;
+        box-shadow: 0 20px 45px rgba(10, 58, 51, 0.18);
+        border-radius: 18px;
+        overflow: hidden;
+        animation: apparitionDouce 0.6s ease both;
+      }
+
+      /* En-tête */
+      .entete {
+        color: #ffffff;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+
+        /* ===================================================
+           ANIMATION : CHANGEMENT DE COULEUR DU HEADER
+           Dégradé de 4 teintes qui défile en boucle sur le fond
+           =================================================== */
+        background: linear-gradient(120deg, #0a3a33, #0f5c4e, #167a63, #0a3a33);
+        background-size: 400% 400%;
+        animation: entetefondCouleur 10s ease-in-out infinite;
+      }
+
+      @keyframes entetefondCouleur {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* =========================================================
+         ANIMATION INFINIE MODERNE POUR LE TITRE
+         ========================================================= */
+      .info-entete h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        display: inline-block;
+
+        /* Gradient fluide qui défile */
+        background: linear-gradient(
+          120deg,
+          #ffffff 0%,
+          #2ecc71 25%,
+          #a8ff78 50%,
+          #2ecc71 75%,
+          #ffffff 100%
+        );
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        /* Application des animations combinées */
+        animation: titreGradient 4s linear infinite,
+          titreRespiration 3s ease-in-out infinite alternate;
+      }
+
+      .info-entete h1 span {
+        -webkit-text-fill-color: initial;
+        color: var(--vert-clair);
+      }
+
+      @keyframes titreGradient {
+        0% {
+          background-position: 0% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+
+      @keyframes titreRespiration {
+        0% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px rgba(46, 204, 113, 0.2));
+        }
+        100% {
+          transform: scale(1.03);
+          filter: drop-shadow(0 0 10px rgba(46, 204, 113, 0.7));
+        }
+      }
+
+      .meta-entete {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        color: #e2e8f0;
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      /* Zone photo cliquable */
+      .cadre-photo {
+        width: 100px;
+        height: 120px;
+        border: 2px dashed #ffffff;
+        background-color: rgba(255, 255, 255, 0.15);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #ffffff;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        padding: 0.25rem;
+      }
+
+      .cadre-photo:hover {
+        transform: translateY(-2px) scale(1.03);
+      }
+
+      .cadre-photo:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        border-color: var(--vert-clair);
+      }
+
+      .cadre-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+      }
+
+      .bande-accentuation {
+        height: 8px;
+        background: linear-gradient(
+          90deg,
+          var(--vert-clair) 0%,
+          var(--vert-fonce) 100%
+        );
+      }
+
+      .corps-formulaire {
+        padding: 1.5rem 2rem;
+      }
+
+      /* Numéro d'adhérent */
+      .section-identifiant {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: center;
+      }
+
+      .groupe-chiffres {
+        display: flex;
+        gap: 4px;
+      }
+
+      .case-chiffre {
+        width: 32px;
+        height: 38px;
+        border: 1.5px solid var(--couleur-bordure);
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--vert-fonce);
+        background: #f8fafc;
+        transition: transform 0.2s ease, border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        outline: none;
+      }
+
+      /* Bannières de sections */
+      .banniere-section {
+        background: linear-gradient(135deg, var(--vert-fonce), #167a63);
+        color: #ffffff;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        position: relative;
+        margin-bottom: 1.2rem;
+        width: 100%;
+        border-radius: 8px;
+      }
+
+      .banniere-section::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 6px;
+        background-color: var(--vert-clair);
+      }
+
+      /* Grille de champs du formulaire */
+      .grille-formulaire {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .groupe-champ {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .groupe-champ.largeur-complete {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--texte-sombre);
+        width: 135px;
+        flex-shrink: 0;
+      }
+
+      /* STYLES DE BASE POUR TOUS LES CHAMPS */
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="password"],
+      input[type="number"],
+      input[type="url"],
+      input[type="search"],
+      input[type="date"],
+      input[type="time"],
+      input[type="datetime-local"],
+      input[type="month"],
+      input[type="week"],
+      select,
+      textarea {
+        flex: 1;
+        padding: 0.5rem 0.7rem;
+        border: 1px solid var(--couleur-bordure);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        outline: none;
+        background-color: #f8fafc;
+        width: 100%;
+        /* Transition fluide pour l'agrandissement et la couleur de bordure */
+        transition: transform 0.25s ease, border-color 0.25s ease,
+          box-shadow 0.25s ease, background-color 0.25s ease;
+      }
+
+      textarea {
+        padding: 0.5rem;
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      /* EFFET QUAND UN CHAMP EST VISITÉ / FOCUS : BORDURE ROUGE ET AGRANDISSEMENT */
+      input[type="text"]:focus,
+      input[type="email"]:focus,
+      input[type="tel"]:focus,
+      input[type="password"]:focus,
+      input[type="number"]:focus,
+      input[type="url"]:focus,
+      input[type="search"]:focus,
+      input[type="date"]:focus,
+      input[type="time"]:focus,
+      input[type="datetime-local"]:focus,
+      input[type="month"]:focus,
+      input[type="week"]:focus,
+      select:focus,
+      textarea:focus,
+      .case-chiffre:focus {
+        border-color: #e74c3c !important; /* Bordure rouge */
+        background-color: #ffffff;
+        transform: scale(1.03); /* Agrandissement léger */
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); /* Ombre rouge très légère */
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Style des balises <details> et <summary> */
+      details {
+        background-color: #f8fafc;
+        border: 1px solid var(--couleur-bordure);
+        border-radius: 4px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      summary {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--vert-fonce);
+        cursor: pointer;
+        outline: none;
+      }
+
+      .contenu-details {
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed var(--couleur-bordure);
+      }
+
+      /* Boutons radio et cases à cocher */
+      .options-radio,
+      .options-cocher {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        font-size: 0.75rem;
+      }
+
+      .options-radio label,
+      .options-cocher label {
+        width: auto;
+        font-weight: normal;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+      }
+
+      .grille-cocher {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+      }
+
+      /* Pied de page et Signature */
+      .section-pied {
+        background-color: var(--vert-fonce);
+        color: #ffffff;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        gap: 1rem;
+      }
+
+      .info-contact {
+        font-size: 0.7rem;
+        max-width: 50%;
+        line-height: 1.4;
+      }
+
+      .conteneur-signature {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.25rem;
+      }
+
+      .conteneur-signature label {
+        color: #ffffff;
+        width: auto;
+        font-size: 0.7rem;
+      }
+
+      .cadre-canevas {
+        position: relative;
+        background: #ffffff;
+        border-radius: 4px;
+        border: 1px solid var(--couleur-bordure);
+      }
+
+      canvas#zoneSignature {
+        display: block;
+        cursor: crosshair;
+        border-radius: 4px;
+        touch-action: none;
+      }
+
+      .outils-signature {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .bouton-petit {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.65rem;
+        border-radius: 2px;
+      }
+
+      .barre-bas {
+        height: 6px;
+        background-color: var(--vert-clair);
+      }
+
+      /* =========================================================
+         FIELDSET + LEGEND MODERNES & TRANSITION AU SURVOL
+         ========================================================= */
+      .fieldset-moderne {
+        border: 1px solid #d7e2df;
+        border-radius: 16px;
+        padding: 1.35rem 1.25rem 1.25rem;
+        margin: 0 0 1.5rem;
+        background: linear-gradient(145deg, #ffffff, #f7fbfa);
+        box-shadow: 0 6px 18px rgba(10, 58, 51, 0.06);
+        position: relative;
+      }
+
+      .fieldset-moderne::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 18px;
+        bottom: 18px;
+        width: 4px;
+        border-radius: 0 5px 5px 0;
+        background: linear-gradient(
+          to bottom,
+          var(--vert-clair),
+          var(--vert-fonce)
+        );
+      }
+
+      .fieldset-moderne legend {
+        padding: 0.5rem 0.9rem;
+        margin-left: 0.5rem;
+        border: 1px solid #cfe0db;
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--vert-fonce);
+        font-size: 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        box-shadow: 0 4px 10px rgba(10, 58, 51, 0.08);
+
+        /* Transition douce pour la légende */
+        transition: color 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+        display: inline-block;
+      }
+
+      .fieldset-moderne legend span {
+        color: var(--vert-clair);
+        margin-right: 0.35rem;
+        transition: color 0.3s ease;
+      }
+
+      /* Effet au survol du fieldset sur sa propre légende */
+      .fieldset-moderne:hover legend {
+        color: #e74c3c;
+        border-color: #fecaca;
+        transform: scale(1.08);
+      }
+
+      .fieldset-moderne:hover legend span {
+        color: #e74c3c;
+      }
+
+      /* =========================================================
+         SECTION MULTIMEDIA
+         ========================================================= */
+      .multimedia-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+      }
+
+      .media-card {
+        border: 1px solid #d7e2df;
+        border-radius: 14px;
+        padding: 1rem;
+        background: #ffffff;
+        box-shadow: 0 5px 14px rgba(10, 58, 51, 0.07);
+      }
+
+      .media-card.large {
+        grid-column: 1 / -1;
+      }
+
+      .media-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--vert-fonce);
+        font-weight: 800;
+        font-size: 0.85rem;
+      }
+
+      .media-title .icone-media {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #e8f8f0;
+        font-size: 1rem;
+      }
+
+      .zone-video {
+        width: 100%;
+        display: block;
+        border-radius: 10px;
+        background: #0f172a;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+      }
+
+      .zone-image {
+        width: 100%;
+        height: 220px;
+        display: block;
+        object-fit: cover;
+        border-radius: 10px;
+        background: #eef4f2;
+        border: 1px solid #e1ebe8;
+      }
+
+      .zone-audio {
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .media-legende {
+        margin-top: 0.55rem;
+        font-size: 0.7rem;
+        color: #64748b;
+        line-height: 1.4;
+      }
+
+      @media (max-width: 650px) {
+        .multimedia-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .media-card.large {
+          grid-column: auto;
+        }
+
+        .fieldset-moderne {
+          padding: 1.2rem 0.8rem 1rem;
+        }
+      }
+
+      /* =========================================================
+         DIAPORAMA (SLIDESHOW) — images qui défilent dans une seule boîte
+         ========================================================= */
+      .diaporama {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #0f172a;
+        box-shadow: inset 0 0 0 1px #e1ebe8;
+      }
+
+      .diaporama-piste {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.6s ease-in-out;
+      }
+
+      .diaporama-image {
+        flex: 0 0 100%;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .diaporama-fleche {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(10, 58, 51, 0.55);
+        color: #ffffff;
+        border: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        font-size: 1.3rem;
+        line-height: 1;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+
+      .diaporama-fleche:hover {
+        background: var(--vert-clair);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .diaporama-precedent {
+        left: 0.6rem;
+      }
+
+      .diaporama-suivant {
+        right: 0.6rem;
+      }
+
+      .diaporama-points {
+        position: absolute;
+        bottom: 0.6rem;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+      }
+
+      .diaporama-point {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.55);
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+
+      .diaporama-point.actif {
+        background: var(--vert-clair);
+        transform: scale(1.3);
+      }
+
+      /* =========================================================
+         TRANSFORMATIONS CSS DE LA PHOTO
+         ========================================================= */
+      .outils-photo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.75rem;
+        justify-content: center;
+      }
+
+      .bouton-photo {
+        border: 1px solid #cfe0db;
+        background: #ffffff;
+        color: var(--vert-fonce);
+        padding: 0.45rem 0.65rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: 0.2s;
+      }
+
+      .bouton-photo:hover {
+        background: var(--vert-fonce);
+        color: #ffffff;
+        transform: translateY(-1px);
+      }
+
+      .bouton-photo.reinitialiser {
+        background: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+      }
+
+      .bouton-photo.reinitialiser:hover {
+        background: #b91c1c;
+        color: #ffffff;
+      }
+
+      .photo-transformee {
+        transition: transform 0.45s ease;
+        transform-origin: center center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. DIALOGUE OBLIGATOIRE DE CONFIGURATION INITIALE -->
+    <dialog id="dialogueInitial">
+      <div class="entete-dialogue">Configuration requise de l'Entreprise</div>
+      <div class="corps-dialogue">
+        Veuillez saisir le numéro de téléphone et l'adresse e-mail officiels de
+        votre entreprise pour accéder au document.
+      </div>
+      <form id="formInitEntreprise" class="form-initial">
+        <div>
+          <label for="initTel">Téléphone de l'entreprise :</label>
+          <input
+            type="tel"
+            id="initTel"
+            required
+            placeholder="+216 71 000 000"
+          />
+        </div>
+        <div>
+          <label for="initEmail">E-mail de l'entreprise :</label>
+          <input
+            type="email"
+            id="initEmail"
+            required
+            placeholder="contact@entreprise.tn"
+          />
+        </div>
+        <div style="text-align: right; margin-top: 1rem">
+          <button type="submit" class="bouton bouton-principal">
+            Valider et Entrer
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Dialogue secondaire (Démonstration) -->
+    <dialog id="dialoguePersonnalise">
+      <div class="entete-dialogue" id="titreDialogue">Titre du dialogue</div>
+      <div class="corps-dialogue" id="contenuDialogue">
+        Contenu explicatif de la boîte de dialogue.
+      </div>
+      <div style="text-align: right">
+        <button
+          type="button"
+          class="bouton bouton-danger"
+          onclick="fermerDialogue()"
+        >
+          Fermer
+        </button>
+      </div>
+    </dialog>
+
+    <!-- 3. CONTENEUR PRINCIPAL DU FORMULAIRE DE TYPE PAGE PAPIER -->
+    <div class="conteneur-formulaire">
+      <!-- En-tête -->
+      <header class="entete">
+        <div class="info-entete">
+          <h1>
+            CAP Fleuriste : Le diplôme de base pour devenir artisan fleuriste.
+          </h1>
+          <h2>Formulaire d'Inscription</h2>
+          <div class="meta-entete">
+            <span
+              ><strong>Téléphone :</strong>
+              <span id="affichageTelHeader">---</span></span
+            >
+            <span
+              ><strong>E-mail :</strong>
+              <span id="affichageEmailHeader">---</span></span
+            >
+          </div>
+        </div>
+
+        <!-- Zone de sélection de photo cliquable -->
+        <div
+          class="cadre-photo"
+          id="declencheurPhoto"
+          title="Cliquez ici pour choisir une photo"
+        >
+          <span id="textePhoto">📷 Cliquer pour insérer une photo</span>
+          <img id="apercuPhoto" alt="Aperçu de la photo insérée" />
+        </div>
+        <input
+          type="file"
+          id="entreeFichierPhoto"
+          accept="image/*"
+          style="display: none"
+        />
+      </header>
+
+      <div class="bande-accentuation"></div>
+
+      <form
+        class="corps-formulaire"
+        onsubmit="event.preventDefault(); alert('Formulaire transmitted avec succès !');"
+      >
+        <!-- Numéro d'adhérent -->
+        <div class="section-identifiant">
+          <label style="width: auto">N° d'adhérent (6 chiffres) :</label>
+          <div class="groupe-chiffres">
+            <input type="text" class="case-chiffre" maxlength="1" />
+            <input type="text" class="case-chiffre" maxlength="1" />
+            <input type="text" class="case-chiffre" maxlength="1" />
+            <input type="text" class="case-chiffre" maxlength="1" />
+            <input type="text" class="case-chiffre" maxlength="1" />
+            <input type="text" class="case-chiffre" maxlength="1" />
+          </div>
+        </div>
+
+        <!-- SECTION 1 : INFORMATIONS PERSONNELLES -->
+        <fieldset class="fieldset-moderne">
+          <legend>
+            <span>01</span> INFORMATIONS PERSONNELLES ET SÉLECTION
+          </legend>
+
+          <div class="grille-formulaire">
+            <div class="groupe-champ">
+              <label for="champ-nom">Nom complet (text)</label>
+              <input
+                type="text"
+                id="champ-nom"
+                placeholder="Ex: Ali Ben Salah"
+                required
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-email">E-mail (email)</label>
+              <input
+                type="email"
+                id="champ-email"
+                placeholder="ali.ben@exemple.tn"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-mot-de-passe">Mot de passe (password)</label>
+              <input
+                type="password"
+                id="champ-mot-de-passe"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-telephone">Téléphone (tel)</label>
+              <input type="tel" id="champ-telephone" placeholder="71100200" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-age">Âge (number)</label>
+              <input
+                type="number"
+                id="champ-age"
+                min="18"
+                max="120"
+                value="25"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-url">Site Web (url)</label>
+              <input
+                type="url"
+                id="champ-url"
+                placeholder="https://mon-site.tn"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-recherche">Recherche (search)</label>
+              <input
+                type="search"
+                id="champ-recherche"
+                placeholder="Mots-clés..."
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-fichier">Document (file)</label>
+              <input type="file" id="champ-fichier" accept="image/*,.pdf" />
+            </div>
+
+            <!-- Element <select> -->
+            <div class="groupe-champ">
+              <label for="champ-gouvernorat">Gouvernorat (select)</label>
+              <select id="champ-gouvernorat">
+                <option value="">-- Choisir un gouvernorat --</option>
+                <option value="tunis">Tunis</option>
+                <option value="ariana">Ariana</option>
+                <option value="ben_arous">Ben Arous</option>
+                <option value="manouba">Manouba</option>
+                <option value="sousse">Sousse</option>
+                <option value="sfax">Sfax</option>
+              </select>
+            </div>
+
+            <!-- Element <datalist> -->
+            <div class="groupe-champ">
+              <label for="champ-profession">Profession (datalist)</label>
+              <input
+                type="text"
+                id="champ-profession"
+                list="liste-professions"
+                placeholder="Tapez ou choisissez..."
+              />
+              <datalist id="liste-professions">
+                <option value="Ingénieur logiciel"></option>
+                <option value="Développeur Web"></option>
+                <option value="Designer Graphique"></option>
+                <option value="Chef de projet"></option>
+                <option value="Enseignant"></option>
+                <option value="Étudiant"></option>
+              </datalist>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- SECTION 2 : DATES, HEURES ET PREFERENCES -->
+        <fieldset class="fieldset-moderne">
+          <legend><span>02</span> DATES, HEURES ET PRÉFÉRENCES</legend>
+
+          <div class="grille-formulaire">
+            <div class="groupe-champ">
+              <label for="champ-date">Date de naissance (date)</label>
+              <input type="date" id="champ-date" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-heure">Heure (time)</label>
+              <input type="time" id="champ-heure" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-date-heure">Rendez-vous (datetime-local)</label>
+              <input type="datetime-local" id="champ-date-heure" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-mois">Mois de début (month)</label>
+              <input type="month" id="champ-mois" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-semaine">Semaine (week)</label>
+              <input type="week" id="champ-semaine" />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-couleur">Couleur préférée (color)</label>
+              <input
+                type="color"
+                id="champ-couleur"
+                value="#0a3a33"
+                style="height: 32px; cursor: pointer"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label for="champ-echelle">Niveau (range)</label>
+              <input
+                type="range"
+                id="champ-echelle"
+                min="0"
+                max="100"
+                value="50"
+              />
+            </div>
+
+            <div class="groupe-champ">
+              <label>Genre (radio)</label>
+              <div class="options-radio">
+                <label
+                  ><input type="radio" name="genre" value="homme" checked />
+                  Homme</label
+                >
+                <label
+                  ><input type="radio" name="genre" value="femme" />
+                  Femme</label
+                >
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Composant repliable <details> / <summary> -->
+        <details>
+          <summary>
+            ▶ Options complémentaires avancées (&lt;details&gt; &amp;
+            &lt;summary&gt;)
+          </summary>
+          <div class="contenu-details">
+            <div class="grille-formulaire" style="margin-bottom: 0">
+              <div class="groupe-champ">
+                <label for="champ-langue">Langue (select)</label>
+                <select id="champ-langue">
+                  <option value="ar">Arabe</option>
+                  <option value="fr">Français</option>
+                  <option value="en">Anglais</option>
+                </select>
+              </div>
+              <div class="groupe-champ">
+                <label for="champ-navigateur">Navigateur (datalist)</label>
+                <input
+                  type="text"
+                  id="champ-navigateur"
+                  list="liste-navigateurs"
+                  placeholder="Votre navigateur..."
+                />
+                <datalist id="liste-navigateurs">
+                  <option value="Google Chrome"></option>
+                  <option value="Mozilla Firefox"></option>
+                  <option value="Apple Safari"></option>
+                  <option value="Microsoft Edge"></option>
+                </datalist>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- SECTION 3 : CHECKBOXES, TEXTAREA ET VALIDATION -->
+        <fieldset class="fieldset-moderne">
+          <legend><span>03</span> CANAUX DE COMMUNICATION ET REMARQUES</legend>
+
+          <p
+            style="
+              font-size: 0.75rem;
+              font-weight: 600;
+              margin-bottom: 0.5rem;
+              color: var(--texte-sombre);
+            "
+          >
+            Comment nous avez-vous connus ? (checkbox)
+          </p>
+
+          <div class="grille-cocher">
+            <div class="options-cocher">
+              <label><input type="checkbox" checked /> Recommandation</label>
+            </div>
+            <div class="options-cocher">
+              <label><input type="checkbox" /> Article de presse</label>
+            </div>
+            <div class="options-cocher">
+              <label><input type="checkbox" /> Recherche Internet</label>
+            </div>
+            <div class="options-cocher">
+              <label><input type="checkbox" /> Réseaux sociaux</label>
+            </div>
+            <div class="options-cocher">
+              <label><input type="checkbox" /> Publicité</label>
+            </div>
+            <div class="options-cocher">
+              <label><input type="checkbox" /> Autre</label>
+            </div>
+          </div>
+
+          <!-- Area multi-lignes <textarea> -->
+          <div
+            class="groupe-champ largeur-complete"
+            style="margin-bottom: 1.5rem; align-items: flex-start"
+          >
+            <label for="zone-remarques" style="padding-top: 0.3rem"
+              >Remarques (textarea)</label
+            >
+            <textarea
+              id="zone-remarques"
+              placeholder="Saisissez vos commentaires ou précisions ici..."
+            ></textarea>
+          </div>
+        </fieldset>
+
+        <!-- SECTION 4 : MULTIMÉDIA -->
+        <fieldset class="fieldset-moderne">
+          <legend><span>04</span> MULTIMÉDIA : VIDÉO, IMAGE ET SON</legend>
+
+          <div class="multimedia-grid">
+            <div class="media-card large">
+              <div class="media-title">
+                <span class="icone-media">🎬</span>
+                <span>Vidéo avec contrôles</span>
+              </div>
+
+              <video class="zone-video" controls preload="metadata" poster="">
+                <source src="media/flower.webm" type="video/mp4" />
+                Votre navigateur ne prend pas en charge la lecture vidéo.
+              </video>
+
+              <p class="media-legende">
+                Exemple de la balise <strong>&lt;video controls&gt;</strong> :
+                lecture, pause, volume, barre de progression et plein écran.
+              </p>
+            </div>
+
+            <!-- Carte Diaporama (slideshow) : plusieurs images qui défilent dans une seule boîte -->
+            <div class="media-card large">
+              <div class="media-title">
+                <span class="icone-media">🖼️</span>
+                <span>Diaporama (slideshow)</span>
+              </div>
+
+              <div class="diaporama" id="diaporama">
+                <div class="diaporama-piste" id="diaporamaPiste">
+                  <img
+                    class="diaporama-image"
+                    src="media/imageslider1.jpg"
+                    alt="Diapositive 1"
+                  />
+                  <img
+                    class="diaporama-image"
+                    src="media/imageslider2.jpg"
+                    alt="Diapositive 2"
+                  />
+                  <img
+                    class="diaporama-image"
+                    src="media/imageslider3.jpg"
+                    alt="Diapositive 3"
+                  />
+                  <img
+                    class="diaporama-image"
+                    src="media/imageslider4.jpg"
+                    alt="Diapositive 4"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  class="diaporama-fleche diaporama-precedent"
+                  id="diaporamaPrecedent"
+                  aria-label="Image précédente"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  class="diaporama-fleche diaporama-suivant"
+                  id="diaporamaSuivant"
+                  aria-label="Image suivante"
+                >
+                  ›
+                </button>
+
+                <div class="diaporama-points" id="diaporamaPoints"></div>
+              </div>
+
+              <p class="media-legende">
+                Diaporama en JavaScript : les images défilent automatiquement
+                dans une seule boîte (un seul
+                <strong>&lt;div&gt;</strong>), avec flèches et points de
+                navigation cliquables.
+                <br />
+              </p>
+            </div>
+
+            <div class="media-card">
+              <div class="media-title">
+                <span class="icone-media">🖼️</span>
+                <span>Image</span>
+              </div>
+
+              <img
+                id="photoTransformee"
+                class="zone-image photo-transformee"
+                src="media/orchidee.jpg"
+                alt="Image de présentation"
+              />
+
+              <div class="outils-photo">
+                <button type="button" class="bouton-photo" id="btnRotate">
+                  🔄 rotate()
+                </button>
+
+                <button type="button" class="bouton-photo" id="btnSkew">
+                  ↗️ skew()
+                </button>
+
+                <button type="button" class="bouton-photo" id="btnScale">
+                  🔍 scale()
+                </button>
+
+                <button type="button" class="bouton-photo" id="btnTranslate">
+                  ↔️ translate()
+                </button>
+
+                <button
+                  type="button"
+                  class="bouton-photo reinitialiser"
+                  id="btnResetTransform"
+                >
+                  ↩️ Reset
+                </button>
+              </div>
+
+              <p class="media-legende">
+                Exemple de la balise <strong>&lt;img&gt;</strong> avec
+                <strong>src</strong> et <strong>alt</strong>.
+                <br />
+                Les boutons ci-dessus illustrent les fonctions CSS
+                <strong>rotate()</strong>, <strong>skew()</strong>,
+                <strong>scale()</strong> et <strong>translate()</strong>.
+              </p>
+            </div>
+
+            <div class="media-card">
+              <div class="media-title">
+                <span class="icone-media">🎵</span>
+                <span>Son avec contrôles</span>
+              </div>
+
+              <div style="padding: 1.2rem 0">
+                <div style="font-size: 3rem; text-align: center">🔊</div>
+                <audio class="zone-audio" controls preload="metadata">
+                  <source src="media/SON.mp3" type="audio/mpeg" />
+                  Votre navigateur ne prend pas en charge la lecture audio.
+                </audio>
+              </div>
+
+              <p class="media-legende">
+                Exemple de la balise <strong>&lt;audio controls&gt;</strong>
+                avec lecture, pause, volume et progression.
+              </p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Boutons -->
+        <div
+          class="groupe-champ largeur-complete"
+          style="justify-content: flex-end; gap: 1rem"
+        >
+          <input
+            type="reset"
+            class="bouton bouton-secondaire"
+            value="Réinitialiser (reset)"
+          />
+          <input
+            type="submit"
+            class="bouton bouton-principal"
+            value="Envoyer (submit)"
+          />
+        </div>
+      </form>
+
+      <!-- Pied de page -->
+      <footer class="section-pied">
+        <div class="info-contact">
+          <strong>INFORMATIONS DE CONTACT DE L'ENTREPRISE :</strong><br />
+          Tél : <span id="affichageTelFooter">---</span><br />
+          E-mail : <span id="affichageEmailFooter">---</span><br />
+          Ce formulaire est protégé et soumis aux règles de confidentialité.
+        </div>
+
+        <div class="conteneur-signature">
+          <label>Signez dans le cadre ci-dessous :</label>
+          <div class="cadre-canevas">
+            <canvas id="zoneSignature" width="220" height="70"></canvas>
+          </div>
+          <div class="outils-signature">
+            <button
+              type="button"
+              class="bouton bouton-danger bouton-petit"
+              id="effacerSignature"
+            >
+              Effacer la signature
+            </button>
+          </div>
+        </div>
+      </footer>
+      <div class="barre-bas"></div>
+    </div>
+
+    <script>
+      /* ===================================================
+       1. DIALOGUE INITIAL OBLIGATOIRE
+       =================================================== */
+      const dialogueInitial = document.getElementById("dialogueInitial");
+      const formInitEntreprise = document.getElementById("formInitEntreprise");
+      const affichageTelHeader = document.getElementById("affichageTelHeader");
+      const affichageEmailHeader = document.getElementById(
+        "affichageEmailHeader"
+      );
+      const affichageTelFooter = document.getElementById("affichageTelFooter");
+      const affichageEmailFooter = document.getElementById(
+        "affichageEmailFooter"
+      );
+
+      // Ouverture automatique en mode Modal au chargement du DOM
+      window.addEventListener("DOMContentLoaded", () => {
+        dialogueInitial.showModal();
+      });
+
+      // Empêcher la fermeture par la touche Échap sans validation
+      dialogueInitial.addEventListener("cancel", (e) => {
+        e.preventDefault();
+      });
+
+      // Traitement de la validation des coordonnées de l'entreprise
+      formInitEntreprise.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const tel = document.getElementById("initTel").value.trim();
+        const email = document.getElementById("initEmail").value.trim();
+
+        if (tel && email) {
+          // Injection dynamique dans la page
+          affichageTelHeader.textContent = tel;
+          affichageEmailHeader.textContent = email;
+          affichageTelFooter.textContent = tel;
+          affichageEmailFooter.textContent = email;
+
+          // Fermeture de la boîte modale obligatoire
+          dialogueInitial.close();
+        }
+      });
+
+      /* ===================================================
+       2. GESTION DU DIALOGUE DE DEMONSTRATION
+       =================================================== */
+      const dialoguePersonnalise = document.getElementById(
+        "dialoguePersonnalise"
+      );
+      const titreDialogue = document.getElementById("titreDialogue");
+      const contenuDialogue = document.getElementById("contenuDialogue");
+
+      function ouvrirDialogueSimple() {
+        titreDialogue.textContent = "Boîte de dialogue simple (.show())";
+        contenuDialogue.textContent =
+          "Cette fenêtre s'ouvre sans bloquer la page. Vous pouvez toujours modifier les champs du formulaire en arrière-plan.";
+        dialoguePersonnalise.show();
+      }
+
+      function ouvrirDialogueModal() {
+        titreDialogue.textContent = "Boîte de dialogue modale (.showModal())";
+        contenuDialogue.textContent =
+          "Cette fenêtre s'ouvre avec un fond sombre opaque. L'accès à la page est verrouillé tant qu'elle est ouverte.";
+        dialoguePersonnalise.showModal();
+      }
+
+      function fermerDialogue() {
+        dialoguePersonnalise.close();
+      }
+
+      /* ===================================================
+       3. SELECTION PHOTO ET APERÇU EN DIRECT
+       =================================================== */
+      const declencheurPhoto = document.getElementById("declencheurPhoto");
+      const entreeFichierPhoto = document.getElementById("entreeFichierPhoto");
+      const apercuPhoto = document.getElementById("apercuPhoto");
+      const textePhoto = document.getElementById("textePhoto");
+      const champFichierSecondaire = document.getElementById("champ-fichier");
+
+      declencheurPhoto.addEventListener("click", () => {
+        entreeFichierPhoto.click();
+      });
+
+      function afficherPhoto(fichier) {
+        if (fichier && fichier.type.startsWith("image/")) {
+          const lecteur = new FileReader();
+          lecteur.onload = (e) => {
+            apercuPhoto.src = e.target.result;
+            apercuPhoto.style.display = "block";
+            textePhoto.style.display = "none";
+          };
+          lecteur.readAsDataURL(fichier);
+        }
+      }
+
+      entreeFichierPhoto.addEventListener("change", (e) => {
+        afficherPhoto(e.target.files[0]);
+      });
+
+      champFichierSecondaire.addEventListener("change", (e) => {
+        if (e.target.files[0] && e.target.files[0].type.startsWith("image/")) {
+          afficherPhoto(e.target.files[0]);
+        }
+      });
+
+      /* ===================================================
+       4. SIGNATURE INTERACTIVE SUR CANVAS
+       =================================================== */
+      const canevas = document.getElementById("zoneSignature");
+      const contexte = canevas.getContext("2d");
+      const boutonEffacer = document.getElementById("effacerSignature");
+      let enDessin = false;
+
+      contexte.strokeStyle = "#0a3a33";
+      contexte.lineWidth = 2;
+      contexte.lineCap = "round";
+      contexte.lineJoin = "round";
+
+      function obtenirPosition(e) {
+        const limites = canevas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: clientX - limites.left,
+          y: clientY - limites.top,
+        };
+      }
+
+      function commencerDessin(e) {
+        enDessin = true;
+        const pos = obtenirPosition(e);
+        contexte.beginPath();
+        contexte.moveTo(pos.x, pos.y);
+      }
+
+      function dessiner(e) {
+        if (!enDessin) return;
+        e.preventDefault();
+        const pos = obtenirPosition(e);
+        contexte.lineTo(pos.x, pos.y);
+        contexte.stroke();
+      }
+
+      function arreterDessin() {
+        enDessin = false;
+      }
+
+      canevas.addEventListener("mousedown", commencerDessin);
+      canevas.addEventListener("mousemove", dessiner);
+      canevas.addEventListener("mouseup", arreterDessin);
+      canevas.addEventListener("mouseleave", arreterDessin);
+
+      canevas.addEventListener("touchstart", commencerDessin);
+      canevas.addEventListener("touchmove", dessiner);
+      canevas.addEventListener("touchend", arreterDessin);
+
+      boutonEffacer.addEventListener("click", () => {
+        contexte.clearRect(0, 0, canevas.width, canevas.height);
+      });
+
+      /* ===================================================
+       4bis. DIAPORAMA (SLIDESHOW) — défilement automatique
+       =================================================== */
+      const diaporamaPiste = document.getElementById("diaporamaPiste");
+      const diaporamaPoints = document.getElementById("diaporamaPoints");
+      const boutonPrecedent = document.getElementById("diaporamaPrecedent");
+      const boutonSuivant = document.getElementById("diaporamaSuivant");
+      const imagesDiaporama = diaporamaPiste
+        ? diaporamaPiste.querySelectorAll(".diaporama-image")
+        : [];
+      let indexDiaporama = 0;
+      let minuteurDiaporama = null;
+
+      // Création des points de navigation
+      imagesDiaporama.forEach((_, i) => {
+        const point = document.createElement("button");
+        point.type = "button";
+        point.className = "diaporama-point" + (i === 0 ? " actif" : "");
+        point.setAttribute("aria-label", "Aller à l'image " + (i + 1));
+        point.addEventListener("click", () => allerA(i));
+        diaporamaPoints.appendChild(point);
+      });
+
+      function mettreAJourDiaporama() {
+        diaporamaPiste.style.transform = `translateX(-${
+          indexDiaporama * 100
+        }%)`;
+        diaporamaPoints
+          .querySelectorAll(".diaporama-point")
+          .forEach((pt, i) =>
+            pt.classList.toggle("actif", i === indexDiaporama)
+          );
+      }
+
+      function allerA(i) {
+        indexDiaporama = (i + imagesDiaporama.length) % imagesDiaporama.length;
+        mettreAJourDiaporama();
+        relancerDefilementAuto();
+      }
+
+      function imageSuivante() {
+        allerA(indexDiaporama + 1);
+      }
+
+      function imagePrecedente() {
+        allerA(indexDiaporama - 1);
+      }
+
+      function relancerDefilementAuto() {
+        clearInterval(minuteurDiaporama);
+        minuteurDiaporama = setInterval(imageSuivante, 4000);
+      }
+
+      if (imagesDiaporama.length > 0) {
+        boutonSuivant.addEventListener("click", imageSuivante);
+        boutonPrecedent.addEventListener("click", imagePrecedente);
+        relancerDefilementAuto();
+      }
+
+      /* ===================================================
+         5. TRANSFORMATIONS CSS DE LA PHOTO
+         =================================================== */
+      const photoTransformee = document.getElementById("photoTransformee");
+
+      let rotation = 0;
+      let inclinaisonX = 0;
+      let inclinaisonY = 0;
+      let zoom = 1;
+      let deplacementX = 0;
+      let deplacementY = 0;
+
+      function appliquerTransformations() {
+        photoTransformee.style.transform = `translate(${deplacementX}px, ${deplacementY}px)
+           rotate(${rotation}deg)
+           skew(${inclinaisonX}deg, ${inclinaisonY}deg)
+           scale(${zoom})`;
+      }
+
+      document.getElementById("btnRotate").addEventListener("click", () => {
+        rotation += 45;
+        appliquerTransformations();
+      });
+
+      document.getElementById("btnSkew").addEventListener("click", () => {
+        inclinaisonX += 10;
+        inclinaisonY += 5;
+        appliquerTransformations();
+      });
+
+      document.getElementById("btnScale").addEventListener("click", () => {
+        zoom += 0.1;
+        appliquerTransformations();
+      });
+
+      document.getElementById("btnTranslate").addEventListener("click", () => {
+        deplacementX += 20;
+        deplacementY += 10;
+        appliquerTransformations();
+      });
+
+      document
+        .getElementById("btnResetTransform")
+        .addEventListener("click", () => {
+          rotation = 0;
+          inclinaisonX = 0;
+          inclinaisonY = 0;
+          zoom = 1;
+          deplacementX = 0;
+          deplacementY = 0;
+          appliquerTransformations();
+        });
+    </script>
+  <!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../../assets/css/protection.css" />
+<script src="../../assets/js/protection.js" defer></script>
+<!-- /Protection -->
+</body>
+</html>

@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Séries et exercices — STI Quiz</title>
+    <meta
+      name="description"
+      content="Séries d'exercices CSS3, JavaScript, Base de données et PHP, avec corrigés."
+    />
+    <meta name="author" content="Aymen Essouyah" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <style>
+      :root {
+        --bg: #f4f5f9;
+        --surface: #ffffff;
+        --border: #e1e4ec;
+        --ink: #14161f;
+        --muted: #5b6172;
+        --accent: #4338ca;
+        --accent-soft: #eceafd;
+        --c-css: #e4572e;
+        --c-js: #b8860b;
+        --c-bdd: #0e7c86;
+        --c-php: #4c51bf;
+        --radius: 14px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "IBM Plex Sans", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        background-image: radial-gradient(circle, #dfe2ec 1px, transparent 1px);
+        background-size: 26px 26px;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Space Grotesk", "IBM Plex Sans", sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      /* ---------- Barre supérieure fixe (moderne) + sommaire des 4 matières ---------- */
+      :root {
+        --bar-h: 72px;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.82);
+        -webkit-backdrop-filter: blur(14px) saturate(1.6);
+        backdrop-filter: blur(14px) saturate(1.6);
+        border-bottom: 1px solid var(--border);
+        transition: box-shadow 0.3s ease, background 0.3s ease;
+      }
+
+      .topbar.scrolled {
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 8px 28px rgba(20, 22, 31, 0.1);
+      }
+
+      .topbar-inner {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px 18px;
+        padding-block: 10px;
+      }
+
+      .brand {
+        grid-column: 1;
+        grid-row: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .topbar-logo {
+        flex: 0 0 auto;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .wordmark {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 1.05em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .wordmark span {
+        color: var(--accent);
+      }
+
+      .topbar-inner > nav {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+      }
+
+      .bar-nav {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .bar-nav a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.85em;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        transition: color 0.2s ease, background 0.2s ease,
+          border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .bar-nav a:hover {
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 10%, white);
+        border-color: color-mix(in srgb, var(--c) 25%, white);
+      }
+
+      .bar-nav a[aria-current] {
+        color: #fff;
+        background: var(--c);
+        border-color: var(--c);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--c) 40%, transparent);
+      }
+
+      .bar-nav .l-short {
+        display: none;
+      }
+
+      .back-link {
+        grid-column: 3;
+        grid-row: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85em;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 7px 13px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--surface);
+        transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .back-link:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      .bar-nav a:focus-visible,
+      .back-link:focus-visible,
+      .brand:focus-visible,
+      #to-top:focus-visible {
+        outline: 3px solid #7c83f0;
+        outline-offset: 2px;
+      }
+
+      .progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 3px;
+        pointer-events: none;
+      }
+
+      .progress i {
+        display: block;
+        height: 100%;
+        transform-origin: left;
+        transform: scaleX(0);
+        background: linear-gradient(
+          90deg,
+          var(--c-css),
+          var(--c-js),
+          var(--c-bdd),
+          var(--c-php)
+        );
+      }
+
+      #to-top {
+        position: fixed;
+        right: max(18px, env(safe-area-inset-right, 0px));
+        bottom: max(18px, env(safe-area-inset-bottom, 0px));
+        z-index: 40;
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), #6d5ff2);
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 8px 22px rgba(67, 56, 202, 0.4);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(12px);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+      }
+
+      #to-top.show {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+
+      #to-top.show:hover {
+        transform: translateY(-3px);
+      }
+
+      #to-top svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      @media (max-width: 960px) {
+        .topbar-inner {
+          grid-template-columns: minmax(0, 1fr) auto;
+        }
+        .back-link {
+          grid-column: 2;
+        }
+        .topbar-inner > nav {
+          grid-column: 1 / -1;
+          grid-row: 2;
+        }
+        .bar-nav li {
+          flex: 1;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .bar-nav a {
+          padding: 7px 6px;
+          gap: 5px;
+          font-size: 0.8em;
+        }
+        .bar-nav .l-long {
+          display: none;
+        }
+        .bar-nav .l-short {
+          display: inline;
+        }
+        .back-link {
+          padding: 7px 11px;
+        }
+        .back-link .txt {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .topbar,
+        .bar-nav a,
+        .back-link,
+        #to-top {
+          transition: none;
+        }
+      }
+
+      @media print {
+        .topbar {
+          position: static;
+        }
+        #to-top {
+          display: none;
+        }
+      }
+
+      /* ---------- Intro ---------- */
+      .intro {
+        padding: 48px 0 12px;
+      }
+
+      .intro h1 {
+        font-size: 2.1em;
+        margin-bottom: 12px;
+      }
+
+      .intro p {
+        color: var(--muted);
+        max-width: 60ch;
+        line-height: 1.6;
+      }
+
+      /* ---------- Subject sections ---------- */
+      .subject {
+        padding: 56px 0 8px;
+        scroll-margin-top: calc(var(--bar-h) + 14px);
+      }
+
+      .subject-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+        border-left: 4px solid var(--subject-accent, var(--accent));
+        padding-left: 16px;
+      }
+
+      .subject-head .icon {
+        font-size: 1.6em;
+      }
+
+      .subject-head h2 {
+        font-size: 1.5em;
+      }
+
+      .subject-head p {
+        color: var(--muted);
+        font-size: 0.88em;
+        margin-top: 2px;
+      }
+
+      #css3 {
+        --subject-accent: var(--c-css);
+      }
+      #javascript {
+        --subject-accent: var(--c-js);
+      }
+      #bdd {
+        --subject-accent: var(--c-bdd);
+      }
+      #php {
+        --subject-accent: var(--c-php);
+      }
+
+      .exo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+      }
+
+      .exo-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      }
+
+      .exo-level {
+        align-self: flex-start;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75em;
+        color: var(--subject-accent, var(--accent));
+        background: color-mix(in srgb, var(--subject-accent) 12%, white);
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+
+      .exo-card h3 {
+        font-size: 1.08em;
+      }
+
+      .exo-card p {
+        color: var(--muted);
+        font-size: 0.9em;
+        line-height: 1.5;
+        flex-grow: 1;
+      }
+
+      .exo-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      .exo-actions button,
+      .exo-actions a {
+        font-family: inherit;
+        font-size: 0.82em;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease,
+          border-color 0.2s ease;
+      }
+
+      .exo-actions .enonce {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .exo-actions .enonce:hover {
+        background: var(--accent);
+        color: white;
+      }
+
+      .exo-actions .corrige {
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--border);
+      }
+
+      .exo-actions .corrige:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* ---------- Modal Box — taille adaptée au contenu ---------- */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 22, 31, 0.65);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+      }
+
+      .modal-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-box {
+        /* Taille pilotée par le type de contenu (classes mode-*) */
+        --modal-w: min(950px, 94vw);
+        --modal-h: 88vh;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: var(--modal-w);
+        height: var(--modal-h);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        transform: translateY(15px);
+        transition: transform 0.25s ease, max-width 0.3s ease, height 0.3s ease,
+          border-radius 0.3s ease;
+        overflow: hidden;
+      }
+
+      .modal-backdrop.open .modal-box {
+        transform: translateY(0);
+      }
+
+      /* --- Une taille de fenêtre par type de contenu --- */
+
+      /* 1. Documents PDF (A4 portrait) : fenêtre étroite et haute,
+            le texte reste lisible sans zoom */
+      .modal-box.mode-pdf {
+        --modal-w: min(820px, 94vw);
+        --modal-h: 92vh;
+      }
+
+      /* 2. Énoncés & corrigés de séries (pages HTML « document ») :
+            fenêtre moyenne, confortable pour lire */
+      .modal-box.mode-doc {
+        --modal-w: min(900px, 94vw);
+        --modal-h: 88vh;
+      }
+
+      /* 3. Aperçus interactifs (sites, corrigés animés, jeux) :
+            grande fenêtre paysage */
+      .modal-box.mode-site {
+        --modal-w: 98vw;
+        --modal-h: 96vh;
+      }
+
+      /* Agrandissement manuel (⤢) : plein écran, prioritaire sur le mode */
+      .modal-box.expanded {
+        --modal-w: 98vw;
+        --modal-h: 96vh;
+      }
+
+      @media (max-width: 640px) {
+        .modal-box,
+        .modal-box.mode-pdf,
+        .modal-box.mode-doc,
+        .modal-box.mode-site {
+          --modal-w: 100vw;
+          --modal-h: 94vh;
+        }
+        .modal-box.expanded {
+          --modal-w: 100vw;
+          --modal-h: 100vh;
+          border-radius: 0;
+        }
+      }
+
+      .modal-expand {
+        background: transparent;
+        border: none;
+        font-size: 1.2em;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        line-height: 1;
+      }
+
+      .modal-expand:hover {
+        background: var(--border);
+        color: var(--ink);
+      }
+
+      .modal-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .modal-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fafbfc;
+      }
+
+      .modal-title {
+        font-size: 1.15em;
+        color: var(--ink);
+      }
+
+      .modal-close {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        border: none;
+        font-family: inherit;
+        font-size: 0.85em;
+        font-weight: 600;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 7px 10px;
+        border-radius: 6px;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .modal-close:hover {
+        background: var(--border);
+        color: var(--ink);
+      }
+
+      .modal-body {
+        flex: 1;
+        background: #e2e5eb;
+        position: relative;
+      }
+
+      .modal-body iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      /* Bandeau d'alerte : s'affiche si le document appelé ne s'exécute pas
+         (scripts retirés lors d'une copie, chemin erroné, fichier absent). */
+      .modal-alerte {
+        position: absolute;
+        inset: 0 0 auto 0;
+        z-index: 2;
+        padding: 12px 16px;
+        font-size: 0.88em;
+        line-height: 1.45;
+        color: #7f1d1d;
+        background: #fef2f2;
+        border-bottom: 1px solid #fca5a5;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      .modal-alerte[hidden] {
+        display: none;
+      }
+
+      .modal-alerte strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #b91c1c;
+      }
+
+      .modal-alerte code {
+        font-family: "IBM Plex Mono", monospace;
+        background: #fee2e2;
+        padding: 0 3px;
+        border-radius: 4px;
+      }
+
+      /* ---------- Footer ---------- */
+      .footer {
+        border-top: 1px solid var(--border);
+        margin-top: 70px;
+        padding: 34px 0 44px;
+        color: var(--muted);
+        font-size: 0.86em;
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .intro h1 {
+          font-size: 1.6em;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="../assets/css/atelier-pages.css" />
+  </head>
+  <body>
+<!-- STI navigation croisée -->
+<style>#stix-nav a:hover{background:#b4552d!important;border-color:#b4552d!important;color:#fff!important}@media print{#stix-nav{display:none!important}}</style><nav id="stix-nav" style="position:fixed;right:14px;bottom:76px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;font:600 12px/1 system-ui,'Segoe UI',sans-serif;"><a href="../index.html#cours" style="display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;background:rgba(15,23,38,.93);color:#f9f1e3;text-decoration:none;border:1px solid rgba(249,241,227,.22);box-shadow:0 6px 18px rgba(0,0,0,.28);backdrop-filter:blur(4px);white-space:nowrap;">📚 Cours du site</a></nav>
+
+    <header class="topbar" id="top">
+      <div class="wrap topbar-inner">
+        <a
+          class="brand"
+          href="#top"
+          aria-label="STI : Exercices, Séries, Projets — haut de page"
+        >
+          <img
+            class="topbar-logo"
+            src="../assets/icons/STI_by_AE.ico"
+            alt="Logo STI By A.E"
+            onerror="this.style.display='none'"
+          />
+          <div class="wordmark">
+            STI :<span> Exercices, Séries, Projets.</span>
+          </div>
+        </a>
+        <nav aria-label="Sommaire des 4 matières">
+          <ul class="bar-nav">
+            <li>
+              <a href="#css3" style="--c: var(--c-css)"
+                ><span aria-hidden="true">🎨</span><span>CSS3</span></a
+              >
+            </li>
+            <li>
+              <a href="#javascript" style="--c: var(--c-js)"
+                ><span aria-hidden="true">⚡</span
+                ><span class="l-long">JavaScript</span
+                ><span class="l-short">JS</span></a
+              >
+            </li>
+            <li>
+              <a href="#bdd" style="--c: var(--c-bdd)"
+                ><span aria-hidden="true">🗄️</span
+                ><span class="l-long">Base de données</span
+                ><span class="l-short">BDD</span></a
+              >
+            </li>
+            <li>
+              <a href="#php" style="--c: var(--c-php)"
+                ><span aria-hidden="true">🐘</span><span>PHP</span></a
+              >
+            </li>
+          </ul>
+        </nav>
+        <a
+          class="back-link"
+          href="../index.html#exercices"
+          title="Retour à l'accueil"
+          aria-label="Retour à l'accueil"
+          >←<span class="txt"> Accueil</span></a
+        >
+      </div>
+      <div class="progress" aria-hidden="true"><i></i></div>
+    </header>
+
+    <div class="wrap">
+      <section class="intro">
+        <h1>Séries et exercices</h1>
+        <p>
+          Des séries d'exercices classées par thème et par niveau pour
+          s'entraîner au-delà des quiz, avec un énoncé et, quand il est
+          disponible, un corrigé.
+        </p>
+      </section>
+
+      <!-- CSS3 -->
+      <section class="subject" id="css3">
+        <div class="subject-head">
+          <div class="icon">🎨</div>
+          <div>
+            <h2>CSS3</h2>
+            <p>Mise en forme, mise en page et animations</p>
+            <div style="display:flex;gap:8px;margin-top:10px;"><a href="../cours/css3.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">📚 Cours</a> <a href="../quiz/html-css.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
+          </div>
+        </div>
+        <div class="exo-grid">
+          <div class="exo-card">
+            <div class="exo-level">Débutant</div>
+            <h3>TP 1 — Structure & Balises sémantiques</h3>
+            <p>
+              Création d'une page HTML/CSS à l'aide des balises structurantes
+              (header, nav, section, article, aside, footer.
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('html-css/TP1-css.pdf.html', 'TP 1 — Structure & Balises sémantiques')"
+              >
+                Énoncé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Intermédiaire</div>
+            <h3>TP 2 — Layout & Menu de navigation</h3>
+            <p>
+              Création de la page web du Lycée Rafèha avec menu déroulant et
+              stylisation CSS3.
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('html-css/TP2-css.pdf.html', 'TP 2 — Layout & Menu de navigation')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('html-css/TP2/tp2corrposition.html', 'CSS3 — Corrigé Tp2 Version Position/Flex/Float')"
+              >
+                Corrigé Tp2: Version Position/Flex/Float
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>TP 3 — Page d'accueil interactive (Ariana)</h3>
+            <p>
+              Conception d'une homepage structurée avec Flexbox, intégration
+              Google Maps et widgets sociaux.
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('html-css/TP3-css.pdf.html', 'TP 3 — Page d\'accueil interactive (Ariana)')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('html-css/activite-html-css/Act1/page1.html', 'CSS3 — Corrigé Série 1')"
+              >
+                Corrigé Act1
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('html-css/activite-html-css/Act2/page2.html', 'CSS3 — Corrigé Série 1')"
+              >
+                Corrigé Act2
+              </button>
+            </div>
+          </div>
+
+          <div class="exo-card">
+            <div class="exo-level">Intermédiaire</div>
+            <h3>
+              Activité 1 et 2 — Flexbox et mise en page - Animations et
+              transitions
+            </h3>
+            <p>Construire des mises en page avec flexbox, positions.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('html-css/activite1-2-position-animation-css3.pdf.html', 'CSS3 — POSITIONNEMENT FLOTTANT & CENTRAGE ABSOLU ')"
+              >
+                Énoncé
+              </button>
+            </div>
+          </div>
+
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Projet 1: Récap HTML+CSS3 - Projet des fleurs</h3>
+            <p>Formulaire, transition animation....</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf.html', 'CSS3 — Projet Fleurs 1')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../projets/fleurs/index.html', 'CSS3 — Corrigé Projet Fleurs ')"
+              >
+                Aperçu + Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Projet 2: Récap html-css3 - Projet des fleurs</h3>
+            <p>Formulaire, transition animation....</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf.html', 'CSS3 — Projet 2')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../projets/formulaire-inscription/cvFleurs.html', 'CSS3 — Corrigé Projet 2')"
+              >
+                Aperçu + Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card exo-card-wide">
+            <div class="exo-level">Avancé</div>
+            <h3>Site Tunisie</h3>
+            <p>
+              Projet récapitulatif HTML5 &amp; CSS3 : site vitrine touristique
+              multi-fichiers — header animé, liens vers iframe, galerie avec
+              transformations, animations, reconnaissance faciale simulée et
+              formulaire à 20 types d'input.
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/site-tunisie/enonce.html', 'Site Tunisie — Énoncé')"
+              >
+                Énoncé
+              </button>
+
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/site-tunisie/site-tunisie-Correction-animation-html-css.html', 'Site Tunisie — Correction Animée pas à pas')"
+              >
+                Site Tunisie — Correction Animée pas à pas
+              </button>
+              <a
+                class="corrige"
+                href="../projets/site-tunisie/ressources-site-tunisie.rar"
+                download
+              >
+                Ressources
+              </a>
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/site-tunisie/index.html', 'Site Tunisie — Aperçu & Corrigé')"
+              >
+                Aperçu + Corrigé
+              </button>
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/site-tunisie/correction-details/carte-timbre-droite-haut.html', 'Site Tunisie —bg image + couleur transparente ')"
+              >
+                Détail : bg :image + couleur transparente
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- JavaScript -->
+      <section class="subject" id="javascript">
+        <div class="subject-head">
+          <div class="icon">⚡</div>
+          <div>
+            <h2>JavaScript</h2>
+            <p>Logique, fonctions et manipulation du DOM</p>
+            <div style="display:flex;gap:8px;margin-top:10px;"><a href="../cours/javascript.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">📚 Cours</a> <a href="../quiz/javascript.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
+          </div>
+        </div>
+        <div class="exo-grid">
+          <div class="exo-card">
+            <div class="exo-level">Débutant</div>
+            <h3>Série 1 — Variables et opérateurs</h3>
+            <p>Types de données, opérateurs et structures de contrôle.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('javascript/Tp1-js.html', 'JavaScript — Série 1')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('javascript/Tp1-correction-js.html', 'JavaScript — Corrigé Série 1')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Intermédiaire</div>
+            <h3>Série 2 — Fonctions et méthodes d'accès</h3>
+            <p>
+              Maîtriser les déclencheurs d'événements JavaScript sur les
+              éléments HTML. Utiliser les méthodes d'accès et de modification du
+              DOM (getElementById, innerHTML, value). Comprendre les différences
+              clés entre événements réactifs .
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('javascript/Tp2-js.html', 'JavaScript — Série 2')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('javascript/Tp2-correction-js.html', 'JavaScript — Corrigé Série 2')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>
+              Série 3 —Manipulation des objets prédéfinis `Date`, `String`,
+              `Array`, `Math`
+            </h3>
+            <p>
+              Manipulation des objets prédéfinis `Date`, `String`, `Array`,
+              `Math`.
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('javascript/Tp3-js.html', 'JavaScript — Série 3')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('javascript/Tp3-correction-js.html', 'JavaScript — Corrigé Série 3')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>
+              Série 4 —Comprendre les objets, les propriétés et les fonctions
+              prédéfinies en JavaScript (`Math`, `String`, `Date`, `Array`,
+              objets littéraux
+            </h3>
+            <p>.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('javascript/Tp4-js.html', 'JavaScript — Série ')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('javascript/Tp4-correction-js.html', 'JavaScript — Corrigé Série 4')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 5 — Objet String</h3>
+            <p>les fonctions prédifinies sur String</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('javascript/Tp5-js.html', 'JavaScript — Série 5')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('javascript/Tp5-correction-js.html', 'JavaScript — Corrigé Série 5')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Projet 1: Récap HTML+CSS3 - Projet des fleurs</h3>
+            <p>Formulaire, transition animation....</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/fleurs/media/projet-fleurs-4sti-eleve.pdf.html', 'CSS3 — Projet Fleurs 1')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../projets/fleurs/index.html', 'CSS3 — Corrigé Projet Fleurs ')"
+              >
+                Aperçu + Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Projet 2: Récap html-css3 - Projet des fleurs</h3>
+            <p>Formulaire, transition animation....</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/formulaire-inscription/enonce/cvFleurs-énoncé/formulaire%20inscription.pdf.html', 'CSS3 — Projet 2')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../projets/formulaire-inscription/cvFleurs.html', 'CSS3 — Corrigé Projet 2')"
+              >
+                Aperçu + Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Projet 3: Récap HTML+CSS3 - Projet Carte bancaire animée</h3>
+            <p>Formulaire, transition animation....</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../projets/carte-bancaire/enonce-tp-carte-bancaire.html', 'JavaScript — Carte Bancaire Animée Projet 3')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../projets/carte-bancaire/cb.html', 'JavaScript — Corrigé Carte Bancaire Animée Projet 3')"
+              >
+                Aperçu + Corrigé
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Base de données -->
+      <section class="subject" id="bdd">
+        <div class="subject-head">
+          <div class="icon">🗄️</div>
+          <div>
+            <h2>Base de données</h2>
+            <p>Requêtes SQL, jointures et agrégations</p>
+            <div style="display:flex;gap:8px;margin-top:10px;"><a href="../cours/sql.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">📚 Cours</a> <a href="../quiz/sql.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
+          </div>
+        </div>
+        <div class="exo-grid">
+          <div class="exo-card">
+            <div class="exo-level">Débutant</div>
+            <h3>Série 1 — Requêtes LDD simples</h3>
+            <p>Création et modification de la structure d'une BD</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/Tp1-bd.html', 'Base de données — Série 1')"
+              >
+                Énoncé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Intermédiaire</div>
+            <h3>Série 2 —LMD Jointures et sous-requêtes</h3>
+            <p>Combiner plusieurs tables et imbriquer des requêtes.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/Tp2-bd.html', 'Base de données — Série 2')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../exercices/sql/Tp2-Correction-bd.html', 'Base de données — Corrigé Série 2')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 3 — LMD (Group By)</h3>
+            <p>GROUP BY, HAVING et fonctions statistiques.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/Tp-GroupBy-bd.html', 'Base de données — Série 3')"
+              >
+                Énoncé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>
+              Série 4 — LMD Jointures, Sous-requêtes et Group By (Group By)
+            </h3>
+            <p>Jointures, Sous-requêtes et Group By.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/Tp-BD-Jointure-sous-requetes-Group-By.html', 'Base de données — Série 4')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../exercices/sql/Tp4-correction-bd.html', 'Base de données — Corrigé Série 4')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 5 — LMD (Date, sous_requêtes, Group By)</h3>
+            <p>
+              Date (Fonctions de Date (NOW, DATEADD, DATEDIFF)) Jointure - sous
+              requêtes - Group Byy
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/Tp-date-ssr-j-gp-bd.html', 'Base de données — Série 5')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../exercices/sql/Tp-date-ssr-j-gp-correction-bd.html', 'Base de données — Corrigé Série 5')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 6 — Récap LDD + LMD (Date, sous_requêtes, Group By)</h3>
+            <p>
+              Date (Fonctions de Date (NOW, DATEADD, DATEDIFF)) Jointure - sous
+              requêtes - Group Byy
+            </p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('../exercices/sql/sql.html', 'Base de données — Série 6')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('../exercices/sql/sql.html', 'Base de données — Corrigé Série 6')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PHP -->
+      <section class="subject" id="php">
+        <div class="subject-head">
+          <div class="icon">🐘</div>
+          <div>
+            <h2>PHP</h2>
+            <p>Variables, formulaires et connexion à une base</p>
+            <div style="display:flex;gap:8px;margin-top:10px;"><a href="../cours/php.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">📚 Cours</a> <a href="../quiz/php.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
+          </div>
+        </div>
+        <div class="exo-grid">
+          <div class="exo-card">
+            <div class="exo-level">Débutant</div>
+            <h3>Série 1 — Variables, chaînes, Date et tableaux</h3>
+            <p>Chaînes de caractères + Fonctions + Date.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('php/Tp1-php.html', 'PHP — Série 1')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('php/Tp1-php.html', 'PHP — Corrigé Série 1')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Intermédiaire</div>
+            <h3>Série 2 —</h3>
+            <p>Les fonctions relatives aux chaînes de caractères.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('php/Tp2-php.html', 'PHP — Série 2')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('php/Tp2-Correction-php.html', 'PHP — Corrigé Série 2')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 3 — Manipulation des Tableaux en PHP</h3>
+            <p>.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('php/Tp3-php.html', 'PHP — Série 3')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('php/Tp3-correction-php.html', 'PHP — Corrigé Série 3')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Série 4 — MySQLi et connexion à une base</h3>
+            <p>Connexion, requêtes préparées et affichage de résultats.</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('php/Tp4-php.html', 'PHP — Série 4')"
+              >
+                Énoncé
+              </button>
+              <button
+                class="corrige"
+                onclick="openPdfModal('php/Tp4-php.html', 'PHP — Corrigé Série 4')"
+              >
+                Corrigé
+              </button>
+            </div>
+          </div>
+          <div class="exo-card">
+            <div class="exo-level">Avancé</div>
+            <h3>Résumé TOTAL</h3>
+            <p>Les fonctions utiles avec JavaScript,SQL, PHP</p>
+            <div class="exo-actions">
+              <button
+                class="enonce"
+                onclick="openPdfModal('resume-fonctions-standards.html', 'PHP-SQL-Js — Résumé ')"
+              >
+                Énoncé
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modal Box : taille adaptée au contenu (PDF portrait / énoncé / aperçu interactif) -->
+    <div class="modal-backdrop" id="pdfModal" onclick="closePdfModal(event)">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Consultation de l'énoncé</h3>
+          <div class="modal-header-actions">
+            <button
+              class="modal-expand"
+              id="modalOpenTabBtn"
+              onclick="openModalInNewTab()"
+              aria-label="Ouvrir dans un nouvel onglet avec un bouton de retour aux exercices"
+              title="Ouvrir dans un nouvel onglet — un bouton permettra de revenir aux exercices"
+            >
+              ⧉
+            </button>
+            <button
+              class="modal-expand"
+              id="modalReloadBtn"
+              onclick="reloadModalFrame()"
+              aria-label="Recharger le document"
+              title="Recharger"
+            >
+              ↺
+            </button>
+            <button
+              class="modal-expand"
+              id="modalExpandBtn"
+              onclick="toggleModalExpand()"
+              aria-label="Agrandir la boîte"
+              title="Agrandir"
+            >
+              ⤢
+            </button>
+            <button
+              class="modal-close"
+              onclick="closePdfModal()"
+              aria-label="Fermer et revenir aux exercices"
+              title="Fermer et revenir aux exercices"
+            >
+              ← Exercices
+            </button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <!-- S'affiche automatiquement si la page appelée ne s'exécute pas -->
+          <div class="modal-alerte" id="modalAlerte" hidden>
+            <strong>⚠ Le document appelé ne fonctionne pas</strong>
+            <span id="modalAlerteTxt"></span>
+          </div>
+
+          <!-- allow="fullscreen" est indispensable pour le bouton « Projeter »
+               des corrigés animés (plein écran depuis la fenêtre modale). -->
+          <iframe
+            id="pdfFrame"
+            src=""
+            title="Document"
+            allow="fullscreen; autoplay; clipboard-write"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="wrap">
+        <p>© 2026 Lycée Raféha — Plateforme STI Quiz</p>
+        <p style="margin-top: 8px">
+          Élaboré par Aymen Essouyah, en collaboration avec l'intelligence
+          artificielle
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      var modalUrl = ""; // dernier document affiché (pour ↺ et ⧉)
+      var modalTimer = null;
+      var modalChargee = false;
+
+      /* ---------- Taille de la fenêtre selon le contenu ----------
+         Chaque type de document ouvre la modal à SA taille :
+         - PDF (A4 portrait)     → mode-pdf  : fenêtre étroite et haute
+         - énoncé / corrigé HTML → mode-doc  : fenêtre moyenne de lecture
+         - aperçu interactif     → mode-site : grande fenêtre paysage
+         L'utilisateur garde toujours la main avec ⤢, la touche F
+         ou le double-clic sur l'en-tête (plein écran).            */
+      function setModalMode(mode) {
+        var box = document.querySelector(".modal-box");
+        ["mode-pdf", "mode-doc", "mode-site"].forEach(function (m) {
+          box.classList.remove(m);
+        });
+        if (mode) box.classList.add(mode);
+      }
+
+      function modePourUrl(url) {
+        var u = String(url).toLowerCase();
+        if (/\.pdf\.html($|[?#])/.test(u)) return "mode-doc"; // feuille A4 convertie en page
+        if (/\.pdf($|[?#])/.test(u)) return "mode-pdf"; // document PDF (A4)
+        if (/^pdf\//.test(u)) return "mode-doc"; // énoncés & corrigés de séries
+        if (/enonce/.test(u)) return "mode-doc"; // énoncé d'un projet
+        return "mode-site"; // sites, corrigés animés, jeux, aperçus
+      }
+
+      function openPdfModal(fileUrl, title) {
+        // les espaces des noms de fichiers ("formulaire inscription.pdf") doivent
+        // être encodés, sinon le navigateur cherche un fichier inexistant
+        fileUrl = String(fileUrl).replace(/ /g, "%20");
+
+        /* --- PDF : les mobiles (Chrome Android) et Safari ne savent pas
+           afficher un PDF dans une iframe → cadre entièrement vide.
+           On détecte ce cas et on ouvre le document dans un nouvel onglet ;
+           si les pop-up sont bloqués, on affiche un encadré avec un lien. --- */
+        var estPdf = /\.pdf($|[?#])/i.test(fileUrl);
+        var visionneuseAbsente =
+          navigator.pdfViewerEnabled === false ||
+          (typeof navigator.pdfViewerEnabled === "undefined" &&
+            /Safari/.test(navigator.userAgent) &&
+            !/(Chrome|Chromium|Edg|OPR|Firefox|CriOS|FxiOS|EdgiOS)/.test(
+              navigator.userAgent
+            ));
+        if (estPdf && visionneuseAbsente) {
+          var urlPdf = new URL(fileUrl, window.location.href).href;
+          var ongletPdf = window.open(urlPdf, "_blank");
+          if (ongletPdf) return;
+          modalUrl = fileUrl;
+          document.getElementById("modalTitle").textContent = title;
+          masquerAlerte();
+          setModalExpanded(false);
+          setModalMode("mode-doc");
+          document.getElementById("pdfFrame").src = "about:blank";
+          document.getElementById("pdfModal").classList.add("open");
+          document.body.style.overflow = "hidden";
+          afficherAlerte(
+            "Votre navigateur ne peut pas afficher les PDF dans la page. " +
+              '<a href="' +
+              urlPdf +
+              '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:underline;margin-left:6px">📄 Ouvrir l\'énoncé dans un nouvel onglet</a>'
+          );
+          return;
+        }
+
+        modalUrl = fileUrl;
+        modalChargee = false;
+
+        document.getElementById("modalTitle").textContent = title;
+        masquerAlerte();
+
+        // La taille de la fenêtre s'adapte au contenu ouvert :
+        // PDF → portrait, énoncé/corrigé HTML → moyenne, aperçu interactif → grand.
+        setModalExpanded(false);
+        setModalMode(modePourUrl(fileUrl));
+
+        document.getElementById("pdfFrame").src = fileUrl;
+        document.getElementById("pdfModal").classList.add("open");
+        document.body.style.overflow = "hidden"; // Bloquer le défilement
+
+        controlerDocument(fileUrl);
+      }
+
+      function closePdfModal(event) {
+        document.getElementById("pdfModal").classList.remove("open");
+        document.getElementById("pdfFrame").src = "";
+        document.body.style.overflow = ""; // Réactiver le défilement
+        setModalExpanded(false); // on réinitialise pour la prochaine ouverture
+        setModalMode(null); // … ainsi que la taille liée au contenu
+        masquerAlerte();
+        modalUrl = "";
+      }
+
+      function echapperHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (caractere) {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[caractere];
+        });
+      }
+
+      function openModalInNewTab() {
+        if (!modalUrl) return;
+
+        // On ouvre une page de consultation avec un vrai bouton « Retour ».
+        // Le document est chargé dans une iframe pour garder cette barre visible.
+        var popup = window.open("about:blank", "_blank");
+        if (!popup) {
+          window.alert(
+            "Le navigateur a bloqué le nouvel onglet. Autorisez les fenêtres pop-up pour ce site, puis réessayez."
+          );
+          return;
+        }
+
+        var urlDocument = new URL(modalUrl, window.location.href).href;
+        var urlRetour = window.location.href;
+        var titre =
+          document.getElementById("modalTitle").textContent || "Document";
+        var page =
+          '<!doctype html><html lang="fr"><head><meta charset="utf-8">' +
+          '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+          "<title>" +
+          echapperHtml(titre) +
+          " — STI Quiz</title>" +
+          "<style>" +
+          "*{box-sizing:border-box}" +
+          "html,body{width:100%;height:100%;margin:0}" +
+          "body{display:grid;grid-template-rows:auto minmax(0,1fr);background:#e9ebf2;color:#14161f;font-family:Arial,sans-serif}" +
+          ".barre{display:flex;align-items:center;gap:16px;min-height:64px;padding:10px 18px;background:#fff;border-bottom:1px solid #e1e4ec}" +
+          ".retour{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;padding:10px 14px;border-radius:9px;background:#4338ca;color:#fff;text-decoration:none;font-weight:700}" +
+          ".retour:hover{background:#3529b6}" +
+          ".titre{min-width:0;flex:1}" +
+          ".titre strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:1rem}" +
+          ".titre span{display:block;margin-top:3px;color:#5b6172;font-size:.82rem}" +
+          "main{min-height:0}" +
+          "iframe{display:block;width:100%;height:100%;border:0;background:#fff}" +
+          "a:focus-visible{outline:3px solid #7c83f0;outline-offset:2px}" +
+          "@media(max-width:640px){.barre{flex-wrap:wrap;gap:8px;padding:9px 12px}.titre{order:2;flex-basis:100%}.titre strong{white-space:normal}}" +
+          "</style></head><body>" +
+          '<header class="barre"><a class="retour" href="' +
+          echapperHtml(urlRetour) +
+          '"><span aria-hidden="true">←</span> Retour aux exercices</a>' +
+          '<div class="titre"><strong>' +
+          echapperHtml(titre) +
+          "</strong><span>STI Quiz — exercice ouvert dans un nouvel onglet</span></div></header>" +
+          '<main><iframe src="' +
+          echapperHtml(urlDocument) +
+          '" title="' +
+          echapperHtml(titre) +
+          '" allow="fullscreen; autoplay; clipboard-write" allowfullscreen></iframe></main>' +
+          "</body></html>";
+
+        try {
+          // Évite qu'un document ouvert puisse naviguer l'onglet d'origine.
+          popup.opener = null;
+          popup.document.open();
+          popup.document.write(page);
+          popup.document.close();
+        } catch (e) {
+          try {
+            popup.close();
+          } catch (ignore) {}
+          window.alert(
+            "Impossible d'ouvrir le document dans un nouvel onglet."
+          );
+        }
+      }
+
+      function reloadModalFrame() {
+        if (!modalUrl) return;
+        var frame = document.getElementById("pdfFrame");
+        frame.src = "about:blank";
+        setTimeout(function () {
+          frame.src = modalUrl;
+          controlerDocument(modalUrl);
+        }, 60);
+      }
+
+      /* ---------- bandeau d'alerte ---------- */
+      function afficherAlerte(html) {
+        document.getElementById("modalAlerteTxt").innerHTML = html;
+        document.getElementById("modalAlerte").hidden = false;
+      }
+
+      function masquerAlerte() {
+        document.getElementById("modalAlerte").hidden = true;
+        if (modalTimer) {
+          clearTimeout(modalTimer);
+          modalTimer = null;
+        }
+      }
+
+      /* ---------- contrôle du document appelé ----------
+         Un corrigé HTML pose window.__APP_OK = true au chargement.
+         Si ce drapeau est absent ET que le document ne contient plus aucun
+         <script> alors que son texte visible contient du code JavaScript,
+         c'est que les balises <script> ont été supprimées lors d'une copie :
+         on l'explique au lieu de laisser une page cassée à l'écran.       */
+      function controlerDocument(fileUrl) {
+        if (!/\.html?($|[?#])/i.test(fileUrl)) return; // PDF, image : rien à vérifier
+        var frame = document.getElementById("pdfFrame");
+        var fait = false;
+
+        function verifier() {
+          if (fait) return;
+          fait = true;
+          modalChargee = true;
+          var doc;
+          try {
+            doc = frame.contentDocument;
+          } catch (e) {
+            return; // autre domaine : impossible de contrôler, on ne dit rien
+          }
+          if (!doc || !doc.body) return;
+
+          // Quand le focus est dans l'exercice intégré, Échap ferme aussi la fenêtre.
+          // En plein écran natif, le premier Échap quitte d'abord le plein écran ;
+          // un second Échap (ou le bouton « Exercices ») revient au sommaire.
+          try {
+            doc.addEventListener(
+              "keydown",
+              function (e) {
+                if (e.key !== "Escape") return;
+                if (doc.fullscreenElement || document.fullscreenElement) return;
+                e.preventDefault();
+                closePdfModal();
+              },
+              true
+            );
+          } catch (e) {}
+
+          var ok = false;
+          try {
+            ok = Boolean(frame.contentWindow.__APP_OK);
+          } catch (e) {}
+
+          if (!ok && scriptsSupprimes(doc)) {
+            afficherAlerte(
+              "La page <code>" +
+                fileUrl.split("/").pop() +
+                "</code> s'affiche " +
+                "mais son code JavaScript ne s'exécute pas : ses balises " +
+                "<code>&lt;script&gt;</code> ont très probablement été supprimées " +
+                "(copier-coller dans un éditeur, outil de nettoyage HTML…) " +
+                "ou le chemin est erroné.<br>Recopiez le fichier <strong>tel quel</strong> " +
+                "depuis l'archive, puis cliquez sur <strong>↺</strong> (recharger) " +
+                "ou <strong>⧉</strong> (ouvrir dans un onglet)."
+            );
+          }
+        }
+
+        frame.onload = verifier; // dès que le document est chargé
+        modalTimer = setTimeout(verifier, 3000); // filet de sécurité
+      }
+
+      function scriptsSupprimes(doc) {
+        if (doc.scripts && doc.scripts.length > 0) return false;
+        var txt = (doc.body.innerText || "").replace(/\s+/g, " ");
+        if (txt.length < 400) return false; // page vraiment vide : autre problème
+        var marques = [
+          "function ",
+          "document.",
+          "window.",
+          "=>",
+          "var ",
+          "const ",
+        ];
+        var trouvees = 0;
+        for (var i = 0; i < marques.length; i++) {
+          if (txt.indexOf(marques[i]) !== -1) trouvees++;
+        }
+        return trouvees >= 3; // du code JS visible en clair
+      }
+
+      function setModalExpanded(expanded) {
+        const box = document.querySelector(".modal-box");
+        const btn = document.getElementById("modalExpandBtn");
+        box.classList.toggle("expanded", expanded);
+        btn.textContent = expanded ? "⤡" : "⤢";
+        btn.title = expanded ? "Réduire" : "Agrandir";
+        btn.setAttribute(
+          "aria-label",
+          expanded ? "Réduire la boîte" : "Agrandir la boîte"
+        );
+      }
+
+      function toggleModalExpand() {
+        const box = document.querySelector(".modal-box");
+        setModalExpanded(!box.classList.contains("expanded"));
+      }
+
+      // Double-clic sur l'en-tête = agrandir/réduire rapidement
+      document
+        .querySelector(".modal-header")
+        .addEventListener("dblclick", toggleModalExpand);
+
+      // Fermeture avec la touche Échap, agrandissement avec la touche F
+      document.addEventListener("keydown", function (e) {
+        if (!document.getElementById("pdfModal").classList.contains("open"))
+          return;
+        if (e.key === "Escape") {
+          closePdfModal();
+        } else if (e.key === "f" || e.key === "F") {
+          toggleModalExpand();
+        }
+      });
+    </script>
+    <button
+      type="button"
+      id="to-top"
+      aria-label="Remonter en haut de la page"
+      title="Remonter en haut"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+    <script>
+      (function () {
+        var bar = document.querySelector(".topbar");
+        var prog = bar.querySelector(".progress i");
+        var btn = document.getElementById("to-top");
+        var links = [].slice.call(bar.querySelectorAll(".bar-nav a"));
+        var secs = links.map(function (a) {
+          return document.querySelector(a.getAttribute("href"));
+        });
+        var root = document.documentElement,
+          ticking = false,
+          last = -2;
+        function setH() {
+          root.style.setProperty("--bar-h", bar.offsetHeight + "px");
+        }
+        function update() {
+          ticking = false;
+          var y = window.pageYOffset || root.scrollTop;
+          var max = root.scrollHeight - window.innerHeight;
+          prog.style.transform =
+            "scaleX(" + (max > 0 ? Math.min(1, y / max) : 0) + ")";
+          bar.classList.toggle("scrolled", y > 8);
+          btn.classList.toggle("show", y > 400);
+          var line = bar.offsetHeight + 40,
+            cur = -1;
+          secs.forEach(function (s, i) {
+            if (s && s.getBoundingClientRect().top <= line) cur = i;
+          });
+          if (max > 0 && y >= max - 4) cur = links.length - 1; // bas de page
+          if (cur !== last) {
+            last = cur;
+            links.forEach(function (a, i) {
+              if (i === cur) a.setAttribute("aria-current", "true");
+              else a.removeAttribute("aria-current");
+            });
+          }
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+          }
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", function () {
+          setH();
+          onScroll();
+        });
+        btn.addEventListener("click", function () {
+          window.scrollTo({ top: 0 });
+        });
+        setH();
+        update();
+      })();
+    </script>
+  <script id="stix-top">(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest('a[href="#top"]'):null;if(!a)return;e.preventDefault();var de=document.documentElement,pr=de.style.scrollBehavior;de.style.scrollBehavior="auto";window.scrollTo(0,0);if(pr)de.style.scrollBehavior=pr;else de.style.removeProperty("scroll-behavior");if(location.hash==="#top"&&history.replaceState)history.replaceState(null,"",location.pathname+location.search);});})();</script>
+  </body>
+</html>
