@@ -633,34 +633,115 @@
       }
 
       .qr-card {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 14px 18px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
+        gap: 20px;
+        padding: 16px 20px;
+        background: linear-gradient(var(--surface), var(--surface)) padding-box,
+          var(--grad) border-box;
+        border: 1.5px solid transparent;
+        border-radius: 22px;
         box-shadow: var(--shadow-md);
         text-decoration: none;
         color: inherit;
-        transition: transform 0.2s ease, box-shadow 0.2s ease,
-          border-color 0.2s ease;
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
         animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
       }
 
       .qr-card:hover {
-        transform: translateY(-3px);
-        border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+        transform: translateY(-4px) scale(1.01);
         box-shadow: var(--shadow-lg);
       }
 
-      .qr-card img {
-        width: 96px;
-        height: 96px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: #fffdf5;
+      /* reflet qui glisse au survol */
+      .qr-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -70%;
+        width: 45%;
+        transform: skewX(-18deg);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          color-mix(in srgb, var(--ink) 8%, transparent),
+          transparent
+        );
+        transition: left 0.65s ease;
+        pointer-events: none;
+      }
+
+      .qr-card:hover::after {
+        left: 135%;
+      }
+
+      /* cadre du QR, coins viseur, ligne de scan */
+      .qr-frame {
+        position: relative;
         flex: 0 0 auto;
+        padding: 8px;
+        border-radius: 16px;
+        background: #fffdf5;
+        box-shadow: 0 4px 14px rgba(16, 23, 40, 0.12);
+      }
+
+      .qr-frame img {
+        display: block;
+        width: 118px;
+        height: 118px;
+        border-radius: 10px;
+      }
+
+      .qr-corner {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border: 3px solid var(--accent);
+        transition: width 0.25s ease, height 0.25s ease;
+      }
+
+      .c-tl { top: -3px; left: -3px; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
+      .c-tr { top: -3px; right: -3px; border-left: none; border-bottom: none; border-radius: 0 8px 0 0; }
+      .c-bl { bottom: -3px; left: -3px; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
+      .c-br { bottom: -3px; right: -3px; border-left: none; border-top: none; border-radius: 0 0 8px 0; }
+
+      .qr-card:hover .qr-corner {
+        width: 22px;
+        height: 22px;
+      }
+
+      .qr-scan {
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        top: 8px;
+        height: 30%;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          transparent,
+          rgba(244, 81, 30, 0.28) 75%,
+          rgba(244, 81, 30, 0.9)
+        );
+        opacity: 0;
+        animation: qr-scan 2.4s ease-in-out infinite;
+        animation-play-state: paused;
+        pointer-events: none;
+      }
+
+      .qr-card:hover .qr-scan {
+        animation-play-state: running;
+      }
+
+      @keyframes qr-scan {
+        0% { transform: translateY(0); opacity: 0; }
+        12% { opacity: 0.55; }
+        50% { transform: translateY(225%); opacity: 0.55; }
+        88% { opacity: 0.55; }
+        100% { transform: translateY(0); opacity: 0; }
       }
 
       .qr-card-txt {
@@ -669,15 +750,44 @@
 
       .qr-card-txt strong {
         display: block;
-        font-size: 1.05em;
-        margin-bottom: 3px;
+        font-size: 1.12em;
+        margin-bottom: 4px;
+        background: var(--grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
 
       .qr-card-txt small {
         display: block;
         color: var(--muted);
         font-size: 0.85em;
-        line-height: 1.45;
+        line-height: 1.5;
+        margin-bottom: 7px;
+      }
+
+      .qr-url {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: ui-monospace, Consolas, "Courier New", monospace;
+        font-size: 0.78em;
+        color: var(--muted);
+        background: color-mix(in srgb, var(--surface) 70%, transparent);
+        border: 1px solid var(--border);
+        padding: 4px 11px;
+        border-radius: 999px;
+      }
+
+      @media (max-width: 560px) {
+        .qr-card {
+          gap: 14px;
+          padding: 14px 16px;
+        }
+        .qr-frame img {
+          width: 96px;
+          height: 96px;
+        }
       }
 
       .terminal {
@@ -2547,18 +2657,26 @@
           href="https://aymenessouyah.github.io/STi/"
           title="Ouvrir le site sur votre téléphone"
         >
-          <img
-            src="assets/images/qr-code-site.png"
-            alt="QR code du site STI by AE"
-            width="96"
-            height="96"
-          />
+          <span class="qr-frame">
+            <img
+              src="assets/images/qr-code-site.png"
+              alt="QR code du site STI by AE"
+              width="118"
+              height="118"
+            />
+            <span class="qr-scan" aria-hidden="true"></span>
+            <i class="qr-corner c-tl" aria-hidden="true"></i>
+            <i class="qr-corner c-tr" aria-hidden="true"></i>
+            <i class="qr-corner c-bl" aria-hidden="true"></i>
+            <i class="qr-corner c-br" aria-hidden="true"></i>
+          </span>
           <span class="qr-card-txt">
-            <strong>📱 Scanner-moi !</strong>
+            <strong>📱 Scanner-moi&nbsp;!</strong>
             <small
               >Flashez ce code avec votre téléphone pour passer directement
               au site, où que vous soyez.</small
             >
+            <span class="qr-url">🔗 aymenessouyah.github.io/STi</span>
           </span>
         </a>
         </div>
