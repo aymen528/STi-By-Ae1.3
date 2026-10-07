@@ -124,11 +124,11 @@
     wrap.appendChild(porte);
     document.documentElement.appendChild(wrap);
 
-    ecouterMessagesClasse(profil.classe || "");
+    ecouterMessagesClasse(user.id, profil.classe || "");
   }
 
   /* ---------- réception des messages groupés diffusés par l'admin à une classe ---------- */
-  function ecouterMessagesClasse(maClasse) {
+  function ecouterMessagesClasse(uid, maClasse) {
     var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
     function afficherAnnonce(a) {
       if (!a || !a.id || !a.texte) return;
@@ -147,6 +147,23 @@
       boite.querySelector("button").addEventListener("click", function () {
         try { localStorage.setItem("sti-msg-lu-" + a.id, "1"); } catch (e) {}
         boite.remove();
+        var tsNow = new Date().toISOString();
+        if (uid) {
+          sb.from("acces").insert({
+            user_id: uid,
+            page: "MSG_LU:" + a.id,
+            lieu: a.classe || "*",
+            fin: tsNow,
+            duree_sec: 0
+          }).then(function () {});
+        }
+        try {
+          sb.channel("sti-diffusion").send({ type: "broadcast", event: "lu", payload: { msgId: a.id, uid: uid, ts: tsNow } });
+        } catch (e) {}
+        fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+          method: "POST",
+          body: JSON.stringify({ type: "lu", msgId: a.id, uid: uid, ts: tsNow })
+        }).catch(function () {});
       });
       document.documentElement.appendChild(boite);
     }
@@ -162,7 +179,7 @@
               var evt = JSON.parse(lignes[i]);
               if (evt && evt.message) {
                 var a = JSON.parse(evt.message);
-                if (a && (a.classe === "*" || a.classe === maClasse)) {
+                if (a && a.id && a.texte && !a.type && (a.classe === "*" || a.classe === maClasse)) {
                   afficherAnnonce(a);
                   break;
                 }

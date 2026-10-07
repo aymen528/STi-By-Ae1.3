@@ -39,6 +39,8 @@
   }
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
+  var messagesDiffuses = [], lecturesParMsg = {};
+  var adminUid = null;
   var cibleSuppr = null, cibleMdp = null;
 
   function fmtDate(iso) {
@@ -56,13 +58,16 @@
   sb.auth.getSession().then(function (r) {
     var s = r.data.session;
     if (!s || !estAdminEmail(s.user.email)) { location.replace(cfg.RACINE + "portail.html#connexion"); return; }
+    adminUid = s.user.id;
     charge(false);
     setInterval(function () { charge(true); }, 15000);
     try {
       sb.channel("admin-demandes")
-        .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, function () {
-          charge(true);
-        })
+        .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, function () { charge(true); })
+        .on("postgres_changes", { event: "*", schema: "public", table: "acces" }, function () { charge(true); })
+        .subscribe();
+      sb.channel("sti-diffusion")
+        .on("broadcast", { event: "lu" }, function () { charge(true); })
         .subscribe();
     } catch (err) {}
   });
@@ -194,15 +199,59 @@
     if (!garderMsg) msg("Chargement…", "");
     Promise.all([
       sb.from("profiles").select("*").order("cree_le", { ascending: false }),
-      sb.from("acces").select("*").order("debut", { ascending: false }).limit(500)
+      sb.from("acces").select("*").order("debut", { ascending: false }).limit(500),
+      fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all").then(function (r) { return r.text(); }).catch(function () { return ""; })
     ]).then(function (res) {
       if (res[0].error || res[1].error) { msg("❌ " + (res[0].error || res[1].error).message, "err"); return; }
       var tous = res[0].data || [];
+      var tousAcces = res[1].data || [];
+      var txtNtfy = res[2] || "";
       var adminIds = {};
       tous.forEach(function (p) { if (estAdminEmail(p.email)) adminIds[p.id] = true; });
       /* L'administrateur n'est jamais affiché dans la liste des abonnés */
       profils = tous.filter(function (p) { return !estAdminEmail(p.email); });
-      acces = (res[1].data || []).filter(function (a) { return !adminIds[a.user_id]; });
+
+      /* Extraction des messages diffusés et des accusés de lecture (Lu / Non lu) */
+      var mapMsg = {};
+      lecturesParMsg = {};
+      tousAcces.forEach(function (a) {
+        var pg = a.page || "";
+        if (pg.indexOf("MSG_ENVOI:") === 0) {
+          try {
+            var m = JSON.parse(a.lieu || "{}");
+            if (m && m.id) mapMsg[m.id] = m;
+          } catch (e) {}
+        } else if (pg.indexOf("MSG_LU:") === 0) {
+          var mid = pg.slice(7);
+          if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
+          if (!lecturesParMsg[mid][a.user_id]) lecturesParMsg[mid][a.user_id] = a.debut;
+        }
+      });
+
+      /* Complément depuis le flux ntfy (annonces et accusés temps réel) */
+      txtNtfy.trim().split("\n").forEach(function (ligne) {
+        if (!ligne) return;
+        try {
+          var evt = JSON.parse(ligne);
+          if (!evt || !evt.message) return;
+          var obj = JSON.parse(evt.message);
+          if (obj && obj.id && obj.texte && !obj.type) {
+            if (!mapMsg[obj.id]) mapMsg[obj.id] = obj;
+          } else if (obj && obj.type === "lu" && obj.msgId && obj.uid) {
+            if (!lecturesParMsg[obj.msgId]) lecturesParMsg[obj.msgId] = {};
+            if (!lecturesParMsg[obj.msgId][obj.uid]) lecturesParMsg[obj.msgId][obj.uid] = obj.ts;
+          }
+        } catch (e) {}
+      });
+
+      messagesDiffuses = Object.keys(mapMsg).map(function (k) { return mapMsg[k]; }).sort(function (a, b) {
+        return String(b.ts || "").localeCompare(String(a.ts || ""));
+      });
+
+      acces = tousAcces.filter(function (a) {
+        var pg = a.page || "";
+        return !adminIds[a.user_id] && pg.indexOf("MSG_ENVOI:") !== 0 && pg.indexOf("MSG_LU:") !== 0;
+      });
       counts = {};
       acces.forEach(function (a) { counts[a.user_id] = (counts[a.user_id] || 0) + 1; });
       document.getElementById("s-total").textContent = profils.length;
@@ -210,6 +259,7 @@
       document.getElementById("s-attente").textContent = profils.filter(function (p) { return p.statut === "en_attente"; }).length;
       document.getElementById("s-connex").textContent = acces.length;
       rendAbonnes();
+      rendSuiviMessages();
       rendAcces();
       verifierNouvellesDemandes();
       if (!garderMsg) msg("✅ " + profils.length + " abonné(s), " + acces.length + " connexion(s) journalisée(s).", "ok");
@@ -311,6 +361,112 @@
       });
       ta.appendChild(tr);
     });
+  }
+
+  /* ---------- Tableau de suivi de lecture des messages (Lu / Non lu) ---------- */
+  var selSuiviMsg = document.getElementById("sel-suivi-msg");
+  if (selSuiviMsg) {
+    selSuiviMsg.addEventListener("change", afficherTableauSuivi);
+  }
+
+  function rendSuiviMessages() {
+    if (!selSuiviMsg) return;
+    var valPrec = selSuiviMsg.value;
+    selSuiviMsg.innerHTML = "";
+    if (!messagesDiffuses.length) {
+      var opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Aucun message diffusé pour le moment";
+      selSuiviMsg.appendChild(opt0);
+      afficherTableauSuivi();
+      return;
+    }
+    messagesDiffuses.forEach(function (m) {
+      var opt = document.createElement("option");
+      opt.value = m.id;
+      var libCl = m.classe === "*" ? "Toutes les classes" : m.classe;
+      var court = (m.texte || "").replace(/\s+/g, " ").slice(0, 42);
+      opt.textContent = "[" + libCl + " · " + fmtDate(m.ts) + "] " + court + ((m.texte || "").length > 42 ? "…" : "");
+      selSuiviMsg.appendChild(opt);
+    });
+    if (valPrec && messagesDiffuses.some(function (m) { return m.id === valPrec; })) {
+      selSuiviMsg.value = valPrec;
+    }
+    afficherTableauSuivi();
+  }
+
+  function afficherTableauSuivi() {
+    var tb = document.getElementById("tb-suivi-msg");
+    var resEl = document.getElementById("resume-suivi-msg");
+    var apEl = document.getElementById("apercu-suivi-msg");
+    if (!tb) return;
+    tb.innerHTML = "";
+    var mid = selSuiviMsg ? selSuiviMsg.value : "";
+    var msgObj = null;
+    messagesDiffuses.forEach(function (m) { if (m.id === mid) msgObj = m; });
+    if (!msgObj) {
+      if (resEl) resEl.textContent = "";
+      if (apEl) apEl.style.display = "none";
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 4;
+      td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
+      td0.textContent = "Diffusez un message via « 📢 Message par classe » pour suivre ici qui l'a lu ou non.";
+      tr0.appendChild(td0);
+      tb.appendChild(tr0);
+      return;
+    }
+
+    if (apEl) {
+      apEl.style.display = "block";
+      apEl.textContent = "💬 Message : « " + msgObj.texte + " »";
+    }
+
+    var cibles = abonnesDeClasse(msgObj.classe);
+    var mapLu = lecturesParMsg[msgObj.id] || {};
+    var nbLu = 0, nbNonLu = 0;
+
+    if (!cibles.length) {
+      var trV = document.createElement("tr");
+      var tdV = document.createElement("td");
+      tdV.colSpan = 4;
+      tdV.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
+      tdV.textContent = "Aucun abonné inscrit dans cette classe.";
+      trV.appendChild(tdV);
+      tb.appendChild(trV);
+    }
+
+    cibles.forEach(function (p) {
+      var dateLu = mapLu[p.id];
+      if (dateLu) nbLu++; else nbNonLu++;
+
+      var tr = document.createElement("tr");
+      var tdNom = document.createElement("td");
+      tdNom.style.fontWeight = "700";
+      tdNom.textContent = contact(p);
+
+      var tdCl = document.createElement("td");
+      tdCl.style.color = "#7a6f5d";
+      tdCl.textContent = (p.lycee || "—") + " · " + (p.classe || "—");
+
+      var tdEtat = document.createElement("td");
+      var badge = document.createElement("span");
+      badge.className = "st " + (dateLu ? "actif" : "en_attente");
+      badge.textContent = dateLu ? "✅ Lu" : "⏳ Non lu (en attente)";
+      tdEtat.appendChild(badge);
+
+      var tdDate = document.createElement("td");
+      tdDate.textContent = dateLu ? fmtDate(dateLu) : "En attente de réponse…";
+      tdDate.style.color = dateLu ? "#177245" : "#b47d09";
+      tdDate.style.fontWeight = "700";
+
+      tr.append(tdNom, tdCl, tdEtat, tdDate);
+      tb.appendChild(tr);
+    });
+
+    if (resEl) {
+      resEl.textContent = "(✅ " + nbLu + " lu · ⏳ " + nbNonLu + " non lu)";
+    }
   }
 
   function detail(p) {
@@ -641,23 +797,27 @@
       classe: cl,
       texte: texte
     };
+    arreterDictee();
     try {
       sb.channel("sti-diffusion").send({ type: "broadcast", event: "annonce", payload: payload });
     } catch (e) {}
-    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+    var pDb = adminUid
+      ? sb.from("acces").insert({ user_id: adminUid, page: "MSG_ENVOI:" + payload.id, lieu: JSON.stringify(payload), duree_sec: 0 })
+      : Promise.resolve();
+    var pNtfy = fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
       method: "POST",
       body: JSON.stringify(payload)
-    }).then(function () {
+    }).catch(function () {});
+
+    Promise.all([pDb, pNtfy]).then(function () {
       btn.disabled = false;
       btn.textContent = "🔔 Diffuser sur le site";
       modalClasse.classList.remove("visible");
       txtClasse.value = "";
-      msg("📢 Message diffusé sur le site pour « " + libCl + " » !", "ok");
-    }).catch(function () {
-      btn.disabled = false;
-      btn.textContent = "🔔 Diffuser sur le site";
-      modalClasse.classList.remove("visible");
-      msg("📢 Message diffusé en temps réel pour « " + libCl + " ».", "ok");
+      texteBase = "";
+      if (selSuiviMsg) selSuiviMsg.value = "";
+      msg("📢 Message diffusé pour « " + libCl + " » — suivi de lecture mis à jour ci-dessous.", "ok");
+      charge(true);
     });
   });
 })();

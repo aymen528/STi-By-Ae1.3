@@ -172,6 +172,20 @@
     </div>
   </div>
 
+  <h2>📨 Suivi de lecture des messages diffusés <span id="resume-suivi-msg" style="font-size:12px;color:#7a6f5d;font-weight:800;margin-left:6px"></span></h2>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+    <select id="sel-suivi-msg" style="border:2px solid #23201a;border-radius:10px;padding:7px 12px;background:#fffdf7;color:#23201a;font-weight:800;font-size:13px;min-width:260px;max-width:100%">
+      <option value="">Aucun message diffusé pour le moment</option>
+    </select>
+    <div id="apercu-suivi-msg" style="font-size:13px;color:#23201a;background:#fffdf7;border:1.5px dashed #f4511e;border-radius:10px;padding:7px 12px;flex:1;min-width:220px;display:none"></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Abonné (e-mail / tél.)</th><th>Lycée / Classe</th><th>État de réponse</th><th>Lu le</th></tr></thead>
+      <tbody id="tb-suivi-msg"></tbody>
+    </table>
+  </div>
+
   <h2>🕒 Dernières connexions (tous abonnés)</h2>
   <div class="table-wrap">
     <table>
@@ -248,7 +262,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=20"></script>
-<script src="assets/js/admin.js?v=20"></script>
+<script src="assets/js/config.js?v=21"></script>
+<script src="assets/js/admin.js?v=21"></script>
 </body>
 </html>
