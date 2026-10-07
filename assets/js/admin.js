@@ -39,6 +39,7 @@
   }
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
+  var dureesSemaine = {}, dureesTotales = {}, semainesDispo = [];
   var messagesDiffuses = [], lecturesParMsg = {};
   var adminUid = null;
   var cibleSuppr = null, cibleMdp = null;
@@ -53,6 +54,45 @@
     if (sec < 60) return sec + " s";
     if (sec < 3600) return Math.round(sec / 60) + " min";
     return (sec / 3600).toFixed(1) + " h";
+  }
+  function fmtDureeCumul(sec) {
+    var s = Math.max(0, Math.round(sec || 0));
+    if (s === 0) return "0 min";
+    if (s < 60) return s + " s";
+    var h = Math.floor(s / 3600);
+    var m = Math.round((s % 3600) / 60);
+    if (h === 0) return m + " min";
+    return m > 0 ? h + " h " + (m < 10 ? "0" + m : m) + " min" : h + " h";
+  }
+  function dureeLigne(a) {
+    if (a.duree_sec != null && a.duree_sec >= 0) return a.duree_sec;
+    if (a.debut && a.fin) {
+      var diff = Math.round((new Date(a.fin) - new Date(a.debut)) / 1000);
+      return diff > 0 ? diff : 0;
+    }
+    return 0;
+  }
+  function cleSemaine(iso) {
+    var d = iso ? new Date(iso) : new Date();
+    if (isNaN(d.getTime())) d = new Date();
+    var jour = d.getDay(); /* 0 = dim, 1 = lun ... */
+    var decal = jour === 0 ? -6 : 1 - jour;
+    var lun = new Date(d.getFullYear(), d.getMonth(), d.getDate() + decal);
+    var y = lun.getFullYear();
+    var m = ("0" + (lun.getMonth() + 1)).slice(-2);
+    var j = ("0" + lun.getDate()).slice(-2);
+    return y + "-" + m + "-" + j;
+  }
+  function libelleSemaine(cle) {
+    var p = String(cle || "").split("-");
+    if (p.length !== 3) return cle;
+    var lun = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+    var dim = new Date(lun.getFullYear(), lun.getMonth(), lun.getDate() + 6);
+    var fmt = function (dt) {
+      return ("0" + dt.getDate()).slice(-2) + "/" + ("0" + (dt.getMonth() + 1)).slice(-2);
+    };
+    var act = cle === cleSemaine(new Date().toISOString()) ? " (cette semaine)" : "";
+    return "Sem. du " + fmt(lun) + " au " + fmt(dim) + act;
   }
 
   sb.auth.getSession().then(function (r) {
@@ -253,7 +293,25 @@
         return !adminIds[a.user_id] && pg.indexOf("MSG_ENVOI:") !== 0 && pg.indexOf("MSG_LU:") !== 0;
       });
       counts = {};
-      acces.forEach(function (a) { counts[a.user_id] = (counts[a.user_id] || 0) + 1; });
+      dureesSemaine = {};
+      dureesTotales = {};
+      var mapSem = {};
+      var semCourante = cleSemaine(new Date().toISOString());
+      mapSem[semCourante] = true;
+
+      acces.forEach(function (a) {
+        counts[a.user_id] = (counts[a.user_id] || 0) + 1;
+        var sec = dureeLigne(a);
+        dureesTotales[a.user_id] = (dureesTotales[a.user_id] || 0) + sec;
+        var sk = cleSemaine(a.debut);
+        mapSem[sk] = true;
+        if (!dureesSemaine[sk]) dureesSemaine[sk] = {};
+        dureesSemaine[sk][a.user_id] = (dureesSemaine[sk][a.user_id] || 0) + sec;
+      });
+
+      semainesDispo = Object.keys(mapSem).sort().reverse();
+      majSelectSemaine();
+
       document.getElementById("s-total").textContent = profils.length;
       document.getElementById("s-actifs").textContent = profils.filter(function (p) { return p.statut === "actif"; }).length;
       document.getElementById("s-attente").textContent = profils.filter(function (p) { return p.statut === "en_attente"; }).length;
@@ -266,15 +324,48 @@
     });
   }
 
+  var selSemaine = document.getElementById("sel-semaine");
+  if (selSemaine) {
+    selSemaine.addEventListener("change", rendAbonnes);
+  }
+  function majSelectSemaine() {
+    if (!selSemaine) return;
+    var valPrec = selSemaine.value;
+    selSemaine.innerHTML = "";
+    semainesDispo.forEach(function (sk) {
+      var opt = document.createElement("option");
+      opt.value = sk;
+      opt.textContent = libelleSemaine(sk);
+      selSemaine.appendChild(opt);
+    });
+    var optTot = document.createElement("option");
+    optTot.value = "*";
+    optTot.textContent = "Toutes les semaines (cumul)";
+    selSemaine.appendChild(optTot);
+    if (valPrec && (valPrec === "*" || semainesDispo.indexOf(valPrec) !== -1)) {
+      selSemaine.value = valPrec;
+    }
+  }
+  function dureePourAbonne(uid) {
+    var sk = selSemaine ? selSemaine.value : semainesDispo[0];
+    if (sk === "*") return dureesTotales[uid] || 0;
+    return (dureesSemaine[sk] && dureesSemaine[sk][uid]) || 0;
+  }
+
   function rendAbonnes() {
     var liste = profils.slice();
-    if (triParAcces) liste.sort(function (a, b) { return (counts[b.id] || 0) - (counts[a.id] || 0); });
+    if (triParAcces) {
+      liste.sort(function (a, b) {
+        var diffDur = dureePourAbonne(b.id) - dureePourAbonne(a.id);
+        return diffDur !== 0 ? diffDur : (counts[b.id] || 0) - (counts[a.id] || 0);
+      });
+    }
     var tb = document.getElementById("tb-abonnes");
     tb.innerHTML = "";
     if (!liste.length) {
       var trVide = document.createElement("tr");
       var tdVide = document.createElement("td");
-      tdVide.colSpan = 6;
+      tdVide.colSpan = 7;
       tdVide.style.cssText = "text-align:center;color:#7a6f5d;padding:18px;";
       tdVide.textContent = "Aucun abonné inscrit pour le moment.";
       trVide.appendChild(tdVide);
@@ -283,7 +374,7 @@
     }
     liste.forEach(function (p) {
       var tr = document.createElement("tr");
-      tr.title = "Cliquer pour voir toutes ses connexions";
+      tr.title = "Cliquer pour voir toutes ses connexions et durées par semaine";
       tr.addEventListener("click", function () { detail(p); });
 
       var tel = telDeProfil(p);
@@ -311,6 +402,22 @@
       var nb = document.createElement("span"); nb.className = "nb"; nb.textContent = counts[p.id] || 0;
       td2.appendChild(nb);
 
+      var tdDur = document.createElement("td");
+      var secSem = dureePourAbonne(p.id);
+      var secTot = dureesTotales[p.id] || 0;
+      var bDur = document.createElement("span");
+      bDur.style.cssText = "display:inline-block;background:" + (secSem > 0 ? "rgba(244,81,30,.13)" : "#f3ead9") +
+        ";color:" + (secSem > 0 ? "#d84315" : "#7a6f5d") +
+        ";border-radius:999px;padding:4px 10px;font-weight:900;font-size:12px;";
+      bDur.textContent = "⏱️ " + fmtDureeCumul(secSem);
+      tdDur.appendChild(bDur);
+      if (selSemaine && selSemaine.value !== "*" && secTot > 0) {
+        var totSub = document.createElement("div");
+        totSub.style.cssText = "font-size:10.5px;color:#7a6f5d;font-weight:700;margin-top:3px;";
+        totSub.textContent = "Cumul : " + fmtDureeCumul(secTot);
+        tdDur.appendChild(totSub);
+      }
+
       var td3 = document.createElement("td");
       var st = document.createElement("span"); st.className = "st " + p.statut; st.textContent = LIB[p.statut] || p.statut;
       td3.appendChild(st);
@@ -335,7 +442,7 @@
       bouton("🔎", function () { detail(p); }, "", "Voir l'historique des connexions");
       bouton("🗑️", function () { supprimer(p); }, "del", "Supprimer définitivement");
 
-      tr.append(td1, tdL, td2, td3, td4, td5);
+      tr.append(td1, tdL, td2, tdDur, td3, td4, td5);
       tb.appendChild(tr);
     });
   }
@@ -471,9 +578,28 @@
 
   function detail(p) {
     document.getElementById("detail-email").textContent = contact(p);
+    var zoneSem = document.getElementById("detail-semaines");
     var td = document.getElementById("tb-detail");
+    if (zoneSem) zoneSem.innerHTML = "";
     td.innerHTML = "";
     var lignes = acces.filter(function (a) { return a.user_id === p.id; });
+    if (zoneSem && lignes.length) {
+      var parSem = {};
+      lignes.forEach(function (a) {
+        var sk = cleSemaine(a.debut);
+        if (!parSem[sk]) parSem[sk] = { sec: 0, nb: 0 };
+        parSem[sk].sec += dureeLigne(a);
+        parSem[sk].nb += 1;
+      });
+      Object.keys(parSem).sort().reverse().forEach(function (sk) {
+        var carte = document.createElement("div");
+        carte.style.cssText = "background:#fffdf7;border:2px solid #23201a;border-radius:12px;padding:7px 13px;font-size:12px;font-weight:800;box-shadow:2px 2px 0 rgba(244,81,30,.45);";
+        carte.innerHTML = "<span style='color:#7a6f5d'>" + libelleSemaine(sk) + " :</span> " +
+          "<b style='color:#f4511e;font-size:13px'>⏱️ " + fmtDureeCumul(parSem[sk].sec) + "</b> " +
+          "<span style='color:#7a6f5d'>(" + parSem[sk].nb + " accès)</span>";
+        zoneSem.appendChild(carte);
+      });
+    }
     if (!lignes.length) {
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td"); td0.colSpan = 5; td0.textContent = "Aucune connexion enregistrée pour cet abonné.";
@@ -481,7 +607,7 @@
     }
     lignes.forEach(function (a) {
       var tr = document.createElement("tr");
-      [fmtDate(a.debut), fmtDate(a.fin), fmtDuree(a.duree_sec), a.lieu || "—", a.page || "—"].forEach(function (v) {
+      [fmtDate(a.debut), fmtDate(a.fin), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
         var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
       });
       td.appendChild(tr);
