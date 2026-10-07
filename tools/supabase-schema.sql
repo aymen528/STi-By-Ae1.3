@@ -104,9 +104,12 @@ begin
   if not public.est_admin() then
     raise exception 'action reservee a l''administrateur';
   end if;
+  if uid = (select id from auth.users where email = 'aymenessouyah@gmail.com') then
+    raise exception 'impossible de supprimer l''administrateur';
+  end if;
   delete from public.acces where user_id = uid;
   delete from public.profiles where id = uid;
-  perform auth.admin_delete_user(uid);
+  delete from auth.users where id = uid; /* identités et sessions suivent par cascade */
 end $$;
 revoke execute on function public.admin_supprimer_abonne(uuid) from public, anon;
 grant execute on function public.admin_supprimer_abonne(uuid) to authenticated;
