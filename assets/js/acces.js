@@ -35,10 +35,9 @@
   function panneauCompte(user, profil) {
     var st = document.createElement("style");
     st.textContent =
-      "@keyframes sti-tour{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}" +
-      ".sti-roue{animation:sti-tour 7s linear infinite;transition:box-shadow .3s}" +
-      ".sti-roue:hover{animation-duration:2.5s;box-shadow:0 0 0 6px rgba(244,81,30,.18),3px 3px 0 #23201a}" +
-      ".sti-wrap{transition:transform .5s cubic-bezier(.22,1,.36,1)}" +
+      ".sti-roue{transition:transform .55s cubic-bezier(.34,1.3,.4,1),box-shadow .3s}" +
+      ".sti-roue:hover{box-shadow:0 0 0 6px rgba(244,81,30,.18),3px 3px 0 #23201a}" +
+      ".sti-wrap{transition:transform .55s cubic-bezier(.34,1.3,.4,1)}" +
       ".sti-pan{opacity:0;transform:translateX(26px) scale(.96);pointer-events:none;transition:opacity .35s ease,transform .35s ease}" +
       ".sti-pan.ouvert{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}";
     document.head.appendChild(st);
@@ -80,11 +79,14 @@
       ouvert = !ouvert;
       if (ouvert) {
         pan.classList.add("ouvert");
-        /* la roue glisse à gauche pour laisser le panneau s'ouvrir à droite */
+        /* la roue glisse à gauche en tournant, comme si elle tirait le ruban du panneau */
         porte.style.transform = "translateX(-" + (pan.offsetWidth + 14) + "px)";
+        btn.style.transform = "rotate(720deg)";
       } else {
         pan.classList.remove("ouvert");
+        /* la roue revient à droite en tournant en sens inverse, et rembobine le ruban */
         porte.style.transform = "translateX(0)";
+        btn.style.transform = "rotate(0deg)";
       }
     });
 
