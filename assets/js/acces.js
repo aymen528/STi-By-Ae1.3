@@ -1,4 +1,4 @@
-/* STI v2 — verrou d'accès temps réel + déconnexion instantanée (y compris depuis les boîtes/iframes) + journal des accès
+/* STI v2 — verrou d'accès temps réel + mode Compte GOLD (capture & impression) + déconnexion instantanée + journal des accès
    Chargé sur toutes les pages SAUF portail.html et admin.html. */
 (function () {
   "use strict";
@@ -11,11 +11,96 @@
   var PORTAIL = cfg.RACINE + "portail.html";
   var enSortie = false;
 
+  function estGoldProfil(p) {
+    return Boolean(p && (p.gold === true || /\|\s*GOLD$/i.test(p.lycee || "")));
+  }
+  function lyceePropre(p) {
+    return ((p && p.lycee) || "—").replace(/\s*\|\s*GOLD$/i, "") || "—";
+  }
+
+  /* ---------- Activation / révocation en direct du mode Compte GOLD (capture d'écran + impression) ---------- */
+  function appliquerModeGold(actif) {
+    var ok = Boolean(actif);
+    window.__STI_GOLD = ok;
+    try {
+      if (ok) localStorage.setItem("sti-gold", "1");
+      else localStorage.removeItem("sti-gold");
+    } catch (e) {}
+    if (document.documentElement) document.documentElement.classList.toggle("sti-gold", ok);
+    if (document.body) document.body.classList.toggle("sti-gold", ok);
+
+    var wm = document.getElementById("sti-watermark");
+    if (wm) wm.style.display = ok ? "none" : "";
+    var pm = document.getElementById("sti-print-msg");
+    if (pm) pm.style.display = "none";
+
+    /* Propage aux boîtes (iframes) ouvertes dans la page */
+    try {
+      var fr = document.getElementById("pdfFrame");
+      if (fr && fr.contentWindow) {
+        fr.contentWindow.__STI_GOLD = ok;
+        if (fr.contentDocument && fr.contentDocument.documentElement) {
+          fr.contentDocument.documentElement.classList.toggle("sti-gold", ok);
+        }
+        if (fr.contentDocument && fr.contentDocument.body) {
+          fr.contentDocument.body.classList.toggle("sti-gold", ok);
+        }
+      }
+    } catch (e) {}
+
+    var bdgGold = document.getElementById("sti-badge-gold");
+    if (bdgGold) bdgGold.style.display = ok ? "inline-block" : "none";
+    var btnImp = document.getElementById("sti-btn-print-gold");
+    if (btnImp) btnImp.style.display = ok ? "block" : "none";
+    var btnRoue = document.getElementById("sti-roue-btn");
+    if (btnRoue) {
+      btnRoue.textContent = ok ? "👑" : "⚙️";
+      btnRoue.title = ok ? "Mon compte GOLD (capture & impression autorisées)" : "Mon compte";
+      btnRoue.style.background = ok
+        ? "radial-gradient(circle at 32% 30%,#fff6b3,#ffb300 68%)"
+        : "radial-gradient(circle at 32% 30%,#ffb27a,#f4511e 68%)";
+    }
+    var elLycee = document.getElementById("sti-pan-lycee");
+    if (elLycee && arguments.length > 1 && arguments[1]) {
+      elLycee.textContent = lyceePropre(arguments[1]) + " · " + (arguments[1].classe || "—");
+    }
+  }
+
+  function imprimerContenuGold() {
+    appliquerModeGold(true);
+    try {
+      var modal = document.getElementById("pdfModal");
+      var fr = document.getElementById("pdfFrame");
+      if (modal && modal.classList.contains("open") && fr && fr.contentWindow) {
+        try {
+          if (fr.contentDocument && fr.contentDocument.documentElement) {
+            fr.contentDocument.documentElement.classList.add("sti-gold");
+          }
+          if (fr.contentDocument && fr.contentDocument.body) {
+            fr.contentDocument.body.classList.add("sti-gold");
+          }
+        } catch (e) {}
+        fr.contentWindow.focus();
+        fr.contentWindow.print();
+        return;
+      }
+    } catch (e) {}
+    window.print();
+  }
+
+  /* Si ce cadre est déjà identifié Gold en localStorage, déverrouille immédiatement au chargement */
+  try {
+    if (localStorage.getItem("sti-gold") === "1") {
+      appliquerModeGold(true);
+    }
+  } catch (e) {}
+
   /* ---------- Éjection immédiate (fenêtre principale + boîtes/iframes + purge totale) ---------- */
   function purgerStockageLocal() {
     try {
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-cred");
+      localStorage.removeItem("sti-gold");
       Object.keys(localStorage).forEach(function (k) {
         if (k.indexOf("sb-") === 0 || k.indexOf("supabase") !== -1) {
           localStorage.removeItem(k);
@@ -23,6 +108,7 @@
       });
     } catch (e) {}
     try { sessionStorage.removeItem("sti-demo"); } catch (e) {}
+    window.__STI_GOLD = false;
   }
 
   function redirigerTop(cible) {
@@ -55,6 +141,8 @@
     if (e.key === "sti-force-exit" && e.newValue) {
       var h = String(e.newValue).split("|")[0] || "#deconnecte";
       sortirImmediatement(h);
+    } else if (e.key === "sti-gold") {
+      appliquerModeGold(e.newValue === "1");
     }
   });
 
@@ -65,11 +153,13 @@
       var t = parseInt(localStorage.getItem("sti-offline") || "0", 10);
       if (t && Date.now() - t < 86400000) return;
       localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-gold");
       redirigerTop(PORTAIL + "#connexion");
       return;
     }
     var user = session.user;
     if ((user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase()) {
+      appliquerModeGold(true);
       if (window === window.top) badgeAdmin();
       journal(user.id);
       return;
@@ -83,7 +173,10 @@
         return false;
       }
       var st = rp.data.statut;
-      if (st === "actif") return true;
+      if (st === "actif") {
+        appliquerModeGold(estGoldProfil(rp.data), rp.data);
+        return true;
+      }
       if (st === "en_attente") { sortirImmediatement("#attente"); return false; }
       if (st === "exclu") { sortirImmediatement("#exclu"); return false; }
       sortirImmediatement("#refuse");
@@ -91,6 +184,7 @@
     }
 
     function entrer(profil) {
+      appliquerModeGold(estGoldProfil(profil), profil);
       verrouBio(user, function () {
         panneauCompte(user, profil || {});
         surveillerSessionTempsReel(user.id, appliquerStatut);
@@ -98,21 +192,19 @@
       });
     }
 
-    /* Vérification initiale du statut */
-    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+    /* Vérification initiale du statut + droits Gold */
+    sb.from("profiles").select("statut,lycee,classe").eq("id", user.id).maybeSingle().then(function (rp) {
       if (rp.error) { entrer({}); return; }
       if (!appliquerStatut(rp)) return;
-      sb.from("profiles").select("lycee,classe").eq("id", user.id).maybeSingle().then(function (rc) {
-        entrer(!rc.error && rc.data ? rc.data : {});
-      });
+      entrer(rp.data || {});
     });
   });
 
-  /* ---------- Surveillance continue : exclusion / retrait / mise en attente en direct ---------- */
+  /* ---------- Surveillance continue : exclusion / retrait / mise en attente / passage Gold en direct ---------- */
   function surveillerSessionTempsReel(uid, appliquerStatut) {
     function verifDirecte() {
       if (enSortie) return;
-      sb.from("profiles").select("statut").eq("id", uid).maybeSingle().then(function (rp) {
+      sb.from("profiles").select("statut,lycee,classe").eq("id", uid).maybeSingle().then(function (rp) {
         appliquerStatut(rp);
       });
     }
@@ -126,7 +218,7 @@
       if (!document.hidden) verifDirecte();
     });
 
-    /* 3. Écoute temps réel Supabase (changement de statut ou suppression de la ligne) */
+    /* 3. Écoute temps réel Supabase (changement de statut, droits Gold ou suppression de la ligne) */
     try {
       sb.channel("sti-user-" + uid)
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: "id=eq." + uid }, function (payload) {
@@ -149,6 +241,7 @@
 
   /* ---------- roue « mon compte » chic : tourne, glisse à gauche pour ouvrir ---------- */
   function panneauCompte(user, profil) {
+    var isG = estGoldProfil(profil);
     var st = document.createElement("style");
     st.textContent =
       ".sti-roue{transition:transform 1.15s cubic-bezier(.34,1.2,.4,1),box-shadow .3s}" +
@@ -159,11 +252,12 @@
     document.head.appendChild(st);
 
     var wrap = document.createElement("div");
+    wrap.className = "sti-no-print";
     wrap.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;align-items:center;";
 
     var pan = document.createElement("div");
     pan.className = "sti-pan";
-    pan.style.cssText = "position:absolute;right:0;background:#fffdf7;border:2px solid #23201a;border-radius:16px;padding:14px 16px;box-shadow:5px 5px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;width:225px;text-align:right;color-scheme:light;";
+    pan.style.cssText = "position:absolute;right:0;background:#fffdf7;border:2px solid #23201a;border-radius:16px;padding:14px 16px;box-shadow:5px 5px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;width:232px;text-align:right;color-scheme:light;";
     var affLogin = user.email || user.phone || "—";
     if (/@tel\.sti\.tn$/i.test(affLogin)) {
       var meta = user.user_metadata || {};
@@ -171,13 +265,28 @@
       var np = ((meta.prenom || "") + " " + (meta.nom || "")).trim();
       if (np) affLogin += " · " + np;
     }
-    pan.innerHTML = "<span style='color:#7a6f5d;font-size:10.5px;text-transform:uppercase;letter-spacing:1px'>Login</span><br>" +
+    pan.innerHTML =
+      "<span id='sti-badge-gold' style='display:" + (isG ? "inline-block" : "none") + ";background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#6d4c00;border:1.5px solid #23201a;border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:900;margin-bottom:4px;box-shadow:1.5px 1.5px 0 #23201a'>👑 COMPTE GOLD</span><br>" +
+      "<span style='color:#7a6f5d;font-size:10.5px;text-transform:uppercase;letter-spacing:1px'>Login</span><br>" +
       "<b style='font-size:13px'>" + esc(affLogin) + "</b><br>" +
-      "<span style='color:#7a6f5d'>" + esc(profil.lycee || "—") + " · " + esc(profil.classe || "—") + "</span>";
+      "<span id='sti-pan-lycee' style='color:#7a6f5d'>" + esc(lyceePropre(profil)) + " · " + esc(profil.classe || "—") + "</span>";
+
+    var btnImp = document.createElement("button");
+    btnImp.id = "sti-btn-print-gold";
+    btnImp.type = "button";
+    btnImp.textContent = "🖨️ Imprimer";
+    btnImp.style.cssText = "display:" + (isG ? "block" : "none") + ";margin:10px 0 0 auto;border:2px solid #23201a;background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;color-scheme:light;border-radius:10px;padding:7px 12px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a;";
+    btnImp.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      imprimerContenuGold();
+    });
+    pan.appendChild(btnImp);
+
     var out = document.createElement("button");
     out.type = "button";
     out.textContent = "🚪 Déconnexion";
-    out.style.cssText = "display:block;margin:10px 0 0 auto;border:2px solid #23201a;background:#fff;color:#23201a;color-scheme:light;border-radius:10px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;";
+    out.style.cssText = "display:block;margin:8px 0 0 auto;border:2px solid #23201a;background:#fff;color:#23201a;color-scheme:light;border-radius:10px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;";
     out.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -189,11 +298,14 @@
     porte.className = "sti-wrap";
     porte.style.cssText = "position:relative;z-index:2;";
     var btn = document.createElement("button");
+    btn.id = "sti-roue-btn";
     btn.type = "button";
     btn.className = "sti-roue";
-    btn.textContent = "⚙️";
-    btn.title = "Mon compte";
-    btn.style.cssText = "display:block;width:48px;height:48px;border-radius:50%;border:2px solid #23201a;background:radial-gradient(circle at 32% 30%,#ffb27a,#f4511e 68%);font-size:22px;line-height:1;cursor:pointer;box-shadow:3px 3px 0 #23201a,0 8px 20px -8px rgba(244,81,30,.7);";
+    btn.textContent = isG ? "👑" : "⚙️";
+    btn.title = isG ? "Mon compte GOLD (capture & impression autorisées)" : "Mon compte";
+    btn.style.cssText = "display:block;width:48px;height:48px;border-radius:50%;border:2px solid #23201a;background:" +
+      (isG ? "radial-gradient(circle at 32% 30%,#fff6b3,#ffb300 68%)" : "radial-gradient(circle at 32% 30%,#ffb27a,#f4511e 68%)") +
+      ";font-size:22px;line-height:1;cursor:pointer;box-shadow:3px 3px 0 #23201a,0 8px 20px -8px rgba(244,81,30,.7);";
     porte.appendChild(btn);
 
     var ouvert = false;
@@ -227,7 +339,7 @@
     ecouterMessagesClasse(user.id, profil.classe || "");
   }
 
-  /* ---------- réception des messages groupés + signaux d'expulsion diffusés par l'admin ---------- */
+  /* ---------- réception des messages groupés + signaux d'expulsion/Gold diffusés par l'admin ---------- */
   function ecouterMessagesClasse(uid, maClasse) {
     var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
     var demarreA = Date.now();
@@ -238,6 +350,7 @@
       if (ev.statut === "exclu") sortirImmediatement("#exclu");
       else if (ev.statut === "en_attente") sortirImmediatement("#attente");
       else if (ev.statut === "supprime" || ev.statut !== "actif") sortirImmediatement("#refuse");
+      else if (typeof ev.gold === "boolean") appliquerModeGold(ev.gold);
     }
 
     function afficherAnnonce(a) {
@@ -321,6 +434,7 @@
   /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + compteur de demandes ---------- */
   function badgeAdmin() {
     var b = document.createElement("a");
+    b.className = "sti-no-print";
     b.href = PORTAIL.replace("portail.html", "admin.html");
     b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg><span id="sti-adm-nb" style="display:none;margin-left:5px;background:#fff;color:#c0392b;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:900;">0</span>';
     b.title = "Tableau de bord administrateur";

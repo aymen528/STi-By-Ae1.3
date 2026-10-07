@@ -3,8 +3,9 @@
    Couches de dissuasion : clic droit, copier/couper, raccourcis
    clavier, PrintScreen, glisser-déposer, outils de développement,
    filigrane et blocage d'impression.
-   NB : aucune protection côté client n'est absolue ; l'objectif est
-   de décourager la copie facile et de marquer toute capture.
+   👑 Exception Compte GOLD : si l'administrateur a accordé le
+   statut Gold à l'abonné, la capture d'écran, l'impression et
+   la sélection/copie sont automatiquement déverrouillées.
    ══════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -12,12 +13,40 @@
   var MSG_PROTECT =
     "\uD83D\uDD12 Contenu protégé \u00A9 A. Essouyah \u2014 copie et captures non autorisées";
 
+  function estGoldActif() {
+    try {
+      if (window.__STI_GOLD === true) return true;
+      if (window.top && window.top !== window && window.top.__STI_GOLD === true) return true;
+      if (localStorage.getItem("sti-gold") === "1") return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function synchroniserDomGold() {
+    var ok = estGoldActif();
+    if (document.documentElement) document.documentElement.classList.toggle("sti-gold", ok);
+    if (document.body) document.body.classList.toggle("sti-gold", ok);
+    var wm = document.getElementById("sti-watermark");
+    if (wm) wm.style.display = ok ? "none" : "";
+    var pm = document.getElementById("sti-print-msg");
+    if (pm) pm.style.display = "none";
+    return ok;
+  }
+
+  window.addEventListener("storage", function (e) {
+    if (e && e.key === "sti-gold") synchroniserDomGold();
+  });
+  window.addEventListener("beforeprint", function () {
+    synchroniserDomGold();
+  });
+
   /* ─────────────────────────────────────────────
      Toast d'avertissement
      ───────────────────────────────────────────── */
   var toastEl = null;
   var toastTimer = null;
   function toast(msg) {
+    if (estGoldActif()) return;
     if (!toastEl) {
       toastEl = document.createElement("div");
       toastEl.id = "sti-toast";
@@ -33,9 +62,10 @@
   }
 
   /* ─────────────────────────────────────────────
-     1) Clic droit bloqué (sauf champs de formulaire)
+     1) Clic droit bloqué (sauf Compte GOLD ou champs de formulaire)
      ───────────────────────────────────────────── */
   document.addEventListener("contextmenu", function (e) {
+    if (synchroniserDomGold()) return;
     var t = e.target;
     if (t && t.closest && t.closest("input, textarea, select, [contenteditable='true']")) {
       return;
@@ -45,47 +75,50 @@
   });
 
   /* ─────────────────────────────────────────────
-     2) Copier / couper bloqués
+     2) Copier / couper bloqués (sauf Compte GOLD)
      ───────────────────────────────────────────── */
   ["copy", "cut"].forEach(function (evt) {
     document.addEventListener(evt, function (e) {
+      if (synchroniserDomGold()) return;
       e.preventDefault();
       toast();
     });
   });
 
   /* ─────────────────────────────────────────────
-     3) Raccourcis clavier bloqués
+     3) Raccourcis clavier bloqués (sauf Compte GOLD pour PrintScreen, Ctrl+P, Ctrl+C/A/S)
         F12 · Ctrl/Cmd+Shift+I/J/C · Ctrl/Cmd+S/P/U/C/X/A
-        PrintScreen → presse-papiers vidé
+        PrintScreen → presse-papiers vidé si compte standard
      ───────────────────────────────────────────── */
   document.addEventListener(
     "keydown",
     function (e) {
+      var gold = synchroniserDomGold();
       var k = (e.key || "").toLowerCase();
       var mod = e.ctrlKey || e.metaKey;
       var bloque = false;
 
       if (k === "printscreen") {
-        // Tente de vider le presse-papiers pour effacer la capture
+        if (gold) return; /* 👑 Compte Gold : capture d'écran autorisée */
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText("").catch(function () {});
           }
-        } catch (err) {
-          /* non supporté */
-        }
+        } catch (err) {}
         toast("\uD83D\uDEAB Capture d'écran non autorisée \u2014 contenu protégé");
         bloque = true;
+      } else if (mod && (k === "p" || k === "c" || k === "a" || k === "s")) {
+        if (gold) return; /* 👑 Compte Gold : impression (Ctrl+P) et copie autorisées */
+        bloque = true;
       } else if (k === "f12") {
+        if (gold) return;
         bloque = true;
       } else if (mod && e.shiftKey && (k === "i" || k === "j" || k === "c")) {
-        bloque = true; // DevTools
-      } else if (
-        mod &&
-        (k === "s" || k === "p" || k === "u" || k === "c" || k === "x" || k === "a")
-      ) {
-        bloque = true; // enregistrer / imprimer / code source / copier / couper / tout sélectionner
+        if (gold) return;
+        bloque = true;
+      } else if (mod && (k === "u" || k === "x")) {
+        if (gold) return;
+        bloque = true;
       }
 
       if (bloque) {
@@ -98,9 +131,10 @@
   );
 
   /* ─────────────────────────────────────────────
-     4) Glisser-déposer bloqué (images, etc.)
+     4) Glisser-déposer bloqué (sauf Compte GOLD)
      ───────────────────────────────────────────── */
   document.addEventListener("dragstart", function (e) {
+    if (synchroniserDomGold()) return;
     e.preventDefault();
   });
 
@@ -131,7 +165,6 @@
 
   /* ─────────────────────────────────────────────
      6) Détection des outils de développement
-        (heuristique taille de fenêtre, bureau uniquement)
      ───────────────────────────────────────────── */
   var devOverlay = null;
   var devDismissed = false;
@@ -157,7 +190,10 @@
   }
 
   function checkDevtools() {
-    // Uniquement sur bureau (souris/précision), pour éviter les faux positifs mobiles
+    if (synchroniserDomGold()) {
+      if (devOverlay) devOverlay.classList.remove("visible");
+      return;
+    }
     if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
     var w = window.outerWidth - window.innerWidth;
     var h = window.outerHeight - window.innerHeight;
@@ -175,6 +211,7 @@
   function init() {
     installWatermark();
     installPrintBlock();
+    synchroniserDomGold();
     checkDevtools();
     window.addEventListener("resize", checkDevtools);
     setInterval(checkDevtools, 1500);

@@ -1,17 +1,21 @@
 /* ══════════════════════════════════════════════════════════
    🔒 Protection du contenu — Plateforme STI par A. Essouyah
    Dissuasion copie / captures + filigrane + blocage impression.
-   Aucune protection client-side n'est absolue : ceci décourage
-   la copie facile et marque toute capture (filigrane).
+   👑 Exception Compte GOLD (html.sti-gold / body.sti-gold) :
+   capture d'écran, impression et sélection/copie déverrouillées.
    ══════════════════════════════════════════════════════════ */
 
-/* ── Sélection de texte désactivée (sauf champs de formulaire) ── */
-body,
-body * {
+/* ── Sélection de texte désactivée (sauf Compte GOLD et champs de formulaire) ── */
+html:not(.sti-gold) body:not(.sti-gold),
+html:not(.sti-gold) body:not(.sti-gold) * {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
 }
+html.sti-gold body,
+html.sti-gold body *,
+body.sti-gold,
+body.sti-gold *,
 input,
 textarea,
 select,
@@ -21,13 +25,13 @@ select,
   user-select: text;
 }
 
-/* ── Images non « glissables » ── */
-img {
+/* ── Images non « glissables » (sauf Compte GOLD) ── */
+html:not(.sti-gold) body:not(.sti-gold) img {
   -webkit-user-drag: none;
   user-drag: none;
 }
 
-/* ── Filigrane diagonal permanent (visible sur toute capture) ── */
+/* ── Filigrane diagonal permanent (masqué pour Compte GOLD) ── */
 #sti-watermark {
   position: fixed;
   inset: 0;
@@ -40,16 +44,20 @@ img {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+html.sti-gold #sti-watermark,
+body.sti-gold #sti-watermark {
+  display: none !important;
+}
 
-/* ── Message affiché à la place du contenu lors d'une impression ── */
+/* ── Message affiché à la place du contenu lors d'une impression (sauf Compte GOLD) ── */
 #sti-print-msg {
   display: none;
 }
 @media print {
-  body > *:not(#sti-print-msg) {
+  html:not(.sti-gold) body:not(.sti-gold) > *:not(#sti-print-msg) {
     display: none !important;
   }
-  #sti-print-msg {
+  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg {
     display: flex !important;
     flex-direction: column;
     align-items: center;
@@ -61,17 +69,31 @@ img {
     font-family: system-ui, "Segoe UI", sans-serif;
     color: #101728;
   }
-  #sti-print-msg .sti-print-ico {
+  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-ico {
     font-size: 56px;
   }
-  #sti-print-msg .sti-print-title {
+  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-title {
     font-size: 26px;
     font-weight: 800;
   }
-  #sti-print-msg .sti-print-txt {
+  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-txt {
     font-size: 15px;
     line-height: 1.6;
     max-width: 520px;
+  }
+
+  /* 👑 Compte GOLD : impression complète autorisée (sans filigrane ni badges flottants) */
+  html.sti-gold #sti-print-msg,
+  body.sti-gold #sti-print-msg,
+  html.sti-gold #sti-watermark,
+  body.sti-gold #sti-watermark,
+  html.sti-gold #sti-devtools-overlay,
+  body.sti-gold #sti-devtools-overlay,
+  html.sti-gold #sti-toast,
+  body.sti-gold #sti-toast,
+  html.sti-gold .sti-no-print,
+  body.sti-gold .sti-no-print {
+    display: none !important;
   }
 }
 
@@ -89,6 +111,10 @@ img {
 }
 #sti-devtools-overlay.visible {
   display: flex;
+}
+html.sti-gold #sti-devtools-overlay,
+body.sti-gold #sti-devtools-overlay {
+  display: none !important;
 }
 #sti-devtools-overlay .sti-dev-box {
   max-width: 460px;

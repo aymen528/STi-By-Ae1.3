@@ -16,6 +16,12 @@
   function estAdminEmail(em) {
     return (em || "").trim().toLowerCase() === (cfg.ADMIN || "").trim().toLowerCase();
   }
+  function estGold(p) {
+    return Boolean(p && (p.gold === true || /\|\s*GOLD$/i.test(p.lycee || "")));
+  }
+  function lyceePropre(p) {
+    return ((p && p.lycee) || "—").replace(/\s*\|\s*GOLD$/i, "") || "—";
+  }
   function telDeProfil(p) {
     if (p.phone) return p.phone;
     if (p.email && /@tel\.sti\.tn$/i.test(p.email)) {
@@ -214,7 +220,7 @@
     try { localStorage.setItem("sti-admin-vus", JSON.stringify(vus)); } catch (e) {}
     nouveaux.forEach(function (p) {
       var tel = telDeProfil(p);
-      var detail = contact(p) + " — " + (p.lycee || "—") + " · " + (p.classe || "—");
+      var detail = contact(p) + " — " + lyceePropre(p) + " · " + (p.classe || "—");
       if (tel) detail += "\nCode WhatsApp : " + codeWa(tel);
       afficherNotifSysteme("🆕 Nouvelle demande d'inscription STI V2.0", detail);
     });
@@ -395,7 +401,7 @@
       }
 
       var tdL = document.createElement("td");
-      tdL.textContent = (p.lycee || "—") + " · " + (p.classe || "—");
+      tdL.textContent = lyceePropre(p) + " · " + (p.classe || "—");
       tdL.style.color = "#7a6f5d";
 
       var td2 = document.createElement("td");
@@ -419,7 +425,16 @@
       }
 
       var td3 = document.createElement("td");
-      var st = document.createElement("span"); st.className = "st " + p.statut; st.textContent = LIB[p.statut] || p.statut;
+      var st = document.createElement("span");
+      var isG = estGold(p);
+      if (p.statut === "actif" && isG) {
+        st.className = "st gold";
+        st.textContent = "👑 Gold";
+        st.title = "Compte Gold : capture d'écran, impression et copie autorisées";
+      } else {
+        st.className = "st " + p.statut;
+        st.textContent = LIB[p.statut] || p.statut;
+      }
       td3.appendChild(st);
 
       var td4 = document.createElement("td"); td4.textContent = fmtDate(p.cree_le);
@@ -433,6 +448,14 @@
         td5.appendChild(b);
       }
       bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
+      bouton(
+        "👑",
+        function () { basculerGold(p); },
+        isG ? "gold-on" : "",
+        isG
+          ? "Compte Gold actif — cliquer pour retirer les droits de capture d'écran et d'impression"
+          : "Passer en compte Gold (autoriser capture d'écran, impression et copie)"
+      );
       bouton("⏳", function () { changeStatut(p, "en_attente"); }, "", "Mettre en attente");
       bouton("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure l'abonné");
       if (tel) {
@@ -554,7 +577,7 @@
 
       var tdCl = document.createElement("td");
       tdCl.style.color = "#7a6f5d";
-      tdCl.textContent = (p.lycee || "—") + " · " + (p.classe || "—");
+      tdCl.textContent = lyceePropre(p) + " · " + (p.classe || "—");
 
       var tdEtat = document.createElement("td");
       var badge = document.createElement("span");
@@ -616,8 +639,8 @@
     document.getElementById("zone-detail").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function diffuserSignalStatut(uid, statut) {
-    var sig = { type: "statut", uid: uid, statut: statut, ts: Date.now() };
+  function diffuserSignalStatut(uid, statut, gold) {
+    var sig = { type: "statut", uid: uid, statut: statut, gold: Boolean(gold), ts: Date.now() };
     try {
       sb.channel("sti-diffusion").send({ type: "broadcast", event: "statut", payload: sig });
     } catch (e) {}
@@ -630,8 +653,26 @@
   function changeStatut(p, statut) {
     sb.from("profiles").update({ statut: statut }).eq("id", p.id).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
-      diffuserSignalStatut(p.id, statut);
+      diffuserSignalStatut(p.id, statut, estGold(p));
       msg("✅ " + contact(p) + " → " + LIB[statut], "ok");
+      charge(true);
+    });
+  }
+
+  function basculerGold(p) {
+    var nvGold = !estGold(p);
+    var baseLycee = lyceePropre(p);
+    var nvLycee = nvGold ? (baseLycee + "|GOLD") : baseLycee;
+    var nvStatut = nvGold ? "actif" : (p.statut === "en_attente" ? "actif" : p.statut);
+    sb.from("profiles").update({ lycee: nvLycee, statut: nvStatut }).eq("id", p.id).then(function (r) {
+      if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      diffuserSignalStatut(p.id, nvStatut, nvGold);
+      msg(
+        nvGold
+          ? "👑 " + contact(p) + " est maintenant Compte GOLD (capture d'écran & impression autorisées)."
+          : "🔒 " + contact(p) + " est repassé en compte standard (capture d'écran & impression bloquées).",
+        "ok"
+      );
       charge(true);
     });
   }
