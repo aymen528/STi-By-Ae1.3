@@ -108,6 +108,23 @@
     padding: 3px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer;
   }
   .wa-item button.envoye { background: #177245; color: #fff; border-color: #177245; }
+  .barre-dictee {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px;
+  }
+  .btn-dicter {
+    border: 2px solid #23201a; background: #fffdf7; color: #23201a; border-radius: 999px;
+    padding: 6px 14px; font-size: 12.5px; font-weight: 800; cursor: pointer;
+    box-shadow: 2px 2px 0 rgba(244,81,30,.45); display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-dicter.ecoute {
+    background: #c0392b; color: #fff; border-color: #23201a;
+    animation: pulseMic 1.1s ease-in-out infinite alternate;
+  }
+  @keyframes pulseMic { from { transform: scale(1); } to { transform: scale(1.04); } }
+  .sel-lang-dictee {
+    width: auto !important; margin-bottom: 0 !important; padding: 5px 10px !important;
+    font-size: 12px !important; font-weight: 800; border-radius: 999px !important;
+  }
 </style>
 </head>
 <body>
@@ -192,8 +209,15 @@
   <div class="modal-fond" id="modal-classe" role="dialog" aria-modal="true">
     <div class="modal-boite" style="max-width:480px">
       <h3>📢 Message groupé à une classe</h3>
-      <p>Choisissez la classe destinataire et saisissez votre annonce :</p>
+      <p>Choisissez la classe destinataire et saisissez (ou dictez) votre annonce :</p>
       <select id="msg-classe"></select>
+      <div class="barre-dictee">
+        <button type="button" class="btn-dicter" id="btn-dicter-msg">🎙️ Dicter le message</button>
+        <select id="lang-dictee" class="sel-lang-dictee" title="Langue de dictée">
+          <option value="fr-FR" selected>🇫🇷 Français</option>
+          <option value="ar-TN">🇹🇳 العربية</option>
+        </select>
+      </div>
       <textarea id="msg-texte" placeholder="Ex. : Rappel — devoir de synthèse mardi prochain, révisez le module PHP &amp; MySQLi."></textarea>
       <div id="zone-wa-classe" style="display:none">
         <p style="margin-bottom:6px;font-weight:800;color:#23201a;font-size:12.5px">📱 Élèves de la classe inscrits par WhatsApp :</p>
@@ -221,7 +245,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=18"></script>
-<script src="assets/js/admin.js?v=18"></script>
+<script src="assets/js/config.js?v=19"></script>
+<script src="assets/js/admin.js?v=19"></script>
 </body>
 </html>

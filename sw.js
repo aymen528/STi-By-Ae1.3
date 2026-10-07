@@ -4,7 +4,7 @@
    pages (toujours frais quand il y a du réseau), cache pour les ressources
    statiques. Vider le cache en cas de pépin : DevTools → Application. */
 
-var CACHE = "sti-atelier-v18";
+var CACHE = "sti-atelier-v19";
 var SHELL = [
   "./",
   "./index.html",

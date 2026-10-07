@@ -473,8 +473,86 @@
     setTimeout(function () { txtClasse.focus(); }, 30);
   });
   document.getElementById("btn-fermer-classe").addEventListener("click", function () {
+    arreterDictee();
     modalClasse.classList.remove("visible");
   });
+
+  /* ---------- Dictée vocale du message (Web Speech API) ---------- */
+  var btnDicter = document.getElementById("btn-dicter-msg");
+  var selLangDictee = document.getElementById("lang-dictee");
+  var RecoVocale = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var recoInstance = null;
+  var enEcoute = false;
+  var texteAvantDictee = "";
+
+  function formaterPonctuation(t) {
+    return t
+      .replace(/\s+à la ligne\b/gi, "\n")
+      .replace(/\s+point d'interrogation\b/gi, " ?")
+      .replace(/\s+point d'exclamation\b/gi, " !")
+      .replace(/\s+deux[- ]points\b/gi, " :")
+      .replace(/\s+virgule\b/gi, ",")
+      .replace(/\s+point\b/gi, ".");
+  }
+
+  function arreterDictee() {
+    enEcoute = false;
+    if (recoInstance) {
+      try { recoInstance.stop(); } catch (e) {}
+    }
+    if (btnDicter) {
+      btnDicter.classList.remove("ecoute");
+      btnDicter.textContent = "🎙️ Dicter le message";
+    }
+  }
+
+  if (btnDicter) {
+    btnDicter.addEventListener("click", function () {
+      if (!RecoVocale) {
+        msg("⚠️ La dictée vocale n'est pas prise en charge par ce navigateur (utilisez Chrome ou Edge).", "err");
+        return;
+      }
+      if (enEcoute) {
+        arreterDictee();
+        return;
+      }
+      recoInstance = new RecoVocale();
+      recoInstance.lang = (selLangDictee && selLangDictee.value) || "fr-FR";
+      recoInstance.continuous = true;
+      recoInstance.interimResults = true;
+      texteAvantDictee = txtClasse.value ? txtClasse.value.replace(/\s*$/, " ") : "";
+      var finalCumule = "";
+
+      recoInstance.onstart = function () {
+        enEcoute = true;
+        btnDicter.classList.add("ecoute");
+        btnDicter.textContent = "🔴 Écoute en cours… (cliquez pour arrêter)";
+      };
+      recoInstance.onresult = function (evt) {
+        var provisoire = "";
+        for (var i = evt.resultIndex; i < evt.results.length; i++) {
+          var seg = evt.results[i][0].transcript;
+          if (evt.results[i].isFinal) finalCumule += formaterPonctuation(seg) + " ";
+          else provisoire += seg;
+        }
+        txtClasse.value = (texteAvantDictee + finalCumule + provisoire).trim();
+      };
+      recoInstance.onerror = function (evt) {
+        if (evt.error === "not-allowed") {
+          msg("❌ Autorisez l'accès au microphone dans votre navigateur pour dicter.", "err");
+        }
+        arreterDictee();
+      };
+      recoInstance.onend = function () {
+        arreterDictee();
+      };
+      try {
+        recoInstance.start();
+      } catch (e) {
+        arreterDictee();
+      }
+    });
+  }
 
   /* Envoi par e-mail groupé (BCC) à tous les abonnés e-mail de la classe */
   document.getElementById("btn-mail-classe").addEventListener("click", function () {
