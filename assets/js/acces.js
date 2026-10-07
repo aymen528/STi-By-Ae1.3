@@ -58,6 +58,7 @@
     out.addEventListener("click", function () {
       sb.auth.signOut().then(function () {
         localStorage.removeItem("sti-offline");
+        sessionStorage.removeItem("sti-demo");
         location.replace(PORTAIL + "#deconnecte");
       });
     });
@@ -75,20 +76,28 @@
     porte.appendChild(btn);
 
     var ouvert = false;
-    btn.addEventListener("click", function () {
-      ouvert = !ouvert;
-      if (ouvert) {
-        pan.classList.add("ouvert");
-        /* la roue glisse à gauche en tournant, comme si elle tirait le ruban du panneau */
-        porte.style.transform = "translateX(-" + (pan.offsetWidth + 14) + "px)";
-        btn.style.transform = "rotate(720deg)";
-      } else {
-        pan.classList.remove("ouvert");
-        /* la roue revient à droite en tournant en sens inverse, et rembobine le ruban */
-        porte.style.transform = "translateX(0)";
-        btn.style.transform = "rotate(0deg)";
-      }
-    });
+    function ouvrir() {
+      ouvert = true;
+      pan.classList.add("ouvert");
+      porte.style.transform = "translateX(-" + (pan.offsetWidth + 14) + "px)";
+      btn.style.transform = "rotate(720deg)";
+    }
+    function fermer() {
+      ouvert = false;
+      pan.classList.remove("ouvert");
+      porte.style.transform = "translateX(0)";
+      btn.style.transform = "rotate(0deg)";
+    }
+    btn.addEventListener("click", function () { ouvert ? fermer() : ouvrir(); });
+
+    /* à l'entrée, après confirmation : le ruban s'ouvre seul puis se referme pour attirer l'attention */
+    if (!sessionStorage.getItem("sti-demo")) {
+      sessionStorage.setItem("sti-demo", "1");
+      setTimeout(function () {
+        ouvrir();
+        setTimeout(fermer, 1700);
+      }, 700);
+    }
 
     wrap.appendChild(pan);
     wrap.appendChild(porte);
