@@ -238,11 +238,40 @@
   });
 
   /* ---------- inscription : choix du canal e-mail / téléphone ---------- */
+  var inpTel = document.getElementById("i-tel");
+  function maintenirPrefixe216() {
+    var v = inpTel.value || "";
+    var chiffres = v.replace(/\D/g, "");
+    if (chiffres.indexOf("00216") === 0) chiffres = chiffres.slice(5);
+    else if (chiffres.indexOf("216") === 0) chiffres = chiffres.slice(3);
+    chiffres = chiffres.slice(0, 8);
+    inpTel.value = "+216 " + chiffres;
+  }
+  inpTel.addEventListener("focus", function () {
+    if (inpTel.value.indexOf("+216") !== 0) maintenirPrefixe216();
+  });
+  inpTel.addEventListener("input", maintenirPrefixe216);
+
+  /* Ajout automatique de +216 aussi dans le champ de connexion si saisie numérique */
+  var inpConn = document.getElementById("c-email");
+  inpConn.addEventListener("input", function () {
+    var v = inpConn.value;
+    if (/^\d{2,}$/.test(v.trim()) && v.indexOf("@") === -1) {
+      var ch = v.replace(/\D/g, "");
+      if (ch.indexOf("216") === 0 && ch.length > 8) ch = ch.slice(3);
+      inpConn.value = "+216 " + ch.slice(0, 8);
+    }
+  });
+
   function choisirCanal(tel) {
     document.getElementById("zone-tel").hidden = !tel;
     document.getElementById("zone-mail").hidden = tel;
     document.getElementById("c-tel").classList.toggle("on", tel);
     document.getElementById("c-mail").classList.toggle("on", !tel);
+    if (tel) {
+      maintenirPrefixe216();
+      inpTel.focus();
+    }
   }
   document.getElementById("c-mail").addEventListener("click", function () { choisirCanal(false); });
   document.getElementById("c-tel").addEventListener("click", function () { choisirCanal(true); });
@@ -282,7 +311,7 @@
           msg("❌ " + m, "err");
           return;
         }
-        e.target.reset(); cap2.reset();
+        e.target.reset(); maintenirPrefixe216(); cap2.reset();
         document.getElementById("f-inscription").hidden = true;
         document.getElementById("zone-code").hidden = false;
         document.getElementById("code-cible").textContent = tel + " (" + prenom + " " + nom + ")";

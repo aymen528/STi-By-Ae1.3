@@ -177,8 +177,8 @@
         <button type="button" id="c-tel">📱 Par téléphone</button>
       </div>
       <div id="zone-tel" hidden>
-        <label for="i-tel">Numéro WhatsApp (format international)</label>
-        <span class="champ"><span class="ico">📱</span><input id="i-tel" type="tel" placeholder="+216 20 123 456" autocomplete="tel" /></span>
+        <label for="i-tel">Numéro WhatsApp</label>
+        <span class="champ"><span class="ico">📱</span><input id="i-tel" type="tel" value="+216 " placeholder="+216 20 123 456" autocomplete="tel" /></span>
         <label for="i-nom">Nom</label>
         <span class="champ"><span class="ico">👤</span><input id="i-nom" type="text" placeholder="Nom de famille" autocomplete="family-name" /></span>
         <label for="i-prenom">Prénom</label>
@@ -237,13 +237,13 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=14"></script>
+<script src="assets/js/config.js?v=15"></script>
 <script>
   if (!window.supabase) {
     document.getElementById("msg").className = "msg err";
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=14"></script>
+<script src="assets/js/portail.js?v=15"></script>
 </body>
 </html>
