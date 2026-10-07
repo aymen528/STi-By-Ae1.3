@@ -1,87 +1,135 @@
-# 📚 STI By A. Essouyah — Plateforme éducative
+# 📚 STI By A'e — Le Web de A à Z (Version 2.0)
 
-Site éducatif dédié aux **Sciences et Technologies de l'Informatique (STI)** :
-cours, annexes, exercices, TP, quiz et projets en **HTML5, CSS3, JavaScript, SQL et PHP**,
-avec des exemples, des animations et du code en temps réel.
+Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'Informatique (STI)** :
+cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP corrigés, quiz interactifs et projets en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
-> Auteur : **Aymen Essouyah** — Version 1.2
+> **Auteur** : **Aymen Essouyah** (`By A'e`)  
+> **Version** : **2.0** (PWA installable, portail d'accès sécurisé & tableau de bord temps réel)  
+> **Site en ligne (V2.0)** : [https://aymenessouyah.github.io/STiV2.0/](https://aymenessouyah.github.io/STiV2.0/)
 
 ---
 
-## 🗂️ Structure du projet
+## ✨ Nouveautés de la Version 2.0
 
-```
-STI-By-A.Essouyah/
+### 🔐 Portail d'accès & Authentification (`portail.html`)
+- **Double mode d'inscription et de connexion** :
+  - **Par e-mail** (validation par l'administrateur).
+  - **Par téléphone (`+216`)** avec saisie du **nom et prénom**, préfixe tunisien automatique `+216 ` et validation par **code WhatsApp à 6 chiffres** (6 cases OTP individuelles).
+- **Sélection du lycée et de la classe** (`Lycée Farhat Hached Rades`, `3ème SI`, `4ème SI`, ou saisie libre).
+- **Captcha visuel anti-robot** à la connexion et à l'inscription.
+- **Connexion biométrique** (empreinte digitale / reconnaissance faciale WebAuthn) et **mode hors-ligne** (cache PWA 24 h pour les abonnés déjà validés).
+
+### 📊 Tableau de bord Administrateur temps réel (`admin.html`)
+- **Gestion en direct des abonnés** (l'administrateur n'est jamais listé parmi les abonnés) :
+  - **✅ Activer**, **⏳ Mettre en attente**, **⛔ Exclure**, **🗑️ Supprimer définitivement** et **🔑 Réinitialiser le mot de passe** (via modales sécurisées).
+  - **Éjection instantanée en direct** : toute exclusion (`⛔`), mise en attente (`⏳`) ou suppression (`🗑️`) coupe immédiatement la session active du candidat (< 1 s) et le renvoie vers le portail.
+- **👑 Compte GOLD** :
+  - Un bouton **👑** permet d'accorder (ou de retirer en direct) le statut **Gold** à un abonné : déblocage de la **capture d'écran**, de l'**impression (`Ctrl + P` / bouton `🖨️ Imprimer`)** et de la **copie de texte/code**.
+  - **L'administrateur est toujours 👑 Gold par défaut** sur toutes les pages et boîtes du site (avec bouton `🖨️` d'impression rapide).
+- **⏱️ Comptage de la durée totale d'accès par semaine** :
+  - Calcul automatique du temps passé par chaque candidat **semaine par semaine** (du lundi au dimanche) et en **cumul global**, avec sélecteur de semaine et historique détaillé par candidat.
+- **📢 Diffusion de messages par classe & Dictée vocale** :
+  - Envoi d'un message à **toute une classe** (ou toutes les classes) en un clic : affichage instantané sur l'écran des élèves connectés, ouverture WhatsApp ou e-mail groupé (`BCC`).
+  - **🎤 Dictée vocale intégrée** (sans doublon de mots) avec bouton **🧹 Effacer**.
+  - **📋 Tableau de suivi de lecture en direct** : affiche pour chaque message diffusé la liste des élèves de la classe avec l'état **`✅ Lu`** (horodaté) ou **`⏳ Non lu (en attente)`**.
+- **🔔 Notifications instantanées** : alerte sonore et notification système (PC & smartphone via `ntfy.sh` et Supabase Realtime) à chaque nouvelle demande d'inscription.
+
+### 🛡️ Protection du contenu & Sécurité (`protection.js` / `protection.css` / `robots.txt`)
+- **Protection anti-copie et anti-capture** pour les comptes standards : clic droit, `Ctrl+C/X/A/S/P`, `PrintScreen`, glisser-déposer, filigrane diagonal et blocage d'impression.
+- **Déconnexion globale immédiate** : cliquer sur **🚪 Déconnexion** (même depuis une boîte `iframe` ouverte dans une page scrollée) purge la session et redirige instantanément toute l'application vers le portail.
+- **Protection anti-IA (`noai` / `noimageai`)** : blocage des robots d'entraînement IA (`GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, etc.) dans `robots.txt` et balises meta sur toutes les pages.
+
+### 📱 Application PWA & Partage
+- **PWA installable** sur ordinateur, Android et iOS (`manifest.webmanifest` + Service Worker `sw.js` en stratégie *Network-First* pour les pages, scripts et styles) ; le bouton **« Installer STI by AE »** disparaît automatiquement une fois l'application installée.
+- **QR Codes intégrés** (portail et badge fixe *« Scanner-moi ! »* sur l'accueil) pointant vers `https://aymenessouyah.github.io/STiV2.0/`.
+- **Aperçu Open Graph (Facebook / WhatsApp)** configuré avec le logo officiel `assets/icons/sti-icon-512.png`.
+
+---
+
+## 🗂️ Structure du dépôt
+
+```text
+STiV2.0/
 │
-├── index.html                  # 🏠 Accueil — plateforme de quiz & navigation
-├── README.md
+├── index.html                        # 🏠 Accueil — navigation, splash V2.0, leçons animées & QR code
+├── portail.html                      # 🔐 Portail de connexion / inscription (e-mail & WhatsApp +216)
+├── admin.html                        # 📊 Tableau de bord administrateur temps réel
+├── sw.js                             # ⚙️ Service Worker PWA (cache & mode hors-ligne)
+├── manifest.webmanifest              # 📱 Manifeste d'installation PWA
+├── robots.txt                        # 🤖 Directives SEO & interdiction des crawlers IA
+├── sitemap.xml                       # 🗺️ Plan du site
+├── README.md                         # 📄 Documentation du projet
 │
-├── assets/                     # Ressources globales du site
-│   ├── audio/                  #   fichiers audio (foret.mp3…)
-│   ├── icons/                  #   favicon STI_by_AE.ico
-│   ├── images/                 #   logos (lycee_logo.png…)
-│   └── video/                  #   vidéos (flower.webm…)
+├── assets/                           # 🎨 Ressources globales
+│   ├── css/
+│   │   ├── atelier.css               #   Thème principal « L'Atelier » (crème / orange / mode sombre)
+│   │   ├── atelier-pages.css         #   Styles des pages de cours et exercices
+│   │   └── protection.css            #   Verrous visuels anti-copie / anti-impression (sauf 👑 Gold)
+│   ├── js/
+│   │   ├── config.js                 #   Configuration Supabase & identifiant admin
+│   │   ├── portail.js                #   Logique d'inscription/connexion, OTP 6 cases, captcha, biométrie
+│   │   ├── acces.js                  #   Verrou de session temps réel, roue compte, 👑 Gold, journal durée
+│   │   ├── admin.js                  #   Logique du tableau de bord, stats par semaine, diffusion & dictée
+│   │   ├── protection.js             #   Protection du contenu & déverrouillage automatique Admin / 👑 Gold
+│   │   └── supabase-umd.js           #   Client Supabase UMD local
+│   ├── icons/                        #   Icônes PWA (192, 512) & favicon STI_by_AE.ico
+│   ├── images/                       #   Logos & illustrations (qr-stiv2.png, lycee_logo.png…)
+│   ├── audio/                        #   Exemples audio HTML5
+│   └── video/                        #   Exemples vidéo HTML5
 │
-├── cours/                      # 📖 Leçons par langage
-│   ├── html5.html              #   cours HTML5
-│   ├── css3.html               #   cours CSS3
-│   ├── javascript.html         #   cours JavaScript
-│   ├── php.html                #   cours PHP
-│   ├── php-mysqli.html         #   PHP & MySQLi (animations)
-│   ├── sql.html                #   cours SQL
-│   ├── sql-bases-ldd-lmd-lcd.html  # Bases de données : LDD, LMD, LCD
-│   ├── datalist.html           #   focus sur <datalist>
-│   ├── fiche-revision-html5.html   # guide & fiche de révision
-│   └── annexe-fleuriste-html5.html # exemple « Le Fleuriste du Rafèha »
+├── cours/                            # 📖 Cours interactifs
+│   ├── html5.html                    #   Cours HTML5 complet
+│   ├── css3.html                     #   Cours CSS3 complet (+ lien leçons animées en fin de page)
+│   ├── javascript.html               #   Cours JavaScript
+│   ├── php.html                      #   Cours PHP (+ boîte interactive PHP & MySQLi)
+│   ├── php-mysqli.html               #   Boîte animée PHP & MySQLi
+│   ├── sql.html                      #   Cours SQL
+│   ├── sql-bases-ldd-lmd-lcd.html    #   Bases de données : LDD, LMD, LCD
+│   ├── datalist.html                 #   Focus interactif sur <datalist>
+│   ├── fiche-revision-html5.html     #   Guide & fiche de révision HTML5
+│   └── annexe-fleuriste-html5.html   #   Exemple commenté « Le Fleuriste »
 │
-├── quiz/                       # 🎯 Quiz interactifs
-│   ├── html-css.html
-│   ├── javascript.html
-│   ├── php.html
-│   ├── sql.html
-│   ├── sql-correction.html     #   correction du quiz SQL
-│   └── sql-controle.js         #   logique du quiz SQL
+├── cssanimee/                        # 🎬 Leçon animée 1 : Les balises HTML5 & propriétés CSS3 pas à pas
+│   └── index.html
 │
-├── exercices/                  # ✏️ TP & séries d'exercices
-│   ├── series-exercices.html   #   page des séries d'exercices
+├── Positionnement-animee/            # 📐 Leçon animée 2 : Le positionnement CSS pas à pas
+│   └── index.html
+│
+├── quiz/                             # 🎯 Quiz interactifs & défis
+│   ├── html-css.html                 #   Quiz HTML5 / CSS3
+│   ├── javascript.html               #   Quiz JavaScript
+│   ├── php.html                      #   Quiz PHP
+│   ├── pp.html                       #   PHP Playground & défis interactifs
+│   └── sql.html                      #   Quiz SQL
+│
+├── exercices/                        # ✏️ Séries d'exercices & TP corrigés
+│   ├── series-exercices.html         #   Portail des séries d'exercices (avec boîtes modales)
 │   ├── resume-fonctions-standards.html
-│   ├── html-css/               #   TP HTML/CSS (Act1-2, TP1-3, ombres…)
-│   ├── javascript/             #   TP JS 1→5 + corrections
-│   ├── php/                    #   TP PHP 1→4 + corrections
-│   └── sql/                    #   TP bases de données (jointures, GroupBy…)
+│   ├── html-css/                     #   Activités & TP HTML/CSS
+│   ├── javascript/                   #   TP JavaScript 1 → 5 + corrigés
+│   ├── php/                          #   TP PHP 1 → 4 + corrigés
+│   └── sql/                          #   TP Bases de données & SQL + atelier 3 fenêtres
 │
-├── projets/                    # 🛠️ Projets pédagogiques complets
-│   ├── carte-bancaire/         #   TP Carte bancaire (énoncé + correction)
-│   ├── formulaire-inscription/ #   formulaire d'inscription avancé
-│   ├── fleurs/                 #   projet « Fleuriste » (HTML/CSS/JS + PHP)
-│   └── site-tunisie/           #   site vitrine Tunisie (nord/centre/sud)
+├── projets/                          # 🛠️ Projets pédagogiques complets
+│   ├── carte-bancaire/               #   TP Carte bancaire (énoncé + correction)
+│   ├── formulaire-inscription/       #   Formulaire d'inscription avancé
+│   ├── fleurs/                       #   Projet « Fleuriste » (HTML/CSS/JS + PHP)
+│   └── site-tunisie/                 #   Site vitrine Tunisie (Nord / Centre / Sud)
 │
-├── documents/                  # 📄 Documents téléchargeables
-│   └── annexes/                #   annexes PDF des 5 cours
-│       ├── annexe-html5.pdf
-│       ├── annexe-css3.pdf
-│       ├── annexe-javascript.pdf
-│       ├── annexe-php.pdf
-│       └── annexe-sql.pdf
+├── documents/                        # 📄 Documents & annexes PDF
+│   └── annexes/                      #   Annexes officielles des 5 modules (HTML5, CSS3, JS, PHP, SQL)
 │
-└── app-mobile/                 # 📱 Application mobile Android
+├── tools/                            # 🔧 Scripts & schéma de base de données
+│   └── supabase-schema.sql           #   Script SQL complet (tables profiles & acces, RLS, fonctions admin)
+│
+└── app-mobile/                       # 📱 Package Android
     └── STI-By-AE.apk
 ```
 
 ---
 
-## 🧭 Conventions
+## 🚀 Déploiement & Architecture
 
-- **Un dossier par type de contenu** : cours / quiz / exercices / projets / documents.
-- **Noms de fichiers en minuscules**, mots séparés par des tirets (`sql-bases-ldd-lmd-lcd.html`),
-  sans espaces ni caractères spéciaux → compatible avec tous les hébergements et le SEO.
-- **Chaque projet est autonome** : ses pages, styles, scripts et médias sont dans son propre dossier.
-- **Ressources partagées** dans `assets/` (logo, favicon, médias globaux).
-
-## 🚀 Utilisation
-
-Site statique : ouvrir `index.html` dans un navigateur, ou servir le dossier avec
-n'importe quel serveur web (GitHub Pages, Netlify, Apache, Nginx…).
-Les fichiers `.php` du projet `fleurs` nécessitent un serveur PHP + MySQL.
-"# STI-By-AE-Version1.2" 
-"# STi-By-Ae1.3" 
+- **Hébergement** : GitHub Pages ([https://aymenessouyah.github.io/STiV2.0/](https://aymenessouyah.github.io/STiV2.0/)).
+- **Backend & Temps réel** : Supabase (PostgreSQL, Row-Level Security, Auth, Realtime Broadcast & Postgres Changes) + relais de notifications `ntfy.sh`.
+- **Installation base de données** : exécuter `tools/supabase-schema.sql` dans l'éditeur SQL Supabase pour initialiser ou reconstruire les tables `public.profiles`, `public.acces`, les politiques RLS et les fonctions d'administration.
