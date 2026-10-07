@@ -3,9 +3,10 @@
    Couches de dissuasion : clic droit, copier/couper, raccourcis
    clavier, PrintScreen, glisser-déposer, outils de développement,
    filigrane et blocage d'impression.
-   👑 Exception Compte GOLD : si l'administrateur a accordé le
-   statut Gold à l'abonné, la capture d'écran, l'impression et
-   la sélection/copie sont automatiquement déverrouillées.
+   👑 Exception Administrateur & Compte GOLD :
+   L'administrateur (par défaut, toujours Gold) ainsi que tout abonné
+   ayant reçu le statut 👑 Gold ont la capture d'écran, la copie et
+   l'impression intégralement débloquées.
    ══════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -13,11 +14,30 @@
   var MSG_PROTECT =
     "\uD83D\uDD12 Contenu protégé \u00A9 A. Essouyah \u2014 copie et captures non autorisées";
 
+  /* Détecte immédiatement (0 ms) si l'utilisateur connecté est l'Admin ou un compte Gold */
   function estGoldActif() {
     try {
       if (window.__STI_GOLD === true) return true;
       if (window.top && window.top !== window && window.top.__STI_GOLD === true) return true;
-      if (localStorage.getItem("sti-gold") === "1") return true;
+      if (localStorage.getItem("sti-gold") === "1" || localStorage.getItem("sti-admin-gold") === "1") {
+        return true;
+      }
+      var adminEmail = (
+        (window.STI_AUTH && window.STI_AUTH.ADMIN) ||
+        "aymenessouyah@gmail.com"
+      ).toLowerCase();
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || "";
+        if (k.indexOf("sb-") === 0 || k === "sti-cred") {
+          var v = (localStorage.getItem(k) || "").toLowerCase();
+          if (v.indexOf(adminEmail) !== -1) {
+            localStorage.setItem("sti-gold", "1");
+            localStorage.setItem("sti-admin-gold", "1");
+            window.__STI_GOLD = true;
+            return true;
+          }
+        }
+      }
     } catch (e) {}
     return false;
   }
@@ -26,15 +46,49 @@
     var ok = estGoldActif();
     if (document.documentElement) document.documentElement.classList.toggle("sti-gold", ok);
     if (document.body) document.body.classList.toggle("sti-gold", ok);
+
+    /* Désactive complètement la feuille protection.css pour l'Admin et les comptes Gold */
+    try {
+      var liens = document.querySelectorAll('link[href*="protection.css"]');
+      for (var i = 0; i < liens.length; i++) {
+        liens[i].disabled = ok;
+      }
+    } catch (e) {}
+
     var wm = document.getElementById("sti-watermark");
-    if (wm) wm.style.display = ok ? "none" : "";
     var pm = document.getElementById("sti-print-msg");
-    if (pm) pm.style.display = "none";
+    if (ok) {
+      if (wm && wm.parentNode) wm.parentNode.removeChild(wm);
+      if (pm && pm.parentNode) pm.parentNode.removeChild(pm);
+      var stOvr = document.getElementById("sti-gold-override");
+      if (!stOvr && document.head) {
+        stOvr = document.createElement("style");
+        stOvr.id = "sti-gold-override";
+        stOvr.textContent =
+          "html.sti-gold body,html.sti-gold body *,body.sti-gold,body.sti-gold *{-webkit-user-select:text!important;-moz-user-select:text!important;user-select:text!important}" +
+          "html.sti-gold img,body.sti-gold img{-webkit-user-drag:auto!important;user-drag:auto!important}" +
+          "#sti-watermark,#sti-print-msg,#sti-devtools-overlay{display:none!important}" +
+          "@media print{.sti-no-print,#sti-watermark,#sti-print-msg,#sti-devtools-overlay,#sti-toast{display:none!important}}";
+        document.head.appendChild(stOvr);
+      }
+    } else {
+      var stOvrOff = document.getElementById("sti-gold-override");
+      if (stOvrOff && stOvrOff.parentNode) stOvrOff.parentNode.removeChild(stOvrOff);
+      if ( document.body ) {
+        installWatermark();
+        installPrintBlock();
+      }
+    }
     return ok;
   }
 
+  /* Exécution immédiate dès le chargement du script */
+  synchroniserDomGold();
+
   window.addEventListener("storage", function (e) {
-    if (e && e.key === "sti-gold") synchroniserDomGold();
+    if (e && (e.key === "sti-gold" || e.key === "sti-admin-gold")) {
+      synchroniserDomGold();
+    }
   });
   window.addEventListener("beforeprint", function () {
     synchroniserDomGold();
@@ -62,7 +116,7 @@
   }
 
   /* ─────────────────────────────────────────────
-     1) Clic droit bloqué (sauf Compte GOLD ou champs de formulaire)
+     1) Clic droit bloqué (sauf Admin / Compte GOLD ou champs de formulaire)
      ───────────────────────────────────────────── */
   document.addEventListener("contextmenu", function (e) {
     if (synchroniserDomGold()) return;
@@ -75,7 +129,7 @@
   });
 
   /* ─────────────────────────────────────────────
-     2) Copier / couper bloqués (sauf Compte GOLD)
+     2) Copier / couper bloqués (sauf Admin / Compte GOLD)
      ───────────────────────────────────────────── */
   ["copy", "cut"].forEach(function (evt) {
     document.addEventListener(evt, function (e) {
@@ -86,20 +140,19 @@
   });
 
   /* ─────────────────────────────────────────────
-     3) Raccourcis clavier bloqués (sauf Compte GOLD pour PrintScreen, Ctrl+P, Ctrl+C/A/S)
+     3) Raccourcis clavier bloqués (sauf Admin / Compte GOLD)
         F12 · Ctrl/Cmd+Shift+I/J/C · Ctrl/Cmd+S/P/U/C/X/A
         PrintScreen → presse-papiers vidé si compte standard
      ───────────────────────────────────────────── */
   document.addEventListener(
     "keydown",
     function (e) {
-      var gold = synchroniserDomGold();
+      if (synchroniserDomGold()) return; /* 👑 Admin & Compte Gold : tout est autorisé (copier, imprimer, capturer) */
       var k = (e.key || "").toLowerCase();
       var mod = e.ctrlKey || e.metaKey;
       var bloque = false;
 
       if (k === "printscreen") {
-        if (gold) return; /* 👑 Compte Gold : capture d'écran autorisée */
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText("").catch(function () {});
@@ -107,17 +160,14 @@
         } catch (err) {}
         toast("\uD83D\uDEAB Capture d'écran non autorisée \u2014 contenu protégé");
         bloque = true;
-      } else if (mod && (k === "p" || k === "c" || k === "a" || k === "s")) {
-        if (gold) return; /* 👑 Compte Gold : impression (Ctrl+P) et copie autorisées */
-        bloque = true;
       } else if (k === "f12") {
-        if (gold) return;
         bloque = true;
       } else if (mod && e.shiftKey && (k === "i" || k === "j" || k === "c")) {
-        if (gold) return;
         bloque = true;
-      } else if (mod && (k === "u" || k === "x")) {
-        if (gold) return;
+      } else if (
+        mod &&
+        (k === "s" || k === "p" || k === "u" || k === "c" || k === "x" || k === "a")
+      ) {
         bloque = true;
       }
 
@@ -131,7 +181,7 @@
   );
 
   /* ─────────────────────────────────────────────
-     4) Glisser-déposer bloqué (sauf Compte GOLD)
+     4) Glisser-déposer bloqué (sauf Admin / Compte GOLD)
      ───────────────────────────────────────────── */
   document.addEventListener("dragstart", function (e) {
     if (synchroniserDomGold()) return;
@@ -139,9 +189,10 @@
   });
 
   /* ─────────────────────────────────────────────
-     5) Filigrane + message d'impression
+     5) Filigrane + message d'impression (uniquement comptes standards)
      ───────────────────────────────────────────── */
   function installWatermark() {
+    if (estGoldActif()) return;
     if (document.getElementById("sti-watermark")) return;
     var wm = document.createElement("div");
     wm.id = "sti-watermark";
@@ -150,6 +201,7 @@
   }
 
   function installPrintBlock() {
+    if (estGoldActif()) return;
     if (document.getElementById("sti-print-msg")) return;
     var box = document.createElement("div");
     box.id = "sti-print-msg";
@@ -209,9 +261,10 @@
      Mise en place au chargement
      ───────────────────────────────────────────── */
   function init() {
-    installWatermark();
-    installPrintBlock();
-    synchroniserDomGold();
+    if (!synchroniserDomGold()) {
+      installWatermark();
+      installPrintBlock();
+    }
     checkDevtools();
     window.addEventListener("resize", checkDevtools);
     setInterval(checkDevtools, 1500);

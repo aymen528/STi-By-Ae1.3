@@ -29,21 +29,37 @@
     if (document.documentElement) document.documentElement.classList.toggle("sti-gold", ok);
     if (document.body) document.body.classList.toggle("sti-gold", ok);
 
+    /* Désactive directement protection.css quand Gold ou Admin est actif */
+    try {
+      var liens = document.querySelectorAll('link[href*="protection.css"]');
+      for (var i = 0; i < liens.length; i++) liens[i].disabled = ok;
+    } catch (e) {}
+
     var wm = document.getElementById("sti-watermark");
-    if (wm) wm.style.display = ok ? "none" : "";
+    if (wm) {
+      if (ok && wm.parentNode) wm.parentNode.removeChild(wm);
+      else wm.style.display = ok ? "none" : "";
+    }
     var pm = document.getElementById("sti-print-msg");
-    if (pm) pm.style.display = "none";
+    if (pm) {
+      if (ok && pm.parentNode) pm.parentNode.removeChild(pm);
+      else pm.style.display = "none";
+    }
 
     /* Propage aux boîtes (iframes) ouvertes dans la page */
     try {
       var fr = document.getElementById("pdfFrame");
       if (fr && fr.contentWindow) {
         fr.contentWindow.__STI_GOLD = ok;
-        if (fr.contentDocument && fr.contentDocument.documentElement) {
-          fr.contentDocument.documentElement.classList.toggle("sti-gold", ok);
-        }
-        if (fr.contentDocument && fr.contentDocument.body) {
-          fr.contentDocument.body.classList.toggle("sti-gold", ok);
+        if (fr.contentDocument) {
+          if (fr.contentDocument.documentElement) fr.contentDocument.documentElement.classList.toggle("sti-gold", ok);
+          if (fr.contentDocument.body) fr.contentDocument.body.classList.toggle("sti-gold", ok);
+          var liensFr = fr.contentDocument.querySelectorAll('link[href*="protection.css"]');
+          for (var j = 0; j < liensFr.length; j++) liensFr[j].disabled = ok;
+          var wmFr = fr.contentDocument.getElementById("sti-watermark");
+          if (ok && wmFr && wmFr.parentNode) wmFr.parentNode.removeChild(wmFr);
+          var pmFr = fr.contentDocument.getElementById("sti-print-msg");
+          if (ok && pmFr && pmFr.parentNode) pmFr.parentNode.removeChild(pmFr);
         }
       }
     } catch (e) {}
@@ -101,6 +117,7 @@
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-cred");
       localStorage.removeItem("sti-gold");
+      localStorage.removeItem("sti-admin-gold");
       Object.keys(localStorage).forEach(function (k) {
         if (k.indexOf("sb-") === 0 || k.indexOf("supabase") !== -1) {
           localStorage.removeItem(k);
@@ -159,6 +176,7 @@
     }
     var user = session.user;
     if ((user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase()) {
+      try { localStorage.setItem("sti-admin-gold", "1"); } catch (e) {}
       appliquerModeGold(true);
       if (window === window.top) badgeAdmin();
       journal(user.id);
@@ -431,15 +449,32 @@
     } catch (e) {}
   }
 
-  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + compteur de demandes ---------- */
+  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + bouton Imprimer Gold + compteur de demandes ---------- */
   function badgeAdmin() {
+    var cont = document.createElement("div");
+    cont.className = "sti-no-print";
+    cont.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;flex-direction:column;align-items:flex-end;gap:8px;";
+
     var b = document.createElement("a");
-    b.className = "sti-no-print";
     b.href = PORTAIL.replace("portail.html", "admin.html");
     b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg><span id="sti-adm-nb" style="display:none;margin-left:5px;background:#fff;color:#c0392b;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:900;">0</span>';
-    b.title = "Tableau de bord administrateur";
-    b.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:9px 11px;font:900 11.5px/1 system-ui,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
-    (document.body || document.documentElement).appendChild(b);
+    b.title = "Tableau de bord administrateur (Mode 👑 GOLD actif par défaut)";
+    b.style.cssText = "background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:9px 11px;font:900 11.5px/1 system-ui,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
+
+    var btnP = document.createElement("button");
+    btnP.type = "button";
+    btnP.textContent = "🖨️";
+    btnP.title = "👑 Admin Gold — Imprimer la page ou la boîte ouverte (Ctrl+P et copie autorisés)";
+    btnP.style.cssText = "background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
+    btnP.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      imprimerContenuGold();
+    });
+
+    cont.appendChild(b);
+    cont.appendChild(btnP);
+    (document.body || document.documentElement).appendChild(cont);
 
     function verifAttente() {
       sb.from("profiles").select("id,email,phone,nom,prenom,statut").eq("statut", "en_attente").then(function (r) {

@@ -183,8 +183,14 @@
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
   function verifierStatutEtEntrer(user) {
-    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+    sb.from("profiles").select("statut,lycee").eq("id", user.id).maybeSingle().then(function (rp) {
       var st = rp.data && rp.data.statut;
+      var isG = Boolean(rp.data && /\|\s*GOLD$/i.test(rp.data.lycee || ""));
+      try {
+        localStorage.removeItem("sti-admin-gold");
+        if (isG) localStorage.setItem("sti-gold", "1");
+        else localStorage.removeItem("sti-gold");
+      } catch (e) {}
       if (st === "actif") {
         if (bioDispo() && !localStorage.getItem("sti-bio")) {
           if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {
@@ -195,7 +201,7 @@
         location.href = cfg.RACINE; return;
       }
       if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
-      if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); sb.auth.signOut(); return; }
+      if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); localStorage.removeItem("sti-gold"); sb.auth.signOut(); return; }
       msg("⛔ Compte suspendu. Contactez l'administrateur.", "err"); sb.auth.signOut();
     });
   }
@@ -246,7 +252,14 @@
           localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h }));
         });
       }
-      if (r.data.user.email === cfg.ADMIN) { location.href = cfg.RACINE + "admin.html"; return; }
+      if (r.data.user.email === cfg.ADMIN) {
+        try {
+          localStorage.setItem("sti-gold", "1");
+          localStorage.setItem("sti-admin-gold", "1");
+        } catch (err) {}
+        location.href = cfg.RACINE + "admin.html";
+        return;
+      }
 
       /* Si compte par téléphone non encore confirmé par code WhatsApp */
       var meta = (r.data.user && r.data.user.user_metadata) || {};

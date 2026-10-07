@@ -105,6 +105,11 @@
     var s = r.data.session;
     if (!s || !estAdminEmail(s.user.email)) { location.replace(cfg.RACINE + "portail.html#connexion"); return; }
     adminUid = s.user.id;
+    try {
+      localStorage.setItem("sti-gold", "1");
+      localStorage.setItem("sti-admin-gold", "1");
+    } catch (e) {}
+    window.__STI_GOLD = true;
     charge(false);
     setInterval(function () { charge(true); }, 15000);
     try {
@@ -227,6 +232,12 @@
   }
 
   document.getElementById("btn-logout").addEventListener("click", function () {
+    try {
+      localStorage.removeItem("sti-gold");
+      localStorage.removeItem("sti-admin-gold");
+      localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-cred");
+    } catch (e) {}
     sb.auth.signOut().then(function () { location.replace(cfg.RACINE + "portail.html#deconnecte"); });
   });
   document.getElementById("btn-refresh").addEventListener("click", function () { charge(false); });
