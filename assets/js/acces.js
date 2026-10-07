@@ -19,23 +19,54 @@
     }
     var user = session.user;
     if (user.email === cfg.ADMIN) { badgeAdmin(); journal(user.id); return; }
-    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+    sb.from("profiles").select("statut,lycee,classe").eq("id", user.id).maybeSingle().then(function (rp) {
       /* réseau absent mais session valide : on laisse passer (mode hors-ligne) */
-      if (rp.error) { verrouBio(user, function () { journal(user.id); }); return; }
+      if (rp.error) { verrouBio(user, function () { panneauCompte(user, {}); journal(user.id); }); return; }
       var st = rp.data && rp.data.statut;
-      if (st === "actif") { verrouBio(user, function () { journal(user.id); }); return; }
+      if (st === "actif") { verrouBio(user, function () { panneauCompte(user, rp.data || {}); journal(user.id); }); return; }
       if (st === "en_attente") { sb.auth.signOut(); location.replace(PORTAIL + "#attente"); return; }
       sb.auth.signOut(); location.replace(PORTAIL + "#refuse");
     });
   });
 
-  /* ---------- badge ADMIN visible sur tout le site ---------- */
+  function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
+
+  /* ---------- panneau « mon compte » + déconnexion (abonné) ---------- */
+  function panneauCompte(user, profil) {
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;flex-direction:column;gap:8px;align-items:flex-end;";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "👤";
+    btn.title = "Mon compte";
+    btn.style.cssText = "width:46px;height:46px;border-radius:50%;border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);font-size:20px;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
+    var pan = document.createElement("div");
+    pan.style.cssText = "display:none;background:#fffdf7;border:2px solid #23201a;border-radius:14px;padding:14px 16px;box-shadow:4px 4px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;max-width:230px;text-align:right;";
+    pan.innerHTML = "<b style='font-size:13px'>" + esc(user.email) + "</b><br>" +
+      "<span style='color:#7a6f5d'>" + esc(profil.lycee || "—") + " · " + esc(profil.classe || "—") + "</span>";
+    var out = document.createElement("button");
+    out.type = "button";
+    out.textContent = "🚪 Déconnexion";
+    out.style.cssText = "display:block;margin:10px 0 0 auto;border:2px solid #23201a;background:#fff;border-radius:10px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;";
+    out.addEventListener("click", function () {
+      sb.auth.signOut().then(function () {
+        localStorage.removeItem("sti-offline");
+        location.replace(PORTAIL + "#deconnecte");
+      });
+    });
+    pan.appendChild(out);
+    btn.addEventListener("click", function () { pan.style.display = pan.style.display === "none" ? "block" : "none"; });
+    wrap.appendChild(btn); wrap.appendChild(pan);
+    document.documentElement.appendChild(wrap);
+  }
+
+  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) ---------- */
   function badgeAdmin() {
     var b = document.createElement("a");
     b.href = PORTAIL.replace("portail.html", "admin.html");
     b.textContent = "⚙️ ADMIN";
     b.title = "Tableau de bord administrateur";
-    b.style.cssText = "position:fixed;top:10px;right:10px;z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:7px 14px;font:900 12px/1 system-ui,'Segoe UI',sans-serif;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
+    b.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:8px 13px;font:900 11.5px/1 system-ui,'Segoe UI',sans-serif;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
     document.documentElement.appendChild(b);
   }
 
