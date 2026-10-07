@@ -16,7 +16,7 @@
   .entete { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
   .entete img { width: 52px; height: 52px; border-radius: 14px; border: 2px solid #23201a; box-shadow: 3px 3px 0 #f4511e; }
   h1 { font-size: 22px; font-weight: 900; }
-  h1 span { font-size: 11px; background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; border-radius: 999px; padding: 3px 9px; vertical-align: 5px; margin-left: 6px; }
+  h1 svg { vertical-align: -5px; margin-right: 2px; filter: drop-shadow(1.5px 1.5px 0 rgba(244,81,30,.4)); }
   .sous { color: #7a6f5d; font-size: 13px; margin-bottom: 16px; }
   .barre { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
   .barre a, .barre button {
@@ -63,7 +63,7 @@
 <body>
   <div class="entete">
     <img src="assets/icons/sti-icon-512.png" alt="Logo STI" />
-    <h1>⚙️ Tableau de bord <span>ADMIN</span></h1>
+    <h1><svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg> Tableau de bord</h1>
   </div>
   <div class="sous">Abonnés, statuts, mots de passe et journal détaillé des connexions (lieu, date, durée).</div>
   <div class="barre">
