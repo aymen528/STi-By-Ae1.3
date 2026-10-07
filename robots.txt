@@ -97,4 +97,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://aymenessouyah.github.io/STi/sitemap.xml
+Sitemap: https://aymenessouyah.github.io/STiV2.0/sitemap.xml
