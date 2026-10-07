@@ -124,7 +124,7 @@
       '<div class="sti-print-title">Contenu protégé \u00A9 A. Essouyah</div>' +
       '<div class="sti-print-txt">' +
       "L\u2019impression et la capture d\u2019écran de cette plateforme ne sont pas autoris\u00E9es." +
-      "<br>Consultez le cours directement sur le site : aymenessouyah.github.io/STi" +
+      "<br>Consultez le cours directement sur le site : aymenessouyah.github.io/STiV2.0" +
       "</div>";
     document.body.appendChild(box);
   }
