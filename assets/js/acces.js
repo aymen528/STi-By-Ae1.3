@@ -125,14 +125,45 @@
     document.documentElement.appendChild(wrap);
   }
 
-  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) ---------- */
+  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + compteur de demandes ---------- */
   function badgeAdmin() {
     var b = document.createElement("a");
     b.href = PORTAIL.replace("portail.html", "admin.html");
-    b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg>';
+    b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg><span id="sti-adm-nb" style="display:none;margin-left:5px;background:#fff;color:#c0392b;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:900;">0</span>';
     b.title = "Tableau de bord administrateur";
-    b.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:9px 11px;font:900 11.5px/1 system-ui;display:flex;align-items:center;justify-content:center;,'Segoe UI',sans-serif;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
+    b.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:9px 11px;font:900 11.5px/1 system-ui,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
     document.documentElement.appendChild(b);
+
+    function verifAttente() {
+      sb.from("profiles").select("id,email,phone,nom,prenom,statut").eq("statut", "en_attente").then(function (r) {
+        if (r.error || !r.data) return;
+        var liste = r.data.filter(function (p) {
+          return (p.email || "").toLowerCase() !== (cfg.ADMIN || "").toLowerCase();
+        });
+        var pastille = document.getElementById("sti-adm-nb");
+        if (pastille) {
+          pastille.style.display = liste.length ? "inline-block" : "none";
+          pastille.textContent = "🔔 " + liste.length;
+        }
+        var vus = {};
+        try { vus = JSON.parse(localStorage.getItem("sti-admin-vus") || "{}"); } catch (e) {}
+        liste.forEach(function (p) {
+          if (!vus[p.id]) {
+            vus[p.id] = 1;
+            if ("Notification" in window && Notification.permission === "granted") {
+              try {
+                new Notification("🆕 Nouvelle demande STI V2.0", {
+                  body: (p.prenom || p.nom ? (p.prenom + " " + p.nom).trim() : (p.email || p.phone || "Nouvel abonné")) + " attend votre validation."
+                });
+              } catch (e) {}
+            }
+          }
+        });
+        try { localStorage.setItem("sti-admin-vus", JSON.stringify(vus)); } catch (e) {}
+      });
+    }
+    verifAttente();
+    setInterval(verifAttente, 20000);
   }
 
   /* ---------- verrou biométrique (abonnés ayant activé l'option) ---------- */

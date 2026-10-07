@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://vywujxmepvcbgedgmger.supabase.co https://ipapi.co; base-uri 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://vywujxmepvcbgedgmger.supabase.co wss://vywujxmepvcbgedgmger.supabase.co https://ipapi.co https://ntfy.sh; base-uri 'self'" />
 <link rel="icon" href="https://aymenessouyah.github.io/STiV2.0/assets/icons/STI_by_AE.ico" />
 <title>Tableau de bord — STI V2.0</title>
 <style>
@@ -81,6 +81,17 @@
   }
   .modal-actions .btn-danger { background: #c0392b; color: #fff; border-color: #23201a; box-shadow: 2px 2px 0 #23201a; }
   .modal-actions .btn-valider { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; border-color: #23201a; box-shadow: 2px 2px 0 #23201a; }
+  .alerte-demande {
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
+    background: linear-gradient(120deg,#fff6e0,#ffe7c2); border: 2px solid #23201a;
+    border-radius: 14px; padding: 11px 16px; margin-bottom: 14px;
+    box-shadow: 4px 4px 0 #f4511e; font-size: 13.5px; font-weight: 800; color: #23201a;
+  }
+  .alerte-demande.visible { display: flex; }
+  .code-ntfy {
+    display: inline-block; background: #f3ead9; border: 1.5px dashed #23201a;
+    border-radius: 8px; padding: 4px 9px; font-family: monospace; font-weight: 900; color: #d84315;
+  }
 </style>
 </head>
 <body>
@@ -92,8 +103,12 @@
   <div class="barre">
     <a href="index.html">🏠 Site</a>
     <button id="btn-stats" type="button">📊 Stats &amp; tri par accès</button>
+    <button id="btn-notif" type="button">🔔 Notifications</button>
     <button id="btn-refresh" type="button">🔄 Actualiser</button>
     <button id="btn-logout" type="button">🚪 Déconnexion</button>
+  </div>
+  <div class="alerte-demande" id="alerte-attente">
+    <span id="alerte-attente-txt">🔔 Nouvelle(s) demande(s) d'inscription en attente !</span>
   </div>
   <div class="stats" id="stats">
     <div class="stat"><b id="s-total">0</b><small>Abonnés</small></div>
@@ -156,8 +171,21 @@
     </div>
   </div>
 
+  <!-- Boîte de configuration des notifications de nouvelles demandes -->
+  <div class="modal-fond" id="modal-notif" role="dialog" aria-modal="true">
+    <div class="modal-boite">
+      <h3>🔔 Notifications de nouvelles demandes</h3>
+      <p><b>1. Sur cet appareil (PC / mobile) :</b><br />Alerte sonore + notification système dès qu'un élève s'inscrit.</p>
+      <p><b>2. Sur votre téléphone même navigateur fermé :</b><br />Installez l'application gratuite <b>ntfy</b> (Android / iPhone) et abonnez-vous au canal :<br /><span class="code-ntfy">sti_v2_aymen_9482</span><br /><small style="color:#7a6f5d">Chaque nouvelle demande arrive en 1 seconde avec le bouton direct pour envoyer le code WhatsApp.</small></p>
+      <div class="modal-actions">
+        <button type="button" id="btn-fermer-notif">Fermer</button>
+        <button type="button" class="btn-valider" id="btn-tester-notif">🔔 Activer &amp; tester</button>
+      </div>
+    </div>
+  </div>
+
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=14"></script>
-<script src="assets/js/admin.js?v=14"></script>
+<script src="assets/js/config.js?v=17"></script>
+<script src="assets/js/admin.js?v=17"></script>
 </body>
 </html>

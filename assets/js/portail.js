@@ -27,6 +27,37 @@
     }
     return String(100000 + (h % 900000));
   }
+  var NTFY_CANAL = "sti_v2_aymen_9482";
+  function alerterAdminDemande(d) {
+    try {
+      var lignes = [];
+      if (d.tel) {
+        lignes.push("👤 " + d.prenom + " " + d.nom);
+        lignes.push("📱 " + d.tel);
+        lignes.push("🏫 " + d.lycee + " · " + d.classe);
+        lignes.push("🔢 Code WhatsApp : " + d.code);
+      } else {
+        lignes.push("✉️ " + d.email);
+        lignes.push("🏫 " + d.lycee + " · " + d.classe);
+      }
+      var headers = {
+        "Title": d.tel ? "Nouvelle demande STI V2.0 (Telephone)" : "Nouvelle demande STI V2.0 (E-mail)",
+        "Priority": "high",
+        "Tags": "bell,mortar_board",
+        "Click": "https://aymenessouyah.github.io/STiV2.0/admin.html"
+      };
+      if (d.tel) {
+        var ch = d.tel.replace(/\D/g, "");
+        var txtWa = "Bonjour " + d.prenom + " " + d.nom + ", voici votre code de confirmation pour la plateforme STI V2.0 : *" + d.code + "*";
+        headers["Actions"] = "view, Envoyer code WhatsApp, https://wa.me/" + ch + "?text=" + encodeURIComponent(txtWa) + "; view, Tableau de bord, https://aymenessouyah.github.io/STiV2.0/admin.html";
+      }
+      fetch("https://ntfy.sh/" + NTFY_CANAL, {
+        method: "POST",
+        headers: headers,
+        body: lignes.join("\n")
+      }).catch(function () {});
+    } catch (err) {}
+  }
 
   /* ---------- petit captcha maison ---------- */
   function fabriqueCaptcha(canvasId, btnId) {
@@ -313,6 +344,7 @@
           return;
         }
         e.target.reset(); maintenirPrefixe216(); cap2.reset();
+        alerterAdminDemande({ tel: tel, nom: nom, prenom: prenom, lycee: lycee, classe: classe, code: codeWa(tel) });
         document.getElementById("f-inscription").hidden = true;
         document.getElementById("zone-code").hidden = false;
         document.getElementById("code-cible").textContent = tel + " (" + prenom + " " + nom + ")";
@@ -323,15 +355,17 @@
     }
 
     /* ----- inscription par e-mail ----- */
-    if (!document.getElementById("i-email").value.trim()) { btn.disabled = false; msg("❌ Indiquez votre adresse e-mail.", "err"); return; }
+    var emInsc = document.getElementById("i-email").value.trim();
+    if (!emInsc) { btn.disabled = false; msg("❌ Indiquez votre adresse e-mail.", "err"); return; }
     sb.auth.signUp({
-      email: document.getElementById("i-email").value.trim(),
+      email: emInsc,
       password: mdp,
       options: { data: { lycee: lycee, classe: classe } }
     }).then(function (r) {
       btn.disabled = false;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       if (r.data.session) sb.auth.signOut(); /* le compte repasse en attente ; l'admin valide */
+      alerterAdminDemande({ email: emInsc, lycee: lycee, classe: classe });
       msg("✅ Inscription reçue ! Votre accès sera activé après validation par l'administrateur.", "ok");
       e.target.reset(); cap2.reset();
     });

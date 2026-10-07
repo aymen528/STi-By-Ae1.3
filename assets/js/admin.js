@@ -57,7 +57,123 @@
     var s = r.data.session;
     if (!s || !estAdminEmail(s.user.email)) { location.replace(cfg.RACINE + "portail.html#connexion"); return; }
     charge(false);
+    setInterval(function () { charge(true); }, 15000);
+    try {
+      sb.channel("admin-demandes")
+        .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, function () {
+          charge(true);
+        })
+        .subscribe();
+    } catch (err) {}
   });
+
+  /* ---------- Alertes sonores + notifications système ---------- */
+  function sonnerNotification() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      [587.33, 880].forEach(function (freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.14);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.14 + 0.32);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.14);
+        osc.stop(ctx.currentTime + i * 0.14 + 0.34);
+      });
+    } catch (err) {}
+  }
+
+  function afficherNotifSysteme(titre, corps) {
+    sonnerNotification();
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    var opts = {
+      body: corps,
+      icon: "assets/icons/sti-icon-192.png",
+      badge: "assets/icons/sti-icon-192.png",
+      tag: "sti-demande-" + Date.now()
+    };
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg && reg.showNotification) reg.showNotification(titre, opts);
+        else new Notification(titre, opts);
+      }).catch(function () {
+        try { new Notification(titre, opts); } catch (e) {}
+      });
+    } else {
+      try { new Notification(titre, opts); } catch (e) {}
+    }
+  }
+
+  function majBoutonNotif() {
+    var b = document.getElementById("btn-notif");
+    if (!b) return;
+    var ok = ("Notification" in window) && Notification.permission === "granted";
+    b.classList.toggle("on", ok);
+    b.textContent = ok ? "🔔 Notifications actives" : "🔔 Notifications";
+  }
+  majBoutonNotif();
+
+  var modalNotif = document.getElementById("modal-notif");
+  document.getElementById("btn-notif").addEventListener("click", function () {
+    modalNotif.classList.add("visible");
+  });
+  document.getElementById("btn-fermer-notif").addEventListener("click", function () {
+    modalNotif.classList.remove("visible");
+  });
+  document.getElementById("btn-tester-notif").addEventListener("click", function () {
+    function lancerTest() {
+      majBoutonNotif();
+      afficherNotifSysteme(
+        "🔔 Notifications STI V2.0 activées",
+        "Vous recevrez une alerte sonore et visuelle à chaque nouvelle demande d'inscription."
+      );
+      msg("🔔 Notifications activées et test envoyé !", "ok");
+      modalNotif.classList.remove("visible");
+    }
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then(function () { lancerTest(); });
+    } else {
+      lancerTest();
+    }
+  });
+
+  function verifierNouvellesDemandes() {
+    var enAtt = profils.filter(function (p) { return p.statut === "en_attente"; });
+    var bAl = document.getElementById("alerte-attente");
+    var tAl = document.getElementById("alerte-attente-txt");
+    if (bAl && tAl) {
+      if (enAtt.length > 0) {
+        bAl.classList.add("visible");
+        tAl.textContent = "🔔 " + enAtt.length + " demande(s) d'inscription en attente de validation : " +
+          enAtt.map(function (p) { return contact(p); }).join(" · ");
+        document.title = "(" + enAtt.length + ") Tableau de bord — STI V2.0";
+      } else {
+        bAl.classList.remove("visible");
+        document.title = "Tableau de bord — STI V2.0";
+      }
+    }
+    var vus = {};
+    try { vus = JSON.parse(localStorage.getItem("sti-admin-vus") || "{}"); } catch (e) {}
+    var nouveaux = [];
+    enAtt.forEach(function (p) {
+      if (!vus[p.id]) {
+        vus[p.id] = 1;
+        nouveaux.push(p);
+      }
+    });
+    try { localStorage.setItem("sti-admin-vus", JSON.stringify(vus)); } catch (e) {}
+    nouveaux.forEach(function (p) {
+      var tel = telDeProfil(p);
+      var detail = contact(p) + " — " + (p.lycee || "—") + " · " + (p.classe || "—");
+      if (tel) detail += "\nCode WhatsApp : " + codeWa(tel);
+      afficherNotifSysteme("🆕 Nouvelle demande d'inscription STI V2.0", detail);
+    });
+  }
 
   document.getElementById("btn-logout").addEventListener("click", function () {
     sb.auth.signOut().then(function () { location.replace(cfg.RACINE + "portail.html#deconnecte"); });
@@ -95,6 +211,7 @@
       document.getElementById("s-connex").textContent = acces.length;
       rendAbonnes();
       rendAcces();
+      verifierNouvellesDemandes();
       if (!garderMsg) msg("✅ " + profils.length + " abonné(s), " + acces.length + " connexion(s) journalisée(s).", "ok");
     });
   }
