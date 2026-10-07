@@ -1,4 +1,4 @@
-/* STI v2 — tableau de bord admin : stats, tri, compteur, détail connexions, mot de passe, suppression */
+/* STI v2 — tableau de bord admin : stats, tri, compteur, détail connexions, mot de passe, suppression, code WhatsApp */
 (function () {
   "use strict";
   var cfg = window.STI_AUTH;
@@ -16,8 +16,24 @@
   function estAdminEmail(em) {
     return (em || "").trim().toLowerCase() === (cfg.ADMIN || "").trim().toLowerCase();
   }
+  function telDeProfil(p) {
+    if (p.phone) return p.phone;
+    if (p.email && /@tel\.sti\.tn$/i.test(p.email)) {
+      return "+" + p.email.replace(/@tel\.sti\.tn$/i, "");
+    }
+    return null;
+  }
+  function codeWa(tel) {
+    var ch = String(tel || "").replace(/\D/g, "");
+    var h = 216613;
+    for (var i = 0; i < ch.length; i++) {
+      h = ((h * 31) + ch.charCodeAt(i) * (i + 7)) % 900000;
+    }
+    return String(100000 + (h % 900000));
+  }
   function contact(p) {
-    var base = p.email || (p.phone ? "📱 " + p.phone : "—");
+    var tel = telDeProfil(p);
+    var base = tel ? "📱 " + tel : (p.email || "—");
     var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
     return np ? base + " (" + np + ")" : base;
   }
@@ -103,14 +119,21 @@
       tr.title = "Cliquer pour voir toutes ses connexions";
       tr.addEventListener("click", function () { detail(p); });
 
+      var tel = telDeProfil(p);
       var td1 = document.createElement("td");
       td1.style.fontWeight = "700";
-      td1.textContent = p.email ? p.email : "📱 " + (p.phone || "—");
+      td1.textContent = tel ? "📱 " + tel : (p.email || "—");
       if (p.nom || p.prenom) {
         var petit = document.createElement("div");
-        petit.style.cssText = "font-weight:600;font-size:11px;color:#7a6f5d;";
-        petit.textContent = ((p.prenom || "") + " " + (p.nom || "")).trim();
+        petit.style.cssText = "font-weight:700;font-size:11.5px;color:#23201a;margin-top:2px;";
+        petit.textContent = "👤 " + ((p.prenom || "") + " " + (p.nom || "")).trim();
         td1.appendChild(petit);
+      }
+      if (tel) {
+        var codeDiv = document.createElement("div");
+        codeDiv.style.cssText = "font-weight:800;font-size:11px;color:#f4511e;margin-top:2px;";
+        codeDiv.textContent = "🔢 Code WhatsApp : " + codeWa(tel);
+        td1.appendChild(codeDiv);
       }
 
       var tdL = document.createElement("td");
@@ -128,22 +151,35 @@
       var td4 = document.createElement("td"); td4.textContent = fmtDate(p.cree_le);
 
       var td5 = document.createElement("td");
-      function bouton(txt, fn, cls) {
+      function bouton(txt, fn, cls, titre) {
         var b = document.createElement("button");
         b.type = "button"; b.className = "act" + (cls ? " " + cls : ""); b.textContent = txt;
+        if (titre) b.title = titre;
         b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
         td5.appendChild(b);
       }
-      bouton("✅", function () { changeStatut(p, "actif"); });
-      bouton("⏳", function () { changeStatut(p, "en_attente"); });
-      bouton("⛔", function () { changeStatut(p, "exclu"); });
-      bouton("🔑", function () { nouveauMdp(p); });
-      bouton("🔎", function () { detail(p); });
-      bouton("🗑️", function () { supprimer(p); }, "del");
+      bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
+      bouton("⏳", function () { changeStatut(p, "en_attente"); }, "", "Mettre en attente");
+      bouton("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure l'abonné");
+      if (tel) {
+        bouton("💬", function () { envoyerCodeWhatsApp(p, tel); }, "", "Envoyer le code de confirmation par WhatsApp");
+      }
+      bouton("🔑", function () { nouveauMdp(p); }, "", "Définir un nouveau mot de passe");
+      bouton("🔎", function () { detail(p); }, "", "Voir l'historique des connexions");
+      bouton("🗑️", function () { supprimer(p); }, "del", "Supprimer définitivement");
 
       tr.append(td1, tdL, td2, td3, td4, td5);
       tb.appendChild(tr);
     });
+  }
+
+  function envoyerCodeWhatsApp(p, tel) {
+    var ch = tel.replace(/\D/g, "");
+    var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
+    var code = codeWa(tel);
+    var texte = "Bonjour" + (np ? " " + np : "") +
+      ", voici votre code de confirmation pour la plateforme STI V2.0 : *" + code + "*";
+    window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
   }
 
   function rendAcces() {

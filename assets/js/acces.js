@@ -62,8 +62,15 @@
     var pan = document.createElement("div");
     pan.className = "sti-pan";
     pan.style.cssText = "position:absolute;right:0;background:#fffdf7;border:2px solid #23201a;border-radius:16px;padding:14px 16px;box-shadow:5px 5px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;width:225px;text-align:right;color-scheme:light;";
+    var affLogin = user.email || user.phone || "—";
+    if (/@tel\.sti\.tn$/i.test(affLogin)) {
+      var meta = user.user_metadata || {};
+      affLogin = "📱 " + (meta.phone || ("+" + affLogin.replace(/@tel\.sti\.tn$/i, "")));
+      var np = ((meta.prenom || "") + " " + (meta.nom || "")).trim();
+      if (np) affLogin += " · " + np;
+    }
     pan.innerHTML = "<span style='color:#7a6f5d;font-size:10.5px;text-transform:uppercase;letter-spacing:1px'>Login</span><br>" +
-      "<b style='font-size:13px'>" + esc(user.email || user.phone || "—") + "</b><br>" +
+      "<b style='font-size:13px'>" + esc(affLogin) + "</b><br>" +
       "<span style='color:#7a6f5d'>" + esc(profil.lycee || "—") + " · " + esc(profil.classe || "—") + "</span>";
     var out = document.createElement("button");
     out.type = "button";

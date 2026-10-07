@@ -1,11 +1,35 @@
-/* STI v2 — portail d'accès : captcha, connexion, inscription, mot de passe oublié */
+/* STI v2 — portail d'accès : captcha, connexion, inscription (e-mail ou téléphone + code WhatsApp), mot de passe oublié */
 (function () {
   "use strict";
   var cfg = window.STI_AUTH;
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
 
+  /* ---------- Utilitaires téléphone & code WhatsApp ---------- */
+  function normaliserTel(brut) {
+    var s = String(brut || "").replace(/[\s.\-()]/g, "");
+    if (s.indexOf("00") === 0) s = "+" + s.slice(2);
+    if (/^\d{8}$/.test(s)) s = "+216" + s;      /* n° tunisien 8 chiffres → +216 */
+    else if (/^216\d{8}$/.test(s)) s = "+" + s;
+    return /^\+\d{8,15}$/.test(s) ? s : null;
+  }
+  function emailDeTel(tel) {
+    return String(tel || "").replace(/\D/g, "") + "@tel.sti.tn";
+  }
+  function estSaisieTel(s) {
+    var net = String(s || "").trim();
+    return net.indexOf("@") === -1 && /^[+\d][\d\s.\-()]{6,}$/.test(net);
+  }
+  function codeWa(tel) {
+    var ch = String(tel || "").replace(/\D/g, "");
+    var h = 216613;
+    for (var i = 0; i < ch.length; i++) {
+      h = ((h * 31) + ch.charCodeAt(i) * (i + 7)) % 900000;
+    }
+    return String(100000 + (h % 900000));
+  }
+
   /* ---------- petit captcha maison ---------- */
-  function fabriqueCaptcha(canvasId, btnId, stock) {
+  function fabriqueCaptcha(canvasId, btnId) {
     var canvas = document.getElementById(canvasId);
     var ctx = canvas.getContext("2d");
     var ETATS = {};
@@ -100,8 +124,10 @@
 
   /* ---------- onglets ---------- */
   var tabs = { "tab-connexion": "f-connexion", "tab-inscription": "f-inscription", "tab-oubli": "f-oubli" };
+  var telEnCours = null;
   Object.keys(tabs).forEach(function (id) {
     document.getElementById(id).addEventListener("click", function () {
+      document.getElementById("zone-code").hidden = true;
       Object.keys(tabs).forEach(function (t) {
         document.getElementById(tabs[t]).hidden = t !== id;
         document.getElementById(t).classList.toggle("actif", t === id);
@@ -125,6 +151,24 @@
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
+  function verifierStatutEtEntrer(user) {
+    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+      var st = rp.data && rp.data.statut;
+      if (st === "actif") {
+        if (bioDispo() && !localStorage.getItem("sti-bio")) {
+          if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {
+            activeBio(user.id, user.email, function () { location.href = cfg.RACINE; });
+            return;
+          }
+        }
+        location.href = cfg.RACINE; return;
+      }
+      if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
+      if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); sb.auth.signOut(); return; }
+      msg("⛔ Compte suspendu. Contactez l'administrateur.", "err"); sb.auth.signOut();
+    });
+  }
+
   /* ---------- connexion ---------- */
   document.getElementById("f-connexion").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -133,21 +177,27 @@
       document.getElementById("c-captcha").value = "";
       return;
     }
-    var btn = e.target.querySelector(".btn"); btn.disabled = true;
     var idConn = document.getElementById("c-email").value.trim();
-    var cred = /^[+\d]/.test(idConn)
-      ? { phone: idConn.replace(/[\s.\-()]/g, ""), password: document.getElementById("c-mdp").value }
-      : { email: idConn, password: document.getElementById("c-mdp").value };
-    sb.auth.signInWithPassword(cred).then(function (r) {
+    var mdp = document.getElementById("c-mdp").value;
+    var emailConn = idConn;
+    var telConn = null;
+    if (estSaisieTel(idConn)) {
+      telConn = normaliserTel(idConn);
+      if (!telConn) {
+        msg("❌ Numéro invalide — ex. +216 20 123 456 ou 20 123 456.", "err");
+        return;
+      }
+      emailConn = emailDeTel(telConn);
+    }
+    var btn = e.target.querySelector(".btn"); btn.disabled = true;
+    sb.auth.signInWithPassword({ email: emailConn, password: mdp }).then(function (r) {
       btn.disabled = false;
-      var email = document.getElementById("c-email").value.trim();
-      var mdp = document.getElementById("c-mdp").value;
       if (r.error) {
         if (estHorsLigne(r.error)) {
           var cred = null;
-          try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (e) {}
+          try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
           sha256(mdp).then(function (h) {
-            if (cred && cred.email === email && cred.h === h) {
+            if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
               localStorage.setItem("sti-offline", String(Date.now()));
               location.href = cfg.RACINE;
             } else {
@@ -156,36 +206,38 @@
           });
           return;
         }
-        msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "E-mail ou mot de passe incorrect." : r.error.message), "err"); return;
+        msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
       }
       /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
       localStorage.removeItem("sti-offline");
       if (r.data.user.email !== cfg.ADMIN) {
         sha256(mdp).then(function (h) {
-          localStorage.setItem("sti-cred", JSON.stringify({ email: r.data.user.email, h: h }));
+          localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h }));
         });
       }
       if (r.data.user.email === cfg.ADMIN) { location.href = cfg.RACINE + "admin.html"; return; }
-      sb.from("profiles").select("statut").eq("id", r.data.user.id).maybeSingle().then(function (rp) {
-        var st = rp.data && rp.data.statut;
-        if (st === "actif") {
-          if (bioDispo() && !localStorage.getItem("sti-bio")) {
-            if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {
-              activeBio(r.data.user.id, r.data.user.email, function () { location.href = cfg.RACINE; });
-              return;
-            }
-          }
-          location.href = cfg.RACINE; return;
+
+      /* Si compte par téléphone non encore confirmé par code WhatsApp */
+      var meta = (r.data.user && r.data.user.user_metadata) || {};
+      if (/@tel\.sti\.tn$/i.test(r.data.user.email || "")) {
+        var telUser = meta.phone || ("+" + r.data.user.email.replace(/@tel\.sti\.tn$/i, ""));
+        var ch = telUser.replace(/\D/g, "");
+        var dejaOk = meta.wa_confirme === true;
+        try { if (localStorage.getItem("sti-wa-ok-" + ch) === "1") dejaOk = true; } catch (err) {}
+        if (!dejaOk) {
+          telEnCours = telUser;
+          document.getElementById("f-connexion").hidden = true;
+          document.getElementById("zone-code").hidden = false;
+          document.getElementById("code-cible").textContent = telUser;
+          msg("📲 Saisissez le code de confirmation à 6 chiffres envoyé sur votre WhatsApp.", "att");
+          return;
         }
-        if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
-        if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); sb.auth.signOut(); return; }
-        msg("⛔ Compte suspendu. Contactez l'administrateur.", "err"); sb.auth.signOut();
-      });
+      }
+      verifierStatutEtEntrer(r.data.user);
     });
   });
 
   /* ---------- inscription : choix du canal e-mail / téléphone ---------- */
-  var telEnCours = null;
   function choisirCanal(tel) {
     document.getElementById("zone-tel").hidden = !tel;
     document.getElementById("zone-mail").hidden = tel;
@@ -212,23 +264,29 @@
     var modeTel = !document.getElementById("zone-tel").hidden;
 
     if (modeTel) {
-      /* ----- inscription par téléphone (confirmation par code WhatsApp/SMS) ----- */
-      var tel = document.getElementById("i-tel").value.replace(/[\s.\-()]/g, "");
+      /* ----- inscription par téléphone + attente du code WhatsApp ----- */
+      var tel = normaliserTel(document.getElementById("i-tel").value);
       var nom = document.getElementById("i-nom").value.trim();
       var prenom = document.getElementById("i-prenom").value.trim();
-      if (!/^\+\d{8,15}$/.test(tel)) { btn.disabled = false; msg("❌ Numéro invalide — format international exigé, ex. +216 20 123 456.", "err"); return; }
+      if (!tel) { btn.disabled = false; msg("❌ Numéro invalide — ex. +216 20 123 456 ou 20 123 456.", "err"); return; }
       if (!nom || !prenom) { btn.disabled = false; msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
       telEnCours = tel;
       sb.auth.signUp({
-        phone: tel, password: mdp,
-        options: { data: { nom: nom, prenom: prenom, lycee: lycee, classe: classe } }
+        email: emailDeTel(tel),
+        password: mdp,
+        options: { data: { phone: tel, nom: nom, prenom: prenom, lycee: lycee, classe: classe, wa_confirme: false } }
       }).then(function (r) {
         btn.disabled = false;
-        if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+        if (r.error) {
+          var m = /already registered/i.test(r.error.message) ? "Ce numéro de téléphone est déjà inscrit." : r.error.message;
+          msg("❌ " + m, "err");
+          return;
+        }
+        e.target.reset(); cap2.reset();
         document.getElementById("f-inscription").hidden = true;
         document.getElementById("zone-code").hidden = false;
-        document.getElementById("code-cible").textContent = tel;
-        msg("📨 Un code de confirmation vient d'être envoyé. Saisissez-le ci-dessous.", "ok");
+        document.getElementById("code-cible").textContent = tel + " (" + prenom + " " + nom + ")";
+        msg("📨 Demande enregistrée ! Saisissez le code à 6 chiffres envoyé par WhatsApp.", "ok");
       });
       return;
     }
@@ -248,31 +306,39 @@
     });
   });
 
-  /* ---------- confirmation du code reçu (WhatsApp/SMS) ---------- */
+  /* ---------- confirmation du code reçu par WhatsApp ---------- */
   document.getElementById("b-verif").addEventListener("click", function () {
     var code = document.getElementById("i-code").value.trim();
     if (!telEnCours) return;
     if (!/^\d{6}$/.test(code)) { msg("❌ Le code comporte 6 chiffres.", "err"); return; }
+    if (code !== codeWa(telEnCours)) {
+      msg("❌ Code incorrect — vérifiez le code à 6 chiffres reçu sur WhatsApp.", "err");
+      return;
+    }
+    var ch = telEnCours.replace(/\D/g, "");
+    try { localStorage.setItem("sti-wa-ok-" + ch, "1"); } catch (err) {}
     var btn = document.getElementById("b-verif"); btn.disabled = true;
-    sb.auth.verifyOtp({ phone: telEnCours, token: code, type: "sms" }).then(function (r) {
+    sb.auth.updateUser({ data: { wa_confirme: true } }).catch(function () {}).then(function () {
       btn.disabled = false;
-      if (r.error) { msg("❌ Code incorrect ou expiré — vérifiez le message reçu.", "err"); return; }
-      sb.auth.signOut(); /* le compte attend la validation de l'administrateur */
       telEnCours = null;
-      document.getElementById("zone-code").hidden = true;
-      document.getElementById("f-inscription").hidden = false;
-      document.getElementById("f-inscription").reset(); cap2.reset();
       document.getElementById("i-code").value = "";
-      msg("✅ Numéro confirmé ! Votre accès sera activé après validation par l'administrateur.", "ok");
+      document.getElementById("zone-code").hidden = true;
+      sb.auth.getSession().then(function (rs) {
+        if (rs.data && rs.data.session) {
+          verifierStatutEtEntrer(rs.data.session.user);
+        } else {
+          document.getElementById("f-connexion").hidden = false;
+          document.getElementById("tab-connexion").classList.add("actif");
+          document.getElementById("tab-inscription").classList.remove("actif");
+          msg("✅ Code WhatsApp confirmé ! Votre accès sera activé après validation par l'administrateur.", "ok");
+        }
+      });
     });
   });
 
   document.getElementById("b-renvoi").addEventListener("click", function () {
     if (!telEnCours) return;
-    sb.auth.resend({ phone: telEnCours, type: "signup" }).then(function (r) {
-      if (r.error) { msg("❌ Renvoi impossible : " + r.error.message, "err"); return; }
-      msg("📨 Un nouveau code vient d'être envoyé.", "ok");
-    });
+    msg("💬 Votre demande est visible par l'administrateur, qui vous envoie le code à 6 chiffres sur WhatsApp (" + telEnCours + ").", "att");
   });
 
   /* ---------- mot de passe oublié ---------- */
