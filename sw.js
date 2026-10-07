@@ -4,7 +4,7 @@
    pages (toujours frais quand il y a du réseau), cache pour les ressources
    statiques. Vider le cache en cas de pépin : DevTools → Application. */
 
-var CACHE = "sti-atelier-v9";
+var CACHE = "sti-atelier-v11";
 var SHELL = [
   "./",
   "./index.html",
@@ -87,17 +87,33 @@ self.addEventListener("fetch", function (evt) {
     return;
   }
 
-  /* Ressources (css, fonts, images…) : cache d'abord puis réseau, mise à jour en tâche de fond */
-  if (/\.(css|js|png|jpg|jpeg|svg|webp|gif|ico|woff2?|ttf|mp3|webm)$/i.test(url.pathname)) {
+  /* Scripts et feuilles de style : réseau d'abord (toujours à jour), cache hors-ligne */
+  if (/\.(css|js)$/i.test(url.pathname)) {
+    evt.respondWith(
+      fetch(req)
+        .then(function (rep) {
+          if (rep && rep.ok) {
+            var copie = rep.clone();
+            caches.open(CACHE).then(function (c) { c.put(req, copie); });
+          }
+          return rep;
+        })
+        .catch(function () {
+          return caches.match(req).then(function (m) { return m || Response.error(); });
+        })
+    );
+    return;
+  }
+
+  /* Médias et polices : cache d'abord puis réseau */
+  if (/\.(png|jpg|jpeg|svg|webp|gif|ico|woff2?|ttf|mp3|webm)$/i.test(url.pathname)) {
     evt.respondWith(
       caches.match(req).then(function (m) {
         var reseau = fetch(req)
           .then(function (rep) {
             if (rep && rep.ok) {
               var copie = rep.clone();
-              caches.open(CACHE).then(function (c) {
-                c.put(req, copie);
-              });
+              caches.open(CACHE).then(function (c) { c.put(req, copie); });
             }
             return rep;
           })

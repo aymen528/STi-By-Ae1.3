@@ -1,4 +1,4 @@
-/* STI v2 — tableau de bord admin : stats, tri, compteur, détail connexions, mot de passe */
+/* STI v2 — tableau de bord admin : stats, tri, compteur, détail connexions, mot de passe, suppression */
 (function () {
   "use strict";
   var cfg = window.STI_AUTH;
@@ -6,10 +6,24 @@
   var elMsg = document.getElementById("msg");
   function msg(t, c) { elMsg.textContent = t; elMsg.className = "msg" + (c ? " " + c : ""); }
 
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.update(); });
+    });
+  }
+
   var LIB = { actif: "Actif", en_attente: "En attente", suspendu: "Suspendu", exclu: "Exclu" };
-  function contact(p) { return p.email || p.phone || "—"; }
+  function estAdminEmail(em) {
+    return (em || "").trim().toLowerCase() === (cfg.ADMIN || "").trim().toLowerCase();
+  }
+  function contact(p) {
+    var base = p.email || (p.phone ? "📱 " + p.phone : "—");
+    var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
+    return np ? base + " (" + np + ")" : base;
+  }
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
+  var cibleSuppr = null, cibleMdp = null;
 
   function fmtDate(iso) {
     if (!iso) return "—";
@@ -25,14 +39,14 @@
 
   sb.auth.getSession().then(function (r) {
     var s = r.data.session;
-    if (!s || s.user.email !== cfg.ADMIN) { location.replace(cfg.RACINE + "portail.html#connexion"); return; }
-    charge();
+    if (!s || !estAdminEmail(s.user.email)) { location.replace(cfg.RACINE + "portail.html#connexion"); return; }
+    charge(false);
   });
 
   document.getElementById("btn-logout").addEventListener("click", function () {
     sb.auth.signOut().then(function () { location.replace(cfg.RACINE + "portail.html#deconnecte"); });
   });
-  document.getElementById("btn-refresh").addEventListener("click", charge);
+  document.getElementById("btn-refresh").addEventListener("click", function () { charge(false); });
   document.getElementById("btn-stats").addEventListener("click", function () {
     triParAcces = !triParAcces;
     this.classList.toggle("on", triParAcces);
@@ -44,14 +58,19 @@
     document.getElementById("zone-detail").classList.remove("visible");
   });
 
-  function charge() {
-    msg("Chargement…", "");
+  function charge(garderMsg) {
+    if (!garderMsg) msg("Chargement…", "");
     Promise.all([
       sb.from("profiles").select("*").order("cree_le", { ascending: false }),
       sb.from("acces").select("*").order("debut", { ascending: false }).limit(500)
     ]).then(function (res) {
       if (res[0].error || res[1].error) { msg("❌ " + (res[0].error || res[1].error).message, "err"); return; }
-      profils = res[0].data; acces = res[1].data;
+      var tous = res[0].data || [];
+      var adminIds = {};
+      tous.forEach(function (p) { if (estAdminEmail(p.email)) adminIds[p.id] = true; });
+      /* L'administrateur n'est jamais affiché dans la liste des abonnés */
+      profils = tous.filter(function (p) { return !estAdminEmail(p.email); });
+      acces = (res[1].data || []).filter(function (a) { return !adminIds[a.user_id]; });
       counts = {};
       acces.forEach(function (a) { counts[a.user_id] = (counts[a.user_id] || 0) + 1; });
       document.getElementById("s-total").textContent = profils.length;
@@ -60,7 +79,7 @@
       document.getElementById("s-connex").textContent = acces.length;
       rendAbonnes();
       rendAcces();
-      msg("✅ " + profils.length + " abonné(s), " + acces.length + " connexion(s) journalisée(s).", "ok");
+      if (!garderMsg) msg("✅ " + profils.length + " abonné(s), " + acces.length + " connexion(s) journalisée(s).", "ok");
     });
   }
 
@@ -69,6 +88,16 @@
     if (triParAcces) liste.sort(function (a, b) { return (counts[b.id] || 0) - (counts[a.id] || 0); });
     var tb = document.getElementById("tb-abonnes");
     tb.innerHTML = "";
+    if (!liste.length) {
+      var trVide = document.createElement("tr");
+      var tdVide = document.createElement("td");
+      tdVide.colSpan = 6;
+      tdVide.style.cssText = "text-align:center;color:#7a6f5d;padding:18px;";
+      tdVide.textContent = "Aucun abonné inscrit pour le moment.";
+      trVide.appendChild(tdVide);
+      tb.appendChild(trVide);
+      return;
+    }
     liste.forEach(function (p) {
       var tr = document.createElement("tr");
       tr.title = "Cliquer pour voir toutes ses connexions";
@@ -76,9 +105,7 @@
 
       var td1 = document.createElement("td");
       td1.style.fontWeight = "700";
-      td1.textContent = p.email
-        ? p.email + (p.email === cfg.ADMIN ? " (admin)" : "")
-        : "📱 " + (p.phone || "—");
+      td1.textContent = p.email ? p.email : "📱 " + (p.phone || "—");
       if (p.nom || p.prenom) {
         var petit = document.createElement("div");
         petit.style.cssText = "font-weight:600;font-size:11px;color:#7a6f5d;";
@@ -101,9 +128,9 @@
       var td4 = document.createElement("td"); td4.textContent = fmtDate(p.cree_le);
 
       var td5 = document.createElement("td");
-      function bouton(txt, fn) {
+      function bouton(txt, fn, cls) {
         var b = document.createElement("button");
-        b.type = "button"; b.className = "act"; b.textContent = txt;
+        b.type = "button"; b.className = "act" + (cls ? " " + cls : ""); b.textContent = txt;
         b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
         td5.appendChild(b);
       }
@@ -112,7 +139,7 @@
       bouton("⛔", function () { changeStatut(p, "exclu"); });
       bouton("🔑", function () { nouveauMdp(p); });
       bouton("🔎", function () { detail(p); });
-      bouton("🗑️", function () { supprimer(p); });
+      bouton("🗑️", function () { supprimer(p); }, "del");
 
       tr.append(td1, tdL, td2, td3, td4, td5);
       tb.appendChild(tr);
@@ -121,7 +148,7 @@
 
   function rendAcces() {
     var emails = {};
-    profils.forEach(function (p) { emails[p.id] = p.email || p.phone; });
+    profils.forEach(function (p) { emails[p.id] = contact(p); });
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
     acces.slice(0, 50).forEach(function (a) {
@@ -158,28 +185,64 @@
     sb.from("profiles").update({ statut: statut }).eq("id", p.id).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       msg("✅ " + contact(p) + " → " + LIB[statut], "ok");
-      charge();
+      charge(true);
     });
   }
 
-  function nouveauMdp(p) {
-    var mdp = window.prompt("Nouveau mot de passe pour " + contact(p) + " :\n(min. 6 caractères — l'ancien mot de passe n'est jamais visible, par sécurité)");
-    if (!mdp) return;
-    if (mdp.length < 6) { msg("❌ Mot de passe trop court (6 caractères minimum).", "err"); return; }
+  /* ---------- Boîte modale : nouveau mot de passe ---------- */
+  var modalMdp = document.getElementById("modal-mdp");
+  var inpMdp = document.getElementById("inp-nouveau-mdp");
+  var btnConfMdp = document.getElementById("btn-confirmer-mdp");
+  document.getElementById("btn-annuler-mdp").addEventListener("click", function () {
+    modalMdp.classList.remove("visible"); cibleMdp = null;
+  });
+  btnConfMdp.addEventListener("click", function () {
+    if (!cibleMdp) return;
+    var mdp = inpMdp.value;
+    if (!mdp || mdp.length < 6) { msg("❌ Mot de passe trop court (6 caractères minimum).", "err"); return; }
+    var p = cibleMdp;
+    btnConfMdp.disabled = true;
     sb.rpc("admin_set_password", { uid: p.id, newpass: mdp }).then(function (r) {
+      btnConfMdp.disabled = false;
+      modalMdp.classList.remove("visible"); cibleMdp = null;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       msg("🔑 Mot de passe de " + contact(p) + " défini.", "ok");
     });
+  });
+
+  function nouveauMdp(p) {
+    cibleMdp = p;
+    document.getElementById("mdp-cible").textContent = contact(p);
+    inpMdp.value = "";
+    modalMdp.classList.add("visible");
+    setTimeout(function () { inpMdp.focus(); }, 30);
   }
 
-  function supprimer(p) {
-    if (p.email === cfg.ADMIN) { msg("❌ Impossible de supprimer le compte administrateur.", "err"); return; }
-    if (!window.confirm("Supprimer définitivement l'abonné " + contact(p) + " ?\nSon profil et tout son journal de connexions seront effacés.")) return;
-    if (!window.confirm("Dernière vérification : confirmez la suppression de " + contact(p) + ".")) return;
+  /* ---------- Boîte modale : suppression définitive ---------- */
+  var modalSuppr = document.getElementById("modal-suppr");
+  var btnConfSuppr = document.getElementById("btn-confirmer-suppr");
+  document.getElementById("btn-annuler-suppr").addEventListener("click", function () {
+    modalSuppr.classList.remove("visible"); cibleSuppr = null;
+  });
+  btnConfSuppr.addEventListener("click", function () {
+    if (!cibleSuppr) return;
+    var p = cibleSuppr;
+    btnConfSuppr.disabled = true;
+    btnConfSuppr.textContent = "⏳ Suppression…";
     sb.rpc("admin_supprimer_abonne", { uid: p.id }).then(function (r) {
+      btnConfSuppr.disabled = false;
+      btnConfSuppr.textContent = "🗑️ Oui, supprimer";
+      modalSuppr.classList.remove("visible"); cibleSuppr = null;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       msg("🗑️ " + contact(p) + " supprimé définitivement.", "ok");
-      charge();
+      charge(true);
     });
+  });
+
+  function supprimer(p) {
+    if (estAdminEmail(p.email)) { msg("❌ Impossible de supprimer le compte administrateur.", "err"); return; }
+    cibleSuppr = p;
+    document.getElementById("suppr-cible").textContent = contact(p);
+    modalSuppr.classList.add("visible");
   }
 })();

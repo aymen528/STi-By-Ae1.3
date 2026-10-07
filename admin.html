@@ -52,12 +52,35 @@
   .nb { display: inline-block; min-width: 30px; text-align: center; background: #23201a; color: #ffb27a; border-radius: 999px; font-weight: 900; font-size: 12px; padding: 3px 9px; }
   .act { border: 1.5px solid #23201a; background: #fff; color: #23201a; border-radius: 8px; padding: 5px 9px; margin-right: 4px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
   .act:hover { color: #f4511e; border-color: #f4511e; }
+  .act.del:hover { color: #fff; background: #c0392b; border-color: #c0392b; }
   .msg { margin: 10px 0; font-size: 13px; font-weight: 800; min-height: 18px; }
   .msg.ok { color: #177245; } .msg.err { color: #c0392b; }
   #zone-detail { display: none; }
   #zone-detail.visible { display: block; }
   .detail-titre { display: flex; align-items: center; gap: 10px; }
   .detail-titre button { border: 1.5px solid #23201a; background: #fff; border-radius: 8px; padding: 4px 10px; font-weight: 800; cursor: pointer; }
+  .modal-fond {
+    position: fixed; inset: 0; background: rgba(35,32,26,.55); display: none;
+    align-items: center; justify-content: center; z-index: 9999; padding: 16px;
+  }
+  .modal-fond.visible { display: flex; }
+  .modal-boite {
+    background: #fffdf7; border: 2.5px solid #23201a; border-radius: 18px; padding: 22px;
+    max-width: 400px; width: 100%; box-shadow: 6px 6px 0 #f4511e; color: #23201a;
+  }
+  .modal-boite h3 { font-size: 17px; margin-bottom: 8px; color: #23201a; }
+  .modal-boite p { font-size: 13.5px; color: #5a5244; margin-bottom: 14px; line-height: 1.45; }
+  .modal-boite input {
+    width: 100%; border: 2px solid #23201a; border-radius: 10px; padding: 9px 12px;
+    font-size: 14px; margin-bottom: 14px; background: #fff; color: #23201a;
+  }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-actions button {
+    border: 2px solid #23201a; border-radius: 999px; padding: 8px 16px; font-size: 13px;
+    font-weight: 800; cursor: pointer; background: #fffdf7; color: #23201a;
+  }
+  .modal-actions .btn-danger { background: #c0392b; color: #fff; border-color: #23201a; box-shadow: 2px 2px 0 #23201a; }
+  .modal-actions .btn-valider { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; border-color: #23201a; box-shadow: 2px 2px 0 #23201a; }
 </style>
 </head>
 <body>
@@ -108,8 +131,33 @@
     </table>
   </div>
 
+  <!-- Boîte de confirmation de suppression (remplace window.confirm bloqué par le navigateur) -->
+  <div class="modal-fond" id="modal-suppr" role="dialog" aria-modal="true">
+    <div class="modal-boite">
+      <h3>🗑️ Supprimer cet abonné ?</h3>
+      <p>Supprimer définitivement <b id="suppr-cible"></b> ?<br />Son compte, son profil et tout son journal de connexions seront effacés.</p>
+      <div class="modal-actions">
+        <button type="button" id="btn-annuler-suppr">Annuler</button>
+        <button type="button" class="btn-danger" id="btn-confirmer-suppr">🗑️ Oui, supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de changement de mot de passe (remplace window.prompt) -->
+  <div class="modal-fond" id="modal-mdp" role="dialog" aria-modal="true">
+    <div class="modal-boite">
+      <h3>🔑 Nouveau mot de passe</h3>
+      <p>Définir un nouveau mot de passe pour <b id="mdp-cible"></b> (6 caractères minimum) :</p>
+      <input type="text" id="inp-nouveau-mdp" placeholder="Nouveau mot de passe…" autocomplete="off" />
+      <div class="modal-actions">
+        <button type="button" id="btn-annuler-mdp">Annuler</button>
+        <button type="button" class="btn-valider" id="btn-confirmer-mdp">🔑 Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/admin.js"></script>
+<script src="assets/js/config.js?v=11"></script>
+<script src="assets/js/admin.js?v=11"></script>
 </body>
 </html>
