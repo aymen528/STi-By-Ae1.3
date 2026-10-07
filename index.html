@@ -1188,15 +1188,17 @@
         gap: 12px;
       }
 
-      /* Mode sombre : CTA « Ouvrir les séries » plus contrastée */
+      /* Mode sombre : CTA « Ouvrir les séries » — fond opaque, contraste maximal */
       [data-theme="dark"] .exercice-cta {
-        color: #f4f5ff;
-        background: rgba(139, 147, 255, 0.22);
-        border: 1px solid rgba(139, 147, 255, 0.5);
+        color: #0b0d16;
+        font-weight: 700;
+        background: linear-gradient(120deg, #8b93ff, #a78bfa);
+        border: 1px solid transparent;
+        box-shadow: 0 6px 18px -8px rgba(139, 147, 255, 0.55);
       }
       [data-theme="dark"] .exercice-banner:hover .exercice-cta {
         color: #0b0d16;
-        background: linear-gradient(120deg, #8b93ff, #a78bfa);
+        background: linear-gradient(120deg, #a5adff, #c4b5fd);
         border-color: transparent;
       }
 
