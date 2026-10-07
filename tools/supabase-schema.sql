@@ -96,3 +96,17 @@ begin
   on conflict (id) do update set email = excluded.email;
   return new;
 end $$;
+
+-- 8) Suppression définitive d'un abonné (bouton 🗑️ du tableau de bord)
+create or replace function public.admin_supprimer_abonne(uid uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.est_admin() then
+    raise exception 'action reservee a l''administrateur';
+  end if;
+  delete from public.acces where user_id = uid;
+  delete from public.profiles where id = uid;
+  perform auth.admin_delete_user(uid);
+end $$;
+revoke execute on function public.admin_supprimer_abonne(uuid) from public, anon;
+grant execute on function public.admin_supprimer_abonne(uuid) to authenticated;

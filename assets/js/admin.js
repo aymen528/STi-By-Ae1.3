@@ -103,6 +103,7 @@
       bouton("⛔", function () { changeStatut(p, "exclu"); });
       bouton("🔑", function () { nouveauMdp(p); });
       bouton("🔎", function () { detail(p); });
+      bouton("🗑️", function () { supprimer(p); });
 
       tr.append(td1, tdL, td2, td3, td4, td5);
       tb.appendChild(tr);
@@ -159,6 +160,17 @@
     sb.rpc("admin_set_password", { uid: p.id, newpass: mdp }).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       msg("🔑 Mot de passe de " + p.email + " défini.", "ok");
+    });
+  }
+
+  function supprimer(p) {
+    if (p.email === cfg.ADMIN) { msg("❌ Impossible de supprimer le compte administrateur.", "err"); return; }
+    if (!window.confirm("Supprimer définitivement l'abonné " + p.email + " ?\nSon profil et tout son journal de connexions seront effacés.")) return;
+    if (!window.confirm("Dernière vérification : confirmez la suppression de " + p.email + ".")) return;
+    sb.rpc("admin_supprimer_abonne", { uid: p.id }).then(function (r) {
+      if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      msg("🗑️ " + p.email + " supprimé définitivement.", "ok");
+      charge();
     });
   }
 })();
