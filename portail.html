@@ -74,6 +74,13 @@
   .lien-admin { margin-top: 16px; text-align: center; }
   .lien-admin a { color: #7a6f5d; font-size: 12px; text-decoration: none; border-bottom: 1px dotted #b9a98d; }
   .pied { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2d6c2; text-align: center; font-size: 11.5px; color: #a3937a; }
+  .qr-zone {
+    display: flex; align-items: center; gap: 14px; margin-top: 18px;
+    background: #f9f1e3; border: 2px dashed #d9c8a9; border-radius: 16px; padding: 12px 14px;
+  }
+  .qr-zone img { width: 92px; height: 92px; border-radius: 12px; border: 2px solid #23201a; box-shadow: 3px 3px 0 rgba(244,81,30,.45); background: #fff; }
+  .qr-zone b { color: #f4511e; font-size: 14px; }
+  .qr-zone span { color: #7a6f5d; font-size: 12px; }
   form[hidden] { display: none; }
 </style>
 </head>
@@ -103,6 +110,10 @@
       </div>
       <input id="c-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">🔐 Se connecter</button>
+      <div class="qr-zone">
+        <img src="assets/images/qr-v2.png" alt="QR code du site STI V2.0" />
+        <div><b>📱 Scannez-moi !</b><br /><span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span></div>
+      </div>
     </form>
 
     <form id="f-inscription" hidden autocomplete="on">
