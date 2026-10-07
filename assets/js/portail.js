@@ -52,6 +52,16 @@
   var cap1 = fabriqueCaptcha("captcha-canvas", "captcha-refresh");
   var cap2 = fabriqueCaptcha("captcha-canvas2", "captcha-refresh2");
 
+  /* ---------- connexion hors-ligne (PC) : empreinte locale du 1er login ---------- */
+  function sha256(t) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+    });
+  }
+  function estHorsLigne(err) {
+    return !!err && /fetch|network|load|timeout/i.test(err.message || "");
+  }
+
   /* ---------- champs « autre » ---------- */
   function gereAutre(selId, inputId) {
     var sel = document.getElementById(selId), inp = document.getElementById(inputId);
@@ -128,7 +138,31 @@
       password: document.getElementById("c-mdp").value
     }).then(function (r) {
       btn.disabled = false;
-      if (r.error) { msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "E-mail ou mot de passe incorrect." : r.error.message), "err"); return; }
+      var email = document.getElementById("c-email").value.trim();
+      var mdp = document.getElementById("c-mdp").value;
+      if (r.error) {
+        if (estHorsLigne(r.error)) {
+          var cred = null;
+          try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (e) {}
+          sha256(mdp).then(function (h) {
+            if (cred && cred.email === email && cred.h === h) {
+              localStorage.setItem("sti-offline", "1");
+              location.href = cfg.RACINE;
+            } else {
+              msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil.", "err");
+            }
+          });
+          return;
+        }
+        msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "E-mail ou mot de passe incorrect." : r.error.message), "err"); return;
+      }
+      /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
+      localStorage.removeItem("sti-offline");
+      if (r.data.user.email !== cfg.ADMIN) {
+        sha256(mdp).then(function (h) {
+          localStorage.setItem("sti-cred", JSON.stringify({ email: r.data.user.email, h: h }));
+        });
+      }
       if (r.data.user.email === cfg.ADMIN) { location.href = cfg.RACINE + "admin.html"; return; }
       sb.from("profiles").select("statut").eq("id", r.data.user.id).maybeSingle().then(function (rp) {
         var st = rp.data && rp.data.statut;

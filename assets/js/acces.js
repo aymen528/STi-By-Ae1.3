@@ -12,16 +12,32 @@
 
   sb.auth.getSession().then(function (r) {
     var session = r.data.session;
-    if (!session) { location.replace(PORTAIL + "#connexion"); return; }
+    if (!session) {
+      /* hors-ligne : session locale déjà validée précédemment sur cet appareil */
+      if (localStorage.getItem("sti-offline")) return;
+      location.replace(PORTAIL + "#connexion"); return;
+    }
     var user = session.user;
-    if (user.email === cfg.ADMIN) { journal(user.id); return; }
+    if (user.email === cfg.ADMIN) { badgeAdmin(); journal(user.id); return; }
     sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+      /* réseau absent mais session valide : on laisse passer (mode hors-ligne) */
+      if (rp.error) { verrouBio(user, function () { journal(user.id); }); return; }
       var st = rp.data && rp.data.statut;
       if (st === "actif") { verrouBio(user, function () { journal(user.id); }); return; }
       if (st === "en_attente") { sb.auth.signOut(); location.replace(PORTAIL + "#attente"); return; }
       sb.auth.signOut(); location.replace(PORTAIL + "#refuse");
     });
   });
+
+  /* ---------- badge ADMIN visible sur tout le site ---------- */
+  function badgeAdmin() {
+    var b = document.createElement("a");
+    b.href = PORTAIL.replace("portail.html", "admin.html");
+    b.textContent = "⚙️ ADMIN";
+    b.title = "Tableau de bord administrateur";
+    b.style.cssText = "position:fixed;top:10px;right:10px;z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:7px 14px;font:900 12px/1 system-ui,'Segoe UI',sans-serif;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
+    document.documentElement.appendChild(b);
+  }
 
   /* ---------- verrou biométrique (abonnés ayant activé l'option) ---------- */
   function verrouBio(user, suite) {
