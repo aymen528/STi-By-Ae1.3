@@ -2018,7 +2018,7 @@
         alt="Logo STI"
       />
       <p class="splash-txt">
-        <span class="splash-sti">STI</span>
+        <span class="splash-sti">STI <span class="splash-ver">V2.0</span></span>
         <span class="splash-slogan">Le web de A à Z.</span>
         <span class="splash-sign">By A’e</span>
       </p>
@@ -2070,6 +2070,19 @@
         opacity: 0;
         transform: translateY(12px);
         animation: splash-up 0.6s ease 0.75s forwards;
+      }
+      #splash-sti .splash-ver {
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: #14100e;
+        background: linear-gradient(120deg, #ff8a50, #ffb27a);
+        border-radius: 999px;
+        padding: 5px 11px;
+        margin-left: 10px;
+        vertical-align: 16px;
+        box-shadow: 0 4px 16px -6px rgba(255, 138, 80, 0.7);
       }
       #splash-sti .splash-slogan {
         font-size: 16px;
