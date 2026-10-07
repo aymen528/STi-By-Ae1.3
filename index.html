@@ -589,6 +589,10 @@
         align-items: center;
       }
 
+      [hidden] {
+        display: none !important;
+      }
+
       .btn {
         display: inline-flex;
         align-items: center;
@@ -3609,94 +3613,90 @@
           }, 900000); /* 15 min */
         }
         var btn = document.getElementById("installBtn");
+        var pillMob = document.querySelector('.mobile-menu-pill[onclick*="__stiInstall"]');
         var differe = null;
-        var dejaInstallee =
-          window.matchMedia &&
-          matchMedia("(display-mode: standalone)").matches;
+        var f = null;
+        var estIos =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+        function enModeInstalle() {
+          return Boolean(
+            (window.matchMedia &&
+              matchMedia(
+                "(display-mode: standalone), (display-mode: window-controls-overlay), (display-mode: minimal-ui)"
+              ).matches) ||
+              navigator.standalone
+          );
+        }
+
+        var dejaInstallee = enModeInstalle();
+        try {
+          if (dejaInstallee) localStorage.setItem("sti-pwa-installed", "1");
+          else if (localStorage.getItem("sti-pwa-installed") === "1") dejaInstallee = true;
+        } catch (e) {}
 
         function setBtn(vis, label) {
-          if (!btn) return;
-          btn.hidden = !vis;
-          if (label) btn.textContent = label;
+          if (btn) {
+            btn.hidden = !vis;
+            btn.style.display = vis ? "" : "none";
+            if (label) btn.textContent = label;
+          }
+          if (pillMob && !vis && dejaInstallee) {
+            pillMob.hidden = true;
+            pillMob.style.display = "none";
+          }
+        }
+
+        function marquerInstallee() {
+          dejaInstallee = true;
+          differe = null;
+          try {
+            localStorage.setItem("sti-pwa-installed", "1");
+            localStorage.setItem("sti-install-fab", "off");
+          } catch (e) {}
+          setBtn(false);
+          if (f) {
+            f.remove();
+            f = null;
+          }
+        }
+
+        setBtn(false);
+
+        if (navigator.getInstalledRelatedApps) {
+          navigator.getInstalledRelatedApps().then(function (apps) {
+            if (apps && apps.length) marquerInstallee();
+          }).catch(function () {});
         }
 
         window.addEventListener("beforeinstallprompt", function (e) {
           e.preventDefault();
+          if (enModeInstalle()) {
+            marquerInstallee();
+            return;
+          }
+          /* Si le navigateur déclenche beforeinstallprompt, l'appli n'est pas (ou plus) installée */
+          dejaInstallee = false;
+          try { localStorage.removeItem("sti-pwa-installed"); } catch (err) {}
           differe = e;
           setBtn(true);
         });
 
-        if (btn) {
-          btn.addEventListener("click", function () {
-            if (differe) {
-              differe.prompt();
-              differe.userChoice.then(function () {
-                differe = null;
-                setBtn(false);
-              });
-              return;
-            }
-            var estIos =
-              /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-              (navigator.platform === "MacIntel" &&
-                navigator.maxTouchPoints > 1);
-            window.alert(
-              estIos
-                ? "Sur iPhone / iPad : appuyez sur le bouton Partager ⬆️ du navigateur, puis « Sur l'écran d'accueil »."
-                : "L'installation est aussi proposée par l'icône ⤓ à droite de la barre d'adresse du navigateur."
-            );
-          });
-        }
-
-        window.addEventListener("appinstalled", function () {
-          setBtn(false);
-        });
-        if (dejaInstallee) setBtn(false);
-
-        /* iPhone : pas d'événement beforeinstallprompt → on affiche quand
-           même le bouton, son clic expliquera la marche à suivre. */
-        if (
-          btn &&
-          btn.hidden &&
-          !dejaInstallee &&
-          /iPad|iPhone|iPod/.test(navigator.userAgent)
-        ) {
-          setBtn(true, "⤓ Installer STI by AE (Partager →)");
-        }
-      })();
-    </script>
-  
-    <script id="sti-install-fab">
-      /* Installateur universel : pastille flottante sur mobile + fonction
-         window.__stiInstall() appelée aussi par la pilule « Installer » du
-         menu mobile. Android : vraie boîte de dialogue ; iOS/fallback :
-         consigne claire. Standalone : rien ne s'affiche. */
-      (function () {
-        var estIos =
-          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-        var standalone =
-          (window.matchMedia &&
-            matchMedia("(display-mode: standalone)").matches) ||
-          navigator.standalone;
-        var differe = null;
-        var f = null;
-
-        window.addEventListener("beforeinstallprompt", function (e) {
-          e.preventDefault();
-          differe = e;
-        });
-
         window.__stiInstall = function () {
-          if (standalone) {
-            window.alert("STI by AE est déjà installée sur cet appareil 🎉");
+          if (enModeInstalle() || dejaInstallee) {
+            marquerInstallee();
             return false;
           }
           if (differe) {
             differe.prompt();
-            differe.userChoice.then(function () {
+            differe.userChoice.then(function (choice) {
               differe = null;
-              if (f) f.remove();
+              if (choice && choice.outcome === "accepted") {
+                marquerInstallee();
+              } else {
+                setBtn(false);
+              }
             });
             return false;
           }
@@ -3708,43 +3708,63 @@
           return false;
         };
 
-        if (standalone) return;
-        try {
-          if (localStorage.getItem("sti-install-fab") === "off") return;
-        } catch (e) {}
-        if (!matchMedia("(max-width: 860px), (pointer: coarse)").matches)
-          return;
+        if (btn) {
+          btn.addEventListener("click", function () {
+            window.__stiInstall();
+          });
+        }
 
-        var style = document.createElement("style");
-        style.textContent =
-          "#sti-fab{position:fixed;left:12px;bottom:84px;z-index:9998;display:flex;align-items:center;gap:8px;" +
-          "padding:9px 12px;border-radius:999px;background:#0f1726;color:#f9f1e3;border:2px solid #f9f1e3;" +
-          "box-shadow:3px 3px 0 #f4511e;font:700 12.5px/1 system-ui,'Segoe UI',sans-serif;max-width:calc(100vw - 24px)}" +
-          "#sti-fab button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:#f4511e;color:#fff;font:800 12px/1 inherit}" +
-          "#sti-fab .x{padding:2px 6px;background:transparent;color:#f9f1e3;opacity:.75}" +
-          "#sti-fab .x:hover{opacity:1}";
-        document.head.appendChild(style);
-
-        f = document.createElement("div");
-        f.id = "sti-fab";
-        f.innerHTML =
-          "📲 <span id='sti-fab-txt'>Installer l'appli du cours</span> " +
-          "<button type='button' id='sti-fab-go'>⤓ Installer</button>" +
-          "<button type='button' class='x' id='sti-fab-x' aria-label='Fermer'>✕</button>";
-        document.body.appendChild(f);
-
-        f.querySelector("#sti-fab-x").addEventListener("click", function () {
-          f.remove();
-          try {
-            localStorage.setItem("sti-install-fab", "off");
-          } catch (e) {}
-        });
-        f.querySelector("#sti-fab-go").addEventListener("click", function () {
-          window.__stiInstall();
-        });
         window.addEventListener("appinstalled", function () {
-          f.remove();
+          marquerInstallee();
         });
+
+        if (window.matchMedia) {
+          var mq = matchMedia("(display-mode: standalone), (display-mode: window-controls-overlay)");
+          if (mq.addEventListener) {
+            mq.addEventListener("change", function (e) {
+              if (e.matches) marquerInstallee();
+            });
+          }
+        }
+
+        /* iPhone : pas d'événement beforeinstallprompt → on affiche si non installée */
+        if (!dejaInstallee && estIos) {
+          setBtn(true, "⤓ Installer STI by AE (Partager →)");
+        }
+
+        /* Pastille flottante mobile uniquement si non installée */
+        if (!dejaInstallee) {
+          var fabOff = false;
+          try { fabOff = localStorage.getItem("sti-install-fab") === "off"; } catch (e) {}
+          if (!fabOff && matchMedia("(max-width: 860px), (pointer: coarse)").matches) {
+            var style = document.createElement("style");
+            style.textContent =
+              "#sti-fab{position:fixed;left:12px;bottom:84px;z-index:9998;display:flex;align-items:center;gap:8px;" +
+              "padding:9px 12px;border-radius:999px;background:#0f1726;color:#f9f1e3;border:2px solid #f9f1e3;" +
+              "box-shadow:3px 3px 0 #f4511e;font:700 12.5px/1 system-ui,'Segoe UI',sans-serif;max-width:calc(100vw - 24px)}" +
+              "#sti-fab button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:#f4511e;color:#fff;font:800 12px/1 inherit}" +
+              "#sti-fab .x{padding:2px 6px;background:transparent;color:#f9f1e3;opacity:.75}" +
+              "#sti-fab .x:hover{opacity:1}";
+            document.head.appendChild(style);
+
+            f = document.createElement("div");
+            f.id = "sti-fab";
+            f.innerHTML =
+              "📲 <span id='sti-fab-txt'>Installer l'appli du cours</span> " +
+              "<button type='button' id='sti-fab-go'>⤓ Installer</button>" +
+              "<button type='button' class='x' id='sti-fab-x' aria-label='Fermer'>✕</button>";
+            document.body.appendChild(f);
+
+            f.querySelector("#sti-fab-x").addEventListener("click", function () {
+              f.remove();
+              f = null;
+              try { localStorage.setItem("sti-install-fab", "off"); } catch (e) {}
+            });
+            f.querySelector("#sti-fab-go").addEventListener("click", function () {
+              window.__stiInstall();
+            });
+          }
+        }
       })();
     </script>
 <!-- 🔒 Protection du contenu STI -->
