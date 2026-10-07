@@ -4,6 +4,9 @@
     <meta name="robots" content="noai, noimageai" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; img-src 'self' data: blob: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com; media-src 'self' blob: https://www.w3schools.com https://interactive-examples.mdn.mozilla.net; frame-src 'self' https://www.youtube.com https://example.com https://exemple.tn; connect-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>STI Quiz — Plateforme de tests de compétences</title>
     <meta
@@ -1188,17 +1191,17 @@
         gap: 12px;
       }
 
-      /* Mode sombre : CTA « Ouvrir les séries » — fond opaque, contraste maximal */
+      /* Mode sombre : CTA « Ouvrir les séries » — orange vif, texte noir, contraste maximal */
       [data-theme="dark"] .exercice-cta {
-        color: #0b0d16;
-        font-weight: 700;
-        background: linear-gradient(120deg, #8b93ff, #a78bfa);
+        color: #14100e;
+        font-weight: 800;
+        background: linear-gradient(120deg, #f4511e, #ff8a50);
         border: 1px solid transparent;
-        box-shadow: 0 6px 18px -8px rgba(139, 147, 255, 0.55);
+        box-shadow: 0 6px 20px -8px rgba(244, 81, 30, 0.65);
       }
       [data-theme="dark"] .exercice-banner:hover .exercice-cta {
-        color: #0b0d16;
-        background: linear-gradient(120deg, #a5adff, #c4b5fd);
+        color: #14100e;
+        background: linear-gradient(120deg, #ff6a3d, #ffa270);
         border-color: transparent;
       }
 
