@@ -1,8 +1,7 @@
-/* STI v2 — configuration d'accès (Supabase)
-   Clés à remplir après création du projet Supabase. */
+/* STI v2 — configuration d'accès (Supabase) */
 window.STI_AUTH = {
-  URL: "A_REMPLIR",                       // ex. https://xxxx.supabase.co
-  CLE: "A_REMPLIR",                       // clé publique « anon »
+  URL: "https://vywujxmepvcbgedgmger.supabase.co",
+  CLE: "sb_publishable_FI5FimytONd5VdWK6GfXLA_I6vPTrvn",
   RACINE: "https://aymenessouyah.github.io/STiV2.0/",
   ADMIN: "aymenessouyah@gmail.com"
 };
