@@ -13,19 +13,33 @@
   sb.auth.getSession().then(function (r) {
     var session = r.data.session;
     if (!session) {
-      /* hors-ligne : session locale déjà validée précédemment sur cet appareil */
-      if (localStorage.getItem("sti-offline")) return;
+      /* hors-ligne : session locale déjà validée précédemment sur cet appareil (validité limitée à 24 h) */
+      var t = parseInt(localStorage.getItem("sti-offline") || "0", 10);
+      if (t && Date.now() - t < 86400000) return;
+      localStorage.removeItem("sti-offline");
       location.replace(PORTAIL + "#connexion"); return;
     }
     var user = session.user;
     if (user.email === cfg.ADMIN) { badgeAdmin(); journal(user.id); return; }
-    sb.from("profiles").select("statut,lycee,classe").eq("id", user.id).maybeSingle().then(function (rp) {
+    function entrer(profil) { verrouBio(user, function () { panneauCompte(user, profil || {}); journal(user.id); }); }
+    function sortir(hash) {
+      localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred");
+      sb.auth.signOut().then(function () { location.replace(PORTAIL + hash); });
+    }
+    /* le statut seul décide de l'accès (requête minimale, jamais bloquée par des colonnes optionnelles) */
+    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
       /* réseau absent mais session valide : on laisse passer (mode hors-ligne) */
-      if (rp.error) { verrouBio(user, function () { panneauCompte(user, {}); journal(user.id); }); return; }
+      if (rp.error) { entrer({}); return; }
       var st = rp.data && rp.data.statut;
-      if (st === "actif") { verrouBio(user, function () { panneauCompte(user, rp.data || {}); journal(user.id); }); return; }
-      if (st === "en_attente") { sb.auth.signOut(); location.replace(PORTAIL + "#attente"); return; }
-      sb.auth.signOut(); location.replace(PORTAIL + "#refuse");
+      if (st === "actif") {
+        sb.from("profiles").select("lycee,classe").eq("id", user.id).maybeSingle().then(function (rc) {
+          entrer(!rc.error && rc.data ? rc.data : {});
+        });
+        return;
+      }
+      if (st === "en_attente") { sortir("#attente"); return; }
+      if (st === "exclu") { sortir("#exclu"); return; }
+      sortir("#refuse"); /* suspendu ou inconnu */
     });
   });
 
@@ -57,7 +71,7 @@
     out.style.cssText = "display:block;margin:10px 0 0 auto;border:2px solid #23201a;background:#fff;color:#23201a;color-scheme:light;border-radius:10px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;";
     out.addEventListener("click", function () {
       sb.auth.signOut().then(function () {
-        localStorage.removeItem("sti-offline");
+        localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred");
         sessionStorage.removeItem("sti-demo");
         location.replace(PORTAIL + "#deconnecte");
       });

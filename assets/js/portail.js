@@ -120,7 +120,8 @@
   /* messages transmis par le verrou (#attente, #refuse…) */
   var h = location.hash.replace("#", "");
   if (h === "attente") msg("⏳ Votre compte attend la validation par l'administrateur.", "att");
-  if (h === "refuse") msg("⛔ Accès refusé ou compte exclu. Contactez l'administrateur.", "err");
+  if (h === "refuse") msg("⛔ Accès refusé ou compte suspendu. Contactez l'administrateur.", "err");
+  if (h === "exclu") msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err");
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
@@ -146,7 +147,7 @@
           try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (e) {}
           sha256(mdp).then(function (h) {
             if (cred && cred.email === email && cred.h === h) {
-              localStorage.setItem("sti-offline", "1");
+              localStorage.setItem("sti-offline", String(Date.now()));
               location.href = cfg.RACINE;
             } else {
               msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil.", "err");
@@ -176,7 +177,8 @@
           location.href = cfg.RACINE; return;
         }
         if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
-        msg("⛔ Compte suspendu ou exclu.", "err"); sb.auth.signOut();
+        if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); sb.auth.signOut(); return; }
+        msg("⛔ Compte suspendu. Contactez l'administrateur.", "err"); sb.auth.signOut();
       });
     });
   });
