@@ -398,4 +398,136 @@
     document.getElementById("suppr-cible").textContent = contact(p);
     modalSuppr.classList.add("visible");
   }
+
+  /* ---------- Boîte modale : message groupé à toute une classe ---------- */
+  var modalClasse = document.getElementById("modal-classe");
+  var selClasse = document.getElementById("msg-classe");
+  var txtClasse = document.getElementById("msg-texte");
+  var zoneWaClasse = document.getElementById("zone-wa-classe");
+  var listeWaClasse = document.getElementById("liste-wa-classe");
+  var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
+
+  function abonnesDeClasse(cl) {
+    if (!cl || cl === "*") return profils.slice();
+    return profils.filter(function (p) { return (p.classe || "—") === cl; });
+  }
+
+  function remplirClasses() {
+    var classesBase = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
+    profils.forEach(function (p) {
+      var c = p.classe || "";
+      if (c && classesBase.indexOf(c) === -1) classesBase.push(c);
+    });
+    var valPrec = selClasse.value;
+    selClasse.innerHTML = "";
+    var optTous = document.createElement("option");
+    optTous.value = "*";
+    optTous.textContent = "Toutes les classes (" + profils.length + " abonné(s))";
+    selClasse.appendChild(optTous);
+    classesBase.forEach(function (c) {
+      var nb = abonnesDeClasse(c).length;
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c + " (" + nb + " abonné(s))";
+      selClasse.appendChild(opt);
+    });
+    if (valPrec) selClasse.value = valPrec;
+    majListeWaClasse();
+  }
+
+  function majListeWaClasse() {
+    var cibles = abonnesDeClasse(selClasse.value).filter(function (p) { return !!telDeProfil(p); });
+    listeWaClasse.innerHTML = "";
+    if (!cibles.length) {
+      zoneWaClasse.style.display = "none";
+      return;
+    }
+    zoneWaClasse.style.display = "block";
+    cibles.forEach(function (p) {
+      var tel = telDeProfil(p);
+      var row = document.createElement("div");
+      row.className = "wa-item";
+      var sp = document.createElement("span");
+      sp.textContent = contact(p);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = "💬 Envoyer";
+      b.addEventListener("click", function () {
+        var texte = txtClasse.value.trim();
+        if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
+        var ch = tel.replace(/\D/g, "");
+        var entete = "📢 *Message STI V2.0 (" + (selClasse.value === "*" ? "Toutes les classes" : selClasse.value) + ")* :\n";
+        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(entete + texte), "_blank", "noopener");
+        b.textContent = "✓ Ouvert";
+        b.classList.add("envoye");
+      });
+      row.append(sp, b);
+      listeWaClasse.appendChild(row);
+    });
+  }
+
+  selClasse.addEventListener("change", majListeWaClasse);
+  document.getElementById("btn-msg-classe").addEventListener("click", function () {
+    remplirClasses();
+    modalClasse.classList.add("visible");
+    setTimeout(function () { txtClasse.focus(); }, 30);
+  });
+  document.getElementById("btn-fermer-classe").addEventListener("click", function () {
+    modalClasse.classList.remove("visible");
+  });
+
+  /* Envoi par e-mail groupé (BCC) à tous les abonnés e-mail de la classe */
+  document.getElementById("btn-mail-classe").addEventListener("click", function () {
+    var texte = txtClasse.value.trim();
+    if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
+    var cl = selClasse.value;
+    var libCl = cl === "*" ? "Toutes les classes" : cl;
+    var mails = abonnesDeClasse(cl)
+      .map(function (p) { return p.email; })
+      .filter(function (em) { return em && !/@tel\.sti\.tn$/i.test(em); });
+    if (!mails.length) {
+      msg("⚠️ Aucun abonné avec adresse e-mail dans « " + libCl + " ».", "err");
+      return;
+    }
+    var sujet = "[STI V2.0 — " + libCl + "] Message de M. Essouyah";
+    location.href = "mailto:?bcc=" + encodeURIComponent(mails.join(",")) +
+      "&subject=" + encodeURIComponent(sujet) +
+      "&body=" + encodeURIComponent(texte);
+    msg("📧 Messagerie ouverte pour " + mails.length + " élève(s) de « " + libCl + " ».", "ok");
+  });
+
+  /* Diffusion directe sur le site STI V2.0 (affichée sur l'écran de tous les élèves de la classe) */
+  document.getElementById("btn-diffuser-classe").addEventListener("click", function () {
+    var texte = txtClasse.value.trim();
+    if (!texte) { msg("❌ Saisissez d'abord le message à diffuser.", "err"); txtClasse.focus(); return; }
+    var cl = selClasse.value;
+    var libCl = cl === "*" ? "Toutes les classes" : cl;
+    var btn = document.getElementById("btn-diffuser-classe");
+    btn.disabled = true;
+    btn.textContent = "⏳ Diffusion…";
+    var payload = {
+      id: "m" + Date.now(),
+      ts: new Date().toISOString(),
+      classe: cl,
+      texte: texte
+    };
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "annonce", payload: payload });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = "🔔 Diffuser sur le site";
+      modalClasse.classList.remove("visible");
+      txtClasse.value = "";
+      msg("📢 Message diffusé sur le site pour « " + libCl + " » !", "ok");
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = "🔔 Diffuser sur le site";
+      modalClasse.classList.remove("visible");
+      msg("📢 Message diffusé en temps réel pour « " + libCl + " ».", "ok");
+    });
+  });
 })();

@@ -92,6 +92,22 @@
     display: inline-block; background: #f3ead9; border: 1.5px dashed #23201a;
     border-radius: 8px; padding: 4px 9px; font-family: monospace; font-weight: 900; color: #d84315;
   }
+  .modal-boite select, .modal-boite textarea {
+    width: 100%; border: 2px solid #23201a; border-radius: 10px; padding: 9px 12px;
+    font-size: 13.5px; margin-bottom: 12px; background: #fff; color: #23201a; font-family: inherit;
+  }
+  .modal-boite textarea { min-height: 92px; resize: vertical; }
+  .wa-liste {
+    max-height: 150px; overflow-y: auto; border: 1.5px solid #e2d5be; border-radius: 10px;
+    padding: 8px 10px; margin-bottom: 12px; background: #fdf8ee; font-size: 12.5px;
+  }
+  .wa-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #e7dcc8; }
+  .wa-item:last-child { border-bottom: 0; }
+  .wa-item button {
+    border: 1.5px solid #23201a; background: #fff; color: #23201a; border-radius: 999px;
+    padding: 3px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer;
+  }
+  .wa-item button.envoye { background: #177245; color: #fff; border-color: #177245; }
 </style>
 </head>
 <body>
@@ -103,6 +119,7 @@
   <div class="barre">
     <a href="index.html">🏠 Site</a>
     <button id="btn-stats" type="button">📊 Stats &amp; tri par accès</button>
+    <button id="btn-msg-classe" type="button">📢 Message par classe</button>
     <button id="btn-notif" type="button">🔔 Notifications</button>
     <button id="btn-refresh" type="button">🔄 Actualiser</button>
     <button id="btn-logout" type="button">🚪 Déconnexion</button>
@@ -171,6 +188,25 @@
     </div>
   </div>
 
+  <!-- Boîte d'envoi d'un message groupé à toute une classe -->
+  <div class="modal-fond" id="modal-classe" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:480px">
+      <h3>📢 Message groupé à une classe</h3>
+      <p>Choisissez la classe destinataire et saisissez votre annonce :</p>
+      <select id="msg-classe"></select>
+      <textarea id="msg-texte" placeholder="Ex. : Rappel — devoir de synthèse mardi prochain, révisez le module PHP &amp; MySQLi."></textarea>
+      <div id="zone-wa-classe" style="display:none">
+        <p style="margin-bottom:6px;font-weight:800;color:#23201a;font-size:12.5px">📱 Élèves de la classe inscrits par WhatsApp :</p>
+        <div class="wa-liste" id="liste-wa-classe"></div>
+      </div>
+      <div class="modal-actions" style="flex-wrap:wrap;gap:8px">
+        <button type="button" id="btn-fermer-classe">Fermer</button>
+        <button type="button" id="btn-mail-classe">📧 E-mail groupé</button>
+        <button type="button" class="btn-valider" id="btn-diffuser-classe">🔔 Diffuser sur le site</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Boîte de configuration des notifications de nouvelles demandes -->
   <div class="modal-fond" id="modal-notif" role="dialog" aria-modal="true">
     <div class="modal-boite">
@@ -185,7 +221,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=17"></script>
-<script src="assets/js/admin.js?v=17"></script>
+<script src="assets/js/config.js?v=18"></script>
+<script src="assets/js/admin.js?v=18"></script>
 </body>
 </html>

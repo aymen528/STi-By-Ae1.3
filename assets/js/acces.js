@@ -123,6 +123,65 @@
     wrap.appendChild(pan);
     wrap.appendChild(porte);
     document.documentElement.appendChild(wrap);
+
+    ecouterMessagesClasse(profil.classe || "");
+  }
+
+  /* ---------- réception des messages groupés diffusés par l'admin à une classe ---------- */
+  function ecouterMessagesClasse(maClasse) {
+    var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
+    function afficherAnnonce(a) {
+      if (!a || !a.id || !a.texte) return;
+      if (a.classe !== "*" && a.classe !== maClasse) return;
+      try { if (localStorage.getItem("sti-msg-lu-" + a.id) === "1") return; } catch (e) {}
+      if (document.getElementById("sti-annonce-" + a.id)) return;
+
+      var boite = document.createElement("div");
+      boite.id = "sti-annonce-" + a.id;
+      boite.style.cssText = "position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;max-width:440px;width:calc(100vw - 28px);background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e,0 16px 36px rgba(0,0,0,.22);font:600 13.5px/1.5 system-ui,'Segoe UI',sans-serif;";
+      var libCl = a.classe === "*" ? "Toutes les classes" : a.classe;
+      boite.innerHTML =
+        "<div style='font-weight:900;font-size:15px;color:#f4511e;margin-bottom:6px'>📢 Message de M. Essouyah · " + esc(libCl) + "</div>" +
+        "<div style='white-space:pre-wrap;color:#23201a;margin-bottom:14px'>" + esc(a.texte) + "</div>" +
+        "<div style='text-align:right'><button type='button' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 18px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ J'ai lu</button></div>";
+      boite.querySelector("button").addEventListener("click", function () {
+        try { localStorage.setItem("sti-msg-lu-" + a.id, "1"); } catch (e) {}
+        boite.remove();
+      });
+      document.documentElement.appendChild(boite);
+    }
+
+    function verifierDiffusion() {
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION + "/json?poll=1&since=all")
+        .then(function (r) { return r.text(); })
+        .then(function (txt) {
+          var lignes = (txt || "").trim().split("\n");
+          for (var i = lignes.length - 1; i >= 0; i--) {
+            if (!lignes[i]) continue;
+            try {
+              var evt = JSON.parse(lignes[i]);
+              if (evt && evt.message) {
+                var a = JSON.parse(evt.message);
+                if (a && (a.classe === "*" || a.classe === maClasse)) {
+                  afficherAnnonce(a);
+                  break;
+                }
+              }
+            } catch (e) {}
+          }
+        })
+        .catch(function () {});
+    }
+
+    verifierDiffusion();
+    setInterval(verifierDiffusion, 25000);
+    try {
+      sb.channel("sti-diffusion")
+        .on("broadcast", { event: "annonce" }, function (p) {
+          if (p && p.payload) afficherAnnonce(p.payload);
+        })
+        .subscribe();
+    } catch (e) {}
   }
 
   /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + compteur de demandes ---------- */
