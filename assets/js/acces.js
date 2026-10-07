@@ -35,10 +35,10 @@
   function panneauCompte(user, profil) {
     var st = document.createElement("style");
     st.textContent =
-      ".sti-roue{transition:transform .55s cubic-bezier(.34,1.3,.4,1),box-shadow .3s}" +
+      ".sti-roue{transition:transform 1.15s cubic-bezier(.34,1.2,.4,1),box-shadow .3s}" +
       ".sti-roue:hover{box-shadow:0 0 0 6px rgba(244,81,30,.18),3px 3px 0 #23201a}" +
-      ".sti-wrap{transition:transform .55s cubic-bezier(.34,1.3,.4,1)}" +
-      ".sti-pan{opacity:0;transform:translateX(26px) scale(.96);pointer-events:none;transition:opacity .35s ease,transform .35s ease}" +
+      ".sti-wrap{transition:transform 1.15s cubic-bezier(.34,1.2,.4,1)}" +
+      ".sti-pan{opacity:0;transform:translateX(26px) scale(.96);pointer-events:none;transition:opacity .8s ease,transform .8s ease}" +
       ".sti-pan.ouvert{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}";
     document.head.appendChild(st);
 
