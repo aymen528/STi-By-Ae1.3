@@ -17,11 +17,33 @@
     if (user.email === cfg.ADMIN) { journal(user.id); return; }
     sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
       var st = rp.data && rp.data.statut;
-      if (st === "actif") { journal(user.id); return; }
+      if (st === "actif") { verrouBio(user, function () { journal(user.id); }); return; }
       if (st === "en_attente") { sb.auth.signOut(); location.replace(PORTAIL + "#attente"); return; }
       sb.auth.signOut(); location.replace(PORTAIL + "#refuse");
     });
   });
+
+  /* ---------- verrou biométrique (abonnés ayant activé l'option) ---------- */
+  function verrouBio(user, suite) {
+    if (user.email === cfg.ADMIN || !localStorage.getItem("sti-bio")) { suite(); return; }
+    if (!navigator.credentials || !window.PublicKeyCredential) { suite(); return; }
+    var ov = document.createElement("div");
+    ov.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(249,241,227,.97);display:flex;align-items:center;justify-content:center;font-family:system-ui,'Segoe UI',sans-serif;";
+    ov.innerHTML = '<div style="text-align:center;color:#23201a"><div style="font-size:56px">🖐</div>' +
+      '<p style="font-weight:900;font-size:17px;margin:12px 0 18px">Vérification biométrique</p>' +
+      '<button id="bio-go" style="border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:13px 28px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:4px 4px 0 #23201a">Toucher le capteur</button>' +
+      '<p style="color:#7a6f5d;font-size:12px;margin-top:14px">ou <a href="' + PORTAIL + '#connexion" style="color:#f4511e;font-weight:700">utilisez votre mot de passe</a></p>' +
+      '<p id="bio-err" style="color:#c0392b;font-size:12px;margin-top:10px;min-height:16px;font-weight:700"></p></div>';
+    document.documentElement.appendChild(ov);
+    ov.querySelector("#bio-go").addEventListener("click", function () {
+      var ch = crypto.getRandomValues(new Uint8Array(32));
+      navigator.credentials.get({ publicKey: { challenge: ch, userVerification: "required", timeout: 30000 } })
+        .then(function () { ov.remove(); suite(); })
+        .catch(function () {
+          ov.querySelector("#bio-err").textContent = "Échec biométrique — utilisez le mot de passe.";
+        });
+    });
+  }
 
   /* ---------- journal : lieu + durée ---------- */
   function journal(uid) {

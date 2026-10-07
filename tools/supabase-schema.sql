@@ -83,3 +83,16 @@ begin
   end if;
   perform auth.admin_update_user(uid, jsonb_build_object('password', newpass));
 end $$;
+
+-- 7) Lycée + classe des abonnés (remplis depuis le formulaire d'inscription)
+alter table public.profiles add column if not exists lycee text;
+alter table public.profiles add column if not exists classe text;
+
+create or replace function public.nouveau_profil() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, lycee, classe)
+  values (new.id, new.email, new.raw_user_meta_data->>'lycee', new.raw_user_meta_data->>'classe')
+  on conflict (id) do update set email = excluded.email;
+  return new;
+end $$;

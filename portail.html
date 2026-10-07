@@ -50,11 +50,11 @@
   }
   .onglets button.actif { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; box-shadow: 0 6px 14px -6px rgba(244,81,30,.6); }
   label { display: block; font-size: 12.5px; font-weight: 800; color: #7a6f5d; margin: 13px 0 5px; text-transform: uppercase; letter-spacing: .6px; font-size: 11px; }
-  input[type=email], input[type=password], input[type=text] {
+  input[type=email], input[type=password], input[type=text], select {
     width: 100%; padding: 13px 14px; border-radius: 12px; border: 2px solid #e2d6c2;
     background: #fff; color: #23201a; font-size: 14.5px; outline: none; transition: border .2s, box-shadow .2s;
   }
-  input:focus { border-color: #f4511e; box-shadow: 0 0 0 4px rgba(244,81,30,.12); }
+  input:focus, select:focus { border-color: #f4511e; box-shadow: 0 0 0 4px rgba(244,81,30,.12); }
   .ligne-captcha { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
   canvas { border-radius: 12px; border: 2px solid #23201a; background: #fff; box-shadow: 3px 3px 0 rgba(244,81,30,.4); }
   .rafraichir {
@@ -108,6 +108,21 @@
     <form id="f-inscription" hidden autocomplete="on">
       <label for="i-email">Adresse e-mail</label>
       <input id="i-email" type="email" required placeholder="vous@exemple.tn" />
+      <label for="i-lycee">Lycée</label>
+      <select id="i-lycee">
+        <option value="Lycée Rafèha" selected>Lycée Rafèha</option>
+        <option value="__autre">Autre lycée…</option>
+      </select>
+      <input id="i-lycee-autre" type="text" hidden placeholder="Nom de votre lycée" />
+      <label for="i-classe">Classe</label>
+      <select id="i-classe">
+        <option value="3eme SI1" selected>3ème SI 1</option>
+        <option value="3eme SI2">3ème SI 2</option>
+        <option value="4eme SI1">4ème SI 1</option>
+        <option value="4eme SI2">4ème SI 2</option>
+        <option value="__autre">Autre…</option>
+      </select>
+      <input id="i-classe-autre" type="text" hidden placeholder="Votre classe" />
       <label for="i-mdp">Mot de passe (6 caractères min.)</label>
       <input id="i-mdp" type="password" required minlength="6" placeholder="••••••••" />
       <label for="i-mdp2">Confirmez le mot de passe</label>

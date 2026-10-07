@@ -77,6 +77,10 @@
       td1.textContent = p.email + (p.email === cfg.ADMIN ? " (admin)" : "");
       td1.style.fontWeight = "700";
 
+      var tdL = document.createElement("td");
+      tdL.textContent = (p.lycee || "—") + " · " + (p.classe || "—");
+      tdL.style.color = "#7a6f5d";
+
       var td2 = document.createElement("td");
       var nb = document.createElement("span"); nb.className = "nb"; nb.textContent = counts[p.id] || 0;
       td2.appendChild(nb);
@@ -100,7 +104,7 @@
       bouton("🔑", function () { nouveauMdp(p); });
       bouton("🔎", function () { detail(p); });
 
-      tr.append(td1, td2, td3, td4, td5);
+      tr.append(td1, tdL, td2, td3, td4, td5);
       tb.appendChild(tr);
     });
   }

@@ -52,6 +52,42 @@
   var cap1 = fabriqueCaptcha("captcha-canvas", "captcha-refresh");
   var cap2 = fabriqueCaptcha("captcha-canvas2", "captcha-refresh2");
 
+  /* ---------- champs « autre » ---------- */
+  function gereAutre(selId, inputId) {
+    var sel = document.getElementById(selId), inp = document.getElementById(inputId);
+    sel.addEventListener("change", function () {
+      inp.hidden = sel.value !== "__autre";
+      if (!inp.hidden) inp.focus();
+    });
+  }
+  gereAutre("i-lycee", "i-lycee-autre");
+  gereAutre("i-classe", "i-classe-autre");
+  function valeur(selId, inputId) {
+    var sel = document.getElementById(selId);
+    return sel.value === "__autre" ? document.getElementById(inputId).value.trim() || "—" : sel.value;
+  }
+
+  /* ---------- biométrie (WebAuthn, empreinte / visage) ---------- */
+  function bioDispo() {
+    return !!(navigator.credentials && window.PublicKeyCredential && window.isSecureContext);
+  }
+  function activeBio(uid, email, suite) {
+    var challenge = crypto.getRandomValues(new Uint8Array(32));
+    navigator.credentials.create({
+      publicKey: {
+        challenge: challenge,
+        rp: { name: "STI V2.0", id: location.hostname },
+        user: { id: new TextEncoder().encode(uid), name: email, displayName: email },
+        authenticatorSelection: { authenticatorAttachment: "platform", residentKey: "required", userVerification: "required" },
+        pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+        timeout: 60000
+      }
+    }).then(function () {
+      localStorage.setItem("sti-bio", "1");
+      suite(true);
+    }).catch(function () { suite(false); });
+  }
+
   /* ---------- onglets ---------- */
   var tabs = { "tab-connexion": "f-connexion", "tab-inscription": "f-inscription", "tab-oubli": "f-oubli" };
   Object.keys(tabs).forEach(function (id) {
@@ -96,7 +132,15 @@
       if (r.data.user.email === cfg.ADMIN) { location.href = cfg.RACINE + "admin.html"; return; }
       sb.from("profiles").select("statut").eq("id", r.data.user.id).maybeSingle().then(function (rp) {
         var st = rp.data && rp.data.statut;
-        if (st === "actif") { location.href = cfg.RACINE; return; }
+        if (st === "actif") {
+          if (bioDispo() && !localStorage.getItem("sti-bio")) {
+            if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {
+              activeBio(r.data.user.id, r.data.user.email, function () { location.href = cfg.RACINE; });
+              return;
+            }
+          }
+          location.href = cfg.RACINE; return;
+        }
         if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
         msg("⛔ Compte suspendu ou exclu.", "err"); sb.auth.signOut();
       });
@@ -113,10 +157,15 @@
       document.getElementById("i-captcha").value = "";
       return;
     }
+    var lycee = valeur("i-lycee", "i-lycee-autre");
+    var classe = valeur("i-classe", "i-classe-autre");
+    if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
+    if (document.getElementById("i-classe").value === "__autre" && classe === "—") { msg("❌ Indiquez votre classe.", "err"); return; }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;
     sb.auth.signUp({
       email: document.getElementById("i-email").value.trim(),
-      password: mdp
+      password: mdp,
+      options: { data: { lycee: lycee, classe: classe } }
     }).then(function (r) {
       btn.disabled = false;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
