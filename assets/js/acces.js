@@ -31,17 +31,24 @@
 
   function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
 
-  /* ---------- panneau « mon compte » + déconnexion (abonné) ---------- */
+  /* ---------- roue « mon compte » chic : tourne, glisse à gauche pour ouvrir ---------- */
   function panneauCompte(user, profil) {
+    var st = document.createElement("style");
+    st.textContent =
+      "@keyframes sti-tour{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}" +
+      ".sti-roue{animation:sti-tour 7s linear infinite;transition:box-shadow .3s}" +
+      ".sti-roue:hover{animation-duration:2.5s;box-shadow:0 0 0 6px rgba(244,81,30,.18),3px 3px 0 #23201a}" +
+      ".sti-wrap{transition:transform .5s cubic-bezier(.22,1,.36,1)}" +
+      ".sti-pan{opacity:0;transform:translateX(26px) scale(.96);pointer-events:none;transition:opacity .35s ease,transform .35s ease}" +
+      ".sti-pan.ouvert{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}";
+    document.head.appendChild(st);
+
     var wrap = document.createElement("div");
-    wrap.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;flex-direction:column;gap:8px;align-items:flex-end;";
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = "⚙️";
-    btn.title = "Mon compte";
-    btn.style.cssText = "width:46px;height:46px;border-radius:50%;border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);font-size:20px;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
+    wrap.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;align-items:center;";
+
     var pan = document.createElement("div");
-    pan.style.cssText = "display:none;background:#fffdf7;border:2px solid #23201a;border-radius:14px;padding:14px 16px;box-shadow:4px 4px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;max-width:230px;text-align:right;";
+    pan.className = "sti-pan";
+    pan.style.cssText = "position:absolute;right:0;background:#fffdf7;border:2px solid #23201a;border-radius:16px;padding:14px 16px;box-shadow:5px 5px 0 rgba(244,81,30,.5);font:600 12.5px/1.6 system-ui,'Segoe UI',sans-serif;color:#23201a;width:225px;text-align:right;";
     pan.innerHTML = "<span style='color:#7a6f5d;font-size:10.5px;text-transform:uppercase;letter-spacing:1px'>Login</span><br>" +
       "<b style='font-size:13px'>" + esc(user.email) + "</b><br>" +
       "<span style='color:#7a6f5d'>" + esc(profil.lycee || "—") + " · " + esc(profil.classe || "—") + "</span>";
@@ -56,8 +63,33 @@
       });
     });
     pan.appendChild(out);
-    btn.addEventListener("click", function () { pan.style.display = pan.style.display === "none" ? "block" : "none"; });
-    wrap.appendChild(btn); wrap.appendChild(pan);
+
+    var porte = document.createElement("div");
+    porte.className = "sti-wrap";
+    porte.style.cssText = "position:relative;z-index:2;";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sti-roue";
+    btn.textContent = "⚙️";
+    btn.title = "Mon compte";
+    btn.style.cssText = "display:block;width:48px;height:48px;border-radius:50%;border:2px solid #23201a;background:radial-gradient(circle at 32% 30%,#ffb27a,#f4511e 68%);font-size:22px;line-height:1;cursor:pointer;box-shadow:3px 3px 0 #23201a,0 8px 20px -8px rgba(244,81,30,.7);";
+    porte.appendChild(btn);
+
+    var ouvert = false;
+    btn.addEventListener("click", function () {
+      ouvert = !ouvert;
+      if (ouvert) {
+        pan.classList.add("ouvert");
+        /* la roue glisse à gauche pour laisser le panneau s'ouvrir à droite */
+        porte.style.transform = "translateX(-" + (pan.offsetWidth + 14) + "px)";
+      } else {
+        pan.classList.remove("ouvert");
+        porte.style.transform = "translateX(0)";
+      }
+    });
+
+    wrap.appendChild(pan);
+    wrap.appendChild(porte);
     document.documentElement.appendChild(wrap);
   }
 
