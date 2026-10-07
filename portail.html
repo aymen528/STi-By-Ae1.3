@@ -82,6 +82,18 @@
   .qr-zone b { color: #f4511e; font-size: 14px; }
   .qr-zone span { color: #7a6f5d; font-size: 12px; }
   form[hidden] { display: none; }
+  .canal { display: flex; gap: 8px; margin-bottom: 14px; }
+  .canal button {
+    flex: 1; border: 2px solid #23201a; background: #fffdf7; color: #23201a;
+    border-radius: 999px; padding: 8px 6px; font-weight: 800; font-size: 12.5px; cursor: pointer;
+    box-shadow: 2px 2px 0 rgba(244,81,30,.35); transition: transform .15s ease, background .2s ease;
+  }
+  .canal button.on { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; }
+  .canal button:not(.on):hover { transform: translateY(-1px); }
+  #zone-code { animation: entree .5s both; }
+  .code-titre { background: #fdf3e2; border: 1.5px dashed #f2b532; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
+  .code-titre b { color: #d84315; }
+  .btn-sec { background: #fffdf7 !important; color: #23201a !important; margin-top: 8px; font-size: 13px !important; }
   @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
   .wrap-carte { position: relative; width: 100%; max-width: 450px; }
   .wrap-carte::before {
@@ -142,8 +154,8 @@
     </div>
 
     <form id="f-connexion" autocomplete="on">
-      <label for="c-email">Adresse e-mail</label>
-      <span class="champ"><span class="ico">✉️</span><input id="c-email" type="email" required placeholder="vous@exemple.tn" /></span>
+      <label for="c-email">E-mail ou n° WhatsApp</label>
+      <span class="champ"><span class="ico">👤</span><input id="c-email" type="text" required placeholder="vous@exemple.tn ou +216 20 123 456" autocomplete="username" /></span>
       <label for="c-mdp">Mot de passe</label>
       <span class="champ"><span class="ico">🔒</span><input id="c-mdp" type="password" required placeholder="••••••••" /></span>
       <label>Captcha — recopiez le code</label>
@@ -160,8 +172,22 @@
     </form>
 
     <form id="f-inscription" hidden autocomplete="on">
-      <label for="i-email">Adresse e-mail</label>
-      <span class="champ"><span class="ico">✉️</span><input id="i-email" type="email" required placeholder="vous@exemple.tn" /></span>
+      <div class="canal" role="tablist">
+        <button type="button" id="c-mail" class="on">📧 Par e-mail</button>
+        <button type="button" id="c-tel">📱 Par téléphone</button>
+      </div>
+      <div id="zone-tel" hidden>
+        <label for="i-tel">Numéro WhatsApp (format international)</label>
+        <span class="champ"><span class="ico">📱</span><input id="i-tel" type="tel" placeholder="+216 20 123 456" autocomplete="tel" /></span>
+        <label for="i-nom">Nom</label>
+        <span class="champ"><span class="ico">👤</span><input id="i-nom" type="text" placeholder="Nom de famille" autocomplete="family-name" /></span>
+        <label for="i-prenom">Prénom</label>
+        <span class="champ"><span class="ico">👤</span><input id="i-prenom" type="text" placeholder="Prénom" autocomplete="given-name" /></span>
+      </div>
+      <div id="zone-mail">
+        <label for="i-email">Adresse e-mail</label>
+        <span class="champ"><span class="ico">✉️</span><input id="i-email" type="email" placeholder="vous@exemple.tn" /></span>
+      </div>
       <label for="i-lycee">Lycée</label>
       <select id="i-lycee">
         <option value="Lycée Rafèha" selected>Lycée Rafèha</option>
@@ -189,6 +215,14 @@
       <input id="i-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">📝 S'inscrire</button>
     </form>
+
+    <div id="zone-code" hidden>
+      <div class="code-titre">📨 Un code de confirmation a été envoyé au<br /><b id="code-cible"></b></div>
+      <label for="i-code">Recopiez le code reçu (6 chiffres)</label>
+      <span class="champ"><span class="ico">🔢</span><input id="i-code" type="text" inputmode="numeric" maxlength="6" placeholder="______" autocomplete="one-time-code" /></span>
+      <button class="btn" type="button" id="b-verif">✅ Confirmer mon inscription</button>
+      <button class="btn btn-sec" type="button" id="b-renvoi">🔁 Je n'ai rien reçu — renvoyer</button>
+    </div>
 
     <form id="f-oubli" hidden>
       <label for="o-email">Adresse e-mail du compte</label>

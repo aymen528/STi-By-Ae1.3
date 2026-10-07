@@ -7,6 +7,7 @@
   function msg(t, c) { elMsg.textContent = t; elMsg.className = "msg" + (c ? " " + c : ""); }
 
   var LIB = { actif: "Actif", en_attente: "En attente", suspendu: "Suspendu", exclu: "Exclu" };
+  function contact(p) { return p.email || p.phone || "—"; }
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
 
@@ -74,8 +75,16 @@
       tr.addEventListener("click", function () { detail(p); });
 
       var td1 = document.createElement("td");
-      td1.textContent = p.email + (p.email === cfg.ADMIN ? " (admin)" : "");
       td1.style.fontWeight = "700";
+      td1.textContent = p.email
+        ? p.email + (p.email === cfg.ADMIN ? " (admin)" : "")
+        : "📱 " + (p.phone || "—");
+      if (p.nom || p.prenom) {
+        var petit = document.createElement("div");
+        petit.style.cssText = "font-weight:600;font-size:11px;color:#7a6f5d;";
+        petit.textContent = ((p.prenom || "") + " " + (p.nom || "")).trim();
+        td1.appendChild(petit);
+      }
 
       var tdL = document.createElement("td");
       tdL.textContent = (p.lycee || "—") + " · " + (p.classe || "—");
@@ -112,7 +121,7 @@
 
   function rendAcces() {
     var emails = {};
-    profils.forEach(function (p) { emails[p.id] = p.email; });
+    profils.forEach(function (p) { emails[p.id] = p.email || p.phone; });
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
     acces.slice(0, 50).forEach(function (a) {
@@ -125,7 +134,7 @@
   }
 
   function detail(p) {
-    document.getElementById("detail-email").textContent = p.email;
+    document.getElementById("detail-email").textContent = contact(p);
     var td = document.getElementById("tb-detail");
     td.innerHTML = "";
     var lignes = acces.filter(function (a) { return a.user_id === p.id; });
@@ -148,28 +157,28 @@
   function changeStatut(p, statut) {
     sb.from("profiles").update({ statut: statut }).eq("id", p.id).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
-      msg("✅ " + p.email + " → " + LIB[statut], "ok");
+      msg("✅ " + contact(p) + " → " + LIB[statut], "ok");
       charge();
     });
   }
 
   function nouveauMdp(p) {
-    var mdp = window.prompt("Nouveau mot de passe pour " + p.email + " :\n(min. 6 caractères — l'ancien mot de passe n'est jamais visible, par sécurité)");
+    var mdp = window.prompt("Nouveau mot de passe pour " + contact(p) + " :\n(min. 6 caractères — l'ancien mot de passe n'est jamais visible, par sécurité)");
     if (!mdp) return;
     if (mdp.length < 6) { msg("❌ Mot de passe trop court (6 caractères minimum).", "err"); return; }
     sb.rpc("admin_set_password", { uid: p.id, newpass: mdp }).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
-      msg("🔑 Mot de passe de " + p.email + " défini.", "ok");
+      msg("🔑 Mot de passe de " + contact(p) + " défini.", "ok");
     });
   }
 
   function supprimer(p) {
     if (p.email === cfg.ADMIN) { msg("❌ Impossible de supprimer le compte administrateur.", "err"); return; }
-    if (!window.confirm("Supprimer définitivement l'abonné " + p.email + " ?\nSon profil et tout son journal de connexions seront effacés.")) return;
-    if (!window.confirm("Dernière vérification : confirmez la suppression de " + p.email + ".")) return;
+    if (!window.confirm("Supprimer définitivement l'abonné " + contact(p) + " ?\nSon profil et tout son journal de connexions seront effacés.")) return;
+    if (!window.confirm("Dernière vérification : confirmez la suppression de " + contact(p) + ".")) return;
     sb.rpc("admin_supprimer_abonne", { uid: p.id }).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
-      msg("🗑️ " + p.email + " supprimé définitivement.", "ok");
+      msg("🗑️ " + contact(p) + " supprimé définitivement.", "ok");
       charge();
     });
   }

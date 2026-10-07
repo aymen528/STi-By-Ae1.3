@@ -134,10 +134,11 @@
       return;
     }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;
-    sb.auth.signInWithPassword({
-      email: document.getElementById("c-email").value.trim(),
-      password: document.getElementById("c-mdp").value
-    }).then(function (r) {
+    var idConn = document.getElementById("c-email").value.trim();
+    var cred = /^[+\d]/.test(idConn)
+      ? { phone: idConn.replace(/[\s.\-()]/g, ""), password: document.getElementById("c-mdp").value }
+      : { email: idConn, password: document.getElementById("c-mdp").value };
+    sb.auth.signInWithPassword(cred).then(function (r) {
       btn.disabled = false;
       var email = document.getElementById("c-email").value.trim();
       var mdp = document.getElementById("c-mdp").value;
@@ -183,7 +184,17 @@
     });
   });
 
-  /* ---------- inscription ---------- */
+  /* ---------- inscription : choix du canal e-mail / téléphone ---------- */
+  var telEnCours = null;
+  function choisirCanal(tel) {
+    document.getElementById("zone-tel").hidden = !tel;
+    document.getElementById("zone-mail").hidden = tel;
+    document.getElementById("c-tel").classList.toggle("on", tel);
+    document.getElementById("c-mail").classList.toggle("on", !tel);
+  }
+  document.getElementById("c-mail").addEventListener("click", function () { choisirCanal(false); });
+  document.getElementById("c-tel").addEventListener("click", function () { choisirCanal(true); });
+
   document.getElementById("f-inscription").addEventListener("submit", function (e) {
     e.preventDefault();
     var mdp = document.getElementById("i-mdp").value;
@@ -198,6 +209,32 @@
     if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
     if (document.getElementById("i-classe").value === "__autre" && classe === "—") { msg("❌ Indiquez votre classe.", "err"); return; }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;
+    var modeTel = !document.getElementById("zone-tel").hidden;
+
+    if (modeTel) {
+      /* ----- inscription par téléphone (confirmation par code WhatsApp/SMS) ----- */
+      var tel = document.getElementById("i-tel").value.replace(/[\s.\-()]/g, "");
+      var nom = document.getElementById("i-nom").value.trim();
+      var prenom = document.getElementById("i-prenom").value.trim();
+      if (!/^\+\d{8,15}$/.test(tel)) { btn.disabled = false; msg("❌ Numéro invalide — format international exigé, ex. +216 20 123 456.", "err"); return; }
+      if (!nom || !prenom) { btn.disabled = false; msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
+      telEnCours = tel;
+      sb.auth.signUp({
+        phone: tel, password: mdp,
+        options: { data: { nom: nom, prenom: prenom, lycee: lycee, classe: classe } }
+      }).then(function (r) {
+        btn.disabled = false;
+        if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+        document.getElementById("f-inscription").hidden = true;
+        document.getElementById("zone-code").hidden = false;
+        document.getElementById("code-cible").textContent = tel;
+        msg("📨 Un code de confirmation vient d'être envoyé. Saisissez-le ci-dessous.", "ok");
+      });
+      return;
+    }
+
+    /* ----- inscription par e-mail ----- */
+    if (!document.getElementById("i-email").value.trim()) { btn.disabled = false; msg("❌ Indiquez votre adresse e-mail.", "err"); return; }
     sb.auth.signUp({
       email: document.getElementById("i-email").value.trim(),
       password: mdp,
@@ -208,6 +245,33 @@
       if (r.data.session) sb.auth.signOut(); /* le compte repasse en attente ; l'admin valide */
       msg("✅ Inscription reçue ! Votre accès sera activé après validation par l'administrateur.", "ok");
       e.target.reset(); cap2.reset();
+    });
+  });
+
+  /* ---------- confirmation du code reçu (WhatsApp/SMS) ---------- */
+  document.getElementById("b-verif").addEventListener("click", function () {
+    var code = document.getElementById("i-code").value.trim();
+    if (!telEnCours) return;
+    if (!/^\d{6}$/.test(code)) { msg("❌ Le code comporte 6 chiffres.", "err"); return; }
+    var btn = document.getElementById("b-verif"); btn.disabled = true;
+    sb.auth.verifyOtp({ phone: telEnCours, token: code, type: "sms" }).then(function (r) {
+      btn.disabled = false;
+      if (r.error) { msg("❌ Code incorrect ou expiré — vérifiez le message reçu.", "err"); return; }
+      sb.auth.signOut(); /* le compte attend la validation de l'administrateur */
+      telEnCours = null;
+      document.getElementById("zone-code").hidden = true;
+      document.getElementById("f-inscription").hidden = false;
+      document.getElementById("f-inscription").reset(); cap2.reset();
+      document.getElementById("i-code").value = "";
+      msg("✅ Numéro confirmé ! Votre accès sera activé après validation par l'administrateur.", "ok");
+    });
+  });
+
+  document.getElementById("b-renvoi").addEventListener("click", function () {
+    if (!telEnCours) return;
+    sb.auth.resend({ phone: telEnCours, type: "signup" }).then(function (r) {
+      if (r.error) { msg("❌ Renvoi impossible : " + r.error.message, "err"); return; }
+      msg("📨 Un nouveau code vient d'être envoyé.", "ok");
     });
   });
 
