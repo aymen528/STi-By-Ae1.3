@@ -1,4 +1,4 @@
-/* STI v2 — verrou d'accès + journal des accès (lieu, date, durée)
+/* STI v2 — verrou d'accès temps réel + déconnexion instantanée (y compris depuis les boîtes/iframes) + journal des accès
    Chargé sur toutes les pages SAUF portail.html et admin.html. */
 (function () {
   "use strict";
@@ -9,6 +9,54 @@
 
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
   var PORTAIL = cfg.RACINE + "portail.html";
+  var enSortie = false;
+
+  /* ---------- Éjection immédiate (fenêtre principale + boîtes/iframes + purge totale) ---------- */
+  function purgerStockageLocal() {
+    try {
+      localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-cred");
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("sb-") === 0 || k.indexOf("supabase") !== -1) {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
+    try { sessionStorage.removeItem("sti-demo"); } catch (e) {}
+  }
+
+  function redirigerTop(cible) {
+    try {
+      if (window.top && window.top !== window) {
+        try { if (window.top.document && window.top.document.body) window.top.document.body.innerHTML = ""; } catch (e) {}
+        window.top.location.replace(cible);
+        return;
+      }
+    } catch (e) {}
+    location.replace(cible);
+  }
+
+  function sortirImmediatement(hash) {
+    if (enSortie) return;
+    enSortie = true;
+    var h = hash || "#deconnecte";
+    var cible = PORTAIL + h;
+    purgerStockageLocal();
+    try { localStorage.setItem("sti-force-exit", h + "|" + Date.now()); } catch (e) {}
+    /* Masque immédiatement le cours et les boîtes ouvertes */
+    try { if (document.body) document.body.innerHTML = ""; } catch (e) {}
+    try { sb.auth.signOut().catch(function () {}); } catch (e) {}
+    redirigerTop(cible);
+  }
+
+  /* Si la déconnexion ou l'exclusion est déclenchée depuis une boîte (iframe) ou un autre onglet */
+  window.addEventListener("storage", function (e) {
+    if (!e) return;
+    if (e.key === "sti-force-exit" && e.newValue) {
+      var h = String(e.newValue).split("|")[0] || "#deconnecte";
+      sortirImmediatement(h);
+    }
+  });
 
   sb.auth.getSession().then(function (r) {
     var session = r.data.session;
@@ -17,31 +65,85 @@
       var t = parseInt(localStorage.getItem("sti-offline") || "0", 10);
       if (t && Date.now() - t < 86400000) return;
       localStorage.removeItem("sti-offline");
-      location.replace(PORTAIL + "#connexion"); return;
+      redirigerTop(PORTAIL + "#connexion");
+      return;
     }
     var user = session.user;
-    if (user.email === cfg.ADMIN) { badgeAdmin(); journal(user.id); return; }
-    function entrer(profil) { verrouBio(user, function () { panneauCompte(user, profil || {}); journal(user.id); }); }
-    function sortir(hash) {
-      localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred");
-      sb.auth.signOut().then(function () { location.replace(PORTAIL + hash); });
+    if ((user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase()) {
+      if (window === window.top) badgeAdmin();
+      journal(user.id);
+      return;
     }
-    /* le statut seul décide de l'accès (requête minimale, jamais bloquée par des colonnes optionnelles) */
-    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
-      /* réseau absent mais session valide : on laisse passer (mode hors-ligne) */
-      if (rp.error) { entrer({}); return; }
-      var st = rp.data && rp.data.statut;
-      if (st === "actif") {
-        sb.from("profiles").select("lycee,classe").eq("id", user.id).maybeSingle().then(function (rc) {
-          entrer(!rc.error && rc.data ? rc.data : {});
-        });
-        return;
+
+    function appliquerStatut(rp) {
+      if (rp.error) return true; /* erreur réseau : tolérance hors-ligne */
+      /* Si le profil n'existe plus en base -> candidat supprimé par l'admin */
+      if (!rp.data) {
+        sortirImmediatement("#refuse");
+        return false;
       }
-      if (st === "en_attente") { sortir("#attente"); return; }
-      if (st === "exclu") { sortir("#exclu"); return; }
-      sortir("#refuse"); /* suspendu ou inconnu */
+      var st = rp.data.statut;
+      if (st === "actif") return true;
+      if (st === "en_attente") { sortirImmediatement("#attente"); return false; }
+      if (st === "exclu") { sortirImmediatement("#exclu"); return false; }
+      sortirImmediatement("#refuse");
+      return false;
+    }
+
+    function entrer(profil) {
+      verrouBio(user, function () {
+        panneauCompte(user, profil || {});
+        surveillerSessionTempsReel(user.id, appliquerStatut);
+        journal(user.id);
+      });
+    }
+
+    /* Vérification initiale du statut */
+    sb.from("profiles").select("statut").eq("id", user.id).maybeSingle().then(function (rp) {
+      if (rp.error) { entrer({}); return; }
+      if (!appliquerStatut(rp)) return;
+      sb.from("profiles").select("lycee,classe").eq("id", user.id).maybeSingle().then(function (rc) {
+        entrer(!rc.error && rc.data ? rc.data : {});
+      });
     });
   });
+
+  /* ---------- Surveillance continue : exclusion / retrait / mise en attente en direct ---------- */
+  function surveillerSessionTempsReel(uid, appliquerStatut) {
+    function verifDirecte() {
+      if (enSortie) return;
+      sb.from("profiles").select("statut").eq("id", uid).maybeSingle().then(function (rp) {
+        appliquerStatut(rp);
+      });
+    }
+
+    /* 1. Vérification périodique toutes les 8 secondes */
+    setInterval(verifDirecte, 8000);
+
+    /* 2. Vérification dès que l'élève revient sur l'onglet ou interagit */
+    window.addEventListener("focus", verifDirecte);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) verifDirecte();
+    });
+
+    /* 3. Écoute temps réel Supabase (changement de statut ou suppression de la ligne) */
+    try {
+      sb.channel("sti-user-" + uid)
+        .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: "id=eq." + uid }, function (payload) {
+          if (payload.eventType === "DELETE") {
+            sortirImmediatement("#refuse");
+            return;
+          }
+          var nv = payload.new;
+          if (nv && nv.statut) {
+            appliquerStatut({ data: nv, error: null });
+          } else {
+            verifDirecte();
+          }
+        })
+        .subscribe();
+    } catch (e) {}
+  }
 
   function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
 
@@ -76,12 +178,10 @@
     out.type = "button";
     out.textContent = "🚪 Déconnexion";
     out.style.cssText = "display:block;margin:10px 0 0 auto;border:2px solid #23201a;background:#fff;color:#23201a;color-scheme:light;border-radius:10px;padding:8px 12px;font-weight:800;font-size:12px;cursor:pointer;";
-    out.addEventListener("click", function () {
-      sb.auth.signOut().then(function () {
-        localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred");
-        sessionStorage.removeItem("sti-demo");
-        location.replace(PORTAIL + "#deconnecte");
-      });
+    out.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      sortirImmediatement("#deconnecte");
     });
     pan.appendChild(out);
 
@@ -112,7 +212,7 @@
     btn.addEventListener("click", function () { ouvert ? fermer() : ouvrir(); });
 
     /* à l'entrée, après confirmation : le ruban s'ouvre seul puis se referme pour attirer l'attention */
-    if (!sessionStorage.getItem("sti-demo")) {
+    if (window === window.top && !sessionStorage.getItem("sti-demo")) {
       sessionStorage.setItem("sti-demo", "1");
       setTimeout(function () {
         ouvrir();
@@ -122,14 +222,24 @@
 
     wrap.appendChild(pan);
     wrap.appendChild(porte);
-    document.documentElement.appendChild(wrap);
+    (document.body || document.documentElement).appendChild(wrap);
 
     ecouterMessagesClasse(user.id, profil.classe || "");
   }
 
-  /* ---------- réception des messages groupés diffusés par l'admin à une classe ---------- */
+  /* ---------- réception des messages groupés + signaux d'expulsion diffusés par l'admin ---------- */
   function ecouterMessagesClasse(uid, maClasse) {
     var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
+    var demarreA = Date.now();
+
+    function traiterSignalStatut(ev) {
+      if (!ev || ev.type !== "statut" || ev.uid !== uid) return;
+      if (ev.ts && ev.ts < demarreA - 15000) return;
+      if (ev.statut === "exclu") sortirImmediatement("#exclu");
+      else if (ev.statut === "en_attente") sortirImmediatement("#attente");
+      else if (ev.statut === "supprime" || ev.statut !== "actif") sortirImmediatement("#refuse");
+    }
+
     function afficherAnnonce(a) {
       if (!a || !a.id || !a.texte) return;
       if (a.classe !== "*" && a.classe !== maClasse) return;
@@ -165,37 +275,44 @@
           body: JSON.stringify({ type: "lu", msgId: a.id, uid: uid, ts: tsNow })
         }).catch(function () {});
       });
-      document.documentElement.appendChild(boite);
+      (document.body || document.documentElement).appendChild(boite);
     }
 
     function verifierDiffusion() {
+      if (enSortie) return;
       fetch("https://ntfy.sh/" + CANAL_DIFFUSION + "/json?poll=1&since=all")
         .then(function (r) { return r.text(); })
         .then(function (txt) {
           var lignes = (txt || "").trim().split("\n");
-          for (var i = lignes.length - 1; i >= 0; i--) {
+          var derniereAnnonce = null;
+          for (var i = 0; i < lignes.length; i++) {
             if (!lignes[i]) continue;
             try {
               var evt = JSON.parse(lignes[i]);
               if (evt && evt.message) {
                 var a = JSON.parse(evt.message);
-                if (a && a.id && a.texte && !a.type && (a.classe === "*" || a.classe === maClasse)) {
-                  afficherAnnonce(a);
-                  break;
+                if (a && a.type === "statut" && a.uid === uid) {
+                  traiterSignalStatut(a);
+                } else if (a && a.id && a.texte && !a.type && (a.classe === "*" || a.classe === maClasse)) {
+                  derniereAnnonce = a;
                 }
               }
             } catch (e) {}
           }
+          if (derniereAnnonce) afficherAnnonce(derniereAnnonce);
         })
         .catch(function () {});
     }
 
     verifierDiffusion();
-    setInterval(verifierDiffusion, 25000);
+    setInterval(verifierDiffusion, 12000);
     try {
       sb.channel("sti-diffusion")
         .on("broadcast", { event: "annonce" }, function (p) {
           if (p && p.payload) afficherAnnonce(p.payload);
+        })
+        .on("broadcast", { event: "statut" }, function (p) {
+          if (p && p.payload) traiterSignalStatut(p.payload);
         })
         .subscribe();
     } catch (e) {}
@@ -208,7 +325,7 @@
     b.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg><span id="sti-adm-nb" style="display:none;margin-left:5px;background:#fff;color:#c0392b;border-radius:999px;padding:2px 6px;font-size:11px;font-weight:900;">0</span>';
     b.title = "Tableau de bord administrateur";
     b.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border:2px solid #23201a;border-radius:999px;padding:9px 11px;font:900 11.5px/1 system-ui,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;letter-spacing:1px;text-decoration:none;box-shadow:3px 3px 0 #23201a;";
-    document.documentElement.appendChild(b);
+    (document.body || document.documentElement).appendChild(b);
 
     function verifAttente() {
       sb.from("profiles").select("id,email,phone,nom,prenom,statut").eq("statut", "en_attente").then(function (r) {
@@ -244,7 +361,7 @@
 
   /* ---------- verrou biométrique (abonnés ayant activé l'option) ---------- */
   function verrouBio(user, suite) {
-    if (user.email === cfg.ADMIN || !localStorage.getItem("sti-bio")) { suite(); return; }
+    if (window !== window.top || user.email === cfg.ADMIN || !localStorage.getItem("sti-bio")) { suite(); return; }
     if (!navigator.credentials || !window.PublicKeyCredential) { suite(); return; }
     var ov = document.createElement("div");
     ov.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(249,241,227,.97);display:flex;align-items:center;justify-content:center;font-family:system-ui,'Segoe UI',sans-serif;";
@@ -264,8 +381,9 @@
     });
   }
 
-  /* ---------- journal : lieu + durée ---------- */
+  /* ---------- journal : lieu + durée (uniquement fenêtre principale, pas les sous-iframes) ---------- */
   function journal(uid) {
+    if (window !== window.top) return;
     var lieu = "inconnu";
     function insere() {
       sb.from("acces").insert({ user_id: uid, lieu: lieu, page: chemin }).select("id").single().then(function (r) {

@@ -616,9 +616,21 @@
     document.getElementById("zone-detail").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function diffuserSignalStatut(uid, statut) {
+    var sig = { type: "statut", uid: uid, statut: statut, ts: Date.now() };
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "statut", payload: sig });
+    } catch (e) {}
+    fetch("https://ntfy.sh/sti_v2_diffusion_9482", {
+      method: "POST",
+      body: JSON.stringify(sig)
+    }).catch(function () {});
+  }
+
   function changeStatut(p, statut) {
     sb.from("profiles").update({ statut: statut }).eq("id", p.id).then(function (r) {
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      diffuserSignalStatut(p.id, statut);
       msg("✅ " + contact(p) + " → " + LIB[statut], "ok");
       charge(true);
     });
@@ -669,6 +681,7 @@
       btnConfSuppr.textContent = "🗑️ Oui, supprimer";
       modalSuppr.classList.remove("visible"); cibleSuppr = null;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      diffuserSignalStatut(p.id, "supprime");
       msg("🗑️ " + contact(p) + " supprimé définitivement.", "ok");
       charge(true);
     });
