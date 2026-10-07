@@ -82,6 +82,35 @@
   .qr-zone b { color: #f4511e; font-size: 14px; }
   .qr-zone span { color: #7a6f5d; font-size: 12px; }
   form[hidden] { display: none; }
+  @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  .wrap-carte { position: relative; width: 100%; max-width: 450px; }
+  .wrap-carte::before {
+    content: ""; position: absolute; inset: -3px; border-radius: 32px; z-index: 0;
+    background: conic-gradient(from var(--ang), #f4511e, #f2b532, #ff8a50, #e4572e, #f4511e);
+    animation: aurora 8s linear infinite; filter: blur(5px); opacity: .5;
+  }
+  @keyframes aurora { to { --ang: 360deg; } }
+  .wrap-carte .carte { position: relative; z-index: 1; max-width: none; }
+  .entete h1 {
+    background: linear-gradient(120deg, #23201a 15%, #f4511e 55%, #b47d09 90%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .entete h1 span { -webkit-text-fill-color: #fff; }
+  .halo img { animation: flotte 6s ease-in-out infinite alternate; }
+  .champ { position: relative; display: block; }
+  .champ .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .8; pointer-events: none; }
+  .champ input { padding-left: 41px; }
+  .btn { position: relative; overflow: hidden; }
+  .btn::after {
+    content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.6), transparent);
+    transform: skewX(-20deg); transition: left .65s ease;
+  }
+  .btn:hover::after { left: 135%; }
+  .entete { animation: entree .55s .05s both; }
+  .onglets { animation: entree .55s .15s both; }
+  form { animation: entree .55s .25s both; }
+  .pied, .lien-admin { animation: entree .55s .4s both; }
   ::selection { background: #f4511e; color: #fff; }
   .deco { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
   .deco1 { width: 360px; height: 360px; left: -130px; top: -90px; background: radial-gradient(circle, rgba(244,81,30,.15), transparent 70%); animation: flotte 9s ease-in-out infinite alternate; }
@@ -98,6 +127,7 @@
 <body>
   <div class="deco deco1"></div>
   <div class="deco deco2"></div>
+  <div class="wrap-carte">
   <main class="carte">
     <div class="entete">
       <span class="halo"><img src="assets/icons/sti-icon-512.png" alt="Logo STI" /></span>
@@ -113,9 +143,9 @@
 
     <form id="f-connexion" autocomplete="on">
       <label for="c-email">Adresse e-mail</label>
-      <input id="c-email" type="email" required placeholder="vous@exemple.tn" />
+      <span class="champ"><span class="ico">✉️</span><input id="c-email" type="email" required placeholder="vous@exemple.tn" /></span>
       <label for="c-mdp">Mot de passe</label>
-      <input id="c-mdp" type="password" required placeholder="••••••••" />
+      <span class="champ"><span class="ico">🔒</span><input id="c-mdp" type="password" required placeholder="••••••••" /></span>
       <label>Captcha — recopiez le code</label>
       <div class="ligne-captcha">
         <canvas id="captcha-canvas" width="150" height="46" aria-label="Code de vérification"></canvas>
@@ -131,7 +161,7 @@
 
     <form id="f-inscription" hidden autocomplete="on">
       <label for="i-email">Adresse e-mail</label>
-      <input id="i-email" type="email" required placeholder="vous@exemple.tn" />
+      <span class="champ"><span class="ico">✉️</span><input id="i-email" type="email" required placeholder="vous@exemple.tn" /></span>
       <label for="i-lycee">Lycée</label>
       <select id="i-lycee">
         <option value="Lycée Rafèha" selected>Lycée Rafèha</option>
@@ -148,9 +178,9 @@
       </select>
       <input id="i-classe-autre" type="text" hidden placeholder="Votre classe" />
       <label for="i-mdp">Mot de passe (6 caractères min.)</label>
-      <input id="i-mdp" type="password" required minlength="6" placeholder="••••••••" />
+      <span class="champ"><span class="ico">🔒</span><input id="i-mdp" type="password" required minlength="6" placeholder="••••••••" /></span>
       <label for="i-mdp2">Confirmez le mot de passe</label>
-      <input id="i-mdp2" type="password" required minlength="6" placeholder="••••••••" />
+      <span class="champ"><span class="ico">🔒</span><input id="i-mdp2" type="password" required minlength="6" placeholder="••••••••" /></span>
       <label>Captcha — recopiez le code</label>
       <div class="ligne-captcha">
         <canvas id="captcha-canvas2" width="150" height="46" aria-label="Code de vérification"></canvas>
@@ -162,7 +192,7 @@
 
     <form id="f-oubli" hidden>
       <label for="o-email">Adresse e-mail du compte</label>
-      <input id="o-email" type="email" required placeholder="vous@exemple.tn" />
+      <span class="champ"><span class="ico">✉️</span><input id="o-email" type="email" required placeholder="vous@exemple.tn" /></span>
       <button class="btn" type="submit"> Recevoir le lien de réinitialisation</button>
     </form>
 
@@ -170,6 +200,7 @@
     <div class="lien-admin"><a href="admin.html">⚙️ Tableau de bord administrateur</a></div>
     <div class="pied">Plateforme STI © A. Essouyah — Lycée Raféha · 🔒 Contenu protégé, IA interdite</div>
   </main>
+  </div>
 
 <script src="assets/js/supabase-umd.js"></script>
 <script src="assets/js/config.js"></script>
