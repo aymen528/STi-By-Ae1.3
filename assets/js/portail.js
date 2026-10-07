@@ -229,6 +229,7 @@
           document.getElementById("f-connexion").hidden = true;
           document.getElementById("zone-code").hidden = false;
           document.getElementById("code-cible").textContent = telUser;
+          viderCodeOtp(true);
           msg("📲 Saisissez le code de confirmation à 6 chiffres envoyé sur votre WhatsApp.", "att");
           return;
         }
@@ -315,6 +316,7 @@
         document.getElementById("f-inscription").hidden = true;
         document.getElementById("zone-code").hidden = false;
         document.getElementById("code-cible").textContent = tel + " (" + prenom + " " + nom + ")";
+        viderCodeOtp(true);
         msg("📨 Demande enregistrée ! Saisissez le code à 6 chiffres envoyé par WhatsApp.", "ok");
       });
       return;
@@ -335,11 +337,66 @@
     });
   });
 
-  /* ---------- confirmation du code reçu par WhatsApp ---------- */
+  /* ---------- 6 cases pour le code reçu par WhatsApp ---------- */
+  var casesOtp = Array.prototype.slice.call(document.querySelectorAll("#otp-cases .otp-case"));
+  function lireCodeOtp() {
+    return casesOtp.map(function (c) { return (c.value || "").replace(/\D/g, ""); }).join("");
+  }
+  function viderCodeOtp(focusPremiere) {
+    casesOtp.forEach(function (c) { c.value = ""; c.classList.remove("rempli"); });
+    if (focusPremiere && casesOtp[0]) setTimeout(function () { casesOtp[0].focus(); }, 30);
+  }
+  function repartirChiffres(departIdx, chaine) {
+    var ch = String(chaine || "").replace(/\D/g, "");
+    for (var k = 0; k < ch.length && (departIdx + k) < casesOtp.length; k++) {
+      casesOtp[departIdx + k].value = ch[k];
+      casesOtp[departIdx + k].classList.add("rempli");
+    }
+    var suiv = Math.min(departIdx + ch.length, casesOtp.length - 1);
+    if (casesOtp[suiv]) casesOtp[suiv].focus();
+  }
+  casesOtp.forEach(function (inp, idx) {
+    inp.addEventListener("input", function () {
+      var v = (inp.value || "").replace(/\D/g, "");
+      if (v.length > 1) {
+        repartirChiffres(idx, v);
+        return;
+      }
+      inp.value = v;
+      inp.classList.toggle("rempli", !!v);
+      if (v && idx < casesOtp.length - 1) casesOtp[idx + 1].focus();
+    });
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Backspace" && !inp.value && idx > 0) {
+        casesOtp[idx - 1].value = "";
+        casesOtp[idx - 1].classList.remove("rempli");
+        casesOtp[idx - 1].focus();
+        e.preventDefault();
+      } else if (e.key === "ArrowLeft" && idx > 0) {
+        casesOtp[idx - 1].focus();
+        e.preventDefault();
+      } else if (e.key === "ArrowRight" && idx < casesOtp.length - 1) {
+        casesOtp[idx + 1].focus();
+        e.preventDefault();
+      } else if (e.key === "Enter") {
+        document.getElementById("b-verif").click();
+        e.preventDefault();
+      }
+    });
+    inp.addEventListener("paste", function (e) {
+      var txt = (e.clipboardData || window.clipboardData).getData("text");
+      if (txt) {
+        e.preventDefault();
+        repartirChiffres(idx, txt);
+      }
+    });
+    inp.addEventListener("focus", function () { inp.select(); });
+  });
+
   document.getElementById("b-verif").addEventListener("click", function () {
-    var code = document.getElementById("i-code").value.trim();
+    var code = lireCodeOtp();
     if (!telEnCours) return;
-    if (!/^\d{6}$/.test(code)) { msg("❌ Le code comporte 6 chiffres.", "err"); return; }
+    if (!/^\d{6}$/.test(code)) { msg("❌ Remplissez les 6 cases avec les 6 chiffres du code.", "err"); return; }
     if (code !== codeWa(telEnCours)) {
       msg("❌ Code incorrect — vérifiez le code à 6 chiffres reçu sur WhatsApp.", "err");
       return;
@@ -350,7 +407,7 @@
     sb.auth.updateUser({ data: { wa_confirme: true } }).catch(function () {}).then(function () {
       btn.disabled = false;
       telEnCours = null;
-      document.getElementById("i-code").value = "";
+      viderCodeOtp(false);
       document.getElementById("zone-code").hidden = true;
       sb.auth.getSession().then(function (rs) {
         if (rs.data && rs.data.session) {

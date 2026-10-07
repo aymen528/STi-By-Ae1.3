@@ -94,6 +94,21 @@
   .code-titre { background: #fdf3e2; border: 1.5px dashed #f2b532; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
   .code-titre b { color: #d84315; }
   .btn-sec { background: #fffdf7 !important; color: #23201a !important; margin-top: 8px; font-size: 13px !important; }
+  .otp-cases {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0 14px;
+  }
+  .otp-case {
+    width: 100%; height: 52px; padding: 0 !important; text-align: center;
+    font-size: 22px; font-weight: 900; color: #23201a; background: #fffdf7;
+    border: 2px solid #23201a; border-radius: 12px;
+    box-shadow: 3px 3px 0 rgba(244,81,30,.35);
+    transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .otp-case:focus {
+    outline: none; border-color: #f4511e; background: #fff8ee;
+    transform: translateY(-2px); box-shadow: 4px 4px 0 #f4511e;
+  }
+  .otp-case.rempli { background: #fdf3e2; border-color: #f4511e; }
   @property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
   .wrap-carte { position: relative; width: 100%; max-width: 450px; }
   .wrap-carte::before {
@@ -218,8 +233,15 @@
 
     <div id="zone-code" hidden>
       <div class="code-titre">📨 Un code de confirmation a été envoyé au<br /><b id="code-cible"></b></div>
-      <label for="i-code">Recopiez le code reçu (6 chiffres)</label>
-      <span class="champ"><span class="ico">🔢</span><input id="i-code" type="text" inputmode="numeric" maxlength="6" placeholder="______" autocomplete="one-time-code" /></span>
+      <label>Recopiez le code reçu (6 chiffres)</label>
+      <div class="otp-cases" id="otp-cases" role="group" aria-label="Code de confirmation à 6 chiffres">
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 1" autocomplete="one-time-code" />
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 2" />
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 3" />
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 4" />
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 5" />
+        <input class="otp-case" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 6" />
+      </div>
       <button class="btn" type="button" id="b-verif">✅ Confirmer mon inscription</button>
       <button class="btn btn-sec" type="button" id="b-renvoi">🔁 Je n'ai rien reçu — renvoyer</button>
     </div>
@@ -237,13 +259,13 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=15"></script>
+<script src="assets/js/config.js?v=16"></script>
 <script>
   if (!window.supabase) {
     document.getElementById("msg").className = "msg err";
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=15"></script>
+<script src="assets/js/portail.js?v=16"></script>
 </body>
 </html>
