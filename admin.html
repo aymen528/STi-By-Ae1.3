@@ -212,7 +212,10 @@
       <p>Choisissez la classe destinataire et saisissez (ou dictez) votre annonce :</p>
       <select id="msg-classe"></select>
       <div class="barre-dictee">
-        <button type="button" class="btn-dicter" id="btn-dicter-msg">🎙️ Dicter le message</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" class="btn-dicter" id="btn-dicter-msg">🎙️ Dicter</button>
+          <button type="button" class="btn-dicter" id="btn-effacer-msg" title="Effacer tout le message">🧹 Effacer</button>
+        </div>
         <select id="lang-dictee" class="sel-lang-dictee" title="Langue de dictée">
           <option value="fr-FR" selected>🇫🇷 Français</option>
           <option value="ar-TN">🇹🇳 العربية</option>
@@ -245,7 +248,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=19"></script>
-<script src="assets/js/admin.js?v=19"></script>
+<script src="assets/js/config.js?v=20"></script>
+<script src="assets/js/admin.js?v=20"></script>
 </body>
 </html>

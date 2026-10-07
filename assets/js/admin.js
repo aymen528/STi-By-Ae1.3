@@ -477,13 +477,15 @@
     modalClasse.classList.remove("visible");
   });
 
-  /* ---------- Dictée vocale du message (Web Speech API) ---------- */
+  /* ---------- Dictée vocale du message (sans répétition + bouton Effacer) ---------- */
   var btnDicter = document.getElementById("btn-dicter-msg");
+  var btnEffacer = document.getElementById("btn-effacer-msg");
   var selLangDictee = document.getElementById("lang-dictee");
   var RecoVocale = window.SpeechRecognition || window.webkitSpeechRecognition;
   var recoInstance = null;
   var enEcoute = false;
-  var texteAvantDictee = "";
+  var texteBase = "";
+  var dernierSegment = "";
 
   function formaterPonctuation(t) {
     return t
@@ -492,17 +494,97 @@
       .replace(/\s+point d'exclamation\b/gi, " !")
       .replace(/\s+deux[- ]points\b/gi, " :")
       .replace(/\s+virgule\b/gi, ",")
-      .replace(/\s+point\b/gi, ".");
+      .replace(/\s+point\b/gi, ".")
+      /* supprime les doublons consécutifs produits par certains moteurs mobiles */
+      .replace(/\b(\S+)(?:\s+\1\b)+/gi, "$1");
+  }
+
+  function joindreSansDoublon(base, ajout) {
+    var b = (base || "").trim();
+    var a = (ajout || "").trim();
+    if (!b) return a;
+    if (!a) return b;
+    var bMin = b.toLowerCase();
+    var aMin = a.toLowerCase();
+    if (bMin.slice(-aMin.length) === aMin) return b;
+    if (aMin.indexOf(bMin) === 0) return a;
+    var motsB = b.split(/\s+/);
+    var motsA = a.split(/\s+/);
+    var maxK = Math.min(motsB.length, motsA.length);
+    for (var k = maxK; k >= 1; k--) {
+      var finB = motsB.slice(motsB.length - k).join(" ").toLowerCase();
+      var debA = motsA.slice(0, k).join(" ").toLowerCase();
+      if (finB === debA) {
+        var reste = motsA.slice(k).join(" ");
+        return reste ? b + " " + reste : b;
+      }
+    }
+    return b + " " + a;
   }
 
   function arreterDictee() {
     enEcoute = false;
+    dernierSegment = "";
     if (recoInstance) {
-      try { recoInstance.stop(); } catch (e) {}
+      try { recoInstance.onend = null; recoInstance.stop(); } catch (e) {}
+      recoInstance = null;
     }
     if (btnDicter) {
       btnDicter.classList.remove("ecoute");
-      btnDicter.textContent = "🎙️ Dicter le message";
+      btnDicter.textContent = "🎙️ Dicter";
+    }
+  }
+
+  if (btnEffacer) {
+    btnEffacer.addEventListener("click", function () {
+      txtClasse.value = "";
+      texteBase = "";
+      dernierSegment = "";
+      txtClasse.focus();
+    });
+  }
+
+  function demarrerCycleReco() {
+    if (!enEcoute || !RecoVocale) return;
+    recoInstance = new RecoVocale();
+    recoInstance.lang = (selLangDictee && selLangDictee.value) || "fr-FR";
+    /* continuous=false évite le bug Android/Chrome qui cumule et répète chaque mot */
+    recoInstance.continuous = false;
+    recoInstance.interimResults = true;
+    recoInstance.maxAlternatives = 1;
+    dernierSegment = "";
+
+    recoInstance.onresult = function (evt) {
+      var dernier = evt.results[evt.results.length - 1];
+      if (!dernier || !dernier[0]) return;
+      var seg = formaterPonctuation(dernier[0].transcript || "");
+      dernierSegment = seg;
+      txtClasse.value = joindreSansDoublon(texteBase, seg);
+      if (dernier.isFinal) {
+        texteBase = txtClasse.value;
+        dernierSegment = "";
+      }
+    };
+    recoInstance.onerror = function (evt) {
+      if (evt.error === "not-allowed" || evt.error === "service-not-allowed") {
+        msg("❌ Autorisez l'accès au microphone dans votre navigateur pour dicter.", "err");
+        arreterDictee();
+      }
+    };
+    recoInstance.onend = function () {
+      if (dernierSegment) {
+        texteBase = joindreSansDoublon(texteBase, dernierSegment);
+        txtClasse.value = texteBase;
+        dernierSegment = "";
+      }
+      if (enEcoute) {
+        try { recoInstance.start(); } catch (e) { setTimeout(demarrerCycleReco, 120); }
+      }
+    };
+    try {
+      recoInstance.start();
+    } catch (e) {
+      arreterDictee();
     }
   }
 
@@ -516,41 +598,11 @@
         arreterDictee();
         return;
       }
-      recoInstance = new RecoVocale();
-      recoInstance.lang = (selLangDictee && selLangDictee.value) || "fr-FR";
-      recoInstance.continuous = true;
-      recoInstance.interimResults = true;
-      texteAvantDictee = txtClasse.value ? txtClasse.value.replace(/\s*$/, " ") : "";
-      var finalCumule = "";
-
-      recoInstance.onstart = function () {
-        enEcoute = true;
-        btnDicter.classList.add("ecoute");
-        btnDicter.textContent = "🔴 Écoute en cours… (cliquez pour arrêter)";
-      };
-      recoInstance.onresult = function (evt) {
-        var provisoire = "";
-        for (var i = evt.resultIndex; i < evt.results.length; i++) {
-          var seg = evt.results[i][0].transcript;
-          if (evt.results[i].isFinal) finalCumule += formaterPonctuation(seg) + " ";
-          else provisoire += seg;
-        }
-        txtClasse.value = (texteAvantDictee + finalCumule + provisoire).trim();
-      };
-      recoInstance.onerror = function (evt) {
-        if (evt.error === "not-allowed") {
-          msg("❌ Autorisez l'accès au microphone dans votre navigateur pour dicter.", "err");
-        }
-        arreterDictee();
-      };
-      recoInstance.onend = function () {
-        arreterDictee();
-      };
-      try {
-        recoInstance.start();
-      } catch (e) {
-        arreterDictee();
-      }
+      texteBase = (txtClasse.value || "").trim();
+      enEcoute = true;
+      btnDicter.classList.add("ecoute");
+      btnDicter.textContent = "🔴 Arrêter";
+      demarrerCycleReco();
     });
   }
 
