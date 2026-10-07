@@ -2,73 +2,74 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, noai, noimageai" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, noai, noimageai" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://*.supabase.co https://ipapi.co; base-uri 'self'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://vywujxmepvcbgedgmger.supabase.co https://ipapi.co; base-uri 'self'" />
 <link rel="icon" href="https://aymenessouyah.github.io/STiV2.0/assets/icons/STI_by_AE.ico" />
 <title>Accès — Plateforme STI V2.0</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 20px; color: #eef0f9; font-family: system-ui, "Segoe UI", sans-serif;
+    padding: 20px; color: #23201a; font-family: system-ui, "Segoe UI", sans-serif;
     background:
-      radial-gradient(720px 340px at 12% -6%, rgba(244,81,30,.16), transparent 70%),
-      radial-gradient(640px 320px at 96% 0%, rgba(139,147,255,.12), transparent 70%),
-      #0b0d16;
+      radial-gradient(760px 380px at 10% -8%, rgba(244,81,30,.14), transparent 70%),
+      radial-gradient(640px 320px at 96% 0%, rgba(180,125,9,.10), transparent 70%),
+      #f9f1e3;
   }
   .carte {
-    width: 100%; max-width: 420px; background: #141827; border: 1px solid #242a41;
-    border-radius: 20px; padding: 30px 26px; box-shadow: 0 30px 70px -30px rgba(0,0,0,.7);
+    width: 100%; max-width: 430px; background: #fffdf7; border: 1.5px solid #eadfce;
+    border-radius: 22px; padding: 30px 26px;
+    box-shadow: 0 24px 60px -28px rgba(90,60,20,.35), 4px 4px 0 #f4511e;
   }
-  .entete { text-align: center; margin-bottom: 22px; }
-  .entete img { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 10px; }
-  .entete h1 { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+  .entete { text-align: center; margin-bottom: 20px; }
+  .entete img { width: 84px; height: 84px; border-radius: 22px; margin-bottom: 10px; box-shadow: 0 10px 24px -10px rgba(244,81,30,.5); }
+  .entete h1 { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #23201a; }
   .entete h1 span {
-    display: inline-block; font-size: 11px; font-weight: 800; color: #14100e;
-    background: linear-gradient(120deg,#ff8a50,#ffb27a); border-radius: 999px;
-    padding: 3px 8px; margin-left: 6px; vertical-align: 4px;
+    display: inline-block; font-size: 11px; font-weight: 800; color: #fff;
+    background: linear-gradient(120deg,#f4511e,#ff8a50); border-radius: 999px;
+    padding: 3px 9px; margin-left: 6px; vertical-align: 5px;
   }
-  .entete p { color: #9aa2ba; font-size: 13px; margin-top: 6px; }
-  .onglets { display: flex; gap: 6px; margin-bottom: 18px; background: #0e1220; padding: 5px; border-radius: 12px; }
+  .entete p { color: #7a6f5d; font-size: 13px; margin-top: 6px; }
+  .onglets { display: flex; gap: 4px; margin-bottom: 16px; background: #f3ead9; padding: 5px; border-radius: 14px; }
   .onglets button {
-    flex: 1; border: 0; background: transparent; color: #9aa2ba; font-weight: 700;
-    font-size: 13px; padding: 10px 4px; border-radius: 9px; cursor: pointer;
+    flex: 1; border: 0; background: transparent; color: #7a6f5d; font-weight: 700;
+    font-size: 12.5px; padding: 10px 2px; border-radius: 10px; cursor: pointer;
   }
-  .onglets button.actif { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; }
-  label { display: block; font-size: 12.5px; font-weight: 700; color: #9aa2ba; margin: 12px 0 5px; }
+  .onglets button.actif { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; box-shadow: 0 6px 14px -6px rgba(244,81,30,.55); }
+  label { display: block; font-size: 12.5px; font-weight: 700; color: #7a6f5d; margin: 12px 0 5px; }
   input[type=email], input[type=password], input[type=text] {
-    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #323a58;
-    background: #0e1220; color: #eef0f9; font-size: 14px; outline: none;
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e2d6c2;
+    background: #fff; color: #23201a; font-size: 14px; outline: none;
   }
-  input:focus { border-color: #ff8a50; }
+  input:focus { border-color: #f4511e; box-shadow: 0 0 0 3px rgba(244,81,30,.12); }
   .ligne-captcha { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-  #captcha-canvas { border-radius: 10px; border: 1px solid #323a58; background: #0e1220; }
-  #captcha-refresh {
-    border: 1px solid #323a58; background: #0e1220; color: #ff8a50; border-radius: 10px;
+  #captcha-canvas, #captcha-canvas2 { border-radius: 10px; border: 1.5px solid #e2d6c2; background: #fff; }
+  #captcha-refresh, #captcha-refresh2 {
+    border: 1.5px solid #e2d6c2; background: #fff; color: #f4511e; border-radius: 10px;
     width: 44px; height: 44px; font-size: 18px; cursor: pointer;
   }
   .btn {
     width: 100%; margin-top: 18px; border: 0; border-radius: 12px; padding: 13px;
     background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; font-weight: 800;
-    font-size: 15px; cursor: pointer;
+    font-size: 15px; cursor: pointer; box-shadow: 0 10px 22px -10px rgba(244,81,30,.6);
   }
   .btn:disabled { opacity: .5; cursor: wait; }
-  .msg { margin-top: 14px; font-size: 13px; font-weight: 600; text-align: center; min-height: 18px; }
-  .msg.ok { color: #6ee7b7; } .msg.err { color: #ff7a7a; } .msg.att { color: #f2b532; }
+  .msg { margin-top: 14px; font-size: 13px; font-weight: 700; text-align: center; min-height: 18px; }
+  .msg.ok { color: #177245; } .msg.err { color: #c0392b; } .msg.att { color: #b47d09; }
   .lien-admin { margin-top: 16px; text-align: center; }
-  .lien-admin a { color: #9aa2ba; font-size: 12px; text-decoration: none; }
-  .pied { margin-top: 18px; text-align: center; font-size: 11.5px; color: #5f6880; }
+  .lien-admin a { color: #7a6f5d; font-size: 12px; text-decoration: none; border-bottom: 1px dotted #b9a98d; }
+  .pied { margin-top: 16px; text-align: center; font-size: 11.5px; color: #a3937a; }
   form[hidden] { display: none; }
 </style>
 </head>
 <body>
   <main class="carte">
     <div class="entete">
-      <img src="assets/icons/sti-icon-192.png" alt="Logo STI" />
+      <img src="assets/icons/sti-icon-512.png" alt="Logo STI" />
       <h1>STI <span>V2.0</span></h1>
       <p>Espace réservé aux abonnés — connectez-vous pour continuer.</p>
     </div>
@@ -120,8 +121,14 @@
     <div class="pied">Plateforme STI © A. Essouyah — Lycée Raféha · 🔒 Contenu protégé, IA interdite</div>
   </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="assets/js/supabase-umd.js"></script>
 <script src="assets/js/config.js"></script>
+<script>
+  if (!window.supabase) {
+    document.getElementById("msg").className = "msg err";
+    document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
+  }
+</script>
 <script src="assets/js/portail.js"></script>
 </body>
 </html>
