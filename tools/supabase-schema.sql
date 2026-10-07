@@ -72,3 +72,14 @@ create policy acces_upd_self on public.acces for update to authenticated
   using (user_id = auth.uid());
 
 -- ✔️ Fin. Vérifiez dans Table Editor : tables « profiles » et « acces » présentes.
+
+-- 6) L'admin peut définir un nouveau mot de passe pour un abonné
+--    (les anciens mots de passe restent invisibles : ils sont hachés, par sécurité)
+create or replace function public.admin_set_password(uid uuid, newpass text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.est_admin() then
+    raise exception 'Réservé à l''administrateur';
+  end if;
+  perform auth.admin_update_user(uid, jsonb_build_object('password', newpass));
+end $$;

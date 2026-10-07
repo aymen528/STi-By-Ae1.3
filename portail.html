@@ -14,70 +14,81 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 20px; color: #23201a; font-family: system-ui, "Segoe UI", sans-serif;
+    padding: 22px; color: #23201a; font-family: system-ui, "Segoe UI", sans-serif;
     background:
-      radial-gradient(760px 380px at 10% -8%, rgba(244,81,30,.14), transparent 70%),
-      radial-gradient(640px 320px at 96% 0%, rgba(180,125,9,.10), transparent 70%),
+      radial-gradient(760px 380px at 10% -8%, rgba(244,81,30,.16), transparent 70%),
+      radial-gradient(640px 320px at 96% 0%, rgba(180,125,9,.12), transparent 70%),
+      repeating-linear-gradient(45deg, transparent 0 26px, rgba(244,81,30,.03) 26px 27px),
       #f9f1e3;
   }
   .carte {
-    width: 100%; max-width: 430px; background: #fffdf7; border: 1.5px solid #eadfce;
-    border-radius: 22px; padding: 30px 26px;
-    box-shadow: 0 24px 60px -28px rgba(90,60,20,.35), 4px 4px 0 #f4511e;
+    width: 100%; max-width: 440px; background: #fffdf7;
+    border: 2px solid #23201a; border-radius: 24px; padding: 32px 28px 24px;
+    box-shadow: 8px 8px 0 #f4511e, 0 30px 70px -30px rgba(90,60,20,.4);
+    animation: entree .5s ease;
+    position: relative; overflow: hidden;
+  }
+  @keyframes entree { from { opacity: 0; transform: translateY(16px); } }
+  .carte::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #f4511e, #ff8a50, #f2b532, #f4511e);
   }
   .entete { text-align: center; margin-bottom: 20px; }
-  .entete img { width: 84px; height: 84px; border-radius: 22px; margin-bottom: 10px; box-shadow: 0 10px 24px -10px rgba(244,81,30,.5); }
-  .entete h1 { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #23201a; }
+  .halo { display: inline-block; padding: 8px; border-radius: 26px; background: linear-gradient(135deg, rgba(244,81,30,.15), rgba(242,181,50,.18)); }
+  .entete img { width: 78px; height: 78px; border-radius: 20px; display: block; box-shadow: 0 10px 24px -10px rgba(244,81,30,.55); }
+  .entete h1 { margin-top: 12px; font-size: 26px; font-weight: 900; letter-spacing: 1px; }
   .entete h1 span {
     display: inline-block; font-size: 11px; font-weight: 800; color: #fff;
     background: linear-gradient(120deg,#f4511e,#ff8a50); border-radius: 999px;
-    padding: 3px 9px; margin-left: 6px; vertical-align: 5px;
+    padding: 4px 10px; margin-left: 6px; vertical-align: 6px; box-shadow: 0 4px 10px -4px rgba(244,81,30,.6);
   }
   .entete p { color: #7a6f5d; font-size: 13px; margin-top: 6px; }
-  .onglets { display: flex; gap: 4px; margin-bottom: 16px; background: #f3ead9; padding: 5px; border-radius: 14px; }
+  .onglets { display: flex; gap: 4px; margin-bottom: 6px; background: #f3ead9; padding: 5px; border-radius: 14px; border: 1px solid #eadfce; }
   .onglets button {
-    flex: 1; border: 0; background: transparent; color: #7a6f5d; font-weight: 700;
-    font-size: 12.5px; padding: 10px 2px; border-radius: 10px; cursor: pointer;
+    flex: 1; border: 0; background: transparent; color: #7a6f5d; font-weight: 800;
+    font-size: 12.5px; padding: 11px 2px; border-radius: 10px; cursor: pointer; transition: all .2s;
   }
-  .onglets button.actif { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; box-shadow: 0 6px 14px -6px rgba(244,81,30,.55); }
-  label { display: block; font-size: 12.5px; font-weight: 700; color: #7a6f5d; margin: 12px 0 5px; }
+  .onglets button.actif { background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; box-shadow: 0 6px 14px -6px rgba(244,81,30,.6); }
+  label { display: block; font-size: 12.5px; font-weight: 800; color: #7a6f5d; margin: 13px 0 5px; text-transform: uppercase; letter-spacing: .6px; font-size: 11px; }
   input[type=email], input[type=password], input[type=text] {
-    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e2d6c2;
-    background: #fff; color: #23201a; font-size: 14px; outline: none;
+    width: 100%; padding: 13px 14px; border-radius: 12px; border: 2px solid #e2d6c2;
+    background: #fff; color: #23201a; font-size: 14.5px; outline: none; transition: border .2s, box-shadow .2s;
   }
-  input:focus { border-color: #f4511e; box-shadow: 0 0 0 3px rgba(244,81,30,.12); }
+  input:focus { border-color: #f4511e; box-shadow: 0 0 0 4px rgba(244,81,30,.12); }
   .ligne-captcha { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-  #captcha-canvas, #captcha-canvas2 { border-radius: 10px; border: 1.5px solid #e2d6c2; background: #fff; }
-  #captcha-refresh, #captcha-refresh2 {
-    border: 1.5px solid #e2d6c2; background: #fff; color: #f4511e; border-radius: 10px;
-    width: 44px; height: 44px; font-size: 18px; cursor: pointer;
+  canvas { border-radius: 12px; border: 2px solid #23201a; background: #fff; box-shadow: 3px 3px 0 rgba(244,81,30,.4); }
+  .rafraichir {
+    border: 2px solid #23201a; background: #fff; color: #f4511e; border-radius: 12px;
+    width: 46px; height: 46px; font-size: 19px; cursor: pointer; box-shadow: 3px 3px 0 rgba(244,81,30,.4);
   }
+  .rafraichir:active, .btn:active { transform: translate(2px,2px); box-shadow: none; }
   .btn {
-    width: 100%; margin-top: 18px; border: 0; border-radius: 12px; padding: 13px;
-    background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; font-weight: 800;
-    font-size: 15px; cursor: pointer; box-shadow: 0 10px 22px -10px rgba(244,81,30,.6);
+    width: 100%; margin-top: 20px; border: 2px solid #23201a; border-radius: 14px; padding: 14px;
+    background: linear-gradient(120deg,#f4511e,#ff8a50); color: #fff; font-weight: 900;
+    font-size: 15.5px; letter-spacing: .3px; cursor: pointer; box-shadow: 5px 5px 0 #23201a;
+    transition: transform .12s, box-shadow .12s;
   }
   .btn:disabled { opacity: .5; cursor: wait; }
-  .msg { margin-top: 14px; font-size: 13px; font-weight: 700; text-align: center; min-height: 18px; }
+  .msg { margin-top: 14px; font-size: 13px; font-weight: 800; text-align: center; min-height: 18px; }
   .msg.ok { color: #177245; } .msg.err { color: #c0392b; } .msg.att { color: #b47d09; }
   .lien-admin { margin-top: 16px; text-align: center; }
   .lien-admin a { color: #7a6f5d; font-size: 12px; text-decoration: none; border-bottom: 1px dotted #b9a98d; }
-  .pied { margin-top: 16px; text-align: center; font-size: 11.5px; color: #a3937a; }
+  .pied { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2d6c2; text-align: center; font-size: 11.5px; color: #a3937a; }
   form[hidden] { display: none; }
 </style>
 </head>
 <body>
   <main class="carte">
     <div class="entete">
-      <img src="assets/icons/sti-icon-512.png" alt="Logo STI" />
+      <span class="halo"><img src="assets/icons/sti-icon-512.png" alt="Logo STI" /></span>
       <h1>STI <span>V2.0</span></h1>
       <p>Espace réservé aux abonnés — connectez-vous pour continuer.</p>
     </div>
 
     <div class="onglets" role="tablist">
-      <button id="tab-connexion" class="actif" type="button">Connexion</button>
-      <button id="tab-inscription" type="button">Inscription</button>
-      <button id="tab-oubli" type="button">Mot de passe oublié</button>
+      <button id="tab-connexion" class="actif" type="button">🔐 Connexion</button>
+      <button id="tab-inscription" type="button">📝 Inscription</button>
+      <button id="tab-oubli" type="button">🔑 Oublié</button>
     </div>
 
     <form id="f-connexion" autocomplete="on">
@@ -87,8 +98,8 @@
       <input id="c-mdp" type="password" required placeholder="••••••••" />
       <label>Captcha — recopiez le code</label>
       <div class="ligne-captcha">
-        <canvas id="captcha-canvas" width="150" height="44" aria-label="Code de vérification"></canvas>
-        <button id="captcha-refresh" type="button" title="Nouveau code">↻</button>
+        <canvas id="captcha-canvas" width="150" height="46" aria-label="Code de vérification"></canvas>
+        <button id="captcha-refresh" class="rafraichir" type="button" title="Nouveau code">↻</button>
       </div>
       <input id="c-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">🔐 Se connecter</button>
@@ -103,8 +114,8 @@
       <input id="i-mdp2" type="password" required minlength="6" placeholder="••••••••" />
       <label>Captcha — recopiez le code</label>
       <div class="ligne-captcha">
-        <canvas id="captcha-canvas2" width="150" height="44" aria-label="Code de vérification"></canvas>
-        <button id="captcha-refresh2" type="button" title="Nouveau code">↻</button>
+        <canvas id="captcha-canvas2" width="150" height="46" aria-label="Code de vérification"></canvas>
+        <button id="captcha-refresh2" class="rafraichir" type="button" title="Nouveau code">↻</button>
       </div>
       <input id="i-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">📝 S'inscrire</button>

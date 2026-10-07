@@ -15,21 +15,27 @@
       for (var i = 0; i < 5; i++) code += car[Math.floor(Math.random() * car.length)];
       ETATS[canvasId] = code;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0e1220";
+      ctx.fillStyle = "#fffdf7";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      for (var l = 0; l < 3; l++) {
-        ctx.strokeStyle = "rgba(255,138,80," + (0.15 + Math.random() * 0.2) + ")";
+      for (var p = 0; p < 26; p++) {
+        ctx.fillStyle = "rgba(244,81,30," + (0.06 + Math.random() * 0.1) + ")";
         ctx.beginPath();
-        ctx.moveTo(Math.random() * 150, Math.random() * 44);
-        ctx.lineTo(Math.random() * 150, Math.random() * 44);
+        ctx.arc(Math.random() * 150, Math.random() * 46, 1 + Math.random() * 1.6, 0, 7);
+        ctx.fill();
+      }
+      for (var l = 0; l < 3; l++) {
+        ctx.strokeStyle = "rgba(35,32,26," + (0.12 + Math.random() * 0.15) + ")";
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * 150, Math.random() * 46);
+        ctx.lineTo(Math.random() * 150, Math.random() * 46);
         ctx.stroke();
       }
       for (var c = 0; c < 5; c++) {
         ctx.save();
-        ctx.translate(20 + c * 26, 24 + (Math.random() * 8 - 4));
+        ctx.translate(20 + c * 26, 25 + (Math.random() * 8 - 4));
         ctx.rotate((Math.random() * 40 - 20) * Math.PI / 180);
-        ctx.font = "800 " + (18 + Math.random() * 5) + "px system-ui";
-        ctx.fillStyle = c % 2 ? "#ff8a50" : "#eef0f9";
+        ctx.font = "900 " + (19 + Math.random() * 5) + "px system-ui";
+        ctx.fillStyle = c % 2 ? "#f4511e" : "#23201a";
         ctx.fillText(code[c], -7, 7);
         ctx.restore();
       }
