@@ -346,6 +346,51 @@
     width: auto !important; margin-bottom: 0 !important; padding: 5px 10px !important;
     font-size: 12px !important; font-weight: 800; border-radius: 999px !important;
   }
+  .ecole-onglets {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+  }
+  .ecole-onglets button {
+    border: 2px solid #23201a; border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; font-weight: 900; cursor: pointer; background: #f3ead9; color: #23201a;
+    box-shadow: 2px 2px 0 #23201a;
+  }
+  .ecole-onglets button.actif {
+    background: linear-gradient(120deg, #f4511e, #ff8a50); color: #fff;
+  }
+  .ecole-ajout {
+    display: flex; gap: 8px; margin-bottom: 12px;
+  }
+  .ecole-ajout input {
+    flex: 1; margin-bottom: 0 !important;
+  }
+  .ecole-ajout button {
+    border: 2px solid #23201a; border-radius: 10px; padding: 8px 14px;
+    background: #177245; color: #fff; font-weight: 900; font-size: 13px;
+    cursor: pointer; white-space: nowrap; box-shadow: 2px 2px 0 #23201a;
+  }
+  .ecole-liste {
+    max-height: 270px; overflow-y: auto; border: 2px solid #23201a;
+    border-radius: 12px; background: #fdf8ee; padding: 6px 10px; margin-bottom: 14px;
+  }
+  .ecole-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 4px; border-bottom: 1px dashed #e2d5be; flex-wrap: wrap;
+  }
+  .ecole-item:last-child { border-bottom: 0; }
+  .ecole-nom {
+    font-weight: 900; font-size: 13.5px; color: #23201a; display: flex; align-items: center; gap: 6px;
+  }
+  .ecole-nb {
+    background: #f3ead9; color: #5a5244; border: 1px solid #23201a;
+    border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 800;
+  }
+  .ecole-btns { display: flex; gap: 5px; }
+  .ecole-btns button {
+    border: 1.5px solid #23201a; background: #fffdf7; color: #23201a;
+    border-radius: 8px; padding: 4px 9px; font-size: 11.5px; font-weight: 800; cursor: pointer;
+  }
+  .ecole-btns button:hover { border-color: #f4511e; color: #f4511e; }
+  .ecole-btns button.del:hover { border-color: #c0392b; color: #c0392b; background: #fde2e6; }
 </style>
 </head>
 <body>
@@ -430,9 +475,12 @@
     </div>
   </div>
 
-  <!-- Barre de recherche, filtres par classe/statut, validation groupée et export Excel/CSV -->
+  <!-- Barre de recherche, filtres par lycée/classe/statut, gestion Lycées/Classes, validation groupée et export Excel/CSV -->
   <div class="filtres-bar">
     <input type="search" id="filtre-recherche" placeholder="🔎 Rechercher un élève (nom, prénom, tél., e-mail)…" />
+    <select id="filtre-lycee">
+      <option value="*">🏛️ Tous les lycées</option>
+    </select>
     <select id="filtre-classe">
       <option value="*">🏫 Toutes les classes</option>
     </select>
@@ -444,6 +492,8 @@
       <option value="en_attente">⏳ En attente</option>
       <option value="exclu">⛔ Exclus</option>
     </select>
+    <button type="button" class="btn-outil" id="btn-gerer-lycees" title="Ajouter, renommer/changer ou supprimer des lycées">🏛️ Gérer Lycées</button>
+    <button type="button" class="btn-outil" id="btn-gerer-classes" title="Ajouter, renommer/changer ou supprimer des classes">🏫 Gérer Classes</button>
     <button type="button" class="btn-outil vert" id="btn-activer-lot" title="Activer en un clic toutes les demandes en attente affichées">✅ Tout activer (0)</button>
     <button type="button" class="btn-outil" id="btn-export-csv" title="Télécharger la liste filtrée au format Excel (CSV)">📥 Exporter Excel (CSV)</button>
   </div>
@@ -587,6 +637,59 @@
     </div>
   </div>
 
+  <!-- Boîte de gestion globale des Lycées et des Classes (Ajouter / Changer-Renommer / Supprimer) -->
+  <div class="modal-fond" id="modal-ecoles" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:510px">
+      <h3>🏫 Gestion des Lycées &amp; des Classes</h3>
+      <p>Ajoutez, renommez ou supprimez des lycées et des classes. Tout changement met automatiquement à jour le formulaire d'inscription et les abonnés concernés.</p>
+
+      <div class="ecole-onglets" role="tablist">
+        <button type="button" id="tab-ecole-lycees" class="actif">🏛️ Lycées</button>
+        <button type="button" id="tab-ecole-classes">🏫 Classes</button>
+      </div>
+
+      <!-- Panneau Lycées -->
+      <div id="pan-ecole-lycees">
+        <div class="ecole-ajout">
+          <input type="text" id="inp-nv-lycee" placeholder="Ex. : Lycée Pilote Tunis…" autocomplete="off" />
+          <button type="button" id="btn-add-lycee">➕ Ajouter</button>
+        </div>
+        <div class="ecole-liste" id="liste-cfg-lycees"></div>
+      </div>
+
+      <!-- Panneau Classes -->
+      <div id="pan-ecole-classes" hidden>
+        <div class="ecole-ajout">
+          <input type="text" id="inp-nv-classe" placeholder="Ex. : 4eme SI3, 3eme SI3…" autocomplete="off" />
+          <button type="button" id="btn-add-classe">➕ Ajouter</button>
+        </div>
+        <div class="ecole-liste" id="liste-cfg-classes"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-valider" id="btn-fermer-ecoles">✅ Terminer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte pour changer le lycée ou la classe d'un abonné particulier -->
+  <div class="modal-fond" id="modal-affectation" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:430px">
+      <h3>🏫 Changer le lycée ou la classe</h3>
+      <p>Modifier l'affectation de <b id="aff-cible"></b> :</p>
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">🏛️ Lycée :</label>
+      <select id="aff-lycee"></select>
+      <input type="text" id="aff-lycee-autre" hidden placeholder="Saisir le nom du nouveau lycée…" />
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">🏫 Classe :</label>
+      <select id="aff-classe"></select>
+      <input type="text" id="aff-classe-autre" hidden placeholder="Saisir le nom de la nouvelle classe…" />
+      <div class="modal-actions">
+        <button type="button" id="btn-annuler-aff">Annuler</button>
+        <button type="button" class="btn-valider" id="btn-confirmer-aff">💾 Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Boîte de configuration des notifications de nouvelles demandes -->
   <div class="modal-fond" id="modal-notif" role="dialog" aria-modal="true">
     <div class="modal-boite">
@@ -601,7 +704,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=34"></script>
-<script src="assets/js/admin.js?v=34"></script>
+<script src="assets/js/config.js?v=35"></script>
+<script src="assets/js/admin.js?v=35"></script>
 </body>
 </html>

@@ -132,6 +132,84 @@
     return sel.value === "__autre" ? document.getElementById(inputId).value.trim() || "—" : sel.value;
   }
 
+  /* ---------- Chargement dynamique des Lycées et Classes définis par l'Admin ---------- */
+  function appliquerCfgEcolesPortail(cfgEc) {
+    if (!cfgEc) return;
+    try { localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEc)); } catch (e) {}
+    var selL = document.getElementById("i-lycee");
+    var selC = document.getElementById("i-classe");
+    if (selL && Array.isArray(cfgEc.lycees)) {
+      var supL = cfgEc.supprLycees || [];
+      var lycees = cfgEc.lycees.filter(function (l) { return l && supL.indexOf(l) === -1; });
+      if (!lycees.length && supL.indexOf("Lycée Rafèha") === -1) lycees.push("Lycée Rafèha");
+      selL.innerHTML = "";
+      lycees.forEach(function (l, i) {
+        var o = document.createElement("option");
+        o.value = l;
+        o.textContent = l;
+        if (i === 0) o.selected = true;
+        selL.appendChild(o);
+      });
+      var oAutreL = document.createElement("option");
+      oAutreL.value = "__autre";
+      oAutreL.textContent = "Autre lycée…";
+      selL.appendChild(oAutreL);
+    }
+    if (selC && Array.isArray(cfgEc.classes)) {
+      var supC = cfgEc.supprClasses || [];
+      var classes = cfgEc.classes.filter(function (c) { return c && supC.indexOf(c) === -1; });
+      if (!classes.length) {
+        ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"].forEach(function (c) {
+          if (supC.indexOf(c) === -1) classes.push(c);
+        });
+      }
+      selC.innerHTML = "";
+      classes.forEach(function (c, i) {
+        var o = document.createElement("option");
+        o.value = c;
+        o.textContent = c;
+        if (i === 0) o.selected = true;
+        selC.appendChild(o);
+      });
+      var oAutreC = document.createElement("option");
+      oAutreC.value = "__autre";
+      oAutreC.textContent = "Autre…";
+      selC.appendChild(oAutreC);
+    }
+  }
+
+  try {
+    var cfgLoc = JSON.parse(localStorage.getItem("sti-cfg-ecoles") || "null");
+    if (cfgLoc) appliquerCfgEcolesPortail(cfgLoc);
+  } catch (e) {}
+
+  if (navigator.onLine) {
+    fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all")
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var dernierCfg = null;
+        (txt || "").trim().split("\n").forEach(function (ln) {
+          if (!ln) return;
+          try {
+            var ev = JSON.parse(ln);
+            if (ev && ev.message) {
+              var obj = JSON.parse(ev.message);
+              if (obj && obj.type === "cfg_ecoles") dernierCfg = obj;
+            }
+          } catch (e) {}
+        });
+        if (dernierCfg) appliquerCfgEcolesPortail(dernierCfg);
+      })
+      .catch(function () {});
+    try {
+      sb.channel("sti-diffusion")
+        .on("broadcast", { event: "cfg_ecoles" }, function (p) {
+          if (p && p.payload) appliquerCfgEcolesPortail(p.payload);
+        })
+        .subscribe();
+    } catch (e) {}
+  }
+
   /* ---------- biométrie (WebAuthn, empreinte / visage) ---------- */
   function bioDispo() {
     return !!(navigator.credentials && window.PublicKeyCredential && window.isSecureContext);
@@ -254,13 +332,7 @@
           try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
           sha256(mdp).then(function (h) {
             if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
-              try {
-                localStorage.setItem("sti-offline", String(Date.now()));
-                localStorage.setItem("sti-reauth", JSON.stringify({
-                  e: emailConn,
-                  p: btoa(unescape(encodeURIComponent(mdp)))
-                }));
-              } catch (err) {}
+              localStorage.setItem("sti-offline", String(Date.now()));
               location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
             } else {
               msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
@@ -270,14 +342,8 @@
         }
         msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
       }
-      /* login en ligne réussi : mémorise l'empreinte locale et le jeton de reconnexion pour la synchro hors-ligne */
+      /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
       var isAdm = (r.data.user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase();
-      try {
-        localStorage.setItem("sti-reauth", JSON.stringify({
-          e: emailConn,
-          p: btoa(unescape(encodeURIComponent(mdp)))
-        }));
-      } catch (err) {}
       sha256(mdp).then(function (h) {
         try {
           localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h, isAdmin: isAdm }));
