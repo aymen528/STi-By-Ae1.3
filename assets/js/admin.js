@@ -208,7 +208,9 @@
     var b = document.getElementById("btn-notif");
     if (!b) return;
     var ok = ("Notification" in window) && Notification.permission === "granted";
-    b.textContent = ok ? "🔔 Notifications (actives)" : "🔔 Notifications";
+    b.innerHTML = ok
+      ? '🔔 <span class="lbl-pc">Notifications (actives)</span><span class="lbl-mob">Alertes ✔</span>'
+      : '🔔 <span class="lbl-pc">Notifications</span><span class="lbl-mob">Alertes</span>';
     b.classList.toggle("on", ok);
   }
 
