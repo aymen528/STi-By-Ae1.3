@@ -183,7 +183,12 @@
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
   function verifierStatutEtEntrer(user) {
-    sb.from("profiles").select("statut,lycee").eq("id", user.id).maybeSingle().then(function (rp) {
+    sb.from("profiles").select("statut,lycee,classe,nom,prenom,phone").eq("id", user.id).maybeSingle().then(function (rp) {
+      if (rp.error && estHorsLigne(rp.error)) {
+        localStorage.setItem("sti-offline", String(Date.now()));
+        location.href = cfg.RACINE;
+        return;
+      }
       var st = rp.data && rp.data.statut;
       var isG = Boolean(rp.data && /\|\s*GOLD$/i.test(rp.data.lycee || ""));
       try {
@@ -192,6 +197,20 @@
         else localStorage.removeItem("sti-gold");
       } catch (e) {}
       if (st === "actif") {
+        try {
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify({
+            id: user.id,
+            email: user.email,
+            user_metadata: user.user_metadata || {},
+            lycee: rp.data.lycee || "—",
+            classe: rp.data.classe || "—",
+            statut: "actif",
+            gold: isG,
+            isAdmin: false,
+            ts: Date.now()
+          }));
+        } catch (e) {}
         if (bioDispo() && !localStorage.getItem("sti-bio")) {
           if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {
             activeBio(user.id, user.email, function () { location.href = cfg.RACINE; });
@@ -201,7 +220,7 @@
         location.href = cfg.RACINE; return;
       }
       if (st === "en_attente") { msg("⏳ Compte créé — en attente de validation par l'administrateur.", "att"); sb.auth.signOut(); return; }
-      if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-cred"); localStorage.removeItem("sti-gold"); sb.auth.signOut(); return; }
+      if (st === "exclu") { msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err"); localStorage.removeItem("sti-offline"); localStorage.removeItem("sti-session-cache"); localStorage.removeItem("sti-cred"); localStorage.removeItem("sti-gold"); sb.auth.signOut(); return; }
       msg("⛔ Compte suspendu. Contactez l'administrateur.", "err"); sb.auth.signOut();
     });
   }
@@ -236,9 +255,9 @@
           sha256(mdp).then(function (h) {
             if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
               localStorage.setItem("sti-offline", String(Date.now()));
-              location.href = cfg.RACINE;
+              location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
             } else {
-              msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil.", "err");
+              msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
             }
           });
           return;
@@ -246,16 +265,25 @@
         msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
       }
       /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
-      localStorage.removeItem("sti-offline");
-      if (r.data.user.email !== cfg.ADMIN) {
-        sha256(mdp).then(function (h) {
-          localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h }));
-        });
-      }
-      if (r.data.user.email === cfg.ADMIN) {
+      var isAdm = (r.data.user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase();
+      sha256(mdp).then(function (h) {
+        try {
+          localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h, isAdmin: isAdm }));
+        } catch (err) {}
+      });
+      if (isAdm) {
         try {
           localStorage.setItem("sti-gold", "1");
           localStorage.setItem("sti-admin-gold", "1");
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify({
+            id: r.data.user.id,
+            email: r.data.user.email,
+            statut: "actif",
+            gold: true,
+            isAdmin: true,
+            ts: Date.now()
+          }));
         } catch (err) {}
         location.href = cfg.RACINE + "admin.html";
         return;

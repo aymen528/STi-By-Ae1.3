@@ -130,7 +130,39 @@
   }
   marquerChapitreVisite();
 
-  /* ---------- Enregistrement d'un score de Quiz ou Bac Pratique vers Supabase ---------- */
+  /* ---------- File d'attente hors-ligne (synchronisée automatiquement dès le retour d'Internet) ---------- */
+  var CLE_FILE_OFFLINE = "sti-offline-queue";
+  function empilerHorsLigne(ligne) {
+    try {
+      var q = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]");
+      q.push(ligne);
+      if (q.length > 200) q = q.slice(-200);
+      localStorage.setItem(CLE_FILE_OFFLINE, JSON.stringify(q));
+    } catch (e) {}
+  }
+
+  function synchroniserFileHorsLigne() {
+    if (!navigator.onLine) return;
+    var q = [];
+    try { q = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]"); } catch (e) {}
+    if (!q.length) return;
+    try { localStorage.removeItem(CLE_FILE_OFFLINE); } catch (e) {}
+    var propres = q.map(function (it) {
+      var c = Object.assign({}, it);
+      delete c._sid;
+      return c;
+    });
+    sb.from("acces").insert(propres).then(function (r) {
+      if (r && r.error) {
+        q.forEach(empilerHorsLigne);
+      }
+    }).catch(function () {
+      q.forEach(empilerHorsLigne);
+    });
+  }
+  window.addEventListener("online", synchroniserFileHorsLigne);
+
+  /* ---------- Enregistrement d'un score de Quiz ou Bac Pratique vers Supabase (ou file hors-ligne) ---------- */
   window.enregistrerScoreQuizSTI = function (nomQuiz, noteTexte, sur20) {
     if (!currentUid) return;
     var payload = {
@@ -145,13 +177,21 @@
       mesScores[nomQuiz] = payload.note;
       localStorage.setItem("sti-mes-scores", JSON.stringify(mesScores));
     } catch (e) {}
-    sb.from("acces").insert({
+    var row = {
       user_id: currentUid,
       page: "QUIZ:" + nomQuiz,
       lieu: JSON.stringify(payload),
+      debut: payload.ts,
       fin: payload.ts,
       duree_sec: payload.sur20 != null ? Math.round(payload.sur20) : 0
-    }).then(function () {});
+    };
+    if (!navigator.onLine) {
+      empilerHorsLigne(row);
+      return;
+    }
+    sb.from("acces").insert(row).then(function (r) {
+      if (r.error) empilerHorsLigne(row);
+    });
     try {
       sb.channel("sti-diffusion").send({ type: "broadcast", event: "quiz", payload: { uid: currentUid, data: payload } });
     } catch (e) {}
@@ -161,6 +201,7 @@
   function purgerStockageLocal() {
     try {
       localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-cred");
       localStorage.removeItem("sti-gold");
       localStorage.removeItem("sti-admin-gold");
@@ -208,11 +249,35 @@
   });
 
   sb.auth.getSession().then(function (r) {
-    var session = r.data.session;
+    var session = r && r.data ? r.data.session : null;
     if (!session) {
-      var t = parseInt(localStorage.getItem("sti-offline") || "0", 10);
-      if (t && Date.now() - t < 86400000) return;
+      /* Mode hors-ligne : restauration complète de la session locale validée (jusqu'à 30 jours) */
+      var cache = null;
+      try { cache = JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) {}
+      var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
+      var tsValide = (cache && cache.ts) || tOff;
+      if (tsValide && Date.now() - tsValide < 30 * 86400000) {
+        if (cache && cache.isAdmin) {
+          currentUid = cache.id || "admin";
+          appliquerModeGold(true);
+          if (window === window.top) badgeAdmin();
+          return;
+        }
+        var fakeUser = {
+          id: (cache && cache.id) || "offline-user",
+          email: (cache && cache.email) || "Abonné hors-ligne",
+          user_metadata: (cache && cache.user_metadata) || {}
+        };
+        currentUid = fakeUser.id;
+        currentClasse = (cache && cache.classe) || "";
+        appliquerModeGold(Boolean(cache && cache.gold), cache || {});
+        panneauCompte(fakeUser, cache || {});
+        installerSuiviQuizAuto();
+        journal(fakeUser.id);
+        return;
+      }
       localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-gold");
       localStorage.removeItem("sti-admin-gold");
       redirigerTop(PORTAIL + "#connexion");
@@ -220,8 +285,20 @@
     }
     var user = session.user;
     currentUid = user.id;
+    synchroniserFileHorsLigne();
     if ((user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase()) {
-      try { localStorage.setItem("sti-admin-gold", "1"); } catch (e) {}
+      try {
+        localStorage.setItem("sti-admin-gold", "1");
+        localStorage.setItem("sti-offline", String(Date.now()));
+        localStorage.setItem("sti-session-cache", JSON.stringify({
+          id: user.id,
+          email: user.email,
+          statut: "actif",
+          gold: true,
+          isAdmin: true,
+          ts: Date.now()
+        }));
+      } catch (e) {}
       appliquerModeGold(true);
       if (window === window.top) badgeAdmin();
       journal(user.id);
@@ -237,7 +314,22 @@
       var st = rp.data.statut;
       if (st === "actif") {
         currentClasse = rp.data.classe || "";
-        appliquerModeGold(estGoldProfil(rp.data), rp.data);
+        var isG = estGoldProfil(rp.data);
+        appliquerModeGold(isG, rp.data);
+        try {
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify({
+            id: user.id,
+            email: user.email,
+            user_metadata: user.user_metadata || {},
+            lycee: rp.data.lycee || "—",
+            classe: rp.data.classe || "—",
+            statut: "actif",
+            gold: isG,
+            isAdmin: false,
+            ts: Date.now()
+          }));
+        } catch (e) {}
         return true;
       }
       if (st === "en_attente") { sortirImmediatement("#attente"); return false; }
@@ -449,6 +541,44 @@
     });
     pan.appendChild(btnProf);
 
+    var btnOff = document.createElement("button");
+    btnOff.id = "sti-btn-precache";
+    btnOff.type = "button";
+    var dejaCache = false;
+    try { dejaCache = localStorage.getItem("sti-precache-100") === "1"; } catch (e) {}
+    btnOff.textContent = dejaCache
+      ? (navigator.onLine ? "✅ 100 % prêt hors-ligne" : "📴 Mode Hors-ligne actif")
+      : "📲 Télécharger 100 % hors-ligne";
+    btnOff.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #23201a;background:" +
+      (dejaCache ? "#e3f6e8;color:#177245" : "#fff;color:#23201a") +
+      ";border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    btnOff.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+        btnOff.textContent = "⏳ Téléchargement hors-ligne…";
+        navigator.serviceWorker.controller.postMessage({ type: "PRECACHE_ALL" });
+      } else {
+        btnOff.textContent = "✅ Cache actif sur cet appareil";
+      }
+    });
+    pan.appendChild(btnOff);
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", function (evt) {
+        if (!evt.data || evt.data.type !== "STI_OFFLINE_PROGRESS") return;
+        var pct = evt.data.total ? Math.round((evt.data.done / evt.data.total) * 100) : 100;
+        if (pct >= 100) {
+          try { localStorage.setItem("sti-precache-100", "1"); } catch (e) {}
+          btnOff.textContent = "✅ 100 % prêt hors-ligne";
+          btnOff.style.background = "#e3f6e8";
+          btnOff.style.color = "#177245";
+        } else {
+          btnOff.textContent = "⏳ Hors-ligne : " + pct + " %";
+        }
+      });
+    }
+
     var btnImp = document.createElement("button");
     btnImp.id = "sti-btn-print-gold";
     btnImp.type = "button";
@@ -559,13 +689,23 @@
       if (!txt) return;
       var tsNow = new Date().toISOString();
       var info = JSON.stringify({ classe: maClasse || "*", reponse: txt, page: chemin });
-      sb.from("acces").insert({
+      var ligneMsg = {
         user_id: uid,
         page: "MSG_LU:libre",
         lieu: info,
         fin: tsNow,
         duree_sec: 0
-      }).then(function () {});
+      };
+      if (!navigator.onLine) {
+        empilerHorsLigne(ligneMsg);
+        fond.remove();
+        return;
+      }
+      sb.from("acces").insert(ligneMsg).then(function (r) {
+        if (r && r.error) empilerHorsLigne(ligneMsg);
+      }).catch(function () {
+        empilerHorsLigne(ligneMsg);
+      });
       try {
         sb.channel("sti-diffusion").send({
           type: "broadcast",
@@ -823,11 +963,12 @@
     });
   }
 
-  /* ---------- journal : lieu + durée + présence temps réel (toutes les 30 s) ---------- */
+  /* ---------- journal : lieu + durée + présence temps réel (toutes les 30 s) + mode hors-ligne ---------- */
   function journal(uid) {
     if (window !== window.top) return;
     var lieu = "inconnu";
     function envoyerPresence() {
+      if (!navigator.onLine) return;
       try {
         sb.channel("sti-diffusion").send({
           type: "broadcast",
@@ -836,12 +977,56 @@
         });
       } catch (e) {}
     }
+    function suiviHorsLigne() {
+      var debutOff = Date.now();
+      var cleSession = "off-" + debutOff;
+      function majFileOff() {
+        var duree = Math.max(1, Math.round((Date.now() - debutOff) / 1000));
+        try {
+          var q = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]");
+          var trouve = false;
+          for (var i = 0; i < q.length; i++) {
+            if (q[i] && q[i]._sid === cleSession) {
+              q[i].fin = new Date().toISOString();
+              q[i].duree_sec = duree;
+              trouve = true;
+              break;
+            }
+          }
+          if (!trouve) {
+            q.push({
+              _sid: cleSession,
+              user_id: uid,
+              lieu: "Hors-ligne",
+              page: chemin,
+              fin: new Date().toISOString(),
+              duree_sec: duree
+            });
+          }
+          localStorage.setItem(CLE_FILE_OFFLINE, JSON.stringify(q));
+        } catch (e) {}
+      }
+      majFileOff();
+      setInterval(majFileOff, 30000);
+      window.addEventListener("beforeunload", majFileOff);
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") majFileOff();
+      });
+    }
     function insere() {
+      if (!navigator.onLine) {
+        suiviHorsLigne();
+        return;
+      }
       var tsInit = new Date().toISOString();
       sb.from("acces").insert({ user_id: uid, lieu: lieu, page: chemin, fin: tsInit, duree_sec: 1 }).select("id").single().then(function (r) {
-        if (r.error || !r.data) return;
+        if (r.error || !r.data) {
+          suiviHorsLigne();
+          return;
+        }
         var id = r.data.id, debut = Date.now();
         function ferme() {
+          if (!navigator.onLine) return;
           sb.from("acces").update({
             fin: new Date().toISOString(),
             duree_sec: Math.round((Date.now() - debut) / 1000)
@@ -854,7 +1039,13 @@
         document.addEventListener("visibilitychange", function () {
           if (document.visibilityState === "hidden") ferme();
         });
+      }).catch(function () {
+        suiviHorsLigne();
       });
+    }
+    if (!navigator.onLine) {
+      suiviHorsLigne();
+      return;
     }
     fetch("https://ipapi.co/json/").then(function (r) { return r.json(); }).then(function (j) {
       lieu = (j.city || "") + (j.country_name ? ", " + j.country_name : "") || "inconnu";
