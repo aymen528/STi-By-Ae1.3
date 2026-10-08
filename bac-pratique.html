@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noai, noimageai" />
 <link rel="icon" href="assets/icons/STI_by_AE.ico" />
-<link rel="stylesheet" href="assets/css/protection.css?v=40" />
+<link rel="stylesheet" href="assets/css/protection.css?v=45" />
 <title>🧪 Atelier Épreuve Pratique Bac STI — STI By A'e V2.0</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -141,15 +141,35 @@
 
   <div class="sujet-bar">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <label for="sel-sujet" style="font-weight:900;font-size:13.5px">📋 Choisir un sujet d'examen :</label>
+      <label for="sel-sujet" style="font-weight:900;font-size:13.5px">📋 Choisir un projet / sujet d'examen :</label>
       <select id="sel-sujet">
+        <option value="p0">Projet STI 0 — Bureau de statistiques (Sondages mensuels · BDDC6)</option>
         <option value="s1">Sujet 1 — Inscription Club Robotique (CIN, Nom, Email, Durée)</option>
         <option value="s2">Sujet 2 — Réservation Hôtelière Tunisie (Tél +216, Ville, Nuits)</option>
         <option value="s3">Sujet 3 — Commande « Le Fleuriste » (Code, Bouquet, Quantité)</option>
         <option value="libre">Sujet 4 — Mode Libre (Bac à sable personnel)</option>
       </select>
     </div>
-    <div id="statut-envoi" style="font-size:12.5px;font-weight:800;color:#177245"></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn btn-prim" id="btn-ouvrir-enonce-pdf" onclick="ouvrirDocModal('projets/sti0/projetsti0.pdf.html', '📄 Énoncé officiel — Projet STI 0 (projetsti0.pdf)')">📄 Énoncé (projetsti0.pdf)</button>
+      <a class="btn btn-gold" id="btn-dl-ressources-zip" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip">📦 Télécharger ressources (.zip)</a>
+      <span id="statut-envoi" style="font-size:12.5px;font-weight:800;color:#177245"></span>
+    </div>
+  </div>
+
+  <!-- Modale de consultation de l'énoncé PDF et de l'aperçu des ressources -->
+  <div id="modal-doc-bac" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(16,23,40,.72);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:14px">
+    <div style="background:#fffdf7;border:2.5px solid #23201a;border-radius:18px;width:100%;max-width:1020px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:6px 6px 0 #f4511e">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 16px;background:#f3ead9;border-bottom:2px solid #23201a">
+        <strong id="modal-doc-titre" style="font-size:14px;color:#23201a">📄 Document</strong>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn" href="projets/sti0/projetsti0.pdf" download="projetsti0.pdf">⤓ projetsti0.pdf</a>
+          <a class="btn btn-gold" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip">📦 Ressources (.zip)</a>
+          <button type="button" class="btn btn-prim" onclick="fermerDocModal()">✕ Fermer</button>
+        </div>
+      </div>
+      <iframe id="modal-doc-frame" style="flex:1;width:100%;border:0;background:#fff" title="Document Projet STI 0"></iframe>
+    </div>
   </div>
 
   <div class="enonce-box" id="zone-enonce"></div>
@@ -181,14 +201,47 @@
   <div class="eval-box" id="zone-eval"></div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=40"></script>
-<script src="assets/js/protection.js?v=40"></script>
-<script src="assets/js/acces.js?v=40"></script>
+<script src="assets/js/config.js?v=45"></script>
+<script src="assets/js/protection.js?v=45"></script>
+<script src="assets/js/acces.js?v=45"></script>
 <script>
 (function () {
   "use strict";
 
+  window.ouvrirDocModal = function (url, titre) {
+    var m = document.getElementById("modal-doc-bac");
+    var f = document.getElementById("modal-doc-frame");
+    var t = document.getElementById("modal-doc-titre");
+    if (t) t.textContent = titre || "📄 Document";
+    if (f) f.src = url;
+    if (m) m.style.display = "flex";
+  };
+  window.fermerDocModal = function () {
+    var m = document.getElementById("modal-doc-bac");
+    var f = document.getElementById("modal-doc-frame");
+    if (f) f.src = "about:blank";
+    if (m) m.style.display = "none";
+  };
+
   var SUJETS = {
+    p0: {
+      titre: "Projet STI 0 — Bureau de statistiques (Sondages mensuels · 4ème SI 2 · Durée : 2h)",
+      consigne:
+        "<div style='display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px;padding:10px 12px;background:#f3ead9;border:1.5px solid #23201a;border-radius:12px;align-items:center'>" +
+        "<b style='font-size:12.5px;color:#23201a'>📂 Fichiers du Projet STI 0 :</b>" +
+        "<button type='button' class='btn btn-prim' style='padding:6px 12px;font-size:12px' onclick=\"ouvrirDocModal('projets/sti0/projetsti0.pdf.html', '📄 Énoncé officiel — Projet STI 0 (projetsti0.pdf)')\">📖 Lire l'énoncé (projetsti0.pdf)</button>" +
+        "<a class='btn' style='padding:6px 12px;font-size:12px' href='projets/sti0/projetsti0.pdf' download='projetsti0.pdf'>⤓ Télécharger projetsti0.pdf</a>" +
+        "<a class='btn btn-gold' style='padding:6px 12px;font-size:12px' href='projets/sti0/ressources-projet-sti0.zip' download='Projet_STI_0_Ressources.zip'>📦 Télécharger ressources (.zip : index.html, Sondage.html, Statistiques.html)</a>" +
+        "<button type='button' class='btn' style='padding:6px 12px;font-size:12px' onclick=\"ouvrirDocModal('projets/sti0/index.html', '👁️ Aperçu des pages ressources — Projet STI 0')\">👁️ Voir les 3 pages ressources</button>" +
+        "</div>" +
+        "<div><b>I. Base de données <code>BDDC6</code> :</b> Tables <code>Sondage(NumS, Theme, DateDebut)</code>, <code>Question(NumQ, NumS#, Contenu)</code>, <code>Participant(IdParticipant, Mail, Mdp, Genre)</code> et <code>Reponse(NumQ#, NumS#, IdParticipant#, Rep)</code>.<br>" +
+        "<b>II. Partie A (<code>Sondage.html</code>, <code>Controle.js</code>, <code>Sondage.php</code>) :</b> Affecter aux boutons radio les valeurs <code>1O/1N/1S</code>, <code>2O/2N/2S</code>, <code>3O/3N/3S</code> ; développer <code>test()</code> (<code>@Mail</code> &le; 50 car. au format <code>ch1@ch2.ch3</code> avec <code>ch1, ch2</code> alphanumériques &ge; 3 et <code>ch3</code> de 2 à 4 lettres ; <code>Mdp</code> de 6 car. avec &ge; 1 majuscule, &ge; 1 minuscule et &ge; 1 chiffre ; <code>Genre</code> et les 3 questions obligatoires) ; créer <code>Sondage.php</code>.<br>" +
+        "<b>III. Partie B (<code>Statistiques.html</code>, <code>Statistiques.php</code>) :</b> Afficher selon le thème sélectionné : <i>« Sondage non encore lancé ! »</i>, <i>« Aucune participation enregistrée à ce moment »</i>, ou le tableau des statistiques (Total, Femmes, Hommes et pourcentages Oui / Non / Sans avis par question).</div>",
+      html: '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <meta charset="UTF-8" />\n    <title>Projet STI 0 - Sondage</title>\n    <script src="Controle.js"><\/script>\n  </head>\n  <body>\n    <form name="f" action="Sondage.php" method="post" onsubmit="return test()">\n      <fieldset>\n        <legend><b>Sondage</b></legend>\n        <b>Authentification / Inscription :</b>\n        <table>\n          <tr>\n            <td><b>@Mail</b></td>\n            <td>:</td>\n            <td><input type="text" id="mail" name="mail" size="30" maxlength="50" /></td>\n          </tr>\n          <tr>\n            <td><b>Mot de passe</b></td>\n            <td>:</td>\n            <td><input type="password" id="mdp" name="mdp" size="30" maxlength="6" /></td>\n          </tr>\n          <tr>\n            <td><b>Genre</b></td>\n            <td>:</td>\n            <td>\n              <select id="genre" name="genre">\n                <option value="">Indiquer votre genre :</option>\n                <option value="M">Masculin</option>\n                <option value="F">Féminin</option>\n              </select>\n            </td>\n          </tr>\n        </table>\n\n        <h4>Les réseaux sociaux :</h4>\n        <table border="1" cellpadding="6" style="border-collapse:collapse;margin-top:8px">\n          <tr>\n            <th>N°</th>\n            <th>Question/Affirmation</th>\n            <th>Oui</th>\n            <th>Non</th>\n            <th>Sans avis</th>\n          </tr>\n          <tr>\n            <td>1</td>\n            <td>Les informations partagées sur les réseaux sociaux sont fiables</td>\n            <td align="center"><input type="radio" name="q1" value="1O" /></td>\n            <td align="center"><input type="radio" name="q1" value="1N" /></td>\n            <td align="center"><input type="radio" name="q1" value="1S" /></td>\n          </tr>\n          <tr>\n            <td>2</td>\n            <td>L\'usage des réseaux sociaux par les enfants doit être sous le contrôle parental</td>\n            <td align="center"><input type="radio" name="q2" value="2O" /></td>\n            <td align="center"><input type="radio" name="q2" value="2N" /></td>\n            <td align="center"><input type="radio" name="q2" value="2S" /></td>\n          </tr>\n          <tr>\n            <td>3</td>\n            <td>Les réseaux sociaux deviennent une nécessité pour les citoyens</td>\n            <td align="center"><input type="radio" name="q3" value="3O" /></td>\n            <td align="center"><input type="radio" name="q3" value="3N" /></td>\n            <td align="center"><input type="radio" name="q3" value="3S" /></td>\n          </tr>\n        </table>\n        <p align="right" style="margin-top:12px">\n          <input type="reset" value="Annuler" />\n          <input type="submit" value="Envoyer" />\n        </p>\n      </fieldset>\n    </form>\n  </body>\n</html>',
+      css: 'body {\n  font-family: "Segoe UI", Arial, sans-serif;\n  background: #f1f5f9;\n  color: #0f172a;\n  padding: 16px;\n}\nfieldset {\n  background: #fff;\n  border: 2px solid #1e3a8a;\n  border-radius: 12px;\n  padding: 16px;\n}\nlegend {\n  color: #1e3a8a;\n  padding: 0 8px;\n}\nh4 {\n  margin: 14px 0 6px;\n  color: #1e3a8a;\n}\ninput[type="text"], input[type="password"], select {\n  padding: 5px 8px;\n  border: 1px solid #94a3b8;\n  border-radius: 6px;\n}\ninput[type="submit"], input[type="reset"] {\n  padding: 6px 14px;\n  border-radius: 6px;\n  border: 1px solid #1e3a8a;\n  background: #1e3a8a;\n  color: #fff;\n  font-weight: 700;\n  cursor: pointer;\n}\ninput[type="reset"] {\n  background: #64748b;\n  border-color: #64748b;\n}',
+      js: '// Fichier Controle.js — Projet STI 0\nfunction estAlphanum(ch) {\n  if (ch.length < 3) return false;\n  for (var i = 0; i < ch.length; i++) {\n    var c = ch.charAt(i);\n    var ok = (c >= "A" && c <= "Z") || (c >= "a" && c <= "z") || (c >= "0" && c <= "9");\n    if (!ok) return false;\n  }\n  return true;\n}\n\nfunction estLettres(ch) {\n  if (ch.length < 2 || ch.length > 4) return false;\n  for (var i = 0; i < ch.length; i++) {\n    var c = ch.charAt(i).toUpperCase();\n    if (c < "A" || c > "Z") return false;\n  }\n  return true;\n}\n\nfunction verifMail(mail) {\n  if (mail.length === 0 || mail.length > 50) return false;\n  var pAt = mail.indexOf("@");\n  var pPt = mail.lastIndexOf(".");\n  if (pAt <= 0 || pPt <= pAt + 1) return false;\n  var ch1 = mail.substring(0, pAt);\n  var ch2 = mail.substring(pAt + 1, pPt);\n  var ch3 = mail.substring(pPt + 1);\n  return estAlphanum(ch1) && estAlphanum(ch2) && estLettres(ch3);\n}\n\nfunction verifMdp(mdp) {\n  if (mdp.length !== 6) return false;\n  var maj = false, min = false, chif = false;\n  for (var i = 0; i < mdp.length; i++) {\n    var c = mdp.charAt(i);\n    if (c >= "A" && c <= "Z") maj = true;\n    else if (c >= "a" && c <= "z") min = true;\n    else if (c >= "0" && c <= "9") chif = true;\n  }\n  return maj && min && chif;\n}\n\nfunction radioCoche(nom) {\n  var r = document.getElementsByName(nom);\n  for (var i = 0; i < r.length; i++) {\n    if (r[i].checked) return true;\n  }\n  return false;\n}\n\nfunction test() {\n  var mail = document.getElementById("mail").value.trim();\n  var mdp = document.getElementById("mdp").value;\n  var genre = document.getElementById("genre").value;\n\n  if (!verifMail(mail)) {\n    alert("Erreur : @Mail invalide (format ch1@ch2.ch3, max 50 caractères) !");\n    return false;\n  }\n  if (!verifMdp(mdp)) {\n    alert("Erreur : le mot de passe doit contenir 6 caractères (au moins 1 majuscule, 1 minuscule et 1 chiffre) !");\n    return false;\n  }\n  if (genre === "") {\n    alert("Erreur : veuillez sélectionner votre genre !");\n    return false;\n  }\n  if (!radioCoche("q1") || !radioCoche("q2") || !radioCoche("q3")) {\n    alert("Erreur : veuillez répondre aux 3 questions du sondage !");\n    return false;\n  }\n  alert("Bravo ! Formulaire de sondage valide pour " + mail);\n  return false;\n}\n\nfunction verif() { return test(); }',
+      sqlphp: '-- I) Base de données BDDC6 (SQL)\nCREATE TABLE Sondage (\n  NumS INT AUTO_INCREMENT PRIMARY KEY,\n  Theme VARCHAR(50) NOT NULL,\n  DateDebut DATE NOT NULL\n);\n\nCREATE TABLE Question (\n  NumQ INT NOT NULL,\n  NumS INT NOT NULL,\n  Contenu VARCHAR(150) NOT NULL,\n  PRIMARY KEY (NumQ, NumS),\n  FOREIGN KEY (NumS) REFERENCES Sondage(NumS)\n);\n\nCREATE TABLE Participant (\n  IdParticipant INT AUTO_INCREMENT PRIMARY KEY,\n  Mail VARCHAR(50) NOT NULL,\n  Mdp VARCHAR(6) NOT NULL,\n  Genre CHAR(1) CHECK (Genre IN (\'M\', \'F\'))\n);\n\nCREATE TABLE Reponse (\n  NumQ INT NOT NULL,\n  NumS INT NOT NULL,\n  IdParticipant INT NOT NULL,\n  Rep CHAR(1) CHECK (Rep IN (\'O\', \'N\', \'S\')),\n  PRIMARY KEY (NumQ, NumS, IdParticipant)\n);\n\nINSERT INTO Sondage (NumS, Theme, DateDebut) VALUES\n(1, \'Les réseaux sociaux\', \'2026-05-01\'),\n(2, \'Les jeux vidéo\', \'2026-06-01\');\n\nINSERT INTO Question (NumQ, NumS, Contenu) VALUES\n(1, 1, \'Les informations partagées sur les réseaux sociaux sont fiables\'),\n(2, 1, \'L\'\'usage des réseaux sociaux par les enfants doit être sous le contrôle parental\'),\n(3, 1, \'Les réseaux sociaux deviennent une nécessité pour les citoyens\'),\n(1, 2, \'Les jeux vidéo contribuent au développement de la pensée logique\');\n\n<?php\n// II) Partie A — Sondage.php\n$con = mysqli_connect("localhost", "root", "", "BDDC6");\n$mail = $_POST["mail"];\n$mdp = $_POST["mdp"];\n$genre = $_POST["genre"];\n$reps = array(1 => substr($_POST["q1"], 1, 1), 2 => substr($_POST["q2"], 1, 1), 3 => substr($_POST["q3"], 1, 1));\n\n$rPart = mysqli_query($con, "SELECT * FROM Participant WHERE Mail=\'$mail\'");\nif (mysqli_num_rows($rPart) > 0) {\n  $lig = mysqli_fetch_assoc($rPart);\n  if ($lig["Mdp"] != $mdp) {\n    echo "Erreur d\'authentification";\n  } else {\n    $idP = $lig["IdParticipant"];\n    $rDeja = mysqli_query($con, "SELECT * FROM Reponse WHERE IdParticipant=$idP AND NumS=1");\n    if (mysqli_num_rows($rDeja) > 0) {\n      foreach ($reps as $numQ => $rep) {\n        mysqli_query($con, "UPDATE Reponse SET Rep=\'$rep\' WHERE NumQ=$numQ AND NumS=1 AND IdParticipant=$idP");\n      }\n      echo "Mise à jour effectuée avec succès";\n    } else {\n      foreach ($reps as $numQ => $rep) {\n        mysqli_query($con, "INSERT INTO Reponse VALUES ($numQ, 1, $idP, \'$rep\')");\n      }\n      echo "Participation au sondage effectuée avec succès";\n    }\n  }\n} else {\n  mysqli_query($con, "INSERT INTO Participant (Mail, Mdp, Genre) VALUES (\'$mail\', \'$mdp\', \'$genre\')");\n  $idP = mysqli_insert_id($con);\n  foreach ($reps as $numQ => $rep) {\n    mysqli_query($con, "INSERT INTO Reponse VALUES ($numQ, 1, $idP, \'$rep\')");\n  }\n  echo "Inscription et participation au sondage effectuées avec succès";\n}\nmysqli_close($con);\n?>'
+    },
     s1: {
       titre: "Sujet 1 — Inscription au Club Robotique du Lycée",
       consigne: "Complétez le formulaire HTML5, la feuille CSS3, la fonction JavaScript <b>verif()</b> (CIN de 8 chiffres, Nom alphabétique non vide, E-mail contenant '@', Durée entre 1 et 12 mois) ainsi que les requêtes SQL et le script PHP/MySQLi d'insertion.",
@@ -301,10 +354,10 @@
       details.push({ nom: nom, ok: ok, pts: pts, conseil: conseil });
     }
 
-    critere("Structure HTML5 (<form>, <input>, <label>, <button>)", /<form/i.test(h) && /<input/i.test(h) && /<label/i.test(h), 2, "Ajoutez une balise <form>, des <label> et des <input>.");
-    critere("Attributs id, name et onsubmit='return verif()'", /id=/i.test(h) && /name=/i.test(h) && /onsubmit/i.test(h), 2, "Chaque champ doit avoir id et name, et le formulaire onsubmit='return verif()'.");
+    critere("Structure HTML5 (<form>, <input>, <select>)", /<form/i.test(h) && /<input/i.test(h), 2, "Ajoutez une balise <form> et des champs <input>.");
+    critere("Attributs name et onsubmit='return test()' ou 'return verif()'", /name=/i.test(h) && /onsubmit/i.test(h), 2, "Chaque champ doit avoir name, et le formulaire onsubmit='return test()'.");
     critere("Feuille de style CSS3 (sélecteurs, bordures, couleurs, mise en page)", c.length > 80 && /border|background|padding/i.test(c), 3, "Complétez les règles CSS3 (couleurs, marges, bordures).");
-    critere("Fonction JavaScript verif() et lecture DOM (getElementById)", /function\s+verif/i.test(j) && /getElementById/i.test(j), 3, "Déclarez function verif() et utilisez document.getElementById().");
+    critere("Fonction JavaScript test() / verif() et lecture DOM", /function\s+(test|verif)/i.test(j) && /(getElementById|getElementsByName)/i.test(j), 3, "Déclarez function test() ou verif() et lisez les champs du formulaire.");
     critere("Contrôles de validité JS + alert() + return false", /alert\s*\(/i.test(j) && /return\s+false/i.test(j), 3, "Affichez une alerte en cas d'erreur et retournez false.");
     critere("Requêtes SQL (CREATE TABLE / SELECT / INSERT / UPDATE)", /(CREATE\s+TABLE|SELECT\s+.+FROM|INSERT\s+INTO|UPDATE\s+)/i.test(sp), 4, "Écrivez les requêtes SQL LDD/LMD demandées.");
     critere("Script PHP & MySQLi (mysqli_connect, $_POST, mysqli_query)", /mysqli_connect/i.test(sp) && /\$_POST/i.test(sp) && /mysqli_query/i.test(sp), 3, "Utilisez mysqli_connect(), $_POST[] et mysqli_query().");
@@ -328,7 +381,7 @@
     }
   });
 
-  chargerSujet("s1");
+  chargerSujet("p0");
 })();
 </script>
 </body>

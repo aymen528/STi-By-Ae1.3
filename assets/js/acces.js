@@ -19,7 +19,7 @@
     if ("caches" in window) {
       caches.keys().then(function (cles) {
         cles.forEach(function (k) {
-          if (k !== "sti-atelier-v44") caches.delete(k);
+          if (k !== "sti-atelier-v45") caches.delete(k);
         });
       }).catch(function () {});
     }
@@ -29,8 +29,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-44") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-44", "1");
+          if (sessionStorage.getItem("sti-sw-reload-45") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-45", "1");
         } catch (e) {}
         location.reload();
       });
@@ -87,7 +87,7 @@
   function nomEspaceReserve4SI(urlOuChemin) {
     var u = String(urlOuChemin || "").toLowerCase();
     if (!u) return null;
-    if (u.indexOf("bac-pratique") !== -1) return "l'Atelier Bac Pratique";
+    if (u.indexOf("bac-pratique") !== -1 || u.indexOf("projets/sti0") !== -1 || u.indexOf("projetsti0") !== -1) return "l'Atelier Bac Pratique (Projet STI 0)";
     if (u.indexOf("cours/php") !== -1 || u.indexOf("cours/coursphp") !== -1 || u.indexOf("cours-php") !== -1 || u.indexOf("annexe-php") !== -1 || u.indexOf("complet-4eme-si") !== -1) return "le Cours PHP (4e SI)";
     if (u.indexOf("exercices/php/") !== -1 || u.indexOf("tp1-php") !== -1 || u.indexOf("tp2-php") !== -1 || u.indexOf("tp2-correction-php") !== -1 || u.indexOf("tp3-php") !== -1 || u.indexOf("tp3-correction-php") !== -1 || u.indexOf("tp4-php") !== -1 || u.indexOf("resume-fonctions-standards") !== -1 || u === "#php" || u.slice(-4) === "#php") return "les Exercices PHP";
     if (u.indexOf("quiz/php") !== -1 || u.indexOf("quiz/pp.html") !== -1) return "le Quiz PHP";
