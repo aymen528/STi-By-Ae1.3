@@ -1,8 +1,8 @@
-/* STI by AE — Service Worker L'Atelier (v38)
+/* STI by AE — Service Worker L'Atelier (v39)
    Navigation instantanée : réseau d'abord pour les pages/scripts/styles (sans blocage ni timeout artificiel),
    cache en secours hors-ligne. */
 
-var CACHE = "sti-atelier-v38";
+var CACHE = "sti-atelier-v39";
 var SHELL = [
   "./",
   "./index.html",
@@ -25,6 +25,12 @@ var SHELL = [
   "./assets/icons/sti-icon-512.png",
   "./cours/html5.html",
   "./cours/css3.html",
+  "./Positionnement-animee/index.html",
+  "./Positionnement-animee/cours.js",
+  "./Positionnement-animee/style.css",
+  "./cssanimee/index.html",
+  "./cssanimee/cours.js",
+  "./cssanimee/style.css",
   "./cours/javascript.html",
   "./cours/php.html",
   "./cours/php-mysqli.html",
@@ -389,6 +395,12 @@ var OFFLINE_LIST = [
   "./cours/courshtml5.html",
   "./cours/coursphp.html",
   "./cours/css3.html",
+  "./Positionnement-animee/index.html",
+  "./Positionnement-animee/cours.js",
+  "./Positionnement-animee/style.css",
+  "./cssanimee/index.html",
+  "./cssanimee/cours.js",
+  "./cssanimee/style.css",
   "./cours/datalist.html",
   "./cours/fiche-revision-html5.html",
   "./cours/html5.html",

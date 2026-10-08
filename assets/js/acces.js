@@ -20,7 +20,7 @@
     if ("caches" in window) {
       caches.keys().then(function (cles) {
         cles.forEach(function (k) {
-          if (k !== "sti-atelier-v38") caches.delete(k);
+          if (k !== "sti-atelier-v39") caches.delete(k);
         });
       }).catch(function () {});
     }
@@ -30,8 +30,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-38") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-38", "1");
+          if (sessionStorage.getItem("sti-sw-reload-39") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-39", "1");
         } catch (e) {}
         location.reload();
       });

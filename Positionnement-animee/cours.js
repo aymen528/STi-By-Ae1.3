@@ -201,11 +201,31 @@ function ecrireCode(idTable, nombre, actifs) {
 /* ---------- habillage : thème (sombre / clair) + format (bureau / mobile)
    L'annexe CSS3 ne contient ni @media ni variables : on pose donc une
    classe sur chaque élément, comme pour les temps de l'étape.        ------ */
+function estElementExterne(el) {
+  if (!el || typeof el.className !== 'string') return true;
+  if (el.namespaceURI && el.namespaceURI.indexOf('svg') !== -1) return true;
+  var cur = el;
+  while (cur && cur !== document.body) {
+    var id = cur.id || '';
+    if (
+      id === 'rotate-overlay' ||
+      id === 'retour-cours' ||
+      id.indexOf('sti-') === 0 ||
+      id.indexOf('stix-') === 0
+    ) {
+      return true;
+    }
+    cur = cur.parentNode;
+  }
+  return false;
+}
+
 function baseDe(el) {
+  if (!el || typeof el.className !== 'string') return '';
   if (el._base === undefined) {
     el._base = el.className
       .replace(/\sb\d+/g, '')
-      .replace(/\b(sombre|clair|bureau|mobile|actif|ecrit|numero-actif|fait)\b/g, '')
+      .replace(/\b(sombre|clair|bureau|mobile|actif|ecrit|numero-actif|fait|ouverte)\b/g, '')
       .replace(/\s+/g, ' ')
       .replace(/^\s+|\s+$/g, '');
   }
@@ -215,12 +235,16 @@ function baseDe(el) {
 function habiller() {
   var tous = document.body.getElementsByTagName('*');
   var demo = document.getElementById('demo-' + etape);
-  var i, el, cls;
-  document.body.className = theme + ' ' + format;
+  var i, el, cls, etaitOuverte;
+  var gold = document.body.classList && document.body.classList.contains('sti-gold');
+  document.body.className = theme + ' ' + format + (gold ? ' sti-gold' : '');
   for (i = 0; i < tous.length; i++) {
     el = tous[i];
+    if (estElementExterne(el)) continue;
+    etaitOuverte = el.classList && el.classList.contains('ouverte');
     cls = baseDe(el);
     if (demo && (el === demo || demo.contains(el))) { cls = cls + ' b' + temps; }
+    if (etaitOuverte) { cls = cls + ' ouverte'; }
     el.className = cls + ' ' + theme + ' ' + format;
   }
   /* boutons de thème : celui qui est actif garde la couleur */
