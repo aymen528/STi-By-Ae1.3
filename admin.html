@@ -391,6 +391,21 @@
   }
   .ecole-btns button:hover { border-color: #f4511e; color: #f4511e; }
   .ecole-btns button.del:hover { border-color: #c0392b; color: #c0392b; background: #fde2e6; }
+  .sel-classe-ligne {
+    border: 1.5px solid #23201a; border-radius: 8px; padding: 3px 8px;
+    background: #fffdf7; color: #23201a; font-weight: 800; font-size: 12px;
+    cursor: pointer; margin-top: 3px; max-width: 170px;
+    box-shadow: 1.5px 1.5px 0 rgba(244,81,30,.45);
+  }
+  .sel-classe-ligne:hover, .sel-classe-ligne:focus {
+    border-color: #f4511e; outline: none;
+  }
+  .btn-edit-inline {
+    border: 1px dashed #23201a; background: rgba(255,253,247,.85); color: #23201a;
+    border-radius: 6px; padding: 1px 6px; font-size: 11px; font-weight: 800;
+    cursor: pointer; margin-left: 5px;
+  }
+  .btn-edit-inline:hover { border-color: #f4511e; color: #f4511e; }
 </style>
 </head>
 <body>
@@ -500,7 +515,7 @@
 
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Abonné (e-mail / tél.)</th><th>Lycée / Classe</th><th class="only-mob">Actions</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th class="only-pc">Actions</th></tr></thead>
+      <thead><tr><th>Nom &amp; Prénom</th><th>Contact (e-mail / tél.)</th><th>Lycée &amp; Classe</th><th class="only-mob">Actions</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th class="only-pc">Actions</th></tr></thead>
       <tbody id="tb-abonnes"></tbody>
     </table>
   </div>
@@ -521,7 +536,7 @@
   <h2>🏆 Résultats des Quiz &amp; Atelier Bac Pratique</h2>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Abonné</th><th>Lycée / Classe</th><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead>
+      <thead><tr><th>Candidat (Nom, Prénom &amp; Contact)</th><th>Lycée / Classe</th><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead>
       <tbody id="tb-quiz"></tbody>
     </table>
   </div>
@@ -535,7 +550,7 @@
   </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Abonné (e-mail / tél.)</th><th>Lycée / Classe</th><th>État</th><th>💬 Réponse / Question de l'élève</th><th>Date</th></tr></thead>
+      <thead><tr><th>Candidat (Nom, Prénom &amp; Contact)</th><th>Lycée / Classe</th><th>État</th><th>💬 Réponse / Question de l'élève</th><th>Date</th></tr></thead>
       <tbody id="tb-suivi-msg"></tbody>
     </table>
   </div>
@@ -543,7 +558,7 @@
   <h2>🕒 Dernières connexions (tous abonnés)</h2>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Abonné</th><th>Début</th><th>Durée</th><th>Lieu</th><th>Page</th></tr></thead>
+      <thead><tr><th>Candidat (Nom, Prénom &amp; Contact)</th><th>Début</th><th>Durée</th><th>Lieu</th><th>Page</th></tr></thead>
       <tbody id="tb-acces"></tbody>
     </table>
   </div>
@@ -672,11 +687,21 @@
     </div>
   </div>
 
-  <!-- Boîte pour changer le lycée ou la classe d'un abonné particulier -->
+  <!-- Boîte pour modifier Nom, Prénom, Lycée ou Classe d'un abonné particulier -->
   <div class="modal-fond" id="modal-affectation" role="dialog" aria-modal="true">
-    <div class="modal-boite" style="max-width:430px">
-      <h3>🏫 Changer le lycée ou la classe</h3>
-      <p>Modifier l'affectation de <b id="aff-cible"></b> :</p>
+    <div class="modal-boite" style="max-width:450px">
+      <h3>🏫 Modifier le candidat (Nom, Prénom, Lycée &amp; Classe)</h3>
+      <p>Mettre à jour les informations de <b id="aff-cible"></b> :</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">👤 Nom :</label>
+          <input type="text" id="aff-nom" placeholder="Nom de famille…" autocomplete="off" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">👤 Prénom :</label>
+          <input type="text" id="aff-prenom" placeholder="Prénom…" autocomplete="off" />
+        </div>
+      </div>
       <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">🏛️ Lycée :</label>
       <select id="aff-lycee"></select>
       <input type="text" id="aff-lycee-autre" hidden placeholder="Saisir le nom du nouveau lycée…" />
@@ -704,7 +729,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=39"></script>
-<script src="assets/js/admin.js?v=39"></script>
+<script src="assets/js/config.js?v=40"></script>
+<script src="assets/js/admin.js?v=40"></script>
 </body>
 </html>

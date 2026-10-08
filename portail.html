@@ -211,13 +211,19 @@
         <button type="button" id="c-mail" class="on">📧 Par e-mail</button>
         <button type="button" id="c-tel">📱 Par téléphone</button>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label for="i-nom">Nom *</label>
+          <span class="champ"><span class="ico">👤</span><input id="i-nom" type="text" required placeholder="Votre nom" autocomplete="family-name" /></span>
+        </div>
+        <div>
+          <label for="i-prenom">Prénom *</label>
+          <span class="champ"><span class="ico">👤</span><input id="i-prenom" type="text" required placeholder="Votre prénom" autocomplete="given-name" /></span>
+        </div>
+      </div>
       <div id="zone-tel" hidden>
         <label for="i-tel">Numéro WhatsApp</label>
         <span class="champ"><span class="ico">📱</span><input id="i-tel" type="tel" value="+216 " placeholder="+216 20 123 456" autocomplete="tel" /></span>
-        <label for="i-nom">Nom</label>
-        <span class="champ"><span class="ico">👤</span><input id="i-nom" type="text" placeholder="Nom de famille" autocomplete="family-name" /></span>
-        <label for="i-prenom">Prénom</label>
-        <span class="champ"><span class="ico">👤</span><input id="i-prenom" type="text" placeholder="Prénom" autocomplete="given-name" /></span>
       </div>
       <div id="zone-mail">
         <label for="i-email">Adresse e-mail</label>
@@ -273,7 +279,7 @@
     </form>
 
     <div class="qr-zone">
-      <img src="assets/images/qr-code-site.png?v=39" alt="QR code du site STI by AE" />
+      <img src="assets/images/qr-code-site.png?v=40" alt="QR code du site STI by AE" />
       <div>
         <b>📱 Scannez-moi !</b><br />
         <span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span><br />
@@ -291,13 +297,13 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=39"></script>
+<script src="assets/js/config.js?v=40"></script>
 <script>
   if (!window.supabase) {
     document.getElementById("msg").className = "msg err";
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=39"></script>
+<script src="assets/js/portail.js?v=40"></script>
 </body>
 </html>

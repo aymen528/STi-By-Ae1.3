@@ -37,6 +37,7 @@
         lignes.push("🏫 " + d.lycee + " · " + d.classe);
         lignes.push("🔢 Code WhatsApp : " + d.code);
       } else {
+        if (d.prenom || d.nom) lignes.push("👤 " + ((d.prenom || "") + " " + (d.nom || "")).trim());
         lignes.push("✉️ " + d.email);
         lignes.push("🏫 " + d.lycee + " · " + d.classe);
       }
@@ -436,6 +437,9 @@
       document.getElementById("i-captcha").value = "";
       return;
     }
+    var nom = document.getElementById("i-nom").value.trim();
+    var prenom = document.getElementById("i-prenom").value.trim();
+    if (!nom || !prenom) { msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
     var lycee = valeur("i-lycee", "i-lycee-autre");
     var classe = valeur("i-classe", "i-classe-autre");
     if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
@@ -446,10 +450,7 @@
     if (modeTel) {
       /* ----- inscription par téléphone + attente du code WhatsApp ----- */
       var tel = normaliserTel(document.getElementById("i-tel").value);
-      var nom = document.getElementById("i-nom").value.trim();
-      var prenom = document.getElementById("i-prenom").value.trim();
       if (!tel) { btn.disabled = false; msg("❌ Numéro invalide — ex. +216 20 123 456 ou 20 123 456.", "err"); return; }
-      if (!nom || !prenom) { btn.disabled = false; msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
       telEnCours = tel;
       sb.auth.signUp({
         email: emailDeTel(tel),
@@ -479,13 +480,13 @@
     sb.auth.signUp({
       email: emInsc,
       password: mdp,
-      options: { data: { lycee: lycee, classe: classe } }
+      options: { data: { nom: nom, prenom: prenom, lycee: lycee, classe: classe } }
     }).then(function (r) {
       btn.disabled = false;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       if (r.data.session) sb.auth.signOut(); /* le compte repasse en attente ; l'admin valide */
-      alerterAdminDemande({ email: emInsc, lycee: lycee, classe: classe });
-      msg("✅ Inscription reçue ! Votre accès sera activé après validation par l'administrateur.", "ok");
+      alerterAdminDemande({ email: emInsc, nom: nom, prenom: prenom, lycee: lycee, classe: classe });
+      msg("✅ Inscription reçue (" + prenom + " " + nom + ") ! Votre accès sera activé après validation par l'administrateur.", "ok");
       e.target.reset(); cap2.reset();
     });
   });
