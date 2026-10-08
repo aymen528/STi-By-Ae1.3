@@ -85,9 +85,26 @@
     display: flex; align-items: center; gap: 14px; margin-top: 18px;
     background: #f9f1e3; border: 2px dashed #d9c8a9; border-radius: 16px; padding: 12px 14px;
   }
-  .qr-zone img { width: 92px; height: 92px; border-radius: 12px; border: 2px solid #23201a; box-shadow: 3px 3px 0 rgba(244,81,30,.45); background: #fff; }
+  .qr-zone img { width: 96px; height: 96px; border-radius: 12px; border: 2px solid #23201a; box-shadow: 3px 3px 0 rgba(244,81,30,.45); background: #fffdf5; flex-shrink: 0; }
   .qr-zone b { color: #f4511e; font-size: 14px; }
   .qr-zone span { color: #7a6f5d; font-size: 12px; }
+  .qr-site-pill {
+    display: inline-flex; align-items: center; gap: 5px; margin-top: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(244,81,30,.12); border: 1.5px solid rgba(244,81,30,.38);
+    color: #d84315 !important; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px !important; font-weight: 900; text-decoration: none;
+    word-break: break-all;
+  }
+  .qr-site-pill:hover { background: #f4511e; color: #fff !important; border-color: #23201a; }
+  .qr-liens-bas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; align-items: center; }
+  .qr-btn-carte {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #fffdf7; color: #23201a; border: 1.5px solid #23201a;
+    border-radius: 999px; padding: 3px 10px; font-size: 11.5px; font-weight: 800;
+    text-decoration: none; box-shadow: 2px 2px 0 rgba(244,81,30,.4);
+  }
+  .qr-btn-carte:hover { border-color: #f4511e; color: #f4511e; }
   form[hidden] { display: none; }
   .canal { display: flex; gap: 8px; margin-bottom: 14px; }
   .canal button {
@@ -187,14 +204,6 @@
       </div>
       <input id="c-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">🔐 Se connecter</button>
-      <div class="qr-zone">
-        <img src="assets/images/qr-stiv2.png?v=33" alt="QR code du site STI" />
-        <div>
-          <b>📱 Scannez-moi !</b><br />
-          <span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span><br />
-          <a href="carte-visite.html" style="display:inline-block;margin-top:5px;color:#f4511e;font-weight:900;font-size:12px;text-decoration:none">🪪 Ouvrir / partager la carte de visite →</a>
-        </div>
-      </div>
     </form>
 
     <form id="f-inscription" hidden autocomplete="on">
@@ -260,8 +269,20 @@
     <form id="f-oubli" hidden>
       <label for="o-email">Adresse e-mail du compte</label>
       <span class="champ"><span class="ico">✉️</span><input id="o-email" type="email" required placeholder="vous@exemple.tn" /></span>
-      <button class="btn" type="submit"> Recevoir le lien de réinitialisation</button>
+      <button class="btn" type="submit">📨 Recevoir le lien de réinitialisation</button>
     </form>
+
+    <div class="qr-zone">
+      <img src="assets/images/qr-code-site.png?v=34" alt="QR code du site STI by AE" />
+      <div>
+        <b>📱 Scannez-moi !</b><br />
+        <span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span><br />
+        <a class="qr-site-pill" href="https://aymenessouyah.github.io/STiV2.0/">🔗 aymenessouyah.github.io/STiV2.0</a>
+        <div class="qr-liens-bas">
+          <a class="qr-btn-carte" href="carte-visite.html">🪪 Carte de visite &amp; Partager →</a>
+        </div>
+      </div>
+    </div>
 
     <div class="msg" id="msg" role="status"></div>
     <div class="lien-admin"><a href="admin.html">📊 Tableau de bord administrateur</a></div>
@@ -270,13 +291,13 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=33"></script>
+<script src="assets/js/config.js?v=34"></script>
 <script>
   if (!window.supabase) {
     document.getElementById("msg").className = "msg err";
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=33"></script>
+<script src="assets/js/portail.js?v=34"></script>
 </body>
 </html>
