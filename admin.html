@@ -40,10 +40,29 @@
   .table-wrap { overflow-x: auto; border: 2px solid #23201a; border-radius: 16px; background: #fffdf7; box-shadow: 5px 5px 0 rgba(244,81,30,.45); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
   th { text-align: left; color: #7a6f5d; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 12px 14px; border-bottom: 2px solid #23201a; background: #f3ead9; }
-  td { padding: 11px 14px; border-bottom: 1px solid #f3ead9; vertical-align: middle; }
+  td { padding: 11px 14px; border-bottom: 1px solid rgba(35,32,26,.12); vertical-align: middle; }
   tr:last-child td { border-bottom: 0; }
-  tbody tr { cursor: pointer; }
+  tbody tr { cursor: pointer; transition: background .15s ease; }
   tbody tr:hover { background: #fdf6e9; }
+  /* Coloration de chaque ligne du tableau des abonnés selon l'état */
+  #tb-abonnes tr.row-actif { background: #e3f6e8; }
+  #tb-abonnes tr.row-actif:hover { background: #d2eedb; }
+  #tb-abonnes tr.row-en_attente { background: #f5ead2; }
+  #tb-abonnes tr.row-en_attente:hover { background: #ecddbc; }
+  #tb-abonnes tr.row-exclu { background: #fde2e6; }
+  #tb-abonnes tr.row-exclu:hover { background: #f9cfd5; }
+  #tb-abonnes tr.row-suspendu { background: #ece7dd; }
+  #tb-abonnes tr.row-suspendu:hover { background: #e2dbce; }
+  /* Colonnes Actions adaptatives : à la fin sur PC, juste après Lycée / Classe sur mobile */
+  .only-mob { display: none; }
+  @media (max-width: 768px) {
+    body { padding: 12px; }
+    .only-mob { display: table-cell; }
+    .only-pc { display: none; }
+    td, th { padding: 9px 9px; }
+    .cell-actions { min-width: 158px; }
+    .cell-actions .act { margin: 2px 3px 2px 0; padding: 5px 8px; }
+  }
   .st { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
   .st.actif { background: rgba(23,114,69,.12); color: #177245; }
   .st.gold { background: linear-gradient(120deg, #fff3c4, #ffd54f); color: #6d4c00; border: 1.5px solid #d4a017; box-shadow: 1px 1px 0 #23201a; }
@@ -163,7 +182,7 @@
   </div>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Abonné (e-mail / tél.)</th><th>Lycée / Classe</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Abonné (e-mail / tél.)</th><th>Lycée / Classe</th><th class="only-mob">Actions</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th class="only-pc">Actions</th></tr></thead>
       <tbody id="tb-abonnes"></tbody>
     </table>
   </div>
@@ -271,7 +290,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=25"></script>
-<script src="assets/js/admin.js?v=25"></script>
+<script src="assets/js/config.js?v=26"></script>
+<script src="assets/js/admin.js?v=26"></script>
 </body>
 </html>

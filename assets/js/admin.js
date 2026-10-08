@@ -391,6 +391,7 @@
     }
     liste.forEach(function (p) {
       var tr = document.createElement("tr");
+      tr.className = "row-" + (p.statut || "en_attente");
       tr.title = "Cliquer pour voir toutes ses connexions et durées par semaine";
       tr.addEventListener("click", function () { detail(p); });
 
@@ -413,7 +414,8 @@
 
       var tdL = document.createElement("td");
       tdL.textContent = lyceePropre(p) + " · " + (p.classe || "—");
-      tdL.style.color = "#7a6f5d";
+      tdL.style.color = "#5a5244";
+      tdL.style.fontWeight = "700";
 
       var td2 = document.createElement("td");
       var nb = document.createElement("span"); nb.className = "nb"; nb.textContent = counts[p.id] || 0;
@@ -423,14 +425,14 @@
       var secSem = dureePourAbonne(p.id);
       var secTot = dureesTotales[p.id] || 0;
       var bDur = document.createElement("span");
-      bDur.style.cssText = "display:inline-block;background:" + (secSem > 0 ? "rgba(244,81,30,.13)" : "#f3ead9") +
-        ";color:" + (secSem > 0 ? "#d84315" : "#7a6f5d") +
+      bDur.style.cssText = "display:inline-block;background:" + (secSem > 0 ? "rgba(244,81,30,.15)" : "rgba(255,253,247,.8)") +
+        ";color:" + (secSem > 0 ? "#d84315" : "#5a5244") +
         ";border-radius:999px;padding:4px 10px;font-weight:900;font-size:12px;";
       bDur.textContent = "⏱️ " + fmtDureeCumul(secSem);
       tdDur.appendChild(bDur);
       if (selSemaine && selSemaine.value !== "*" && secTot > 0) {
         var totSub = document.createElement("div");
-        totSub.style.cssText = "font-size:10.5px;color:#7a6f5d;font-weight:700;margin-top:3px;";
+        totSub.style.cssText = "font-size:10.5px;color:#5a5244;font-weight:700;margin-top:3px;";
         totSub.textContent = "Cumul : " + fmtDureeCumul(secTot);
         tdDur.appendChild(totSub);
       }
@@ -450,33 +452,40 @@
 
       var td4 = document.createElement("td"); td4.textContent = fmtDate(p.cree_le);
 
-      var td5 = document.createElement("td");
-      function bouton(txt, fn, cls, titre) {
-        var b = document.createElement("button");
-        b.type = "button"; b.className = "act" + (cls ? " " + cls : ""); b.textContent = txt;
-        if (titre) b.title = titre;
-        b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
-        td5.appendChild(b);
+      function creerCelluleActions(cls) {
+        var tdAct = document.createElement("td");
+        tdAct.className = "cell-actions " + cls;
+        function bouton(txt, fn, bCls, titre) {
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "act" + (bCls ? " " + bCls : ""); b.textContent = txt;
+          if (titre) b.title = titre;
+          b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
+          tdAct.appendChild(b);
+        }
+        bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
+        bouton(
+          "👑",
+          function () { basculerGold(p); },
+          isG ? "gold-on" : "",
+          isG
+            ? "Compte Gold actif — cliquer pour retirer les droits de capture d'écran et d'impression"
+            : "Passer en compte Gold (autoriser capture d'écran, impression et copie)"
+        );
+        bouton("⏳", function () { changeStatut(p, "en_attente"); }, "", "Mettre en attente");
+        bouton("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure l'abonné");
+        if (tel) {
+          bouton("💬", function () { envoyerCodeWhatsApp(p, tel); }, "", "Envoyer le code de confirmation par WhatsApp");
+        }
+        bouton("🔑", function () { nouveauMdp(p); }, "", "Définir un nouveau mot de passe");
+        bouton("🔎", function () { detail(p); }, "", "Voir l'historique des connexions");
+        bouton("🗑️", function () { supprimer(p); }, "del", "Supprimer définitivement");
+        return tdAct;
       }
-      bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
-      bouton(
-        "👑",
-        function () { basculerGold(p); },
-        isG ? "gold-on" : "",
-        isG
-          ? "Compte Gold actif — cliquer pour retirer les droits de capture d'écran et d'impression"
-          : "Passer en compte Gold (autoriser capture d'écran, impression et copie)"
-      );
-      bouton("⏳", function () { changeStatut(p, "en_attente"); }, "", "Mettre en attente");
-      bouton("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure l'abonné");
-      if (tel) {
-        bouton("💬", function () { envoyerCodeWhatsApp(p, tel); }, "", "Envoyer le code de confirmation par WhatsApp");
-      }
-      bouton("🔑", function () { nouveauMdp(p); }, "", "Définir un nouveau mot de passe");
-      bouton("🔎", function () { detail(p); }, "", "Voir l'historique des connexions");
-      bouton("🗑️", function () { supprimer(p); }, "del", "Supprimer définitivement");
 
-      tr.append(td1, tdL, td2, tdDur, td3, td4, td5);
+      var tdActMob = creerCelluleActions("only-mob");
+      var td5 = creerCelluleActions("only-pc");
+
+      tr.append(td1, tdL, tdActMob, td2, tdDur, td3, td4, td5);
       tb.appendChild(tr);
     });
   }
