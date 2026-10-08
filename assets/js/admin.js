@@ -44,11 +44,18 @@
     }
     return String(100000 + (h % 900000));
   }
+  function nomPrenomTexte(p) {
+    if (!p) return "";
+    var n = (p.nom || "").trim();
+    var pr = (p.prenom || "").trim();
+    if (n && pr) return n.toUpperCase() + " " + pr;
+    return n || pr || "";
+  }
   function contact(p) {
     var tel = telDeProfil(p);
     var base = tel ? "📱 " + tel : (p.email || "—");
-    var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
-    return np ? base + " (" + np + ")" : base;
+    var np = nomPrenomTexte(p);
+    return np ? "👤 " + np + " (" + base + ")" : base;
   }
 
   var triParAcces = false;
@@ -58,7 +65,86 @@
   var scoresParUser = {}, listeResultatsQuiz = [];
   var enLigneMap = {}; /* uid -> { ts: ms, page: str } */
   var adminUid = null;
-  var cibleSuppr = null, cibleMdp = null;
+  var cibleSuppr = null, cibleMdp = null, cibleAff = null;
+
+  /* ---------- Configuration dynamique des Lycées et des Classes ---------- */
+  var cfgEcoles = {
+    lycees: ["Lycée Rafèha"],
+    classes: ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"],
+    supprLycees: [],
+    supprClasses: [],
+    ts: 0
+  };
+  try {
+    var cfgLocal = JSON.parse(localStorage.getItem("sti-cfg-ecoles") || "null");
+    if (cfgLocal && Array.isArray(cfgLocal.lycees) && Array.isArray(cfgLocal.classes)) {
+      cfgEcoles = Object.assign(cfgEcoles, cfgLocal);
+    }
+  } catch (e) {}
+
+  function obtenirLyceesActifs() {
+    var suppr = cfgEcoles.supprLycees || [];
+    var liste = (cfgEcoles.lycees || []).filter(function (l) { return l && suppr.indexOf(l) === -1; });
+    if (!liste.length && suppr.indexOf("Lycée Rafèha") === -1) liste.push("Lycée Rafèha");
+    profils.forEach(function (p) {
+      var l = lyceePropre(p);
+      if (l && l !== "—" && liste.indexOf(l) === -1 && suppr.indexOf(l) === -1) {
+        liste.push(l);
+      }
+    });
+    return liste;
+  }
+
+  function obtenirClassesActives() {
+    var suppr = cfgEcoles.supprClasses || [];
+    var liste = (cfgEcoles.classes || []).filter(function (c) { return c && suppr.indexOf(c) === -1; });
+    if (!liste.length) {
+      ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"].forEach(function (c) {
+        if (suppr.indexOf(c) === -1) liste.push(c);
+      });
+    }
+    profils.forEach(function (p) {
+      var c = p.classe || "";
+      if (c && c !== "—" && liste.indexOf(c) === -1 && suppr.indexOf(c) === -1) {
+        liste.push(c);
+      }
+    });
+    return liste;
+  }
+
+  function sauvegarderCfgEcoles() {
+    cfgEcoles.ts = Date.now();
+    try { localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles)); } catch (e) {}
+    var payload = {
+      type: "cfg_ecoles",
+      lycees: cfgEcoles.lycees,
+      classes: cfgEcoles.classes,
+      supprLycees: cfgEcoles.supprLycees || [],
+      supprClasses: cfgEcoles.supprClasses || [],
+      ts: cfgEcoles.ts
+    };
+    if (!navigator.onLine) {
+      empilerActionAdmin({ type: "cfg_ecoles", payload: payload });
+      majFiltreClasses();
+      return;
+    }
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "cfg_ecoles", payload: payload });
+    } catch (e) {}
+    fetch("https://ntfy.sh/sti_v2_diffusion_9482", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }).catch(function () {});
+    if (adminUid && adminUid !== "admin") {
+      sb.from("acces").insert({
+        user_id: adminUid,
+        page: "CFG_ECOLES",
+        lieu: JSON.stringify(payload),
+        duree_sec: 0
+      }).then(function () {});
+    }
+    majFiltreClasses();
+  }
 
   function estEnLigne(uid) {
     var info = enLigneMap[uid];
@@ -374,6 +460,14 @@
               if (!reponsesParMsg[mid][a.user_id]) reponsesParMsg[mid][a.user_id] = repTxt;
             }
           }
+        } else if (pg === "CFG_ECOLES") {
+          try {
+            var ce = JSON.parse(a.lieu || "{}");
+            if (ce && Array.isArray(ce.lycees) && Array.isArray(ce.classes) && Number(ce.ts || 0) > Number(cfgEcoles.ts || 0)) {
+              cfgEcoles = Object.assign(cfgEcoles, ce);
+              localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
+            }
+          } catch (e) {}
         } else if (pg.indexOf("QUIZ:") === 0) {
           var nomQ = pg.slice(5);
           var infoQ = { quiz: nomQ, note: (a.duree_sec || 0) + "/20", ts: a.debut };
@@ -399,7 +493,12 @@
             var ev = JSON.parse(ln);
             if (!ev || !ev.message) return;
             var obj = JSON.parse(ev.message);
-            if (obj && obj.id && obj.texte && !obj.type) {
+            if (obj && obj.type === "cfg_ecoles" && Array.isArray(obj.lycees) && Array.isArray(obj.classes)) {
+              if (Number(obj.ts || 0) > Number(cfgEcoles.ts || 0)) {
+                cfgEcoles = Object.assign(cfgEcoles, obj);
+                localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
+              }
+            } else if (obj && obj.id && obj.texte && !obj.type) {
               if (!mapMsg[obj.id]) mapMsg[obj.id] = obj;
             } else if (obj && obj.type === "lu" && obj.msgId && obj.uid) {
               if (obj.msgId === "libre") {
@@ -428,6 +527,7 @@
       acces = tousAcces.filter(function (a) {
         var pg = a.page || "";
         return !adminIds[a.user_id] &&
+          pg !== "CFG_ECOLES" &&
           pg.indexOf("MSG_ENVOI:") !== 0 &&
           pg.indexOf("MSG_LU:") !== 0 &&
           pg.indexOf("QUIZ:") !== 0 &&
@@ -515,6 +615,7 @@
   /* ---------- Sélecteur de semaine & Filtres (Recherche, Classe, Statut, Tout activer, Export CSV) ---------- */
   var selSemaine = document.getElementById("sel-semaine");
   var inpRecherche = document.getElementById("filtre-recherche");
+  var selFiltreLycee = document.getElementById("filtre-lycee");
   var selFiltreClasse = document.getElementById("filtre-classe");
   var selFiltreStatut = document.getElementById("filtre-statut");
   var btnActiverLot = document.getElementById("btn-activer-lot");
@@ -522,6 +623,7 @@
 
   if (selSemaine) selSemaine.addEventListener("change", rendAbonnes);
   if (inpRecherche) inpRecherche.addEventListener("input", rendAbonnes);
+  if (selFiltreLycee) selFiltreLycee.addEventListener("change", rendAbonnes);
   if (selFiltreClasse) selFiltreClasse.addEventListener("change", rendAbonnes);
   if (selFiltreStatut) selFiltreStatut.addEventListener("change", rendAbonnes);
 
@@ -537,13 +639,23 @@
   });
 
   function majFiltreClasses() {
+    if (selFiltreLycee) {
+      var valLycee = selFiltreLycee.value;
+      var lycees = obtenirLyceesActifs();
+      selFiltreLycee.innerHTML = "<option value='*'>🏛️ Tous les lycées</option>";
+      lycees.forEach(function (ly) {
+        var optL = document.createElement("option");
+        optL.value = ly;
+        optL.textContent = ly;
+        selFiltreLycee.appendChild(optL);
+      });
+      if (valLycee && (valLycee === "*" || lycees.indexOf(valLycee) !== -1)) {
+        selFiltreLycee.value = valLycee;
+      }
+    }
     if (!selFiltreClasse) return;
     var valPrec = selFiltreClasse.value;
-    var classes = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
-    profils.forEach(function (p) {
-      var c = p.classe || "";
-      if (c && classes.indexOf(c) === -1) classes.push(c);
-    });
+    var classes = obtenirClassesActives();
     selFiltreClasse.innerHTML = "<option value='*'>🏫 Toutes les classes</option>";
     classes.forEach(function (cl) {
       var opt = document.createElement("option");
@@ -583,10 +695,12 @@
 
   function obtenirListeFiltree() {
     var q = inpRecherche ? inpRecherche.value.trim().toLowerCase() : "";
+    var ly = selFiltreLycee ? selFiltreLycee.value : "*";
     var cl = selFiltreClasse ? selFiltreClasse.value : "*";
     var st = selFiltreStatut ? selFiltreStatut.value : "*";
 
     return profils.filter(function (p) {
+      if (ly !== "*" && lyceePropre(p) !== ly) return false;
       if (cl !== "*" && (p.classe || "—") !== cl) return false;
       if (st === "en_ligne" && !estEnLigne(p.id)) return false;
       else if (st === "gold" && !estGold(p)) return false;
@@ -632,7 +746,8 @@
       var liste = obtenirListeFiltree();
       if (!liste.length) { msg("⚠️ Aucun abonné à exporter.", "err"); return; }
       var entetes = [
-        "Nom & Prenom",
+        "Nom",
+        "Prenom",
         "Contact (Tel / Email)",
         "Lycee",
         "Classe",
@@ -647,13 +762,13 @@
       ];
       var lignes = [entetes.join(";")];
       liste.forEach(function (p) {
-        var np = ((p.prenom || "") + " " + (p.nom || "")).trim() || "—";
         var tel = telDeProfil(p);
         var ctc = tel || p.email || "—";
         var scMap = scoresParUser[p.id] || {};
         var scTxt = Object.keys(scMap).map(function (k) { return k + ": " + scMap[k]; }).join(" | ") || "—";
         var cols = [
-          np,
+          (p.nom || "—").trim(),
+          (p.prenom || "—").trim(),
           ctc,
           lyceePropre(p),
           p.classe || "—",
@@ -684,6 +799,32 @@
     });
   }
 
+  function changerClasseDirecte(p, nvClasse) {
+    if (!p || !nvClasse) return;
+    if (nvClasse === "__autre") {
+      ouvrirAffectation(p);
+      return;
+    }
+    var patch = { classe: nvClasse };
+    majCacheLocalProfil(p.id, patch);
+    if (!navigator.onLine) {
+      empilerActionAdmin({ type: "profile_update", uid: p.id, patch: patch, gold: estGold(p) });
+      msg("📴 Hors-ligne : classe de " + contact(p) + " changée en « " + nvClasse + " ».", "ok");
+      majFiltreClasses();
+      rendAbonnes();
+      return;
+    }
+    sb.from("profiles").update(patch).eq("id", p.id).then(function (r) {
+      if (r && r.error) {
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: patch, gold: estGold(p) });
+        msg("⚠️ Enregistré localement : " + contact(p) + " → " + nvClasse, "ok");
+        return;
+      }
+      msg("✅ Classe de " + contact(p) + " changée en « " + nvClasse + " ».", "ok");
+      charge(true);
+    });
+  }
+
   function rendAbonnes() {
     var liste = obtenirListeFiltree();
     var nbAttLot = liste.filter(function (p) { return p.statut === "en_attente"; }).length;
@@ -702,13 +843,14 @@
     if (!liste.length) {
       var trVide = document.createElement("tr");
       var tdVide = document.createElement("td");
-      tdVide.colSpan = 7;
+      tdVide.colSpan = 8;
       tdVide.style.cssText = "text-align:center;color:#7a6f5d;padding:18px;";
       tdVide.textContent = "Aucun abonné correspondant à ce filtre.";
       trVide.appendChild(tdVide);
       tb.appendChild(trVide);
       return;
     }
+    var classesDispo = obtenirClassesActives();
     liste.forEach(function (p) {
       var tr = document.createElement("tr");
       var estLigneGold = estGold(p) && p.statut === "actif";
@@ -716,32 +858,48 @@
       tr.title = "Cliquer pour voir toutes ses connexions et durées par semaine";
       tr.addEventListener("click", function () { detail(p); });
 
-      var tel = telDeProfil(p);
-      var td1 = document.createElement("td");
-      td1.style.fontWeight = "700";
-      var ligneContact = document.createElement("div");
-      ligneContact.textContent = tel ? "📱 " + tel : (p.email || "—");
+      /* Colonne 1 : Nom & Prénom + en ligne + scores quiz */
+      var tdNom = document.createElement("td");
+      tdNom.style.fontWeight = "800";
+      var ligneIdentite = document.createElement("div");
+      var npTxt = nomPrenomTexte(p);
+      if (npTxt) {
+        var spNom = document.createElement("span");
+        spNom.textContent = "👤 " + npTxt;
+        ligneIdentite.appendChild(spNom);
+      } else {
+        var spVide = document.createElement("span");
+        spVide.style.cssText = "color:#7a6f5d;font-weight:700;font-size:12px;";
+        spVide.textContent = "👤 Non renseigné";
+        ligneIdentite.appendChild(spVide);
+      }
+      var btnEditNom = document.createElement("button");
+      btnEditNom.type = "button";
+      btnEditNom.className = "btn-edit-inline";
+      btnEditNom.textContent = "✏️";
+      btnEditNom.title = "Modifier le Nom, le Prénom, le Lycée ou la Classe";
+      btnEditNom.addEventListener("click", function (e) {
+        e.stopPropagation();
+        ouvrirAffectation(p);
+      });
+      ligneIdentite.appendChild(btnEditNom);
+
       if (estEnLigne(p.id)) {
         var bOn = document.createElement("span");
         bOn.className = "badge-online";
         var pgOn = (enLigneMap[p.id] && enLigneMap[p.id].page) || "site";
         bOn.textContent = "🟢 En ligne (" + pgOn + ")";
-        ligneContact.appendChild(bOn);
+        ligneIdentite.appendChild(bOn);
       }
-      td1.appendChild(ligneContact);
+      tdNom.appendChild(ligneIdentite);
 
       if (p.nom || p.prenom) {
-        var petit = document.createElement("div");
-        petit.style.cssText = "font-weight:700;font-size:11.5px;color:#23201a;margin-top:2px;";
-        petit.textContent = "👤 " + ((p.prenom || "") + " " + (p.nom || "")).trim();
-        td1.appendChild(petit);
+        var detailNP = document.createElement("div");
+        detailNP.style.cssText = "font-size:11px;color:#5a5244;font-weight:700;margin-top:2px;";
+        detailNP.textContent = "Nom : " + (p.nom || "—") + " · Prénom : " + (p.prenom || "—");
+        tdNom.appendChild(detailNP);
       }
-      if (tel) {
-        var codeDiv = document.createElement("div");
-        codeDiv.style.cssText = "font-weight:800;font-size:11px;color:#f4511e;margin-top:2px;";
-        codeDiv.textContent = "🔢 Code WhatsApp : " + codeWa(tel);
-        td1.appendChild(codeDiv);
-      }
+
       /* Affichage des badges de scores Quiz / Bac Pratique sous l'élève */
       var scMap = scoresParUser[p.id];
       if (scMap) {
@@ -752,13 +910,78 @@
           bq.textContent = "🏆 " + k + " : " + scMap[k];
           divSc.appendChild(bq);
         });
-        td1.appendChild(divSc);
+        tdNom.appendChild(divSc);
       }
 
+      /* Colonne 2 : Contact (e-mail / tél. + code WhatsApp) */
+      var tel = telDeProfil(p);
+      var tdContact = document.createElement("td");
+      tdContact.style.fontWeight = "700";
+      var ligneContact = document.createElement("div");
+      ligneContact.textContent = tel ? "📱 " + tel : ("✉️ " + (p.email || "—"));
+      tdContact.appendChild(ligneContact);
+      if (tel) {
+        var codeDiv = document.createElement("div");
+        codeDiv.style.cssText = "font-weight:800;font-size:11px;color:#f4511e;margin-top:2px;";
+        codeDiv.textContent = "🔢 Code WhatsApp : " + codeWa(tel);
+        tdContact.appendChild(codeDiv);
+      }
+
+      /* Colonne 3 : Lycée & sélecteur direct de Classe */
       var tdL = document.createElement("td");
-      tdL.textContent = lyceePropre(p) + " · " + (p.classe || "—");
       tdL.style.color = "#5a5244";
       tdL.style.fontWeight = "700";
+      var divLycee = document.createElement("div");
+      divLycee.style.cssText = "font-size:11.5px;display:flex;align-items:center;gap:4px;";
+      var spLyc = document.createElement("span");
+      spLyc.textContent = "🏛️ " + lyceePropre(p);
+      divLycee.appendChild(spLyc);
+      var btnEditAff = document.createElement("button");
+      btnEditAff.type = "button";
+      btnEditAff.className = "btn-edit-inline";
+      btnEditAff.textContent = "✏️";
+      btnEditAff.title = "Modifier le lycée, la classe, le nom ou le prénom";
+      btnEditAff.addEventListener("click", function (e) {
+        e.stopPropagation();
+        ouvrirAffectation(p);
+      });
+      divLycee.appendChild(btnEditAff);
+      tdL.appendChild(divLycee);
+
+      var selClLigne = document.createElement("select");
+      selClLigne.className = "sel-classe-ligne";
+      selClLigne.title = "Changer directement la classe de cet abonné";
+      var clAct = p.classe || "—";
+      var listeClPourLigne = classesDispo.slice();
+      if (clAct && clAct !== "—" && listeClPourLigne.indexOf(clAct) === -1) {
+        listeClPourLigne.unshift(clAct);
+      }
+      if (!clAct || clAct === "—") {
+        var optVide = document.createElement("option");
+        optVide.value = "";
+        optVide.textContent = "🏫 Choisir une classe…";
+        optVide.selected = true;
+        selClLigne.appendChild(optVide);
+      }
+      listeClPourLigne.forEach(function (c) {
+        var optC = document.createElement("option");
+        optC.value = c;
+        optC.textContent = "🏫 " + c;
+        if (c === clAct) optC.selected = true;
+        selClLigne.appendChild(optC);
+      });
+      var optAutreCl = document.createElement("option");
+      optAutreCl.value = "__autre";
+      optAutreCl.textContent = "➕ Autre classe / Lycée…";
+      selClLigne.appendChild(optAutreCl);
+
+      selClLigne.addEventListener("click", function (e) { e.stopPropagation(); });
+      selClLigne.addEventListener("change", function (e) {
+        e.stopPropagation();
+        if (!selClLigne.value) return;
+        changerClasseDirecte(p, selClLigne.value);
+      });
+      tdL.appendChild(selClLigne);
 
       var td2 = document.createElement("td");
       var nb = document.createElement("span"); nb.className = "nb"; nb.textContent = counts[p.id] || 0;
@@ -814,6 +1037,7 @@
             ? "Compte Gold actif — cliquer pour retirer les droits de capture d'écran et d'impression"
             : "Passer en compte Gold (autoriser capture d'écran, impression et copie)"
         );
+        bouton("🏫", function () { ouvrirAffectation(p); }, "", "Changer le lycée ou la classe de cet abonné");
         bouton("⏳", function () { changeStatut(p, "en_attente"); }, "", "Mettre en attente");
         bouton("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure l'abonné");
         if (tel) {
@@ -828,7 +1052,7 @@
       var tdActMob = creerCelluleActions("only-mob");
       var td5 = creerCelluleActions("only-pc");
 
-      tr.append(td1, tdL, tdActMob, td2, tdDur, td3, td4, td5);
+      tr.append(tdNom, tdContact, tdL, tdActMob, td2, tdDur, td3, td4, td5);
       tb.appendChild(tr);
     });
   }
@@ -1173,6 +1397,384 @@
     modalSuppr.classList.add("visible");
   }
 
+  /* ---------- Gestion globale des Lycées et des Classes (Ajouter / Changer-Renommer / Supprimer) ---------- */
+  var modalEcoles = document.getElementById("modal-ecoles");
+  var tabEcoleLycees = document.getElementById("tab-ecole-lycees");
+  var tabEcoleClasses = document.getElementById("tab-ecole-classes");
+  var panEcoleLycees = document.getElementById("pan-ecole-lycees");
+  var panEcoleClasses = document.getElementById("pan-ecole-classes");
+  var inpNvLycee = document.getElementById("inp-nv-lycee");
+  var inpNvClasse = document.getElementById("inp-nv-classe");
+  var listeCfgLycees = document.getElementById("liste-cfg-lycees");
+  var listeCfgClasses = document.getElementById("liste-cfg-classes");
+
+  function basculerOngletEcole(mode) {
+    var estLycee = mode === "lycees";
+    if (tabEcoleLycees) tabEcoleLycees.classList.toggle("actif", estLycee);
+    if (tabEcoleClasses) tabEcoleClasses.classList.toggle("actif", !estLycee);
+    if (panEcoleLycees) panEcoleLycees.hidden = !estLycee;
+    if (panEcoleClasses) panEcoleClasses.hidden = estLycee;
+    rendreListesEcoles();
+  }
+
+  if (tabEcoleLycees) tabEcoleLycees.addEventListener("click", function () { basculerOngletEcole("lycees"); });
+  if (tabEcoleClasses) tabEcoleClasses.addEventListener("click", function () { basculerOngletEcole("classes"); });
+
+  var btnGererLycees = document.getElementById("btn-gerer-lycees");
+  var btnGererClasses = document.getElementById("btn-gerer-classes");
+  var btnFermerEcoles = document.getElementById("btn-fermer-ecoles");
+
+  if (btnGererLycees) {
+    btnGererLycees.addEventListener("click", function () {
+      basculerOngletEcole("lycees");
+      if (modalEcoles) modalEcoles.classList.add("visible");
+    });
+  }
+  if (btnGererClasses) {
+    btnGererClasses.addEventListener("click", function () {
+      basculerOngletEcole("classes");
+      if (modalEcoles) modalEcoles.classList.add("visible");
+    });
+  }
+  if (btnFermerEcoles) {
+    btnFermerEcoles.addEventListener("click", function () {
+      if (modalEcoles) modalEcoles.classList.remove("visible");
+    });
+  }
+
+  function rendreListesEcoles() {
+    if (listeCfgLycees) {
+      listeCfgLycees.innerHTML = "";
+      var lycees = obtenirLyceesActifs();
+      if (!lycees.length) {
+        listeCfgLycees.innerHTML = "<div style='padding:10px;color:#7a6f5d;text-align:center'>Aucun lycée enregistré.</div>";
+      }
+      lycees.forEach(function (ly) {
+        var nb = profils.filter(function (p) { return lyceePropre(p) === ly; }).length;
+        var row = document.createElement("div");
+        row.className = "ecole-item";
+        var gauche = document.createElement("div");
+        gauche.className = "ecole-nom";
+        var spNom = document.createElement("span");
+        spNom.textContent = "🏛️ " + ly;
+        var spNb = document.createElement("span");
+        spNb.className = "ecole-nb";
+        spNb.textContent = nb + " élève(s)";
+        gauche.append(spNom, spNb);
+
+        var btns = document.createElement("div");
+        btns.className = "ecole-btns";
+        var bEdit = document.createElement("button");
+        bEdit.type = "button";
+        bEdit.textContent = "✏️ Changer";
+        bEdit.title = "Renommer ce lycée (met à jour tous ses élèves)";
+        bEdit.addEventListener("click", function () {
+          ouvrirEditionInline(row, ly, function (nvNom) {
+            renommerLyceeGlobal(ly, nvNom);
+          });
+        });
+        var bDel = document.createElement("button");
+        bDel.type = "button";
+        bDel.className = "del";
+        bDel.textContent = "🗑️ Supprimer";
+        bDel.title = "Supprimer ce lycée de la liste";
+        bDel.addEventListener("click", function () {
+          supprimerLyceeGlobal(ly);
+        });
+        btns.append(bEdit, bDel);
+        row.append(gauche, btns);
+        listeCfgLycees.appendChild(row);
+      });
+    }
+
+    if (listeCfgClasses) {
+      listeCfgClasses.innerHTML = "";
+      var classes = obtenirClassesActives();
+      if (!classes.length) {
+        listeCfgClasses.innerHTML = "<div style='padding:10px;color:#7a6f5d;text-align:center'>Aucune classe enregistrée.</div>";
+      }
+      classes.forEach(function (cl) {
+        var nb = profils.filter(function (p) { return (p.classe || "—") === cl; }).length;
+        var row = document.createElement("div");
+        row.className = "ecole-item";
+        var gauche = document.createElement("div");
+        gauche.className = "ecole-nom";
+        var spNom = document.createElement("span");
+        spNom.textContent = "🏫 " + cl;
+        var spNb = document.createElement("span");
+        spNb.className = "ecole-nb";
+        spNb.textContent = nb + " élève(s)";
+        gauche.append(spNom, spNb);
+
+        var btns = document.createElement("div");
+        btns.className = "ecole-btns";
+        var bEdit = document.createElement("button");
+        bEdit.type = "button";
+        bEdit.textContent = "✏️ Changer";
+        bEdit.title = "Renommer cette classe (met à jour tous ses élèves)";
+        bEdit.addEventListener("click", function () {
+          ouvrirEditionInline(row, cl, function (nvNom) {
+            renommerClasseGlobale(cl, nvNom);
+          });
+        });
+        var bDel = document.createElement("button");
+        bDel.type = "button";
+        bDel.className = "del";
+        bDel.textContent = "🗑️ Supprimer";
+        bDel.title = "Supprimer cette classe de la liste";
+        bDel.addEventListener("click", function () {
+          supprimerClasseGlobale(cl);
+        });
+        btns.append(bEdit, bDel);
+        row.append(gauche, btns);
+        listeCfgClasses.appendChild(row);
+      });
+    }
+  }
+
+  function ouvrirEditionInline(rowEl, valeurActuelle, onValider) {
+    rowEl.innerHTML = "";
+    var inp = document.createElement("input");
+    inp.type = "text";
+    inp.value = valeurActuelle;
+    inp.style.cssText = "flex:1;min-width:140px;margin:0;padding:6px 10px;font-size:13px;font-weight:800;border:2px solid #f4511e;border-radius:8px;";
+    var btns = document.createElement("div");
+    btns.className = "ecole-btns";
+    var bSave = document.createElement("button");
+    bSave.type = "button";
+    bSave.textContent = "💾 Enregistrer";
+    bSave.style.cssText = "background:#177245;color:#fff;border-color:#23201a;";
+    var bCancel = document.createElement("button");
+    bCancel.type = "button";
+    bCancel.textContent = "✖";
+    bSave.addEventListener("click", function () {
+      var nv = inp.value.trim();
+      if (nv && nv !== valeurActuelle) {
+        onValider(nv);
+      } else {
+        rendreListesEcoles();
+      }
+    });
+    bCancel.addEventListener("click", rendreListesEcoles);
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); bSave.click(); }
+      if (e.key === "Escape") { e.preventDefault(); rendreListesEcoles(); }
+    });
+    btns.append(bSave, bCancel);
+    rowEl.append(inp, btns);
+    inp.focus();
+    inp.select();
+  }
+
+  function ajouterLyceeGlobal() {
+    var nom = inpNvLycee ? inpNvLycee.value.trim() : "";
+    if (!nom) return;
+    cfgEcoles.supprLycees = (cfgEcoles.supprLycees || []).filter(function (x) { return x !== nom; });
+    if (cfgEcoles.lycees.indexOf(nom) === -1) cfgEcoles.lycees.push(nom);
+    inpNvLycee.value = "";
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    msg("🏛️ Lycée « " + nom + " » ajouté.", "ok");
+  }
+
+  function ajouterClasseGlobale() {
+    var nom = inpNvClasse ? inpNvClasse.value.trim() : "";
+    if (!nom) return;
+    cfgEcoles.supprClasses = (cfgEcoles.supprClasses || []).filter(function (x) { return x !== nom; });
+    if (cfgEcoles.classes.indexOf(nom) === -1) cfgEcoles.classes.push(nom);
+    inpNvClasse.value = "";
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    msg("🏫 Classe « " + nom + " » ajoutée.", "ok");
+  }
+
+  var btnAddLycee = document.getElementById("btn-add-lycee");
+  var btnAddClasse = document.getElementById("btn-add-classe");
+  if (btnAddLycee) btnAddLycee.addEventListener("click", ajouterLyceeGlobal);
+  if (inpNvLycee) inpNvLycee.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); ajouterLyceeGlobal(); } });
+  if (btnAddClasse) btnAddClasse.addEventListener("click", ajouterClasseGlobale);
+  if (inpNvClasse) inpNvClasse.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); ajouterClasseGlobale(); } });
+
+  function renommerLyceeGlobal(ancien, nv) {
+    cfgEcoles.lycees = obtenirLyceesActifs().map(function (l) { return l === ancien ? nv : l; });
+    cfgEcoles.supprLycees = (cfgEcoles.supprLycees || []).filter(function (x) { return x !== nv; });
+    if (cfgEcoles.supprLycees.indexOf(ancien) === -1) cfgEcoles.supprLycees.push(ancien);
+
+    /* Mettre à jour tous les abonnés appartenant à ce lycée (en préservant |GOLD) */
+    var cibles = profils.filter(function (p) { return lyceePropre(p) === ancien; });
+    cibles.forEach(function (p) {
+      var nvVal = estGold(p) ? (nv + "|GOLD") : nv;
+      majCacheLocalProfil(p.id, { lycee: nvVal });
+      if (navigator.onLine) {
+        sb.from("profiles").update({ lycee: nvVal }).eq("id", p.id).then(function () {});
+      } else {
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { lycee: nvVal }, gold: estGold(p) });
+      }
+    });
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    rendAbonnes();
+    msg("🏛️ Lycée « " + ancien + " » changé en « " + nv + " » (" + cibles.length + " élève(s) mis à jour).", "ok");
+  }
+
+  function supprimerLyceeGlobal(nom) {
+    cfgEcoles.lycees = obtenirLyceesActifs().filter(function (l) { return l !== nom; });
+    if (!cfgEcoles.supprLycees) cfgEcoles.supprLycees = [];
+    if (cfgEcoles.supprLycees.indexOf(nom) === -1) cfgEcoles.supprLycees.push(nom);
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    msg("🗑️ Lycée « " + nom + " » supprimé de la liste.", "ok");
+  }
+
+  function renommerClasseGlobale(ancienne, nv) {
+    cfgEcoles.classes = obtenirClassesActives().map(function (c) { return c === ancienne ? nv : c; });
+    cfgEcoles.supprClasses = (cfgEcoles.supprClasses || []).filter(function (x) { return x !== nv; });
+    if (cfgEcoles.supprClasses.indexOf(ancienne) === -1) cfgEcoles.supprClasses.push(ancienne);
+
+    /* Mettre à jour tous les abonnés appartenant à cette classe */
+    var cibles = profils.filter(function (p) { return (p.classe || "—") === ancienne; });
+    cibles.forEach(function (p) {
+      majCacheLocalProfil(p.id, { classe: nv });
+      if (navigator.onLine) {
+        sb.from("profiles").update({ classe: nv }).eq("id", p.id).then(function () {});
+      } else {
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { classe: nv }, gold: estGold(p) });
+      }
+    });
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    rendAbonnes();
+    msg("🏫 Classe « " + ancienne + " » changée en « " + nv + " » (" + cibles.length + " élève(s) mis à jour).", "ok");
+  }
+
+  function supprimerClasseGlobale(nom) {
+    cfgEcoles.classes = obtenirClassesActives().filter(function (c) { return c !== nom; });
+    if (!cfgEcoles.supprClasses) cfgEcoles.supprClasses = [];
+    if (cfgEcoles.supprClasses.indexOf(nom) === -1) cfgEcoles.supprClasses.push(nom);
+    sauvegarderCfgEcoles();
+    rendreListesEcoles();
+    msg("🗑️ Classe « " + nom + " » supprimée de la liste.", "ok");
+  }
+
+  /* ---------- Boîte modale : modifier Nom, Prénom, Lycée ou Classe d'un abonné particulier ---------- */
+  var modalAff = document.getElementById("modal-affectation");
+  var inpAffNom = document.getElementById("aff-nom");
+  var inpAffPrenom = document.getElementById("aff-prenom");
+  var selAffLycee = document.getElementById("aff-lycee");
+  var inpAffLyceeAutre = document.getElementById("aff-lycee-autre");
+  var selAffClasse = document.getElementById("aff-classe");
+  var inpAffClasseAutre = document.getElementById("aff-classe-autre");
+
+  if (selAffLycee) {
+    selAffLycee.addEventListener("change", function () {
+      if (inpAffLyceeAutre) inpAffLyceeAutre.hidden = selAffLycee.value !== "__autre";
+    });
+  }
+  if (selAffClasse) {
+    selAffClasse.addEventListener("change", function () {
+      if (inpAffClasseAutre) inpAffClasseAutre.hidden = selAffClasse.value !== "__autre";
+    });
+  }
+
+  function ouvrirAffectation(p) {
+    cibleAff = p;
+    document.getElementById("aff-cible").textContent = contact(p);
+    if (inpAffNom) inpAffNom.value = p.nom || "";
+    if (inpAffPrenom) inpAffPrenom.value = p.prenom || "";
+    var lyAct = lyceePropre(p);
+    var clAct = p.classe || "";
+    var lycees = obtenirLyceesActifs();
+    if (lyAct && lyAct !== "—" && lycees.indexOf(lyAct) === -1) lycees.push(lyAct);
+    var classes = obtenirClassesActives();
+    if (clAct && clAct !== "—" && classes.indexOf(clAct) === -1) classes.push(clAct);
+
+    selAffLycee.innerHTML = "";
+    lycees.forEach(function (l) {
+      var o = document.createElement("option");
+      o.value = l; o.textContent = l;
+      if (l === lyAct) o.selected = true;
+      selAffLycee.appendChild(o);
+    });
+    var oAutreL = document.createElement("option");
+    oAutreL.value = "__autre"; oAutreL.textContent = "➕ Nouveau lycée…";
+    selAffLycee.appendChild(oAutreL);
+    inpAffLyceeAutre.value = "";
+    inpAffLyceeAutre.hidden = true;
+
+    selAffClasse.innerHTML = "";
+    classes.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      if (c === clAct) o.selected = true;
+      selAffClasse.appendChild(o);
+    });
+    var oAutreC = document.createElement("option");
+    oAutreC.value = "__autre"; oAutreC.textContent = "➕ Nouvelle classe…";
+    selAffClasse.appendChild(oAutreC);
+    inpAffClasseAutre.value = "";
+    inpAffClasseAutre.hidden = true;
+
+    modalAff.classList.add("visible");
+  }
+
+  var btnAnnulerAff = document.getElementById("btn-annuler-aff");
+  var btnConfirmerAff = document.getElementById("btn-confirmer-aff");
+  if (btnAnnulerAff) {
+    btnAnnulerAff.addEventListener("click", function () {
+      modalAff.classList.remove("visible"); cibleAff = null;
+    });
+  }
+  if (btnConfirmerAff) {
+    btnConfirmerAff.addEventListener("click", function () {
+      if (!cibleAff) return;
+      var p = cibleAff;
+      var nvNom = inpAffNom ? inpAffNom.value.trim() : (p.nom || "");
+      var nvPrenom = inpAffPrenom ? inpAffPrenom.value.trim() : (p.prenom || "");
+      var nvLyceeBase = selAffLycee.value === "__autre" ? inpAffLyceeAutre.value.trim() : selAffLycee.value;
+      var nvClasse = selAffClasse.value === "__autre" ? inpAffClasseAutre.value.trim() : selAffClasse.value;
+      if (!nvLyceeBase || !nvClasse) {
+        msg("❌ Veuillez indiquer le lycée et la classe.", "err");
+        return;
+      }
+      /* Si un nouveau lycée ou une nouvelle classe a été saisi, l'ajouter aussi à la liste globale */
+      var cfgModifie = false;
+      if (cfgEcoles.lycees.indexOf(nvLyceeBase) === -1) {
+        cfgEcoles.lycees.push(nvLyceeBase);
+        cfgModifie = true;
+      }
+      if (cfgEcoles.classes.indexOf(nvClasse) === -1) {
+        cfgEcoles.classes.push(nvClasse);
+        cfgModifie = true;
+      }
+      if (cfgModifie) sauvegarderCfgEcoles();
+
+      var nvLycee = estGold(p) ? (nvLyceeBase + "|GOLD") : nvLyceeBase;
+      var patch = {
+        nom: nvNom || null,
+        prenom: nvPrenom || null,
+        lycee: nvLycee,
+        classe: nvClasse
+      };
+      modalAff.classList.remove("visible");
+      cibleAff = null;
+
+      majCacheLocalProfil(p.id, patch);
+      if (!navigator.onLine) {
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: patch, gold: estGold(p) });
+        msg("📴 Hors-ligne : informations de " + contact(p) + " mises à jour (« " + nvLyceeBase + " · " + nvClasse + " »).", "ok");
+        return;
+      }
+      sb.from("profiles").update(patch).eq("id", p.id).then(function (r) {
+        if (r && r.error) {
+          empilerActionAdmin({ type: "profile_update", uid: p.id, patch: patch, gold: estGold(p) });
+          return;
+        }
+        msg("✅ " + contact(p) + " → " + nvLyceeBase + " · " + nvClasse, "ok");
+        charge(true);
+      });
+    });
+  }
+
   /* ---------- Point 6 : Boîte modale Contrôle / Test chronométré en direct ---------- */
   var modalCtrl = document.getElementById("modal-controle");
   var selCtrlClasse = document.getElementById("ctrl-classe");
@@ -1180,11 +1782,7 @@
 
   function remplirClassesSelect(selEl) {
     if (!selEl) return;
-    var classesBase = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
-    profils.forEach(function (p) {
-      var c = p.classe || "";
-      if (c && classesBase.indexOf(c) === -1) classesBase.push(c);
-    });
+    var classesBase = obtenirClassesActives();
     selEl.innerHTML = "";
     var optTous = document.createElement("option");
     optTous.value = "*";
