@@ -140,7 +140,7 @@ STiV2.0/
 
 - **Hébergement** : GitHub Pages ([https://aymenessouyah.github.io/STiV2.0/](https://aymenessouyah.github.io/STiV2.0/)).
 - **Backend & Temps réel** : Supabase (PostgreSQL, Row-Level Security, Auth, Realtime Broadcast & Postgres Changes) + relais de notifications `ntfy.sh`.
-- **Mode 100 % Hors-ligne (PWA `sti-atelier-v35`)** :
+- **Mode 100 % Hors-ligne (PWA `sti-atelier-v36`)** :
   - Pré-chargement automatique en tâche de fond de toutes les pages du site (cours, leçons animées, séries d'exercices, TP, projets, quiz, annexes, Atelier Bac Pratique, portail et tableau de bord) + bouton **« 📲 Télécharger 100 % hors-ligne »** dans le panneau du compte abonné.
   - Maintien de la session abonné et Admin hors-ligne (`sti-session-cache` / `sti-offline` jusqu'à 30 jours) + reconnexion hors-ligne par empreinte SHA-256 (`sti-cred`).
   - File d'attente hors-ligne (`sti-offline-queue`) synchronisant automatiquement vers Supabase les scores de quiz, durées d'étude et questions au professeur dès le retour de la connexion Internet.

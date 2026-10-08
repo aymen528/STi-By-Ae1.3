@@ -1,82 +1,56 @@
-/* Service Worker PWA — STI by AE V2.0 (Mode 100 % Hors-ligne + Synchro auto v31) */
-const CACHE_NAME = 'sti-atelier-v35';
+/* STI by AE — Service Worker L'Atelier (v36)
+   Navigation instantanée : réseau d'abord pour les pages/scripts/styles (sans blocage ni timeout artificiel),
+   cache en secours hors-ligne. */
 
-const SHELL_URLS = [
+var CACHE = "sti-atelier-v36";
+var SHELL = [
   "./",
   "./index.html",
   "./portail.html",
   "./admin.html",
   "./bac-pratique.html",
   "./carte-visite.html",
-  "./assets/images/carte-visite-sti-v2.png",
   "./manifest.webmanifest",
+  "./assets/css/atelier.css",
+  "./assets/css/atelier-pages.css",
+  "./assets/css/protection.css",
+  "./assets/js/config.js",
+  "./assets/js/supabase-umd.js",
+  "./assets/js/protection.js",
+  "./assets/js/acces.js",
+  "./assets/js/portail.js",
+  "./assets/js/admin.js",
+  "./assets/fonts/fonts.css",
+  "./assets/icons/sti-icon-192.png",
+  "./assets/icons/sti-icon-512.png",
+  "./cours/html5.html",
+  "./cours/css.html",
+  "./cours/javascript.html",
+  "./cours/php.html",
+  "./cours/php-mysqli.html",
+  "./cours/sql.html",
+  "./exercices/series-exercices.html",
+  "./exercices/resume-fonctions-standards.html",
+  "./quiz/html-css.html",
+  "./quiz/javascript.html",
+  "./quiz/php.html",
+  "./quiz/pp.html",
+  "./quiz/sql.html"
+];
+
+var OFFLINE_LIST = [
+  "./404.html",
+  "./admin.html",
+  "./bac-pratique.html",
+  "./carte-visite.html",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./portail.html",
   "./quiz/html-css.html",
   "./quiz/javascript.html",
   "./quiz/php.html",
   "./quiz/pp.html",
   "./quiz/sql.html",
-  "./exercices/resume-fonctions-standards.html",
-  "./exercices/series-exercices.html",
-  "./cours/annexe-fleuriste-html5.html",
-  "./cours/courscss3.html",
-  "./cours/courshtml5.html",
-  "./cours/coursphp.html",
-  "./cours/css3.html",
-  "./cours/datalist.html",
-  "./cours/fiche-revision-html5.html",
-  "./cours/html5.html",
-  "./cours/javascript.html",
-  "./cours/php-mysqli.html",
-  "./cours/php.html",
-  "./cours/sql-bases-ldd-lmd-lcd.html",
-  "./cours/sql.html",
-  "./assets/video/flower.webm",
-  "./assets/js/acces.js",
-  "./assets/js/admin.js",
-  "./assets/js/config.js",
-  "./assets/js/portail.js",
-  "./assets/js/protection.js",
-  "./assets/js/supabase-umd.js",
-  "./assets/images/JavaScript_logo.svg",
-  "./assets/images/lycee_logo.png",
-  "./assets/images/qr-code-site.png",
-  "./assets/images/qr-stiv2.png",
-  "./assets/icons/STI_by_AE.ico",
-  "./assets/icons/sti-icon-192.png",
-  "./assets/icons/sti-icon-512.png",
-  "./assets/fonts/baloo-2-latin-ext.woff2",
-  "./assets/fonts/baloo-2-latin.woff2",
-  "./assets/fonts/fonts.css",
-  "./assets/fonts/jetbrains-mono-latin-ext.woff2",
-  "./assets/fonts/jetbrains-mono-latin.woff2",
-  "./assets/fonts/manrope-latin-ext.woff2",
-  "./assets/fonts/manrope-latin.woff2",
-  "./assets/fontawesome/LICENSE.txt",
-  "./assets/fontawesome/webfonts/fa-brands-400.woff2",
-  "./assets/fontawesome/webfonts/fa-regular-400.woff2",
-  "./assets/fontawesome/webfonts/fa-solid-900.woff2",
-  "./assets/fontawesome/css/all.min.css",
-  "./assets/css/atelier-pages.css",
-  "./assets/css/atelier-php.css",
-  "./assets/css/atelier.css",
-  "./assets/css/css.css",
-  "./assets/css/html.css",
-  "./assets/css/js.css",
-  "./assets/css/php.css",
-  "./assets/css/protection.css",
-  "./assets/css/sql.css",
-  "./assets/css/tailwind.css",
-  "./assets/audio/foret.mp3",
-  "./assets/assets/fontawesome/LICENSE.txt",
-  "./assets/assets/fontawesome/webfonts/fa-brands-400.woff2",
-  "./assets/assets/fontawesome/webfonts/fa-regular-400.woff2",
-  "./assets/assets/fontawesome/webfonts/fa-solid-900.woff2",
-  "./assets/assets/fontawesome/css/all.min.css",
-  "./assets/assets/css/tailwind.css"
-];
-
-const EXTRA_URLS = [
-  "./404.html",
   "./projets/fleurs.zip",
   "./projets/site-tunisie/enonce.html",
   "./projets/site-tunisie/index.html",
@@ -156,6 +130,8 @@ const EXTRA_URLS = [
   "./projets/carte-bancaire/media/STI_by_AE.ico",
   "./projets/carte-bancaire/media/cap1.png",
   "./projets/carte-bancaire/media/cap2.png",
+  "./exercices/resume-fonctions-standards.html",
+  "./exercices/series-exercices.html",
   "./exercices/sql/Tp-BD-Jointure-sous-requetes-Group-By.html",
   "./exercices/sql/Tp-GroupBy-bd.html",
   "./exercices/sql/Tp-date-ssr-j-gp-bd.html",
@@ -408,6 +384,63 @@ const EXTRA_URLS = [
   "./cssanimee/cours.js",
   "./cssanimee/index.html",
   "./cssanimee/style.css",
+  "./cours/annexe-fleuriste-html5.html",
+  "./cours/courscss3.html",
+  "./cours/courshtml5.html",
+  "./cours/coursphp.html",
+  "./cours/css3.html",
+  "./cours/datalist.html",
+  "./cours/fiche-revision-html5.html",
+  "./cours/html5.html",
+  "./cours/javascript.html",
+  "./cours/php-mysqli.html",
+  "./cours/php.html",
+  "./cours/sql-bases-ldd-lmd-lcd.html",
+  "./cours/sql.html",
+  "./assets/video/flower.webm",
+  "./assets/js/acces.js",
+  "./assets/js/admin.js",
+  "./assets/js/config.js",
+  "./assets/js/portail.js",
+  "./assets/js/protection.js",
+  "./assets/js/supabase-umd.js",
+  "./assets/images/JavaScript_logo.svg",
+  "./assets/images/carte-visite-sti-v2.png",
+  "./assets/images/lycee_logo.png",
+  "./assets/images/qr-code-site.png",
+  "./assets/images/qr-stiv2.png",
+  "./assets/icons/STI_by_AE.ico",
+  "./assets/icons/sti-icon-192.png",
+  "./assets/icons/sti-icon-512.png",
+  "./assets/fonts/baloo-2-latin-ext.woff2",
+  "./assets/fonts/baloo-2-latin.woff2",
+  "./assets/fonts/fonts.css",
+  "./assets/fonts/jetbrains-mono-latin-ext.woff2",
+  "./assets/fonts/jetbrains-mono-latin.woff2",
+  "./assets/fonts/manrope-latin-ext.woff2",
+  "./assets/fonts/manrope-latin.woff2",
+  "./assets/fontawesome/LICENSE.txt",
+  "./assets/fontawesome/webfonts/fa-brands-400.woff2",
+  "./assets/fontawesome/webfonts/fa-regular-400.woff2",
+  "./assets/fontawesome/webfonts/fa-solid-900.woff2",
+  "./assets/fontawesome/css/all.min.css",
+  "./assets/css/atelier-pages.css",
+  "./assets/css/atelier-php.css",
+  "./assets/css/atelier.css",
+  "./assets/css/css.css",
+  "./assets/css/html.css",
+  "./assets/css/js.css",
+  "./assets/css/php.css",
+  "./assets/css/protection.css",
+  "./assets/css/sql.css",
+  "./assets/css/tailwind.css",
+  "./assets/audio/foret.mp3",
+  "./assets/assets/fontawesome/LICENSE.txt",
+  "./assets/assets/fontawesome/webfonts/fa-brands-400.woff2",
+  "./assets/assets/fontawesome/webfonts/fa-regular-400.woff2",
+  "./assets/assets/fontawesome/webfonts/fa-solid-900.woff2",
+  "./assets/assets/fontawesome/css/all.min.css",
+  "./assets/assets/css/tailwind.css",
   "./Positionnement-animee/bonus-flex.css",
   "./Positionnement-animee/cours.js",
   "./Positionnement-animee/index.html",
@@ -417,181 +450,142 @@ const EXTRA_URLS = [
   "./Positionnement-animee/uploads/Annexe HTML5 By A.E.pdf"
 ];
 
-let precacheRunning = false;
+var precacheEnCours = false;
 
-async function notifierProgression(done, total) {
+async function prechargerSequentiel() {
+  if (precacheEnCours) return;
+  precacheEnCours = true;
   try {
-    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const cl of clients) {
-      cl.postMessage({ type: 'STI_OFFLINE_PROGRESS', done, total });
-    }
-  } catch (e) {}
-}
-
-async function toutPrecharger() {
-  if (precacheRunning) return;
-  precacheRunning = true;
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const allUrls = SHELL_URLS.concat(EXTRA_URLS);
-    const total = allUrls.length;
-    let done = 0;
-    const batchSize = 5;
-    for (let i = 0; i < allUrls.length; i += batchSize) {
-      const batch = allUrls.slice(i, i + batchSize);
-      await Promise.all(batch.map(async (u) => {
-        try {
-          const existing = await cache.match(u, { ignoreSearch: true });
-          if (!existing) {
-            const resp = await fetch(u, { cache: 'no-cache' });
-            if (resp && resp.status === 200) {
-              await cache.put(u, resp);
-            }
-          }
-        } catch (e) {}
-        done++;
-      }));
-      await notifierProgression(done, total);
-    }
-  } catch (e) {}
-  precacheRunning = false;
-}
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => Promise.allSettled(
-        SHELL_URLS.map((u) => fetch(u, { cache: 'no-cache' }).then((r) => r && r.status === 200 ? cache.put(u, r) : null))
-      ))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
-     .then(() => {
-       setTimeout(() => { toutPrecharger(); }, 1200);
-     })
-  );
-});
-
-async function rafraichirShellEnLigne() {
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const critiques = SHELL_URLS.filter((u) =>
-      u === './' || u.endsWith('.html') || u.endsWith('.js') || u.endsWith('.css') || u.endsWith('.webmanifest')
-    );
-    await Promise.allSettled(
-      critiques.map(async (u) => {
-        const resp = await fetch(u, { cache: 'no-cache' });
-        if (resp && resp.status === 200) {
-          await cache.put(u, resp);
+    var cache = await caches.open(CACHE);
+    var total = OFFLINE_LIST.length;
+    var done = 0;
+    for (var i = 0; i < total; i++) {
+      var u = OFFLINE_LIST[i];
+      try {
+        var ex = await cache.match(u, { ignoreSearch: true });
+        if (!ex) {
+          var rep = await fetch(u);
+          if (rep && rep.ok) await cache.put(u, rep);
         }
-      })
-    );
+      } catch (e) {}
+      done++;
+      if (done % 10 === 0 || done === total) {
+        var clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        for (var c of clients) {
+          c.postMessage({ type: "STI_OFFLINE_PROGRESS", done: done, total: total });
+        }
+      }
+    }
   } catch (e) {}
-  toutPrecharger();
+  precacheEnCours = false;
 }
 
-self.addEventListener('message', (event) => {
-  if (!event.data) return;
-  if (event.data.type === 'PRECACHE_ALL') {
-    toutPrecharger();
-  } else if (event.data.type === 'SYNC_UPDATE') {
-    rafraichirShellEnLigne();
+self.addEventListener("install", function (evt) {
+  evt.waitUntil(
+    caches
+      .open(CACHE)
+      .then(function (c) {
+        return c.addAll(SHELL);
+      })
+      .catch(function () {})
+      .then(function () {
+        return self.skipWaiting();
+      })
+  );
+});
+
+self.addEventListener("activate", function (evt) {
+  evt.waitUntil(
+    caches
+      .keys()
+      .then(function (cles) {
+        return Promise.all(
+          cles
+            .filter(function (k) {
+              return k !== CACHE;
+            })
+            .map(function (k) {
+              return caches.delete(k);
+            })
+        );
+      })
+      .then(function () {
+        return self.clients.claim();
+      })
+  );
+});
+
+self.addEventListener("message", function (evt) {
+  if (!evt.data) return;
+  if (evt.data.type === "PRECACHE_ALL") {
+    prechargerSequentiel();
   }
 });
 
-async function chercherDansCache(req) {
-  const cache = await caches.open(CACHE_NAME);
-  let res = await cache.match(req);
-  if (res) return res;
-  res = await cache.match(req, { ignoreSearch: true });
-  if (res) return res;
-  if (req.mode === 'navigate') {
-    return (await cache.match('./index.html', { ignoreSearch: true })) || (await cache.match('./', { ignoreSearch: true }));
-  }
-  return null;
-}
+self.addEventListener("fetch", function (evt) {
+  var req = evt.request;
+  if (req.method !== "GET") return;
 
-function fetchAvecTimeout(req, ms) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('timeout')), ms);
-    fetch(req).then((res) => {
-      clearTimeout(timer);
-      resolve(res);
-    }).catch((err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
-  });
-}
-
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
-
-  const url = new URL(req.url);
+  var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  const isCodeOrPage =
-    req.mode === 'navigate' ||
-    url.pathname.endsWith('.html') ||
-    url.pathname.endsWith('.js') ||
-    url.pathname.endsWith('.css') ||
-    url.pathname.endsWith('.webmanifest');
-
-  if (isCodeOrPage) {
-    event.respondWith((async () => {
-      if (!navigator.onLine) {
-        const cachedOff = await chercherDansCache(req);
-        if (cachedOff) return cachedOff;
-      }
-      try {
-        const res = await fetchAvecTimeout(req, 2500);
-        if (res && res.status === 200 && res.type === 'basic') {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(req, clone);
+  /* Pages (navigation et documents HTML/iframes) : réseau d'abord, cache exact en secours hors-ligne */
+  if (req.mode === "navigate" || /\.html$/i.test(url.pathname)) {
+    evt.respondWith(
+      fetch(req)
+        .then(function (rep) {
+          if (rep && rep.ok) {
+            var copie = rep.clone();
+            caches.open(CACHE).then(function (c) {
+              c.put(req, copie);
+            });
+          }
+          return rep;
+        })
+        .catch(function () {
+          return caches.match(req, { ignoreSearch: true }).then(function (m) {
+            return m || Response.error();
           });
-        }
-        return res;
-      } catch (e) {
-        const cached = await chercherDansCache(req);
-        if (cached) return cached;
-        throw e;
-      }
-    })());
+        })
+    );
     return;
   }
 
-  /* Polices, images, icônes, PDF : cache-first instantané + mise à jour douce */
-  event.respondWith((async () => {
-    const cached = await chercherDansCache(req);
-    if (cached) {
-      if (navigator.onLine) {
-        fetch(req).then((res) => {
-          if (res && res.status === 200 && res.type === 'basic') {
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, res));
+  /* Scripts et feuilles de style : réseau d'abord (toujours à jour), cache hors-ligne */
+  if (/\.(css|js|webmanifest)$/i.test(url.pathname)) {
+    evt.respondWith(
+      fetch(req)
+        .then(function (rep) {
+          if (rep && rep.ok) {
+            var copie = rep.clone();
+            caches.open(CACHE).then(function (c) { c.put(req, copie); });
           }
-        }).catch(() => {});
-      }
-      return cached;
-    }
-    try {
-      const res = await fetch(req);
-      if (res && res.status === 200 && res.type === 'basic') {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-      }
-      return res;
-    } catch (e) {
-      const fallback = await chercherDansCache(req);
-      if (fallback) return fallback;
-      throw e;
-    }
-  })());
+          return rep;
+        })
+        .catch(function () {
+          return caches.match(req, { ignoreSearch: true }).then(function (m) { return m || Response.error(); });
+        })
+    );
+    return;
+  }
+
+  /* Médias, PDF et polices : cache d'abord puis réseau */
+  if (/\.(png|jpg|jpeg|svg|webp|gif|ico|woff2?|ttf|mp3|webm|pdf)$/i.test(url.pathname)) {
+    evt.respondWith(
+      caches.match(req, { ignoreSearch: true }).then(function (m) {
+        var reseau = fetch(req)
+          .then(function (rep) {
+            if (rep && rep.ok) {
+              var copie = rep.clone();
+              caches.open(CACHE).then(function (c) { c.put(req, copie); });
+            }
+            return rep;
+          })
+          .catch(function () {
+            return m || Response.error();
+          });
+        return m || reseau;
+      })
+    );
+  }
 });
