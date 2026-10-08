@@ -37,6 +37,7 @@
         lignes.push("🏫 " + d.lycee + " · " + d.classe);
         lignes.push("🔢 Code WhatsApp : " + d.code);
       } else {
+        if (d.prenom || d.nom) lignes.push("👤 " + ((d.prenom || "") + " " + (d.nom || "")).trim());
         lignes.push("✉️ " + d.email);
         lignes.push("🏫 " + d.lycee + " · " + d.classe);
       }
@@ -132,6 +133,84 @@
     return sel.value === "__autre" ? document.getElementById(inputId).value.trim() || "—" : sel.value;
   }
 
+  /* ---------- Chargement dynamique des Lycées et Classes définis par l'Admin ---------- */
+  function appliquerCfgEcolesPortail(cfgEc) {
+    if (!cfgEc) return;
+    try { localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEc)); } catch (e) {}
+    var selL = document.getElementById("i-lycee");
+    var selC = document.getElementById("i-classe");
+    if (selL && Array.isArray(cfgEc.lycees)) {
+      var supL = cfgEc.supprLycees || [];
+      var lycees = cfgEc.lycees.filter(function (l) { return l && supL.indexOf(l) === -1; });
+      if (!lycees.length && supL.indexOf("Lycée Rafèha") === -1) lycees.push("Lycée Rafèha");
+      selL.innerHTML = "";
+      lycees.forEach(function (l, i) {
+        var o = document.createElement("option");
+        o.value = l;
+        o.textContent = l;
+        if (i === 0) o.selected = true;
+        selL.appendChild(o);
+      });
+      var oAutreL = document.createElement("option");
+      oAutreL.value = "__autre";
+      oAutreL.textContent = "Autre lycée…";
+      selL.appendChild(oAutreL);
+    }
+    if (selC && Array.isArray(cfgEc.classes)) {
+      var supC = cfgEc.supprClasses || [];
+      var classes = cfgEc.classes.filter(function (c) { return c && supC.indexOf(c) === -1; });
+      if (!classes.length) {
+        ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"].forEach(function (c) {
+          if (supC.indexOf(c) === -1) classes.push(c);
+        });
+      }
+      selC.innerHTML = "";
+      classes.forEach(function (c, i) {
+        var o = document.createElement("option");
+        o.value = c;
+        o.textContent = c;
+        if (i === 0) o.selected = true;
+        selC.appendChild(o);
+      });
+      var oAutreC = document.createElement("option");
+      oAutreC.value = "__autre";
+      oAutreC.textContent = "Autre…";
+      selC.appendChild(oAutreC);
+    }
+  }
+
+  try {
+    var cfgLoc = JSON.parse(localStorage.getItem("sti-cfg-ecoles") || "null");
+    if (cfgLoc) appliquerCfgEcolesPortail(cfgLoc);
+  } catch (e) {}
+
+  if (navigator.onLine) {
+    fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all")
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var dernierCfg = null;
+        (txt || "").trim().split("\n").forEach(function (ln) {
+          if (!ln) return;
+          try {
+            var ev = JSON.parse(ln);
+            if (ev && ev.message) {
+              var obj = JSON.parse(ev.message);
+              if (obj && obj.type === "cfg_ecoles") dernierCfg = obj;
+            }
+          } catch (e) {}
+        });
+        if (dernierCfg) appliquerCfgEcolesPortail(dernierCfg);
+      })
+      .catch(function () {});
+    try {
+      sb.channel("sti-diffusion")
+        .on("broadcast", { event: "cfg_ecoles" }, function (p) {
+          if (p && p.payload) appliquerCfgEcolesPortail(p.payload);
+        })
+        .subscribe();
+    } catch (e) {}
+  }
+
   /* ---------- biométrie (WebAuthn, empreinte / visage) ---------- */
   function bioDispo() {
     return !!(navigator.credentials && window.PublicKeyCredential && window.isSecureContext);
@@ -180,7 +259,36 @@
   if (h === "refuse") msg("⛔ Accès refusé ou compte suspendu. Contactez l'administrateur.", "err");
   if (h === "exclu") msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err");
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
+  if (h === "admin") msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
+
+  /* Clic sur « 📊 Tableau de bord administrateur » depuis le portail :
+     vérifier d'abord la session admin sans JAMAIS ouvrir admin.html si non connecté */
+  var lienAdminPortail = document.getElementById("lien-admin-portail");
+  if (lienAdminPortail) {
+    lienAdminPortail.addEventListener("click", function (e) {
+      e.preventDefault();
+      var adminMail = (cfg.ADMIN || "aymenessouyah@gmail.com").trim().toLowerCase();
+      sb.auth.getSession().then(function (r) {
+        var s = r && r.data ? r.data.session : null;
+        if (s && s.user && (s.user.email || "").trim().toLowerCase() === adminMail) {
+          location.href = cfg.RACINE + "admin.html";
+          return;
+        }
+        /* Non connecté en tant qu'admin : rester sur le formulaire de connexion et demander les identifiants */
+        document.getElementById("tab-connexion").click();
+        msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
+        var champEmail = document.getElementById("c-email");
+        if (champEmail) {
+          champEmail.focus();
+          try { champEmail.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (err) {}
+        }
+      }).catch(function () {
+        document.getElementById("tab-connexion").click();
+        msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
+      });
+    });
+  }
 
   function verifierStatutEtEntrer(user) {
     sb.from("profiles").select("statut,lycee,classe,nom,prenom,phone").eq("id", user.id).maybeSingle().then(function (rp) {
@@ -358,6 +466,9 @@
       document.getElementById("i-captcha").value = "";
       return;
     }
+    var nom = document.getElementById("i-nom").value.trim();
+    var prenom = document.getElementById("i-prenom").value.trim();
+    if (!nom || !prenom) { msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
     var lycee = valeur("i-lycee", "i-lycee-autre");
     var classe = valeur("i-classe", "i-classe-autre");
     if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
@@ -368,10 +479,7 @@
     if (modeTel) {
       /* ----- inscription par téléphone + attente du code WhatsApp ----- */
       var tel = normaliserTel(document.getElementById("i-tel").value);
-      var nom = document.getElementById("i-nom").value.trim();
-      var prenom = document.getElementById("i-prenom").value.trim();
       if (!tel) { btn.disabled = false; msg("❌ Numéro invalide — ex. +216 20 123 456 ou 20 123 456.", "err"); return; }
-      if (!nom || !prenom) { btn.disabled = false; msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
       telEnCours = tel;
       sb.auth.signUp({
         email: emailDeTel(tel),
@@ -401,13 +509,13 @@
     sb.auth.signUp({
       email: emInsc,
       password: mdp,
-      options: { data: { lycee: lycee, classe: classe } }
+      options: { data: { nom: nom, prenom: prenom, lycee: lycee, classe: classe } }
     }).then(function (r) {
       btn.disabled = false;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
       if (r.data.session) sb.auth.signOut(); /* le compte repasse en attente ; l'admin valide */
-      alerterAdminDemande({ email: emInsc, lycee: lycee, classe: classe });
-      msg("✅ Inscription reçue ! Votre accès sera activé après validation par l'administrateur.", "ok");
+      alerterAdminDemande({ email: emInsc, nom: nom, prenom: prenom, lycee: lycee, classe: classe });
+      msg("✅ Inscription reçue (" + prenom + " " + nom + ") ! Votre accès sera activé après validation par l'administrateur.", "ok");
       e.target.reset(); cap2.reset();
     });
   });
