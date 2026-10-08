@@ -19,7 +19,7 @@
     if ("caches" in window) {
       caches.keys().then(function (cles) {
         cles.forEach(function (k) {
-          if (k !== "sti-atelier-v43") caches.delete(k);
+          if (k !== "sti-atelier-v44") caches.delete(k);
         });
       }).catch(function () {});
     }
@@ -29,8 +29,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-43") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-43", "1");
+          if (sessionStorage.getItem("sti-sw-reload-44") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-44", "1");
         } catch (e) {}
         location.reload();
       });
@@ -45,13 +45,40 @@
   }
   function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
 
-  /* ---------- Restriction des espaces réservés exclusivement aux classes de 4e SI (4SI 1, 2, 3, 4 ou 5) et à l'Admin ----------
-     Espaces réservés :
+  /* ---------- Restriction des espaces réservés exclusivement aux classes de 4e SI (4SI 1, 2, 3, 4 ou 5) et au Prof (Admin) ----------
+     Tout ce qui est PHP + Atelier Bac Pratique est caché par défaut et affiché uniquement pour 4SI (1 à 5) et le Prof :
      - Atelier Bac Pratique (bac-pratique.html)
-     - PHP Cours (cours/php.html, cours/php-mysqli.html, supports-pdf/cours-php.html)
-     - PHP Exercices (section #php dans exercices/series-exercices.html + exercices/php/*)
+     - PHP Cours (cours/php.html, cours/coursphp.html, cours/php-mysqli.html, supports-pdf/cours-php.html, documents/annexes/annexe-php*, documents/complet/complet-4eme-si*)
+     - PHP Exercices (section #php dans exercices/series-exercices.html + exercices/php/* + exercices/resume-fonctions-standards.html)
      - PHP Quiz (quiz/php.html, quiz/pp.html) */
   var estAdminGlobal = false;
+  (function injecterStyle4SIZeroFlash() {
+    if (document.getElementById("sti-style-4si-global")) return;
+    var st = document.createElement("style");
+    st.id = "sti-style-4si-global";
+    st.textContent =
+      "html:not(.sti-4si-autorise) .sti-4si-only," +
+      "html:not(.sti-4si-autorise) a[href*='bac-pratique.html']," +
+      "html:not(.sti-4si-autorise) a[href*='cours/php.html']," +
+      "html:not(.sti-4si-autorise) a[href*='cours/coursphp.html']," +
+      "html:not(.sti-4si-autorise) a[href*='cours/php-mysqli.html']," +
+      "html:not(.sti-4si-autorise) a[href*='annexe-php']," +
+      "html:not(.sti-4si-autorise) a[href*='complet-4eme-si']," +
+      "html:not(.sti-4si-autorise) [data-complet='4eme']," +
+      "html:not(.sti-4si-autorise) [data-complet='4eme-resume']," +
+      "html:not(.sti-4si-autorise) a[href*='quiz/php.html']," +
+      "html:not(.sti-4si-autorise) a[href*='quiz/pp.html']," +
+      "html:not(.sti-4si-autorise) button[data-filter='php']," +
+      "html:not(.sti-4si-autorise) [data-tech='php']," +
+      "html:not(.sti-4si-autorise) [data-course-id='php']," +
+      "html:not(.sti-4si-autorise) section#php," +
+      "html:not(.sti-4si-autorise) a[href='#php']," +
+      "html:not(.sti-4si-autorise) a[href*='#php']," +
+      "html:not(.sti-4si-autorise) #sti-btn-bac-pan{display:none!important;}" +
+      "html.sti-4si-autorise .sti-non-4si-only{display:none!important;}";
+    (document.head || document.documentElement).appendChild(st);
+  })();
+
   function estAutorise4SI(classe, estAdmin) {
     if (estAdmin || estAdminGlobal) return true;
     var c = String(classe || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
@@ -61,8 +88,8 @@
     var u = String(urlOuChemin || "").toLowerCase();
     if (!u) return null;
     if (u.indexOf("bac-pratique") !== -1) return "l'Atelier Bac Pratique";
-    if (u.indexOf("cours/php") !== -1 || u.indexOf("cours-php") !== -1 || u.indexOf("annexe-php") !== -1) return "le Cours PHP";
-    if (u.indexOf("exercices/php/") !== -1 || u.indexOf("tp1-php") !== -1 || u.indexOf("tp2-php") !== -1 || u.indexOf("tp2-correction-php") !== -1 || u.indexOf("tp3-php") !== -1 || u.indexOf("tp3-correction-php") !== -1 || u.indexOf("tp4-php") !== -1 || u === "#php" || u.slice(-4) === "#php") return "les Exercices PHP";
+    if (u.indexOf("cours/php") !== -1 || u.indexOf("cours/coursphp") !== -1 || u.indexOf("cours-php") !== -1 || u.indexOf("annexe-php") !== -1 || u.indexOf("complet-4eme-si") !== -1) return "le Cours PHP (4e SI)";
+    if (u.indexOf("exercices/php/") !== -1 || u.indexOf("tp1-php") !== -1 || u.indexOf("tp2-php") !== -1 || u.indexOf("tp2-correction-php") !== -1 || u.indexOf("tp3-php") !== -1 || u.indexOf("tp3-correction-php") !== -1 || u.indexOf("tp4-php") !== -1 || u.indexOf("resume-fonctions-standards") !== -1 || u === "#php" || u.slice(-4) === "#php") return "les Exercices PHP";
     if (u.indexOf("quiz/php") !== -1 || u.indexOf("quiz/pp.html") !== -1) return "le Quiz PHP";
     return null;
   }
@@ -71,8 +98,11 @@
     estAdminGlobal = Boolean(estAdmin);
     currentClasse = classe || currentClasse || "";
     var autorise = estAutorise4SI(currentClasse, estAdminGlobal);
+    if (document.documentElement) {
+      document.documentElement.classList.toggle("sti-4si-autorise", autorise);
+    }
 
-    /* 1. Si l'utilisateur ouvre directement une page réservée aux 4e SI alors qu'il n'est pas en 4e SI */
+    /* 1. Si l'utilisateur ouvre directement une page réservée aux 4e SI alors qu'il n'est ni en 4e SI ni Prof */
     var espacePage = nomEspaceReserve4SI(location.pathname);
     var existLock = document.getElementById("sti-lock-4si");
     if (espacePage && !autorise) {
@@ -84,9 +114,9 @@
         ov.innerHTML =
           '<div style="max-width:460px;background:#fffdf7;border:2.5px solid #23201a;border-radius:22px;padding:28px 24px;box-shadow:6px 6px 0 #f4511e">' +
           '<div style="font-size:48px;margin-bottom:8px">🔒</div>' +
-          '<h2 style="font-size:20px;font-weight:900;margin:0 0 10px;color:#23201a">Espace réservé aux 4<sup>e</sup> SI</h2>' +
+          '<h2 style="font-size:20px;font-weight:900;margin:0 0 10px;color:#23201a">Espace réservé aux 4<sup>e</sup> SI &amp; au Professeur</h2>' +
           '<p style="font-size:14px;line-height:1.55;color:#5a5244;margin:0 0 12px;font-weight:600">' +
-          'L\'accès à <b style="color:#f4511e">' + esc(espacePage) + '</b> (Atelier Bac Pratique, PHP Cours, PHP Exercices et PHP Quiz) est réservé exclusivement aux classes de <b>4<sup>e</sup> SI (1, 2, 3, 4 ou 5)</b>.' +
+          'L\'accès à <b style="color:#f4511e">' + esc(espacePage) + '</b> est réservé exclusivement aux classes de <b>4<sup>e</sup> SI (1, 2, 3, 4 ou 5)</b> et au professeur.' +
           '</p>' +
           '<div style="display:inline-block;background:#f3ead9;border:1.5px solid #23201a;border-radius:999px;padding:5px 14px;font-size:12.5px;font-weight:800;margin-bottom:18px">' +
           '🏫 Votre classe actuelle : <span style="color:#c0392b">' + esc(currentClasse || "Non 4e SI") + '</span>' +
@@ -99,18 +129,29 @@
       existLock.remove();
     }
 
-    /* 2. Masquer ou afficher sur index.html, series-exercices.html et le panneau compte les blocs réservés aux 4e SI */
+    /* 2. Masquer ou afficher sur index.html, series-exercices.html et le panneau compte tous les éléments PHP / 4e SI */
     function majDomElements() {
+      if (document.documentElement) {
+        document.documentElement.classList.toggle("sti-4si-autorise", autorise);
+      }
       var selecteurs = [
         '.sti-4si-only',
         'a[href*="bac-pratique.html"]',
         'a[href*="cours/php.html"]',
+        'a[href*="cours/coursphp.html"]',
         'a[href*="cours/php-mysqli.html"]',
+        'a[href*="annexe-php"]',
+        'a[href*="complet-4eme-si"]',
+        '[data-complet="4eme"]',
+        '[data-complet="4eme-resume"]',
         'a[href*="quiz/php.html"]',
         'a[href*="quiz/pp.html"]',
         'button[data-filter="php"]',
+        '[data-tech="php"]',
+        '[data-course-id="php"]',
         'section#php',
         'a[href="#php"]',
+        'a[href*="#php"]',
         '#sti-btn-bac-pan'
       ];
       try {
@@ -121,6 +162,9 @@
           el.style.display = autorise ? "" : "none";
         }
       } catch (e) {}
+      if (typeof window.__stiMaj4SI === "function") {
+        try { window.__stiMaj4SI(); } catch (e) {}
+      }
     }
     majDomElements();
     if (document.readyState === "loading") {
@@ -133,7 +177,7 @@
       var wrappedOpenPdf = function (url, titre) {
         var esp = nomEspaceReserve4SI(url);
         if (esp && !estAutorise4SI(currentClasse, estAdminGlobal)) {
-          afficherToastSynchro("🔒 " + esp + " est réservé uniquement aux classes de 4e SI (1 à 5).");
+          afficherToastSynchro("🔒 " + esp + " est réservé uniquement aux classes de 4e SI (1 à 5) et au professeur.");
           return false;
         }
         return origOpenPdf.apply(this, arguments);
@@ -146,10 +190,11 @@
   /* Application immédiate dès 0 ms à partir du cache de session local */
   try {
     var cacheInit = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-    if (cacheInit) {
-      appliquerVerrou4SI(cacheInit.classe || "", Boolean(cacheInit.isAdmin));
-    }
-  } catch (e) {}
+    var admInit = localStorage.getItem("sti-admin-gold") === "1" || Boolean(cacheInit && cacheInit.isAdmin);
+    appliquerVerrou4SI((cacheInit && cacheInit.classe) || "", admInit);
+  } catch (e) {
+    appliquerVerrou4SI("", false);
+  }
 
   /* ---------- Activation / révocation en direct du mode Compte GOLD (capture d'écran + impression) ---------- */
   function appliquerModeGold(actif) {

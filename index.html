@@ -61,7 +61,37 @@
       content="STI by AE"
     />
     <link rel="stylesheet" href="assets/fonts/fonts.css" />
+    <style id="sti-4si-zero-flash">
+      html:not(.sti-4si-autorise) .sti-4si-only,
+      html:not(.sti-4si-autorise) a[href*="bac-pratique.html"],
+      html:not(.sti-4si-autorise) a[href*="cours/php.html"],
+      html:not(.sti-4si-autorise) a[href*="cours/coursphp.html"],
+      html:not(.sti-4si-autorise) a[href*="cours/php-mysqli.html"],
+      html:not(.sti-4si-autorise) a[href*="quiz/php.html"],
+      html:not(.sti-4si-autorise) a[href*="quiz/pp.html"],
+      html:not(.sti-4si-autorise) button[data-filter="php"],
+      html:not(.sti-4si-autorise) [data-tech="php"],
+      html:not(.sti-4si-autorise) [data-course-id="php"],
+      html:not(.sti-4si-autorise) [data-complet="4eme"],
+      html:not(.sti-4si-autorise) [data-complet="4eme-resume"] {
+        display: none !important;
+      }
+      html.sti-4si-autorise .sti-non-4si-only {
+        display: none !important;
+      }
+    </style>
     <script>
+      /* Verrou 0 ms : cache tout ce qui est PHP / 4SI sauf pour 4SI (1 à 5) et Prof (Admin) */
+      (function () {
+        try {
+          var isAdm = localStorage.getItem("sti-admin-gold") === "1";
+          var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+          if (c && c.isAdmin) isAdm = true;
+          var cl = String((c && c.classe) || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
+          var ok4 = isAdm || /^4(E|ÈME|EME)?SI([1-5])?$/i.test(cl);
+          if (ok4) document.documentElement.classList.add("sti-4si-autorise");
+        } catch (e) {}
+      })();
       /* Initialise le thème + la classe JS avant le rendu (évite tout flash) */
       (function () {
         var root = document.documentElement;
@@ -2348,7 +2378,7 @@
                 >📜 JavaScript</a
               >
               <a class="mobile-menu-pill" href="cours/sql.html">🗄️ SQL</a>
-              <a class="mobile-menu-pill" href="cours/php.html">🐘 PHP</a>
+              <a class="mobile-menu-pill sti-4si-only" href="cours/php.html">🐘 PHP</a>
               <a class="mobile-menu-pill" href="#" onclick="return window.__stiInstall()"
                 >⤓ Installer</a
               >
@@ -2363,12 +2393,12 @@
       <section class="hero">
         <div>
           <span class="hero-badge"
-            ><span class="dot"></span> Lycée Raféha · 3<sup>ème</sup> &amp;
-            4<sup>ème</sup> SI</span
+            ><span class="dot"></span> Lycée Raféha · 3<sup>ème</sup><span class="sti-4si-only"> &amp;
+            4<sup>ème</sup></span> SI</span
           >
           <span class="hero-badge hero-badge-m2">
             <span class="dot"></span> Lycée Raféha · Édition complète · HTML +
-            CSS + JS + SQL + PHP <span class="chip-ok">Confirmé</span>
+            CSS + JS + SQL<span class="sti-4si-only"> + PHP</span> <span class="chip-ok">Confirmé</span>
           </span>
           <h1 class="h1-one">
             Cours, annexes, exercices, séries et projets sur le
@@ -2379,7 +2409,7 @@
             <span class="tile tile-z">Z</span>.
           </h1>
           <p class="lead">
-            HTML5, CSS3, JavaScript, SQL et PHP : testez vos compétences avec
+            HTML5, CSS3, JavaScript<span class="sti-non-4si-only"> et SQL</span><span class="sti-4si-only">, SQL et PHP</span> : testez vos compétences avec
             des questions et des exercices ciblés, un retour immédiat et des
             annexes de révision toujours à portée de clic.
           </p>
@@ -2426,7 +2456,8 @@
             </div>
             <div class="terminal-line">
               <span class="ok">✓</span>
-              <span class="dim">13 cours · 4 quiz · 12 supports PDF lus partout</span>
+              <span class="dim sti-4si-only">13 cours · 4 quiz · 12 supports PDF lus partout</span>
+              <span class="dim sti-non-4si-only">Cours · 3 quiz · Supports PDF lus partout</span>
             </div>
             <div class="terminal-line">
               <span class="prompt">$</span>
@@ -2462,7 +2493,7 @@
           <input
             type="search"
             id="moduleSearch"
-            placeholder="Rechercher un cours ou un sujet (ex : DOM, jointures, formulaires, MySQLi)…"
+            placeholder="Rechercher un cours ou un sujet (ex : DOM, jointures, formulaires, Flexbox)…"
             aria-label="Rechercher un cours ou un quiz"
           />
           <span class="search-kbd" aria-hidden="true">Ctrl+K</span>
@@ -2484,7 +2515,7 @@
           <button type="button" class="filter-chip" data-filter="sql">
             SQL
           </button>
-          <button type="button" class="filter-chip" data-filter="php">
+          <button type="button" class="filter-chip sti-4si-only" data-filter="php">
             PHP
           </button>
         </div>
@@ -2717,13 +2748,13 @@
             <p>Module 2 Base de données : vocabulaire, tables et premières requêtes (13 pages).</p>
             <span class="go"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></span>
           </a>
-          <a href="documents/complet/complet-4eme-si-cours.pdf" class="annexe-card reveal" data-complet="4eme">
+          <a href="documents/complet/complet-4eme-si-cours.pdf" class="annexe-card reveal sti-4si-only" data-complet="4eme">
             <div class="annexe-icon">📗</div>
             <h4>4ème SI — cours complet</h4>
             <p>Les 65 pages du programme : HTML5, JavaScript, PHP et MySQL, d'un seul tenant.</p>
             <span class="go"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></span>
           </a>
-          <a href="documents/complet/complet-4eme-si-resume.pdf" class="annexe-card reveal" data-complet="4eme-resume">
+          <a href="documents/complet/complet-4eme-si-resume.pdf" class="annexe-card reveal sti-4si-only" data-complet="4eme-resume">
             <div class="annexe-icon">📘</div>
             <h4>4ème SI — résumé des fonctions</h4>
             <p>Aide-mémoire JS · PHP · SQL : chaque fonction standard avec son exemple (paysage).</p>
@@ -2838,7 +2869,7 @@
       <section class="modules" id="modules">
         <div class="section-head reveal">
           <h2>Choisissez votre quiz</h2>
-          <p>Quatre modules auto-corrigés — sans compte, sans limite de tentatives</p>
+          <p><span class="sti-4si-only">Quatre</span><span class="sti-non-4si-only">Trois</span> modules auto-corrigés — sans compte, sans limite de tentatives</p>
         </div>
         <div class="cards-grid">
           <a
@@ -3144,7 +3175,7 @@
             ·
             <a href="#contact" id="lienFooterContact">📬 Contact (QR Code)</a>
           </p>
-          <p class="stack">HTML5/CSS3 · JavaScript · SQL · PHP</p>
+          <p class="stack">HTML5/CSS3 · JavaScript · SQL<span class="sti-4si-only"> · PHP</span></p>
         </div>
       </div>
     </footer>
@@ -3167,7 +3198,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=43"
+              src="assets/images/qr-code-site.png?v=44"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3247,16 +3278,19 @@
         }
 
         /* ---------- Rotation du terminal ---------- */
-        var rotatorItems = [
+        var rotatorItemsAll = [
           { icon: "logo", text: "Cours, Exercices & Annexes pour" },
           { icon: "🌐", text: "HTML5" },
           { icon: "🎨", text: "CSS3" },
           { icon: "📜", text: "JavaScript" },
           { icon: "🗄️", text: "SQL" },
-          { icon: "🐘", text: "PHP" },
+          { icon: "🐘", text: "PHP", only4si: true },
           { icon: "🎯", text: "des quiz" },
           { icon: "📝", text: "des séries et exercices" },
         ];
+        var rotatorItems = rotatorItemsAll.filter(function (it) {
+          return !it.only4si || document.documentElement.classList.contains("sti-4si-autorise");
+        });
 
         var rotatorIndex = 0;
         var rotatorIconEl = document.getElementById("rotatorIcon");
@@ -3500,11 +3534,16 @@
 
         function applyFilters() {
           var q = searchInput ? normalizeBot(searchInput.value) : "";
+          var autorise4SI = document.documentElement.classList.contains("sti-4si-autorise");
           var visibleCourses = 0;
           var visibleQuizzes = 0;
 
           courseCards.forEach(function (card) {
             var tech = card.getAttribute("data-tech") || "";
+            if (tech === "php" && !autorise4SI) {
+              card.classList.add("filter-hidden");
+              return;
+            }
             var text = normalizeBot(card.textContent || "");
             var matchTech = activeFilter === "all" || tech === activeFilter;
             var matchText = !q || text.indexOf(q) !== -1;
@@ -3515,6 +3554,10 @@
 
           quizCards.forEach(function (card) {
             var tech = card.getAttribute("data-tech") || "";
+            if (tech === "php" && !autorise4SI) {
+              card.classList.add("filter-hidden");
+              return;
+            }
             var text = normalizeBot(card.textContent || "");
             var matchTech = activeFilter === "all" || tech === activeFilter;
             var matchText = !q || text.indexOf(q) !== -1;
@@ -3567,10 +3610,13 @@
         var reviseButtons = document.querySelectorAll(".revise-toggle");
 
         function updateRevisionUI() {
-          var total = reviseButtons.length || 5;
+          var autorise4SI = document.documentElement.classList.contains("sti-4si-autorise");
+          var total = 0;
           var done = 0;
           reviseButtons.forEach(function (btn) {
             var id = btn.getAttribute("data-toggle-course");
+            if (id === "php" && !autorise4SI) return;
+            total++;
             var isDone = !!revisedMap[id];
             if (isDone) done++;
             btn.setAttribute("aria-pressed", isDone ? "true" : "false");
@@ -3578,6 +3624,7 @@
             var card = btn.closest(".annexe-card");
             if (card) card.classList.toggle("revised", isDone);
           });
+          if (!total) total = autorise4SI ? 5 : 4;
           if (revisionCountText) {
             revisionCountText.textContent = done + " / " + total + " révisés";
           }
@@ -3586,6 +3633,13 @@
               Math.round((done / total) * 100) + "%";
           }
         }
+        window.__stiMaj4SI = function () {
+          rotatorItems = rotatorItemsAll.filter(function (it) {
+            return !it.only4si || document.documentElement.classList.contains("sti-4si-autorise");
+          });
+          updateRevisionUI();
+          applyFilters();
+        };
 
         reviseButtons.forEach(function (btn) {
           btn.addEventListener("click", function (e) {
@@ -3719,8 +3773,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-43") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-43", "1");
+                if (sessionStorage.getItem("sti-sw-reload-44") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-44", "1");
               } catch (e) {}
               location.reload();
             }

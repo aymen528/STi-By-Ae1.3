@@ -19,6 +19,27 @@
       rel="stylesheet"
     />
     <link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+    <style id="sti-4si-zero-flash">
+      html:not(.sti-4si-autorise) .sti-4si-only,
+      html:not(.sti-4si-autorise) section#php,
+      html:not(.sti-4si-autorise) a[href="#php"],
+      html:not(.sti-4si-autorise) a[href*="cours/php.html"],
+      html:not(.sti-4si-autorise) a[href*="quiz/php.html"] {
+        display: none !important;
+      }
+    </style>
+    <script>
+      (function () {
+        try {
+          var isAdm = localStorage.getItem("sti-admin-gold") === "1";
+          var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+          if (c && c.isAdmin) isAdm = true;
+          var cl = String((c && c.classe) || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
+          var ok4 = isAdm || /^4(E|ÈME|EME)?SI([1-5])?$/i.test(cl);
+          if (ok4) document.documentElement.classList.add("sti-4si-autorise");
+        } catch (e) {}
+      })();
+    </script>
     <style>
       :root {
         --bg: #f4f5f9;
@@ -725,8 +746,8 @@
                 ><span class="l-short">BDD</span></a
               >
             </li>
-            <li>
-              <a href="#php" style="--c: var(--c-php)"
+            <li class="sti-4si-only">
+              <a href="#php" class="sti-4si-only" style="--c: var(--c-php)"
                 ><span aria-hidden="true">🐘</span><span>PHP</span></a
               >
             </li>
