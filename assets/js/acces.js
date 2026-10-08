@@ -14,6 +14,22 @@
   var currentUid = null;
   var currentClasse = "";
 
+  /* Nettoyage immédiat des anciens caches Service Worker (v30–v35) qui bloquaient les liens de cours */
+  try {
+    if ("caches" in window) {
+      caches.keys().then(function (cles) {
+        cles.forEach(function (k) {
+          if (k !== "sti-atelier-v37") caches.delete(k);
+        });
+      }).catch(function () {});
+    }
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.update().catch(function () {}); });
+      }).catch(function () {});
+    }
+  } catch (e) {}
+
   function estGoldProfil(p) {
     return Boolean(p && (p.gold === true || /\|\s*GOLD$/i.test(p.lycee || "")));
   }

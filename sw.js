@@ -2,7 +2,7 @@
    Navigation instantanée : réseau d'abord pour les pages/scripts/styles (sans blocage ni timeout artificiel),
    cache en secours hors-ligne. */
 
-var CACHE = "sti-atelier-v36";
+var CACHE = "sti-atelier-v37";
 var SHELL = [
   "./",
   "./index.html",
@@ -481,6 +481,7 @@ async function prechargerSequentiel() {
 }
 
 self.addEventListener("install", function (evt) {
+  self.skipWaiting();
   evt.waitUntil(
     caches
       .open(CACHE)
@@ -488,9 +489,6 @@ self.addEventListener("install", function (evt) {
         return c.addAll(SHELL);
       })
       .catch(function () {})
-      .then(function () {
-        return self.skipWaiting();
-      })
   );
 });
 

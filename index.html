@@ -2398,7 +2398,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=36"
+              src="assets/images/qr-code-site.png?v=37"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3613,28 +3613,23 @@
       (function () {
         var regSW = null;
         if ("serviceWorker" in navigator) {
-          window.addEventListener("load", function () {
-            navigator.serviceWorker
-              .register("./sw.js")
-              .then(function (reg) {
-                regSW = reg;
-              })
-              .catch(function () {});
-            /* le nouveau service worker contient skipWaiting : dès qu'il est
-               prêt il prend le contrôle et on recharge la page UNE fois pour
-               afficher la version fraîche (sinon le visiteur gardait l'ancienne
-               jusqu'à la prochaine ouverture) */
-            navigator.serviceWorker.addEventListener(
-              "controllerchange",
-              function () {
-                try {
-                  if (sessionStorage.getItem("sti-sw-reload") === "1") return;
-                  sessionStorage.setItem("sti-sw-reload", "1");
-                } catch (e) {}
-                location.reload();
-              }
-            );
-          });
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then(function (reg) {
+              regSW = reg;
+              reg.update().catch(function () {});
+            })
+            .catch(function () {});
+          navigator.serviceWorker.addEventListener(
+            "controllerchange",
+            function () {
+              try {
+                if (sessionStorage.getItem("sti-sw-reload-37") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-37", "1");
+              } catch (e) {}
+              location.reload();
+            }
+          );
           document.addEventListener("visibilitychange", function () {
             if (!document.hidden && regSW)
               regSW.update().catch(function () {});
