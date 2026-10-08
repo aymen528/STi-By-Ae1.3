@@ -1,5 +1,5 @@
 /* Service Worker PWA — STI by AE V2.0 (Mode 100 % Hors-ligne + Synchro auto v31) */
-const CACHE_NAME = 'sti-atelier-v32';
+const CACHE_NAME = 'sti-atelier-v33';
 
 const SHELL_URLS = [
   "./",
@@ -7,6 +7,8 @@ const SHELL_URLS = [
   "./portail.html",
   "./admin.html",
   "./bac-pratique.html",
+  "./carte-visite.html",
+  "./assets/images/carte-visite-sti-v2.png",
   "./manifest.webmanifest",
   "./quiz/html-css.html",
   "./quiz/javascript.html",

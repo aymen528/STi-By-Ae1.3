@@ -188,8 +188,12 @@
       <input id="c-captcha" type="text" required placeholder="Code ci-dessus" autocomplete="off" />
       <button class="btn" type="submit">🔐 Se connecter</button>
       <div class="qr-zone">
-        <img src="assets/images/qr-stiv2.png?v=32" alt="QR code du site STI" />
-        <div><b>📱 Scannez-moi !</b><br /><span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span></div>
+        <img src="assets/images/qr-stiv2.png?v=33" alt="QR code du site STI" />
+        <div>
+          <b>📱 Scannez-moi !</b><br />
+          <span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span><br />
+          <a href="carte-visite.html" style="display:inline-block;margin-top:5px;color:#f4511e;font-weight:900;font-size:12px;text-decoration:none">🪪 Ouvrir / partager la carte de visite →</a>
+        </div>
       </div>
     </form>
 
@@ -266,13 +270,13 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=32"></script>
+<script src="assets/js/config.js?v=33"></script>
 <script>
   if (!window.supabase) {
     document.getElementById("msg").className = "msg err";
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=32"></script>
+<script src="assets/js/portail.js?v=33"></script>
 </body>
 </html>
