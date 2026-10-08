@@ -454,6 +454,17 @@
   if (selFiltreClasse) selFiltreClasse.addEventListener("change", rendAbonnes);
   if (selFiltreStatut) selFiltreStatut.addEventListener("change", rendAbonnes);
 
+  /* Clic rapide sur les compteurs du haut pour filtrer directement la liste */
+  document.querySelectorAll(".stat[data-filtre]").forEach(function (carte) {
+    carte.addEventListener("click", function () {
+      var f = carte.getAttribute("data-filtre");
+      if (selFiltreStatut && f) {
+        selFiltreStatut.value = f;
+        rendAbonnes();
+      }
+    });
+  });
+
   function majFiltreClasses() {
     if (!selFiltreClasse) return;
     var valPrec = selFiltreClasse.value;
