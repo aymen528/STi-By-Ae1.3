@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v42";
+    var versionDefaut = "v43";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -24,9 +24,11 @@
       }
     } catch (e) {}
     var elBadgeVer = document.getElementById("badge-version-admin");
+    var elSousVer = document.getElementById("sous-version-admin");
     var elPiedVer = document.getElementById("pied-version-admin");
     function majTexteVersion(v) {
       if (elBadgeVer) elBadgeVer.textContent = "🏷️ Version V2.0 · " + v;
+      if (elSousVer) elSousVer.textContent = "Version V2.0 (" + v + ")";
       if (elPiedVer) elPiedVer.textContent = "🏷️ Version active : STI V2.0 (" + v + ")";
     }
     majTexteVersion(versionDefaut);

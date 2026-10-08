@@ -2643,13 +2643,13 @@
           </a>
           <a
             href="cours/php.html"
-            class="annexe-card reveal"
+            class="annexe-card reveal sti-4si-only"
             data-tech="php"
             data-course-id="php"
           >
             <div class="annexe-icon">🐘</div>
-            <h4>PHP</h4>
-            <p>Fonctions, tableaux, MySQLi, dates</p>
+            <h4>PHP <span style="display:inline-block;background:#f4511e;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;vertical-align:middle;margin-left:4px">🎓 4<sup>e</sup> SI (1 à 5)</span></h4>
+            <p>Fonctions, tableaux, MySQLi, dates · Réservé 4<sup>e</sup> SI</p>
             <button
               type="button"
               class="revise-toggle"
@@ -2803,12 +2803,12 @@
         </a>
         <a
           href="bac-pratique.html"
-          class="exercice-banner reveal"
+          class="exercice-banner reveal sti-4si-only"
           style="margin-top:16px"
         >
           <div class="exercice-icon">🧪</div>
           <div class="exercice-body">
-            <div class="exercice-tag">Spécial Bac STI (/20)</div>
+            <div class="exercice-tag">Spécial Bac STI (/20) · 🎓 Réservé 4<sup>e</sup> SI (1 à 5)</div>
             <h3>Atelier Épreuve Pratique Bac STI</h3>
             <p>
               Entraînez-vous sur des sujets complets (HTML5, CSS3, validation JS,
@@ -2945,15 +2945,15 @@
 
           <a
             href="quiz/php.html"
-            class="quiz-card card-php reveal"
+            class="quiz-card card-php reveal sti-4si-only"
             data-tech="php"
           >
             <div class="card-top">
               <div class="card-icon">🐘</div>
-              <div class="card-badge">Auto-corrigé</div>
+              <div class="card-badge">Auto-corrigé · 🎓 4<sup>e</sup> SI (1 à 5)</div>
             </div>
             <div>
-              <div class="tagline">Hypertext Preprocessor</div>
+              <div class="tagline">Hypertext Preprocessor · Réservé 4<sup>e</sup> SI</div>
               <h3>PHP</h3>
             </div>
             <p class="desc">
@@ -3167,7 +3167,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=42"
+              src="assets/images/qr-code-site.png?v=43"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3719,8 +3719,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-42") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-42", "1");
+                if (sessionStorage.getItem("sti-sw-reload-43") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-43", "1");
               } catch (e) {}
               location.reload();
             }
