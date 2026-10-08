@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noai, noimageai" />
+<link rel="icon" href="assets/icons/STI_by_AE.ico" />
+<link rel="stylesheet" href="assets/css/protection.css?v=27" />
+<title>🧪 Atelier Épreuve Pratique Bac STI — STI By A'e V2.0</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f1e3; color: #23201a;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: 18px 20px 40px;
+  }
+  .entete {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 16px;
+    background: #fffdf7; border: 2.5px solid #23201a; border-radius: 18px;
+    padding: 14px 18px; box-shadow: 5px 5px 0 #f4511e;
+  }
+  .entete-g { display: flex; align-items: center; gap: 12px; }
+  .entete-g img {
+    width: 48px; height: 48px; border-radius: 12px;
+    border: 2px solid #23201a; box-shadow: 2.5px 2.5px 0 #f4511e;
+  }
+  h1 { font-size: 20px; font-weight: 900; color: #23201a; }
+  .sous { font-size: 12.5px; color: #7a6f5d; font-weight: 700; margin-top: 2px; }
+  .barre-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    border: 2px solid #23201a; background: #fffdf7; color: #23201a;
+    padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 800;
+    cursor: pointer; text-decoration: none; box-shadow: 2.5px 2.5px 0 #23201a;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { color: #f4511e; }
+  .btn-prim {
+    background: linear-gradient(120deg, #f4511e, #ff8a50); color: #fff;
+  }
+  .btn-prim:hover { color: #fff; filter: brightness(1.05); }
+  .btn-gold {
+    background: linear-gradient(120deg, #fff3b0, #ffd54f); color: #23201a;
+  }
+
+  .sujet-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
+    background: #fffdf7; border: 2px solid #23201a; border-radius: 14px;
+    padding: 12px 16px; box-shadow: 3px 3px 0 rgba(244,81,30,.45);
+  }
+  .sujet-bar select {
+    border: 2px solid #23201a; border-radius: 10px; padding: 7px 12px;
+    font-weight: 800; font-size: 13px; background: #fff; color: #23201a;
+  }
+  .enonce-box {
+    background: #fffdf7; border: 2px solid #23201a; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 14px; font-size: 13px; line-height: 1.55;
+    box-shadow: 3px 3px 0 rgba(244,81,30,.35);
+  }
+  .enonce-box h2 { font-size: 15px; color: #f4511e; margin-bottom: 6px; }
+  .bareme-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .b-tag {
+    background: #f3ead9; border: 1.5px solid #23201a; border-radius: 999px;
+    padding: 3px 10px; font-size: 11.5px; font-weight: 800; color: #23201a;
+  }
+
+  .grille {
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 14px;
+  }
+  @media (max-width: 960px) {
+    .grille { grid-template-columns: 1fr; }
+  }
+  .panneau {
+    background: #fffdf7; border: 2.5px solid #23201a; border-radius: 16px;
+    overflow: hidden; box-shadow: 5px 5px 0 rgba(244,81,30,.45);
+    display: flex; flex-direction: column;
+  }
+  .onglets {
+    display: flex; gap: 4px; flex-wrap: wrap; background: #f3ead9;
+    padding: 8px 10px; border-bottom: 2px solid #23201a;
+  }
+  .onglet {
+    border: 1.5px solid #23201a; background: #fffdf7; color: #23201a;
+    border-radius: 10px; padding: 6px 12px; font-size: 12px; font-weight: 800;
+    cursor: pointer;
+  }
+  .onglet.actif {
+    background: linear-gradient(120deg, #f4511e, #ff8a50); color: #fff;
+    box-shadow: 2px 2px 0 #23201a;
+  }
+  textarea.code-ed {
+    width: 100%; min-height: 390px; border: 0; padding: 14px;
+    font: 600 13px/1.55 "Consolas", "Monaco", "Courier New", monospace;
+    background: #1c1915; color: #f9f1e3; resize: vertical; outline: none;
+    tab-size: 2;
+  }
+  .apercu-entete {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #f3ead9; padding: 9px 14px; border-bottom: 2px solid #23201a;
+    font-size: 12.5px; font-weight: 900;
+  }
+  iframe#frame-apercu {
+    width: 100%; height: 320px; border: 0; background: #fff;
+  }
+  .console-box {
+    border-top: 2px solid #23201a; background: #23201a; color: #f9f1e3;
+    padding: 10px 14px; font: 600 12px/1.45 monospace; min-height: 75px;
+    max-height: 140px; overflow-y: auto;
+  }
+  .eval-box {
+    display: none; margin-top: 16px; background: #fffdf7;
+    border: 2.5px solid #23201a; border-radius: 16px; padding: 18px;
+    box-shadow: 6px 6px 0 #177245;
+  }
+  .eval-box.visible { display: block; }
+  .eval-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0; border-bottom: 1px dashed #e2d5be; font-size: 13px; font-weight: 700;
+  }
+  .eval-item:last-child { border-bottom: 0; }
+</style>
+</head>
+<body>
+  <div class="entete">
+    <div class="entete-g">
+      <img src="assets/icons/sti-icon-512.png" alt="STI" />
+      <div>
+        <h1>🧪 Atelier Épreuve Pratique Bac STI</h1>
+        <div class="sous">Entraînement complet HTML5 · CSS3 · JavaScript · SQL · PHP/MySQLi avec barème sur 20</div>
+      </div>
+    </div>
+    <div class="barre-actions">
+      <a class="btn" href="index.html">🏠 Accueil</a>
+      <a class="btn" href="exercices/series-exercices.html">🏋️ Séries d'exercices</a>
+      <button type="button" class="btn" id="btn-reset-sujet">🔄 Réinitialiser le sujet</button>
+      <button type="button" class="btn btn-prim" id="btn-run">▶️ Exécuter l'aperçu</button>
+      <button type="button" class="btn btn-gold" id="btn-evaluer">🏆 Évaluer (/20) &amp; Envoyer au prof</button>
+    </div>
+  </div>
+
+  <div class="sujet-bar">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <label for="sel-sujet" style="font-weight:900;font-size:13.5px">📋 Choisir un sujet d'examen :</label>
+      <select id="sel-sujet">
+        <option value="s1">Sujet 1 — Inscription Club Robotique (CIN, Nom, Email, Durée)</option>
+        <option value="s2">Sujet 2 — Réservation Hôtelière Tunisie (Tél +216, Ville, Nuits)</option>
+        <option value="s3">Sujet 3 — Commande « Le Fleuriste » (Code, Bouquet, Quantité)</option>
+        <option value="libre">Sujet 4 — Mode Libre (Bac à sable personnel)</option>
+      </select>
+    </div>
+    <div id="statut-envoi" style="font-size:12.5px;font-weight:800;color:#177245"></div>
+  </div>
+
+  <div class="enonce-box" id="zone-enonce"></div>
+
+  <div class="grille">
+    <div class="panneau">
+      <div class="onglets">
+        <button type="button" class="onglet actif" data-tab="html">📄 index.html (4 pts)</button>
+        <button type="button" class="onglet" data-tab="css">🎨 style.css (3 pts)</button>
+        <button type="button" class="onglet" data-tab="js">⚡ controle.js (6 pts)</button>
+        <button type="button" class="onglet" data-tab="sqlphp">🗄️ sql &amp; ajout.php (7 pts)</button>
+      </div>
+      <textarea class="code-ed" id="ed-html" spellcheck="false"></textarea>
+      <textarea class="code-ed" id="ed-css" spellcheck="false" style="display:none"></textarea>
+      <textarea class="code-ed" id="ed-js" spellcheck="false" style="display:none"></textarea>
+      <textarea class="code-ed" id="ed-sqlphp" spellcheck="false" style="display:none"></textarea>
+    </div>
+
+    <div class="panneau">
+      <div class="apercu-entete">
+        <span>🖥️ Aperçu interactif en direct</span>
+        <span style="color:#7a6f5d;font-size:11.5px">Testez votre formulaire et cliquez sur Valider</span>
+      </div>
+      <iframe id="frame-apercu" title="Aperçu Bac STI"></iframe>
+      <div class="console-box" id="console-js">💬 Console JS / Alertes : prêt.</div>
+    </div>
+  </div>
+
+  <div class="eval-box" id="zone-eval"></div>
+
+<script src="assets/js/supabase-umd.js"></script>
+<script src="assets/js/config.js?v=27"></script>
+<script src="assets/js/protection.js?v=27"></script>
+<script src="assets/js/acces.js?v=27"></script>
+<script>
+(function () {
+  "use strict";
+
+  var SUJETS = {
+    s1: {
+      titre: "Sujet 1 — Inscription au Club Robotique du Lycée",
+      consigne: "Complétez le formulaire HTML5, la feuille CSS3, la fonction JavaScript <b>verif()</b> (CIN de 8 chiffres, Nom alphabétique non vide, E-mail contenant '@', Durée entre 1 et 12 mois) ainsi que les requêtes SQL et le script PHP/MySQLi d'insertion.",
+      html: '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="utf-8" />\n  <title>Inscription Club Robotique</title>\n</head>\n<body>\n  <main class="carte">\n    <h2>🤖 Inscription Club Robotique</h2>\n    <form id="f-insc" action="ajout.php" method="post" onsubmit="return verif()">\n      <label>N° CIN (8 chiffres) :</label>\n      <input type="text" id="cin" name="cin" maxlength="8" placeholder="Ex: 09876543" required />\n\n      <label>Nom & Prénom :</label>\n      <input type="text" id="nom" name="nom" placeholder="Votre nom complet" required />\n\n      <label>Adresse E-mail :</label>\n      <input type="email" id="email" name="email" placeholder="eleve@sti.tn" required />\n\n      <label>Spécialité :</label>\n      <select id="spec" name="spec">\n        <option value="Arduino">Arduino & Capteurs</option>\n        <option value="IA">Intelligence Artificielle</option>\n        <option value="Web">Développement Web</option>\n      </select>\n\n      <label>Durée (1 à 12 mois) :</label>\n      <input type="number" id="duree" name="duree" min="1" max="12" value="6" />\n\n      <button type="submit">✅ Valider l\'inscription</button>\n    </form>\n  </main>\n</body>\n</html>',
+      css: 'body {\n  font-family: system-ui, sans-serif;\n  background: #f9f1e3;\n  padding: 18px;\n}\n.carte {\n  max-width: 420px;\n  margin: 0 auto;\n  background: #fffdf7;\n  border: 2px solid #23201a;\n  border-radius: 14px;\n  padding: 18px;\n  box-shadow: 4px 4px 0 #f4511e;\n}\nh2 { color: #f4511e; margin-bottom: 12px; }\nlabel { display: block; font-weight: 700; margin-top: 10px; font-size: 13px; }\ninput, select {\n  width: 100%; padding: 8px 10px; margin-top: 4px;\n  border: 1.5px solid #23201a; border-radius: 8px;\n}\nbutton {\n  margin-top: 14px; width: 100%; padding: 10px;\n  background: #f4511e; color: #fff; font-weight: 800;\n  border: 2px solid #23201a; border-radius: 999px; cursor: pointer;\n}',
+      js: 'function estChiffres(ch) {\n  return /^[0-9]{8}$/.test(ch);\n}\n\nfunction estAlpha(ch) {\n  return /^[A-Za-zÀ-ÿ\\s]{3,}$/.test(ch.trim());\n}\n\nfunction verif() {\n  var cin = document.getElementById("cin").value.trim();\n  var nom = document.getElementById("nom").value.trim();\n  var email = document.getElementById("email").value.trim();\n  var duree = parseInt(document.getElementById("duree").value, 10);\n\n  if (!estChiffres(cin)) {\n    alert("Erreur : le CIN doit contenir exactement 8 chiffres !");\n    return false;\n  }\n  if (!estAlpha(nom)) {\n    alert("Erreur : le nom doit être alphabétique (au moins 3 lettres) !");\n    return false;\n  }\n  if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {\n    alert("Erreur : adresse e-mail invalide !");\n    return false;\n  }\n  if (isNaN(duree) || duree < 1 || duree > 12) {\n    alert("Erreur : la durée doit être comprise entre 1 et 12 mois !");\n    return false;\n  }\n  alert("Bravo ! Formulaire valide pour " + nom + " (" + duree + " mois).");\n  return false;\n}',
+      sqlphp: '-- 1) Requêtes SQL (LDD & LMD)\nCREATE TABLE membre (\n  cin CHAR(8) PRIMARY KEY,\n  nom VARCHAR(60) NOT NULL,\n  email VARCHAR(80) NOT NULL,\n  spec VARCHAR(30),\n  duree INT CHECK (duree BETWEEN 1 AND 12)\n);\n\nSELECT cin, nom, spec, duree FROM membre WHERE duree >= 6 ORDER BY nom ASC;\n\n<?php\n// 2) Script ajout.php (PHP & MySQLi)\n$con = mysqli_connect("localhost", "root", "", "bd_club");\n$cin = $_POST["cin"];\n$nom = $_POST["nom"];\n$email = $_POST["email"];\n$spec = $_POST["spec"];\n$duree = $_POST["duree"];\n\n$req = "INSERT INTO membre VALUES (\'$cin\', \'$nom\', \'$email\', \'$spec\', $duree)";\n$res = mysqli_query($con, $req);\nif ($res) {\n  echo "Inscription enregistrée avec succès !";\n}\nmysqli_close($con);\n?>'
+    },
+    s2: {
+      titre: "Sujet 2 — Réservation Hôtelière Tunisie",
+      consigne: "Validez un numéro de téléphone tunisien de 8 chiffres, le nom du client, la ville choisie via <code>&lt;datalist&gt;</code> et calculez le montant total des nuitées en JavaScript, puis rédigez les requêtes SQL (GROUP BY / UPDATE) et le script PHP.",
+      html: '<!DOCTYPE html>\n<html lang="fr">\n<head><meta charset="utf-8" /><title>Réservation Hôtel</title></head>\n<body>\n  <main class="carte">\n    <h2>🏖️ Réservation Hôtel Tunisie</h2>\n    <form id="f-res" action="reserver.php" method="post" onsubmit="return verif()">\n      <label>Téléphone (8 chiffres) :</label>\n      <input type="text" id="tel" name="tel" maxlength="8" placeholder="22123456" required />\n      <label>Nom du client :</label>\n      <input type="text" id="nom" name="nom" placeholder="Nom & Prénom" required />\n      <label>Ville :</label>\n      <input list="villes" id="ville" name="ville" placeholder="Choisir une ville" required />\n      <datalist id="villes">\n        <option value="Hammamet"></option>\n        <option value="Sousse"></option>\n        <option value="Djerba"></option>\n        <option value="Tozeur"></option>\n      </datalist>\n      <label>Nombre de nuits (1 à 30) :</label>\n      <input type="number" id="nuits" name="nuits" min="1" max="30" value="3" />\n      <button type="submit">🛎️ Confirmer la réservation</button>\n    </form>\n  </main>\n</body>\n</html>',
+      css: 'body { font-family: system-ui, sans-serif; background: #f9f1e3; padding: 18px; }\n.carte { max-width: 420px; margin: 0 auto; background: #fffdf7; border: 2px solid #23201a; border-radius: 14px; padding: 18px; box-shadow: 4px 4px 0 #f4511e; }\nh2 { color: #f4511e; margin-bottom: 10px; }\nlabel { display: block; font-weight: 700; margin-top: 10px; font-size: 13px; }\ninput { width: 100%; padding: 8px 10px; margin-top: 4px; border: 1.5px solid #23201a; border-radius: 8px; }\nbutton { margin-top: 14px; width: 100%; padding: 10px; background: #f4511e; color: #fff; font-weight: 800; border: 2px solid #23201a; border-radius: 999px; cursor: pointer; }',
+      js: 'function verif() {\n  var tel = document.getElementById("tel").value.trim();\n  var nom = document.getElementById("nom").value.trim();\n  var ville = document.getElementById("ville").value.trim();\n  var nuits = parseInt(document.getElementById("nuits").value, 10);\n  if (!/^[24579][0-9]{7}$/.test(tel)) {\n    alert("Numéro tunisien invalide (8 chiffres commençant par 2, 4, 5, 7 ou 9) !");\n    return false;\n  }\n  if (nom.length < 3) {\n    alert("Veuillez saisir le nom complet du client.");\n    return false;\n  }\n  if (!ville) {\n    alert("Veuillez choisir une ville.");\n    return false;\n  }\n  if (isNaN(nuits) || nuits < 1 || nuits > 30) {\n    alert("Le nombre de nuits doit être entre 1 et 30.");\n    return false;\n  }\n  var total = nuits * 120;\n  alert("Réservation validée à " + ville + " : " + total + " DT pour " + nuits + " nuit(s).");\n  return false;\n}',
+      sqlphp: 'CREATE TABLE reservation (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  tel CHAR(8) NOT NULL,\n  nom VARCHAR(60) NOT NULL,\n  ville VARCHAR(40) NOT NULL,\n  nuits INT NOT NULL\n);\n\nSELECT ville, COUNT(*) AS nb_res, SUM(nuits) AS total_nuits\nFROM reservation\nGROUP BY ville;\n\nUPDATE reservation SET nuits = nuits + 1 WHERE tel = \'22123456\';\n\n<?php\n$con = mysqli_connect("localhost", "root", "", "bd_hotel");\n$tel = $_POST["tel"];\n$nom = $_POST["nom"];\n$ville = $_POST["ville"];\n$nuits = $_POST["nuits"];\n$req = "INSERT INTO reservation (tel, nom, ville, nuits) VALUES (\'$tel\', \'$nom\', \'$ville\', $nuits)";\n$res = mysqli_query($con, $req);\nmysqli_close($con);\n?>'
+    },
+    s3: {
+      titre: "Sujet 3 — Commande « Le Fleuriste »",
+      consigne: "Validez le code client, le choix du bouquet et la quantité commandée en JavaScript, puis écrivez les requêtes SQL et le traitement PHP/MySQLi.",
+      html: '<!DOCTYPE html>\n<html lang="fr">\n<head><meta charset="utf-8" /><title>Le Fleuriste</title></head>\n<body>\n  <main class="carte">\n    <h2>🌷 Commande Le Fleuriste</h2>\n    <form id="f-fleur" action="commande.php" method="post" onsubmit="return verif()">\n      <label>Code Client (8 chiffres) :</label>\n      <input type="text" id="code" name="code" maxlength="8" placeholder="12345678" required />\n      <label>Nom du client :</label>\n      <input type="text" id="nom" name="nom" placeholder="Nom" required />\n      <label>Bouquet :</label>\n      <select id="bouquet" name="bouquet">\n        <option value="Roses">Bouquet de Roses (45 DT)</option>\n        <option value="Jasmin">Couronne de Jasmin (30 DT)</option>\n        <option value="Tulipes">Panier de Tulipes (55 DT)</option>\n      </select>\n      <label>Quantité (1 à 20) :</label>\n      <input type="number" id="qte" name="qte" min="1" max="20" value="2" />\n      <button type="submit">💐 Commander</button>\n    </form>\n  </main>\n</body>\n</html>',
+      css: 'body { font-family: system-ui, sans-serif; background: #f9f1e3; padding: 18px; }\n.carte { max-width: 420px; margin: 0 auto; background: #fffdf7; border: 2px solid #23201a; border-radius: 14px; padding: 18px; box-shadow: 4px 4px 0 #f4511e; }\nh2 { color: #f4511e; margin-bottom: 10px; }\nlabel { display: block; font-weight: 700; margin-top: 10px; font-size: 13px; }\ninput, select { width: 100%; padding: 8px 10px; margin-top: 4px; border: 1.5px solid #23201a; border-radius: 8px; }\nbutton { margin-top: 14px; width: 100%; padding: 10px; background: #f4511e; color: #fff; font-weight: 800; border: 2px solid #23201a; border-radius: 999px; cursor: pointer; }',
+      js: 'function verif() {\n  var code = document.getElementById("code").value.trim();\n  var nom = document.getElementById("nom").value.trim();\n  var qte = parseInt(document.getElementById("qte").value, 10);\n  if (!/^[0-9]{8}$/.test(code)) {\n    alert("Le code client doit comporter 8 chiffres !");\n    return false;\n  }\n  if (nom.length < 2) {\n    alert("Saisissez le nom du client !");\n    return false;\n  }\n  if (isNaN(qte) || qte < 1 || qte > 20) {\n    alert("Quantité invalide (1 à 20) !");\n    return false;\n  }\n  alert("Commande enregistrée pour " + nom + " (" + qte + " bouquet(s)) !");\n  return false;\n}',
+      sqlphp: 'CREATE TABLE commande (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  code CHAR(8) NOT NULL,\n  nom VARCHAR(60) NOT NULL,\n  bouquet VARCHAR(40) NOT NULL,\n  qte INT NOT NULL\n);\n\nSELECT bouquet, SUM(qte) AS total FROM commande GROUP BY bouquet;\n\n<?php\n$con = mysqli_connect("localhost", "root", "", "bd_fleurs");\n$code = $_POST["code"];\n$nom = $_POST["nom"];\n$bouquet = $_POST["bouquet"];\n$qte = $_POST["qte"];\n$req = "INSERT INTO commande (code, nom, bouquet, qte) VALUES (\'$code\', \'$nom\', \'$bouquet\', $qte)";\n$res = mysqli_query($con, $req);\nmysqli_close($con);\n?>'
+    },
+    libre: {
+      titre: "Sujet 4 — Mode Libre (Bac à sable personnel)",
+      consigne: "Rédigez librement votre page HTML5, vos styles CSS3, votre script de contrôle JavaScript et vos requêtes SQL / PHP.",
+      html: '<!DOCTYPE html>\n<html lang="fr">\n<head><meta charset="utf-8" /><title>Mon Projet STI</title></head>\n<body>\n  <main class="carte">\n    <h2>🚀 Mon Formulaire Bac STI</h2>\n    <form id="f1" onsubmit="return verif()">\n      <label>Identifiant :</label>\n      <input type="text" id="id1" name="id1" required />\n      <button type="submit">Tester</button>\n    </form>\n  </main>\n</body>\n</html>',
+      css: 'body { font-family: system-ui, sans-serif; background: #f9f1e3; padding: 18px; }\n.carte { background: #fffdf7; border: 2px solid #23201a; border-radius: 12px; padding: 16px; }',
+      js: 'function verif() {\n  var v = document.getElementById("id1").value;\n  alert("Valeur saisie : " + v);\n  return false;\n}',
+      sqlphp: 'SELECT * FROM table_exemple;\n<?php\n$con = mysqli_connect("localhost", "root", "", "bd");\n?>'
+    }
+  };
+
+  var edHtml = document.getElementById("ed-html");
+  var edCss = document.getElementById("ed-css");
+  var edJs = document.getElementById("ed-js");
+  var edSqlPhp = document.getElementById("ed-sqlphp");
+  var selSujet = document.getElementById("sel-sujet");
+  var consoleEl = document.getElementById("console-js");
+
+  var onglets = document.querySelectorAll(".onglet");
+  onglets.forEach(function (b) {
+    b.addEventListener("click", function () {
+      onglets.forEach(function (x) { x.classList.remove("actif"); });
+      b.classList.add("actif");
+      var t = b.getAttribute("data-tab");
+      edHtml.style.display = t === "html" ? "block" : "none";
+      edCss.style.display = t === "css" ? "block" : "none";
+      edJs.style.display = t === "js" ? "block" : "none";
+      edSqlPhp.style.display = t === "sqlphp" ? "block" : "none";
+    });
+  });
+
+  function chargerSujet(cle) {
+    var s = SUJETS[cle] || SUJETS.s1;
+    document.getElementById("zone-enonce").innerHTML =
+      "<h2>📋 " + s.titre + "</h2>" +
+      "<div>" + s.consigne + "</div>" +
+      "<div class='bareme-tags'>" +
+      "<span class='b-tag'>📄 HTML5 : 4 pts</span>" +
+      "<span class='b-tag'>🎨 CSS3 : 3 pts</span>" +
+      "<span class='b-tag'>⚡ JavaScript : 6 pts</span>" +
+      "<span class='b-tag'>🗄️ SQL : 4 pts</span>" +
+      "<span class='b-tag'>🐘 PHP/MySQLi : 3 pts</span>" +
+      "</div>";
+    edHtml.value = s.html;
+    edCss.value = s.css;
+    edJs.value = s.js;
+    edSqlPhp.value = s.sqlphp;
+    document.getElementById("zone-eval").classList.remove("visible");
+    executerApercu();
+  }
+
+  function executerApercu() {
+    var fr = document.getElementById("frame-apercu");
+    consoleEl.textContent = "💬 Console JS / Alertes : aperçu mis à jour.";
+    var pontConsole =
+      "<script>" +
+      "window.alert = function(m){ parent.postMessage({type:'sti-bac-log', msg:'🔔 alert() : ' + m}, '*'); };" +
+      "window.onerror = function(m,u,l){ parent.postMessage({type:'sti-bac-log', msg:'❌ Erreur JS (ligne '+l+') : ' + m}, '*'); };" +
+      "<\/script>";
+    var doc =
+      edHtml.value.replace("</head>", "<style>" + edCss.value + "</style>" + pontConsole + "</head>")
+        .replace("</body>", "<script>" + edJs.value + "<\/script></body>");
+    fr.srcdoc = doc;
+  }
+
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "sti-bac-log") {
+      consoleEl.textContent = e.data.msg;
+    }
+  });
+
+  selSujet.addEventListener("change", function () { chargerSujet(selSujet.value); });
+  document.getElementById("btn-reset-sujet").addEventListener("click", function () { chargerSujet(selSujet.value); });
+  document.getElementById("btn-run").addEventListener("click", executerApercu);
+
+  document.getElementById("btn-evaluer").addEventListener("click", function () {
+    executerApercu();
+    var h = edHtml.value;
+    var c = edCss.value;
+    var j = edJs.value;
+    var sp = edSqlPhp.value;
+    var details = [];
+    var note = 0;
+
+    function critere(nom, ok, pts, conseil) {
+      if (ok) note += pts;
+      details.push({ nom: nom, ok: ok, pts: pts, conseil: conseil });
+    }
+
+    critere("Structure HTML5 (<form>, <input>, <label>, <button>)", /<form/i.test(h) && /<input/i.test(h) && /<label/i.test(h), 2, "Ajoutez une balise <form>, des <label> et des <input>.");
+    critere("Attributs id, name et onsubmit='return verif()'", /id=/i.test(h) && /name=/i.test(h) && /onsubmit/i.test(h), 2, "Chaque champ doit avoir id et name, et le formulaire onsubmit='return verif()'.");
+    critere("Feuille de style CSS3 (sélecteurs, bordures, couleurs, mise en page)", c.length > 80 && /border|background|padding/i.test(c), 3, "Complétez les règles CSS3 (couleurs, marges, bordures).");
+    critere("Fonction JavaScript verif() et lecture DOM (getElementById)", /function\s+verif/i.test(j) && /getElementById/i.test(j), 3, "Déclarez function verif() et utilisez document.getElementById().");
+    critere("Contrôles de validité JS + alert() + return false", /alert\s*\(/i.test(j) && /return\s+false/i.test(j), 3, "Affichez une alerte en cas d'erreur et retournez false.");
+    critere("Requêtes SQL (CREATE TABLE / SELECT / INSERT / UPDATE)", /(CREATE\s+TABLE|SELECT\s+.+FROM|INSERT\s+INTO|UPDATE\s+)/i.test(sp), 4, "Écrivez les requêtes SQL LDD/LMD demandées.");
+    critere("Script PHP & MySQLi (mysqli_connect, $_POST, mysqli_query)", /mysqli_connect/i.test(sp) && /\$_POST/i.test(sp) && /mysqli_query/i.test(sp), 3, "Utilisez mysqli_connect(), $_POST[] et mysqli_query().");
+
+    var z = document.getElementById("zone-eval");
+    z.classList.add("visible");
+    var html = "<h3 style='font-size:17px;color:#177245;margin-bottom:10px'>🏆 Résultat de l'évaluation : " + note + " / 20</h3>";
+    details.forEach(function (d) {
+      html += "<div class='eval-item'>" +
+        "<span>" + (d.ok ? "✅ " : "❌ ") + d.nom + (d.ok ? "" : " <small style='color:#c0392b'>(" + d.conseil + ")</small>") + "</span>" +
+        "<b style='color:" + (d.ok ? "#177245" : "#c0392b") + "'>" + (d.ok ? "+" + d.pts : "0") + " / " + d.pts + " pt(s)</b>" +
+        "</div>";
+    });
+    z.innerHTML = html;
+    z.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    if (window.enregistrerScoreQuizSTI) {
+      var nomSujet = "Bac Pratique (" + selSujet.value.toUpperCase() + ")";
+      window.enregistrerScoreQuizSTI(nomSujet, note + "/20", note);
+      document.getElementById("statut-envoi").textContent = "✅ Note " + note + "/20 transmise au tableau de bord du professeur !";
+    }
+  });
+
+  chargerSujet("s1");
+})();
+</script>
+</body>
+</html>

@@ -1,4 +1,11 @@
-/* STI v2 — tableau de bord admin : stats, tri, compteur, détail connexions, mot de passe, suppression, code WhatsApp */
+/* STI v2 — tableau de bord admin complet :
+   - Indicateur 🟢 En ligne maintenant + compteur
+   - Recherche instantanée + filtre par classe / état + validation groupée + export Excel (CSV)
+   - Comptes 👑 Gold (capture & impression)
+   - Durée d'accès par semaine et cumul
+   - Résultats des Quiz & Atelier Bac Pratique (/20)
+   - Contrôle / Test chronométré en direct
+   - Diffusion messages par classe + dictée vocale + suivi Lu / Non lu + réponses des élèves */
 (function () {
   "use strict";
   var cfg = window.STI_AUTH;
@@ -43,12 +50,20 @@
     var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
     return np ? base + " (" + np + ")" : base;
   }
+
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
   var dureesSemaine = {}, dureesTotales = {}, semainesDispo = [];
-  var messagesDiffuses = [], lecturesParMsg = {};
+  var messagesDiffuses = [], lecturesParMsg = {}, reponsesParMsg = {}, questionsLibres = [];
+  var scoresParUser = {}, listeResultatsQuiz = [];
+  var enLigneMap = {}; /* uid -> { ts: ms, page: str } */
   var adminUid = null;
   var cibleSuppr = null, cibleMdp = null;
+
+  function estEnLigne(uid) {
+    var info = enLigneMap[uid];
+    return Boolean(info && (Date.now() - info.ts < 95000));
+  }
 
   function fmtDate(iso) {
     if (!iso) return "—";
@@ -59,19 +74,19 @@
     if (sec == null) return "en cours…";
     if (sec < 60) return sec + " s";
     if (sec < 3600) return Math.round(sec / 60) + " min";
-    return (sec / 3600).toFixed(1) + " h";
+    return Math.floor(sec / 3600) + " h " + Math.round((sec % 3600) / 60) + " min";
   }
   function fmtDureeCumul(sec) {
-    var s = Math.max(0, Math.round(sec || 0));
-    if (s === 0) return "0 min";
-    if (s < 60) return s + " s";
-    var h = Math.floor(s / 3600);
-    var m = Math.round((s % 3600) / 60);
+    sec = Math.max(0, Math.round(sec || 0));
+    if (sec === 0) return "0 min";
+    if (sec < 60) return sec + " s";
+    var h = Math.floor(sec / 3600);
+    var m = Math.round((sec % 3600) / 60);
     if (h === 0) return m + " min";
-    return m > 0 ? h + " h " + (m < 10 ? "0" + m : m) + " min" : h + " h";
+    return h + " h " + (m < 10 ? "0" + m : m) + " min";
   }
   function dureeLigne(a) {
-    if (a.duree_sec != null && a.duree_sec >= 0) return a.duree_sec;
+    if (a.duree_sec != null && a.duree_sec > 0) return Number(a.duree_sec);
     if (a.debut && a.fin) {
       var diff = Math.round((new Date(a.fin) - new Date(a.debut)) / 1000);
       return diff > 0 ? diff : 0;
@@ -81,7 +96,7 @@
   function cleSemaine(iso) {
     var d = iso ? new Date(iso) : new Date();
     if (isNaN(d.getTime())) d = new Date();
-    var jour = d.getDay(); /* 0 = dim, 1 = lun ... */
+    var jour = d.getDay();
     var decal = jour === 0 ? -6 : 1 - jour;
     var lun = new Date(d.getFullYear(), d.getMonth(), d.getDate() + decal);
     var y = lun.getFullYear();
@@ -118,61 +133,84 @@
         .on("postgres_changes", { event: "*", schema: "public", table: "acces" }, function () { charge(true); })
         .subscribe();
       sb.channel("sti-diffusion")
-        .on("broadcast", { event: "lu" }, function () { charge(true); })
+        .on("broadcast", { event: "lu" }, function (p) {
+          if (p && p.payload && p.payload.msgId && p.payload.uid) {
+            var mid = p.payload.msgId;
+            if (mid === "libre") {
+              questionsLibres.unshift({ uid: p.payload.uid, ts: p.payload.ts || new Date().toISOString(), reponse: p.payload.reponse || "" });
+            } else {
+              if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
+              lecturesParMsg[mid][p.payload.uid] = p.payload.ts || new Date().toISOString();
+              if (p.payload.reponse) {
+                if (!reponsesParMsg[mid]) reponsesParMsg[mid] = {};
+                reponsesParMsg[mid][p.payload.uid] = p.payload.reponse;
+              }
+            }
+            afficherTableauSuivi();
+          }
+        })
+        .on("broadcast", { event: "presence" }, function (p) {
+          if (p && p.payload && p.payload.uid) {
+            enLigneMap[p.payload.uid] = { ts: Date.now(), page: p.payload.page || "site" };
+            majCompteurEnLigne();
+            rendAbonnes();
+          }
+        })
+        .on("broadcast", { event: "quiz" }, function () {
+          charge(true);
+        })
         .subscribe();
-    } catch (err) {}
+    } catch (e) {}
+    majBoutonNotif();
   });
 
-  /* ---------- Alertes sonores + notifications système ---------- */
-  function sonnerNotification() {
+  function bipNotif() {
     try {
       var Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
       var ctx = new Ctx();
-      [587.33, 880].forEach(function (freq, i) {
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.14);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.14 + 0.32);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + i * 0.14);
-        osc.stop(ctx.currentTime + i * 0.14 + 0.34);
+      [587.33, 880].forEach(function (freq, idx) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.18, ctx.currentTime + idx * 0.16);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.16 + 0.25);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(ctx.currentTime + idx * 0.16);
+        o.stop(ctx.currentTime + idx * 0.16 + 0.26);
       });
-    } catch (err) {}
+    } catch (e) {}
   }
 
   function afficherNotifSysteme(titre, corps) {
-    sonnerNotification();
+    bipNotif();
     if (!("Notification" in window) || Notification.permission !== "granted") return;
-    var opts = {
-      body: corps,
-      icon: "assets/icons/sti-icon-192.png",
-      badge: "assets/icons/sti-icon-192.png",
-      tag: "sti-demande-" + Date.now()
-    };
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistration().then(function (reg) {
-        if (reg && reg.showNotification) reg.showNotification(titre, opts);
-        else new Notification(titre, opts);
-      }).catch(function () {
-        try { new Notification(titre, opts); } catch (e) {}
-      });
-    } else {
-      try { new Notification(titre, opts); } catch (e) {}
-    }
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+        navigator.serviceWorker.ready.then(function (reg) {
+          if (reg && reg.showNotification) {
+            reg.showNotification(titre, { body: corps, icon: "assets/icons/sti-icon-192.png" });
+          } else {
+            new Notification(titre, { body: corps, icon: "assets/icons/sti-icon-192.png" });
+          }
+        }).catch(function () {
+          new Notification(titre, { body: corps });
+        });
+      } else {
+        new Notification(titre, { body: corps });
+      }
+    } catch (e) {}
   }
 
   function majBoutonNotif() {
     var b = document.getElementById("btn-notif");
     if (!b) return;
     var ok = ("Notification" in window) && Notification.permission === "granted";
+    b.textContent = ok ? "🔔 Notifications (actives)" : "🔔 Notifications";
     b.classList.toggle("on", ok);
-    b.textContent = ok ? "🔔 Notifications actives" : "🔔 Notifications";
   }
-  majBoutonNotif();
 
   var modalNotif = document.getElementById("modal-notif");
   document.getElementById("btn-notif").addEventListener("click", function () {
@@ -244,19 +282,24 @@
   document.getElementById("btn-stats").addEventListener("click", function () {
     triParAcces = !triParAcces;
     this.classList.toggle("on", triParAcces);
-    document.getElementById("stats").classList.toggle("visible", true);
-    document.getElementById("note-tri").textContent = triParAcces ? "(triés par nombre d'accès ↓)" : "";
+    document.getElementById("note-tri").textContent = triParAcces ? "(triés par durée / accès ↓)" : "";
     rendAbonnes();
   });
   document.getElementById("btn-fermer-detail").addEventListener("click", function () {
     document.getElementById("zone-detail").classList.remove("visible");
   });
 
+  function majCompteurEnLigne() {
+    var nb = profils.filter(function (p) { return estEnLigne(p.id); }).length;
+    var el = document.getElementById("s-enligne");
+    if (el) el.textContent = nb;
+  }
+
   function charge(garderMsg) {
     if (!garderMsg) msg("Chargement…", "");
     Promise.all([
       sb.from("profiles").select("*").order("cree_le", { ascending: false }),
-      sb.from("acces").select("*").order("debut", { ascending: false }).limit(500),
+      sb.from("acces").select("*").order("debut", { ascending: false }).limit(600),
       fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all").then(function (r) { return r.text(); }).catch(function () { return ""; })
     ]).then(function (res) {
       if (res[0].error || res[1].error) { msg("❌ " + (res[0].error || res[1].error).message, "err"); return; }
@@ -265,12 +308,15 @@
       var txtNtfy = res[2] || "";
       var adminIds = {};
       tous.forEach(function (p) { if (estAdminEmail(p.email)) adminIds[p.id] = true; });
-      /* L'administrateur n'est jamais affiché dans la liste des abonnés */
       profils = tous.filter(function (p) { return !estAdminEmail(p.email); });
 
-      /* Extraction des messages diffusés et des accusés de lecture (Lu / Non lu) */
       var mapMsg = {};
       lecturesParMsg = {};
+      reponsesParMsg = {};
+      questionsLibres = [];
+      scoresParUser = {};
+      listeResultatsQuiz = [];
+
       tousAcces.forEach(function (a) {
         var pg = a.page || "";
         if (pg.indexOf("MSG_ENVOI:") === 0) {
@@ -280,26 +326,67 @@
           } catch (e) {}
         } else if (pg.indexOf("MSG_LU:") === 0) {
           var mid = pg.slice(7);
-          if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
-          if (!lecturesParMsg[mid][a.user_id]) lecturesParMsg[mid][a.user_id] = a.debut;
+          var repTxt = "";
+          try {
+            var objL = JSON.parse(a.lieu || "{}");
+            if (objL && objL.reponse) repTxt = objL.reponse;
+          } catch (e) {}
+          if (mid === "libre") {
+            if (repTxt) questionsLibres.push({ uid: a.user_id, ts: a.debut, reponse: repTxt });
+          } else {
+            if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
+            if (!lecturesParMsg[mid][a.user_id]) lecturesParMsg[mid][a.user_id] = a.debut;
+            if (repTxt) {
+              if (!reponsesParMsg[mid]) reponsesParMsg[mid] = {};
+              if (!reponsesParMsg[mid][a.user_id]) reponsesParMsg[mid][a.user_id] = repTxt;
+            }
+          }
+        } else if (pg.indexOf("QUIZ:") === 0) {
+          var nomQ = pg.slice(5);
+          var infoQ = { quiz: nomQ, note: (a.duree_sec || 0) + "/20", ts: a.debut };
+          try {
+            var parsedQ = JSON.parse(a.lieu || "{}");
+            if (parsedQ && parsedQ.note) infoQ = parsedQ;
+          } catch (e) {}
+          if (!scoresParUser[a.user_id]) scoresParUser[a.user_id] = {};
+          if (!scoresParUser[a.user_id][nomQ]) scoresParUser[a.user_id][nomQ] = infoQ.note;
+          listeResultatsQuiz.push({
+            uid: a.user_id,
+            quiz: infoQ.quiz || nomQ,
+            note: infoQ.note || "—",
+            ts: infoQ.ts || a.debut
+          });
         }
       });
 
-      /* Complément depuis le flux ntfy (annonces et accusés temps réel) */
-      txtNtfy.trim().split("\n").forEach(function (ligne) {
-        if (!ligne) return;
-        try {
-          var evt = JSON.parse(ligne);
-          if (!evt || !evt.message) return;
-          var obj = JSON.parse(evt.message);
-          if (obj && obj.id && obj.texte && !obj.type) {
-            if (!mapMsg[obj.id]) mapMsg[obj.id] = obj;
-          } else if (obj && obj.type === "lu" && obj.msgId && obj.uid) {
-            if (!lecturesParMsg[obj.msgId]) lecturesParMsg[obj.msgId] = {};
-            if (!lecturesParMsg[obj.msgId][obj.uid]) lecturesParMsg[obj.msgId][obj.uid] = obj.ts;
-          }
-        } catch (e) {}
-      });
+      if (txtNtfy) {
+        txtNtfy.trim().split("\n").forEach(function (ln) {
+          if (!ln) return;
+          try {
+            var ev = JSON.parse(ln);
+            if (!ev || !ev.message) return;
+            var obj = JSON.parse(ev.message);
+            if (obj && obj.id && obj.texte && !obj.type) {
+              if (!mapMsg[obj.id]) mapMsg[obj.id] = obj;
+            } else if (obj && obj.type === "lu" && obj.msgId && obj.uid) {
+              if (obj.msgId === "libre") {
+                if (obj.reponse && !questionsLibres.some(function (q) { return q.uid === obj.uid && q.reponse === obj.reponse; })) {
+                  questionsLibres.push({ uid: obj.uid, ts: obj.ts || new Date(ev.time * 1000).toISOString(), reponse: obj.reponse });
+                }
+              } else {
+                if (!lecturesParMsg[obj.msgId]) lecturesParMsg[obj.msgId] = {};
+                if (!lecturesParMsg[obj.msgId][obj.uid]) {
+                  lecturesParMsg[obj.msgId][obj.uid] = obj.ts || new Date(ev.time * 1000).toISOString();
+                }
+                if (obj.reponse) {
+                  if (!reponsesParMsg[obj.msgId]) reponsesParMsg[obj.msgId] = {};
+                  reponsesParMsg[obj.msgId][obj.uid] = obj.reponse;
+                }
+              }
+            }
+          } catch (e) {}
+        });
+      }
 
       messagesDiffuses = Object.keys(mapMsg).map(function (k) { return mapMsg[k]; }).sort(function (a, b) {
         return String(b.ts || "").localeCompare(String(a.ts || ""));
@@ -307,7 +394,11 @@
 
       acces = tousAcces.filter(function (a) {
         var pg = a.page || "";
-        return !adminIds[a.user_id] && pg.indexOf("MSG_ENVOI:") !== 0 && pg.indexOf("MSG_LU:") !== 0;
+        return !adminIds[a.user_id] &&
+          pg.indexOf("MSG_ENVOI:") !== 0 &&
+          pg.indexOf("MSG_LU:") !== 0 &&
+          pg.indexOf("QUIZ:") !== 0 &&
+          pg.indexOf("CTRL_") !== 0;
       });
       counts = {};
       dureesSemaine = {};
@@ -324,16 +415,25 @@
         mapSem[sk] = true;
         if (!dureesSemaine[sk]) dureesSemaine[sk] = {};
         dureesSemaine[sk][a.user_id] = (dureesSemaine[sk][a.user_id] || 0) + sec;
+
+        /* Détection présence en ligne via dernière activité (< 95 s) */
+        var tAct = new Date(a.fin || a.debut).getTime();
+        if (!isNaN(tAct) && (!enLigneMap[a.user_id] || tAct > enLigneMap[a.user_id].ts)) {
+          enLigneMap[a.user_id] = { ts: tAct, page: a.page || "index.html" };
+        }
       });
 
       semainesDispo = Object.keys(mapSem).sort().reverse();
       majSelectSemaine();
+      majFiltreClasses();
+      majCompteurEnLigne();
 
       document.getElementById("s-total").textContent = profils.length;
       document.getElementById("s-actifs").textContent = profils.filter(function (p) { return p.statut === "actif"; }).length;
       document.getElementById("s-attente").textContent = profils.filter(function (p) { return p.statut === "en_attente"; }).length;
       document.getElementById("s-connex").textContent = acces.length;
       rendAbonnes();
+      rendQuiz();
       rendSuiviMessages();
       rendAcces();
       verifierNouvellesDemandes();
@@ -341,10 +441,39 @@
     });
   }
 
+  /* ---------- Sélecteur de semaine & Filtres (Recherche, Classe, Statut, Tout activer, Export CSV) ---------- */
   var selSemaine = document.getElementById("sel-semaine");
-  if (selSemaine) {
-    selSemaine.addEventListener("change", rendAbonnes);
+  var inpRecherche = document.getElementById("filtre-recherche");
+  var selFiltreClasse = document.getElementById("filtre-classe");
+  var selFiltreStatut = document.getElementById("filtre-statut");
+  var btnActiverLot = document.getElementById("btn-activer-lot");
+  var btnExportCsv = document.getElementById("btn-export-csv");
+
+  if (selSemaine) selSemaine.addEventListener("change", rendAbonnes);
+  if (inpRecherche) inpRecherche.addEventListener("input", rendAbonnes);
+  if (selFiltreClasse) selFiltreClasse.addEventListener("change", rendAbonnes);
+  if (selFiltreStatut) selFiltreStatut.addEventListener("change", rendAbonnes);
+
+  function majFiltreClasses() {
+    if (!selFiltreClasse) return;
+    var valPrec = selFiltreClasse.value;
+    var classes = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
+    profils.forEach(function (p) {
+      var c = p.classe || "";
+      if (c && classes.indexOf(c) === -1) classes.push(c);
+    });
+    selFiltreClasse.innerHTML = "<option value='*'>🏫 Toutes les classes</option>";
+    classes.forEach(function (cl) {
+      var opt = document.createElement("option");
+      opt.value = cl;
+      opt.textContent = cl;
+      selFiltreClasse.appendChild(opt);
+    });
+    if (valPrec && (valPrec === "*" || classes.indexOf(valPrec) !== -1)) {
+      selFiltreClasse.value = valPrec;
+    }
   }
+
   function majSelectSemaine() {
     if (!selSemaine) return;
     var valPrec = selSemaine.value;
@@ -363,14 +492,123 @@
       selSemaine.value = valPrec;
     }
   }
+
   function dureePourAbonne(uid) {
     var sk = selSemaine ? selSemaine.value : semainesDispo[0];
     if (sk === "*") return dureesTotales[uid] || 0;
     return (dureesSemaine[sk] && dureesSemaine[sk][uid]) || 0;
   }
 
+  function obtenirListeFiltree() {
+    var q = inpRecherche ? inpRecherche.value.trim().toLowerCase() : "";
+    var cl = selFiltreClasse ? selFiltreClasse.value : "*";
+    var st = selFiltreStatut ? selFiltreStatut.value : "*";
+
+    return profils.filter(function (p) {
+      if (cl !== "*" && (p.classe || "—") !== cl) return false;
+      if (st === "en_ligne" && !estEnLigne(p.id)) return false;
+      else if (st === "gold" && !estGold(p)) return false;
+      else if (st !== "*" && st !== "en_ligne" && st !== "gold" && p.statut !== st) return false;
+      if (q) {
+        var texte = [
+          p.email || "",
+          telDeProfil(p) || "",
+          p.nom || "",
+          p.prenom || "",
+          lyceePropre(p),
+          p.classe || ""
+        ].join(" ").toLowerCase();
+        if (texte.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  /* Point 4 : Validation groupée (« Tout activer ») */
+  if (btnActiverLot) {
+    btnActiverLot.addEventListener("click", function () {
+      var cibles = obtenirListeFiltree().filter(function (p) { return p.statut === "en_attente"; });
+      if (!cibles.length) {
+        msg("ℹ️ Aucune demande en attente dans la sélection actuelle.", "ok");
+        return;
+      }
+      var ids = cibles.map(function (p) { return p.id; });
+      btnActiverLot.disabled = true;
+      sb.from("profiles").update({ statut: "actif" }).in("id", ids).then(function (r) {
+        btnActiverLot.disabled = false;
+        if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+        cibles.forEach(function (p) { diffuserSignalStatut(p.id, "actif", estGold(p)); });
+        msg("✅ " + cibles.length + " abonné(s) activé(s) en un clic !", "ok");
+        charge(true);
+      });
+    });
+  }
+
+  /* Point 3 : Export Excel (CSV UTF-8 avec BOM) */
+  if (btnExportCsv) {
+    btnExportCsv.addEventListener("click", function () {
+      var liste = obtenirListeFiltree();
+      if (!liste.length) { msg("⚠️ Aucun abonné à exporter.", "err"); return; }
+      var entetes = [
+        "Nom & Prenom",
+        "Contact (Tel / Email)",
+        "Lycee",
+        "Classe",
+        "Statut",
+        "Compte Gold",
+        "En ligne",
+        "Nb Connexions",
+        "Duree periode",
+        "Duree cumulee",
+        "Scores Quiz / Bac",
+        "Inscrit le"
+      ];
+      var lignes = [entetes.join(";")];
+      liste.forEach(function (p) {
+        var np = ((p.prenom || "") + " " + (p.nom || "")).trim() || "—";
+        var tel = telDeProfil(p);
+        var ctc = tel || p.email || "—";
+        var scMap = scoresParUser[p.id] || {};
+        var scTxt = Object.keys(scMap).map(function (k) { return k + ": " + scMap[k]; }).join(" | ") || "—";
+        var cols = [
+          np,
+          ctc,
+          lyceePropre(p),
+          p.classe || "—",
+          LIB[p.statut] || p.statut,
+          estGold(p) ? "OUI" : "NON",
+          estEnLigne(p.id) ? "En ligne" : "Hors ligne",
+          counts[p.id] || 0,
+          fmtDureeCumul(dureePourAbonne(p.id)),
+          fmtDureeCumul(dureesTotales[p.id] || 0),
+          scTxt,
+          fmtDate(p.cree_le)
+        ].map(function (v) {
+          return '"' + String(v).replace(/"/g, '""') + '"';
+        });
+        lignes.push(cols.join(";"));
+      });
+      var blob = new Blob(["\uFEFF" + lignes.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var clNom = (selFiltreClasse && selFiltreClasse.value !== "*") ? selFiltreClasse.value.replace(/\s+/g, "_") : "toutes_classes";
+      a.href = url;
+      a.download = "STI_V2_abonnes_" + clNom + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("📥 Fichier Excel (CSV) téléchargé pour " + liste.length + " abonné(s).", "ok");
+    });
+  }
+
   function rendAbonnes() {
-    var liste = profils.slice();
+    var liste = obtenirListeFiltree();
+    var nbAttLot = liste.filter(function (p) { return p.statut === "en_attente"; }).length;
+    if (btnActiverLot) {
+      btnActiverLot.textContent = "✅ Tout activer (" + nbAttLot + ")";
+    }
+
     if (triParAcces) {
       liste.sort(function (a, b) {
         var diffDur = dureePourAbonne(b.id) - dureePourAbonne(a.id);
@@ -384,7 +622,7 @@
       var tdVide = document.createElement("td");
       tdVide.colSpan = 7;
       tdVide.style.cssText = "text-align:center;color:#7a6f5d;padding:18px;";
-      tdVide.textContent = "Aucun abonné inscrit pour le moment.";
+      tdVide.textContent = "Aucun abonné correspondant à ce filtre.";
       trVide.appendChild(tdVide);
       tb.appendChild(trVide);
       return;
@@ -398,7 +636,17 @@
       var tel = telDeProfil(p);
       var td1 = document.createElement("td");
       td1.style.fontWeight = "700";
-      td1.textContent = tel ? "📱 " + tel : (p.email || "—");
+      var ligneContact = document.createElement("div");
+      ligneContact.textContent = tel ? "📱 " + tel : (p.email || "—");
+      if (estEnLigne(p.id)) {
+        var bOn = document.createElement("span");
+        bOn.className = "badge-online";
+        var pgOn = (enLigneMap[p.id] && enLigneMap[p.id].page) || "site";
+        bOn.textContent = "🟢 En ligne (" + pgOn + ")";
+        ligneContact.appendChild(bOn);
+      }
+      td1.appendChild(ligneContact);
+
       if (p.nom || p.prenom) {
         var petit = document.createElement("div");
         petit.style.cssText = "font-weight:700;font-size:11.5px;color:#23201a;margin-top:2px;";
@@ -410,6 +658,18 @@
         codeDiv.style.cssText = "font-weight:800;font-size:11px;color:#f4511e;margin-top:2px;";
         codeDiv.textContent = "🔢 Code WhatsApp : " + codeWa(tel);
         td1.appendChild(codeDiv);
+      }
+      /* Affichage des badges de scores Quiz / Bac Pratique sous l'élève */
+      var scMap = scoresParUser[p.id];
+      if (scMap) {
+        var divSc = document.createElement("div");
+        Object.keys(scMap).forEach(function (k) {
+          var bq = document.createElement("span");
+          bq.className = "badge-quiz";
+          bq.textContent = "🏆 " + k + " : " + scMap[k];
+          divSc.appendChild(bq);
+        });
+        td1.appendChild(divSc);
       }
 
       var tdL = document.createElement("td");
@@ -499,6 +759,39 @@
     window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
   }
 
+  /* ---------- Point 5 : Tableau des résultats Quiz & Atelier Bac Pratique ---------- */
+  function rendQuiz() {
+    var tb = document.getElementById("tb-quiz");
+    if (!tb) return;
+    tb.innerHTML = "";
+    var mapProf = {};
+    profils.forEach(function (p) { mapProf[p.id] = p; });
+    if (!listeResultatsQuiz.length) {
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 5;
+      td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
+      td0.textContent = "Aucun score de quiz ou d'atelier Bac Pratique enregistré pour le moment.";
+      tr0.appendChild(td0);
+      tb.appendChild(tr0);
+      return;
+    }
+    listeResultatsQuiz.slice(0, 40).forEach(function (q) {
+      var p = mapProf[q.uid];
+      var tr = document.createElement("tr");
+      var nomEl = p ? contact(p) : q.uid;
+      var clEl = p ? (lyceePropre(p) + " · " + (p.classe || "—")) : "—";
+      [nomEl, clEl, "🏆 " + q.quiz, q.note, fmtDate(q.ts)].forEach(function (v, idx) {
+        var td = document.createElement("td");
+        if (idx === 0 || idx === 3) td.style.fontWeight = "800";
+        if (idx === 3) td.style.color = "#177245";
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
   function rendAcces() {
     var emails = {};
     profils.forEach(function (p) { emails[p.id] = contact(p); });
@@ -506,14 +799,14 @@
     ta.innerHTML = "";
     acces.slice(0, 50).forEach(function (a) {
       var tr = document.createElement("tr");
-      [emails[a.user_id] || a.user_id, fmtDate(a.debut), fmtDuree(a.duree_sec), a.lieu || "—", a.page || "—"].forEach(function (v) {
+      [emails[a.user_id] || a.user_id, fmtDate(a.debut), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
         var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
       });
       ta.appendChild(tr);
     });
   }
 
-  /* ---------- Tableau de suivi de lecture des messages (Lu / Non lu) ---------- */
+  /* ---------- Point 8 : Tableau de suivi de lecture des messages + réponses & questions libres des élèves ---------- */
   var selSuiviMsg = document.getElementById("sel-suivi-msg");
   if (selSuiviMsg) {
     selSuiviMsg.addEventListener("change", afficherTableauSuivi);
@@ -523,14 +816,7 @@
     if (!selSuiviMsg) return;
     var valPrec = selSuiviMsg.value;
     selSuiviMsg.innerHTML = "";
-    if (!messagesDiffuses.length) {
-      var opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "Aucun message diffusé pour le moment";
-      selSuiviMsg.appendChild(opt0);
-      afficherTableauSuivi();
-      return;
-    }
+
     messagesDiffuses.forEach(function (m) {
       var opt = document.createElement("option");
       opt.value = m.id;
@@ -539,8 +825,16 @@
       opt.textContent = "[" + libCl + " · " + fmtDate(m.ts) + "] " + court + ((m.texte || "").length > 42 ? "…" : "");
       selSuiviMsg.appendChild(opt);
     });
-    if (valPrec && messagesDiffuses.some(function (m) { return m.id === valPrec; })) {
+
+    var optLibre = document.createElement("option");
+    optLibre.value = "__libre";
+    optLibre.textContent = "💬 Questions spontanées des élèves (" + questionsLibres.length + ")";
+    selSuiviMsg.appendChild(optLibre);
+
+    if (valPrec && (valPrec === "__libre" || messagesDiffuses.some(function (m) { return m.id === valPrec; }))) {
       selSuiviMsg.value = valPrec;
+    } else if (!messagesDiffuses.length && questionsLibres.length) {
+      selSuiviMsg.value = "__libre";
     }
     afficherTableauSuivi();
   }
@@ -552,6 +846,40 @@
     if (!tb) return;
     tb.innerHTML = "";
     var mid = selSuiviMsg ? selSuiviMsg.value : "";
+
+    if (mid === "__libre") {
+      if (resEl) resEl.textContent = "(" + questionsLibres.length + " question(s) reçue(s))";
+      if (apEl) {
+        apEl.style.display = "block";
+        apEl.textContent = "💬 Questions envoyées par les élèves depuis le bouton « 💬 Écrire au professeur »";
+      }
+      var mapP = {};
+      profils.forEach(function (p) { mapP[p.id] = p; });
+      if (!questionsLibres.length) {
+        var trQ0 = document.createElement("tr");
+        var tdQ0 = document.createElement("td");
+        tdQ0.colSpan = 5;
+        tdQ0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
+        tdQ0.textContent = "Aucune question spontanée reçue pour le moment.";
+        trQ0.appendChild(tdQ0);
+        tb.appendChild(trQ0);
+        return;
+      }
+      questionsLibres.forEach(function (q) {
+        var p = mapP[q.uid];
+        var tr = document.createElement("tr");
+        var tdNom = document.createElement("td"); tdNom.style.fontWeight = "700"; tdNom.textContent = p ? contact(p) : q.uid;
+        var tdCl = document.createElement("td"); tdCl.style.color = "#7a6f5d"; tdCl.textContent = p ? (lyceePropre(p) + " · " + (p.classe || "—")) : "—";
+        var tdEt = document.createElement("td");
+        var b = document.createElement("span"); b.className = "st actif"; b.textContent = "💬 Question"; tdEt.appendChild(b);
+        var tdRep = document.createElement("td"); tdRep.style.fontWeight = "800"; tdRep.style.color = "#23201a"; tdRep.textContent = q.reponse || "—";
+        var tdDt = document.createElement("td"); tdDt.textContent = fmtDate(q.ts);
+        tr.append(tdNom, tdCl, tdEt, tdRep, tdDt);
+        tb.appendChild(tr);
+      });
+      return;
+    }
+
     var msgObj = null;
     messagesDiffuses.forEach(function (m) { if (m.id === mid) msgObj = m; });
     if (!msgObj) {
@@ -559,9 +887,9 @@
       if (apEl) apEl.style.display = "none";
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
-      td0.colSpan = 4;
+      td0.colSpan = 5;
       td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
-      td0.textContent = "Diffusez un message via « 📢 Message par classe » pour suivre ici qui l'a lu ou non.";
+      td0.textContent = "Diffusez un message via « 📢 Message par classe » pour suivre ici qui l'a lu ou y a répondu.";
       tr0.appendChild(td0);
       tb.appendChild(tr0);
       return;
@@ -574,12 +902,13 @@
 
     var cibles = abonnesDeClasse(msgObj.classe);
     var mapLu = lecturesParMsg[msgObj.id] || {};
+    var mapRep = reponsesParMsg[msgObj.id] || {};
     var nbLu = 0, nbNonLu = 0;
 
     if (!cibles.length) {
       var trV = document.createElement("tr");
       var tdV = document.createElement("td");
-      tdV.colSpan = 4;
+      tdV.colSpan = 5;
       tdV.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
       tdV.textContent = "Aucun abonné inscrit dans cette classe.";
       trV.appendChild(tdV);
@@ -588,6 +917,7 @@
 
     cibles.forEach(function (p) {
       var dateLu = mapLu[p.id];
+      var repEleve = mapRep[p.id] || "";
       if (dateLu) nbLu++; else nbNonLu++;
 
       var tr = document.createElement("tr");
@@ -605,12 +935,17 @@
       badge.textContent = dateLu ? "✅ Lu" : "⏳ Non lu (en attente)";
       tdEtat.appendChild(badge);
 
+      var tdRep = document.createElement("td");
+      tdRep.textContent = repEleve ? "💬 " + repEleve : "—";
+      tdRep.style.fontWeight = repEleve ? "800" : "400";
+      tdRep.style.color = repEleve ? "#23201a" : "#7a6f5d";
+
       var tdDate = document.createElement("td");
       tdDate.textContent = dateLu ? fmtDate(dateLu) : "En attente de réponse…";
       tdDate.style.color = dateLu ? "#177245" : "#b47d09";
       tdDate.style.fontWeight = "700";
 
-      tr.append(tdNom, tdCl, tdEtat, tdDate);
+      tr.append(tdNom, tdCl, tdEtat, tdRep, tdDate);
       tb.appendChild(tr);
     });
 
@@ -742,7 +1077,7 @@
       btnConfSuppr.textContent = "🗑️ Oui, supprimer";
       modalSuppr.classList.remove("visible"); cibleSuppr = null;
       if (r.error) { msg("❌ " + r.error.message, "err"); return; }
-      diffuserSignalStatut(p.id, "supprime");
+      diffuserSignalStatut(p.id, "supprime", false);
       msg("🗑️ " + contact(p) + " supprimé définitivement.", "ok");
       charge(true);
     });
@@ -755,13 +1090,83 @@
     modalSuppr.classList.add("visible");
   }
 
+  /* ---------- Point 6 : Boîte modale Contrôle / Test chronométré en direct ---------- */
+  var modalCtrl = document.getElementById("modal-controle");
+  var selCtrlClasse = document.getElementById("ctrl-classe");
+  var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
+
+  function remplirClassesSelect(selEl) {
+    if (!selEl) return;
+    var classesBase = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
+    profils.forEach(function (p) {
+      var c = p.classe || "";
+      if (c && classesBase.indexOf(c) === -1) classesBase.push(c);
+    });
+    selEl.innerHTML = "";
+    var optTous = document.createElement("option");
+    optTous.value = "*";
+    optTous.textContent = "Toutes les classes (" + profils.length + " abonné(s))";
+    selEl.appendChild(optTous);
+    classesBase.forEach(function (cl) {
+      var nb = abonnesDeClasse(cl).length;
+      var opt = document.createElement("option");
+      opt.value = cl;
+      opt.textContent = cl + " (" + nb + " abonné(s))";
+      selEl.appendChild(opt);
+    });
+  }
+
+  document.getElementById("btn-controle").addEventListener("click", function () {
+    remplirClassesSelect(selCtrlClasse);
+    modalCtrl.classList.add("visible");
+  });
+  document.getElementById("btn-fermer-ctrl").addEventListener("click", function () {
+    modalCtrl.classList.remove("visible");
+  });
+  document.getElementById("btn-lancer-ctrl").addEventListener("click", function () {
+    var cl = selCtrlClasse.value;
+    var url = document.getElementById("ctrl-sujet").value;
+    var min = parseInt(document.getElementById("ctrl-duree").value, 10) || 20;
+    var titre = document.getElementById("ctrl-titre").value.trim() || "Contrôle STI";
+    var ctrlPayload = {
+      type: "controle",
+      action: "start",
+      id: "ctrl" + Date.now(),
+      classe: cl,
+      url: url,
+      dureeMin: min,
+      finMs: Date.now() + min * 60000,
+      titre: titre
+    };
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "controle", payload: ctrlPayload });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify(ctrlPayload)
+    }).catch(function () {});
+    modalCtrl.classList.remove("visible");
+    msg("🚀 Contrôle chronométré (« " + titre + " », " + min + " min) lancé en direct !", "ok");
+  });
+  document.getElementById("btn-stop-ctrl").addEventListener("click", function () {
+    var stopPayload = { type: "controle", action: "stop", id: "stop" + Date.now() };
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "controle", payload: stopPayload });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify(stopPayload)
+    }).catch(function () {});
+    modalCtrl.classList.remove("visible");
+    msg("⏹️ Contrôle chronométré arrêté sur les écrans des élèves.", "ok");
+  });
+
   /* ---------- Boîte modale : message groupé à toute une classe ---------- */
   var modalClasse = document.getElementById("modal-classe");
   var selClasse = document.getElementById("msg-classe");
   var txtClasse = document.getElementById("msg-texte");
   var zoneWaClasse = document.getElementById("zone-wa-classe");
   var listeWaClasse = document.getElementById("liste-wa-classe");
-  var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
 
   function abonnesDeClasse(cl) {
     if (!cl || cl === "*") return profils.slice();
@@ -769,52 +1174,34 @@
   }
 
   function remplirClasses() {
-    var classesBase = ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"];
-    profils.forEach(function (p) {
-      var c = p.classe || "";
-      if (c && classesBase.indexOf(c) === -1) classesBase.push(c);
-    });
-    var valPrec = selClasse.value;
-    selClasse.innerHTML = "";
-    var optTous = document.createElement("option");
-    optTous.value = "*";
-    optTous.textContent = "Toutes les classes (" + profils.length + " abonné(s))";
-    selClasse.appendChild(optTous);
-    classesBase.forEach(function (c) {
-      var nb = abonnesDeClasse(c).length;
-      var opt = document.createElement("option");
-      opt.value = c;
-      opt.textContent = c + " (" + nb + " abonné(s))";
-      selClasse.appendChild(opt);
-    });
-    if (valPrec) selClasse.value = valPrec;
+    remplirClassesSelect(selClasse);
     majListeWaClasse();
   }
 
   function majListeWaClasse() {
-    var cibles = abonnesDeClasse(selClasse.value).filter(function (p) { return !!telDeProfil(p); });
+    var liste = abonnesDeClasse(selClasse.value);
+    var avecTel = liste.filter(function (p) { return Boolean(telDeProfil(p)); });
     listeWaClasse.innerHTML = "";
-    if (!cibles.length) {
+    if (!avecTel.length) {
       zoneWaClasse.style.display = "none";
       return;
     }
     zoneWaClasse.style.display = "block";
-    cibles.forEach(function (p) {
+    avecTel.forEach(function (p) {
       var tel = telDeProfil(p);
       var row = document.createElement("div");
       row.className = "wa-item";
       var sp = document.createElement("span");
-      sp.textContent = contact(p);
+      sp.textContent = contact(p) + " · " + (p.classe || "—");
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = "💬 Envoyer";
+      b.textContent = "💬 WhatsApp";
       b.addEventListener("click", function () {
         var texte = txtClasse.value.trim();
         if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
         var ch = tel.replace(/\D/g, "");
-        var entete = "📢 *Message STI V2.0 (" + (selClasse.value === "*" ? "Toutes les classes" : selClasse.value) + ")* :\n";
-        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(entete + texte), "_blank", "noopener");
-        b.textContent = "✓ Ouvert";
+        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
+        b.textContent = "✅ Ouvert";
         b.classList.add("envoye");
       });
       row.append(sp, b);
@@ -822,7 +1209,6 @@
     });
   }
 
-  selClasse.addEventListener("change", majListeWaClasse);
   document.getElementById("btn-msg-classe").addEventListener("click", function () {
     remplirClasses();
     modalClasse.classList.add("visible");
@@ -832,58 +1218,30 @@
     arreterDictee();
     modalClasse.classList.remove("visible");
   });
+  selClasse.addEventListener("change", majListeWaClasse);
+  document.getElementById("btn-effacer-msg").addEventListener("click", function () {
+    arreterDictee();
+    txtClasse.value = "";
+    texteBase = "";
+    txtClasse.focus();
+  });
 
-  /* ---------- Dictée vocale du message (sans répétition + bouton Effacer) ---------- */
+  /* ---------- Dictée vocale du message (Web Speech API — sans répétition) ---------- */
   var btnDicter = document.getElementById("btn-dicter-msg");
-  var btnEffacer = document.getElementById("btn-effacer-msg");
   var selLangDictee = document.getElementById("lang-dictee");
-  var RecoVocale = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var recoInstance = null;
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var reco = null;
   var enEcoute = false;
   var texteBase = "";
-  var dernierSegment = "";
 
-  function formaterPonctuation(t) {
-    return t
-      .replace(/\s+à la ligne\b/gi, "\n")
-      .replace(/\s+point d'interrogation\b/gi, " ?")
-      .replace(/\s+point d'exclamation\b/gi, " !")
-      .replace(/\s+deux[- ]points\b/gi, " :")
-      .replace(/\s+virgule\b/gi, ",")
-      .replace(/\s+point\b/gi, ".")
-      /* supprime les doublons consécutifs produits par certains moteurs mobiles */
-      .replace(/\b(\S+)(?:\s+\1\b)+/gi, "$1");
-  }
-
-  function joindreSansDoublon(base, ajout) {
-    var b = (base || "").trim();
-    var a = (ajout || "").trim();
-    if (!b) return a;
-    if (!a) return b;
-    var bMin = b.toLowerCase();
-    var aMin = a.toLowerCase();
-    if (bMin.slice(-aMin.length) === aMin) return b;
-    if (aMin.indexOf(bMin) === 0) return a;
-    var motsB = b.split(/\s+/);
-    var motsA = a.split(/\s+/);
-    var maxK = Math.min(motsB.length, motsA.length);
-    for (var k = maxK; k >= 1; k--) {
-      var finB = motsB.slice(motsB.length - k).join(" ").toLowerCase();
-      var debA = motsA.slice(0, k).join(" ").toLowerCase();
-      if (finB === debA) {
-        var reste = motsA.slice(k).join(" ");
-        return reste ? b + " " + reste : b;
-      }
-    }
-    return b + " " + a;
+  function nettoyerDoublonsConsecutifs(ch) {
+    return String(ch || "").replace(/\b(\S+)(?:\s+\1\b)+/gi, "$1");
   }
 
   function arreterDictee() {
     enEcoute = false;
-    dernierSegment = "";
-    if (recoInstance) {
-      try { recoInstance.onend = null; recoInstance.stop(); } catch (e) {}
-      recoInstance = null;
+    if (reco) {
+      try { reco.stop(); } catch (e) {}
     }
     if (btnDicter) {
       btnDicter.classList.remove("ecoute");
@@ -891,85 +1249,78 @@
     }
   }
 
-  if (btnEffacer) {
-    btnEffacer.addEventListener("click", function () {
-      txtClasse.value = "";
-      texteBase = "";
-      dernierSegment = "";
-      txtClasse.focus();
-    });
-  }
-
-  function demarrerCycleReco() {
-    if (!enEcoute || !RecoVocale) return;
-    recoInstance = new RecoVocale();
-    recoInstance.lang = (selLangDictee && selLangDictee.value) || "fr-FR";
-    /* continuous=false évite le bug Android/Chrome qui cumule et répète chaque mot */
-    recoInstance.continuous = false;
-    recoInstance.interimResults = true;
-    recoInstance.maxAlternatives = 1;
-    dernierSegment = "";
-
-    recoInstance.onresult = function (evt) {
-      var dernier = evt.results[evt.results.length - 1];
-      if (!dernier || !dernier[0]) return;
-      var seg = formaterPonctuation(dernier[0].transcript || "");
-      dernierSegment = seg;
-      txtClasse.value = joindreSansDoublon(texteBase, seg);
-      if (dernier.isFinal) {
-        texteBase = txtClasse.value;
-        dernierSegment = "";
-      }
-    };
-    recoInstance.onerror = function (evt) {
-      if (evt.error === "not-allowed" || evt.error === "service-not-allowed") {
-        msg("❌ Autorisez l'accès au microphone dans votre navigateur pour dicter.", "err");
-        arreterDictee();
-      }
-    };
-    recoInstance.onend = function () {
-      if (dernierSegment) {
-        texteBase = joindreSansDoublon(texteBase, dernierSegment);
-        txtClasse.value = texteBase;
-        dernierSegment = "";
-      }
-      if (enEcoute) {
-        try { recoInstance.start(); } catch (e) { setTimeout(demarrerCycleReco, 120); }
-      }
-    };
-    try {
-      recoInstance.start();
-    } catch (e) {
-      arreterDictee();
-    }
-  }
-
   if (btnDicter) {
+    if (!Rec) {
+      btnDicter.title = "Votre navigateur ne supporte pas la dictée vocale (utilisez Chrome ou Edge)";
+    }
     btnDicter.addEventListener("click", function () {
-      if (!RecoVocale) {
-        msg("⚠️ La dictée vocale n'est pas prise en charge par ce navigateur (utilisez Chrome ou Edge).", "err");
+      if (!Rec) {
+        msg("⚠️ La dictée vocale nécessite Chrome, Edge ou Safari récent.", "err");
         return;
       }
       if (enEcoute) {
         arreterDictee();
+        msg("🎙️ Dictée terminée.", "ok");
         return;
       }
-      texteBase = (txtClasse.value || "").trim();
-      enEcoute = true;
-      btnDicter.classList.add("ecoute");
-      btnDicter.textContent = "🔴 Arrêter";
-      demarrerCycleReco();
+      reco = new Rec();
+      reco.lang = (selLangDictee && selLangDictee.value) || "fr-FR";
+      reco.continuous = true;
+      reco.interimResults = true;
+      texteBase = txtClasse.value.trim();
+
+      var segmentsFinaux = [];
+      reco.onstart = function () {
+        enEcoute = true;
+        btnDicter.classList.add("ecoute");
+        btnDicter.textContent = "⏹️ Arrêter la dictée…";
+        msg("🎙️ Parlez maintenant, votre message s'écrit automatiquement…", "ok");
+      };
+      reco.onresult = function (e) {
+        var provisoire = "";
+        for (var i = 0; i < e.results.length; i++) {
+          var seg = (e.results[i][0].transcript || "").trim();
+          if (!seg) continue;
+          if (e.results[i].isFinal) {
+            if (!segmentsFinaux[i]) {
+              var prev = "";
+              for (var k = i - 1; k >= 0; k--) {
+                if (segmentsFinaux[k]) { prev = segmentsFinaux[k]; break; }
+              }
+              if (prev && seg.toLowerCase().indexOf(prev.toLowerCase()) === 0) {
+                segmentsFinaux[k] = "";
+              }
+              segmentsFinaux[i] = seg;
+            }
+          } else {
+            provisoire = seg;
+          }
+        }
+        var cumuleFinal = segmentsFinaux.filter(Boolean).join(" ");
+        var dicte = (cumuleFinal + (provisoire ? " " + provisoire : "")).replace(/\s+/g, " ").trim();
+        dicte = nettoyerDoublonsConsecutifs(dicte);
+        txtClasse.value = (texteBase ? texteBase + " " : "") + dicte;
+      };
+      reco.onerror = function () {
+        arreterDictee();
+      };
+      reco.onend = function () {
+        texteBase = txtClasse.value.trim();
+        if (enEcoute) {
+          arreterDictee();
+        }
+      };
+      try { reco.start(); } catch (e) { arreterDictee(); }
     });
   }
 
-  /* Envoi par e-mail groupé (BCC) à tous les abonnés e-mail de la classe */
   document.getElementById("btn-mail-classe").addEventListener("click", function () {
     var texte = txtClasse.value.trim();
     if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
     var cl = selClasse.value;
     var libCl = cl === "*" ? "Toutes les classes" : cl;
     var mails = abonnesDeClasse(cl)
-      .map(function (p) { return p.email; })
+      .map(function (p) { return p.email || ""; })
       .filter(function (em) { return em && !/@tel\.sti\.tn$/i.test(em); });
     if (!mails.length) {
       msg("⚠️ Aucun abonné avec adresse e-mail dans « " + libCl + " ».", "err");
@@ -982,7 +1333,6 @@
     msg("📧 Messagerie ouverte pour " + mails.length + " élève(s) de « " + libCl + " ».", "ok");
   });
 
-  /* Diffusion directe sur le site STI V2.0 (affichée sur l'écran de tous les élèves de la classe) */
   document.getElementById("btn-diffuser-classe").addEventListener("click", function () {
     var texte = txtClasse.value.trim();
     if (!texte) { msg("❌ Saisissez d'abord le message à diffuser.", "err"); txtClasse.focus(); return; }

@@ -26,12 +26,20 @@ cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP co
 - **👑 Compte GOLD** :
   - Un bouton **👑** permet d'accorder (ou de retirer en direct) le statut **Gold** à un abonné : déblocage de la **capture d'écran**, de l'**impression (`Ctrl + P` / bouton `🖨️ Imprimer`)** et de la **copie de texte/code**.
   - **L'administrateur est toujours 👑 Gold par défaut** sur toutes les pages et boîtes du site (avec bouton `🖨️` d'impression rapide).
-- **⏱️ Comptage de la durée totale d'accès par semaine** :
+- **⏱️ Comptage de la durée totale d'accès par semaine & Indicateur `🟢 En ligne`** :
+  - Indicateur **`🟢 En ligne (page en cours)`** en temps réel à côté des élèves connectés et compteur global en haut du tableau de bord.
   - Calcul automatique du temps passé par chaque candidat **semaine par semaine** (du lundi au dimanche) et en **cumul global**, avec sélecteur de semaine et historique détaillé par candidat.
-- **📢 Diffusion de messages par classe & Dictée vocale** :
+- **🔎 Recherche instantanée, filtres par classe/état, validation groupée & Export Excel (CSV)** :
+  - Barre de recherche et filtres rapides (*En ligne*, *Actifs*, *👑 Gold*, *En attente*, *Exclus*, ou par classe).
+  - Bouton **`✅ Tout activer`** pour valider en un clic toutes les demandes en attente d'une classe.
+  - Bouton **`📥 Exporter Excel (CSV)`** pour télécharger la fiche complète de présence, durée et scores de la classe.
+- **🏆 Suivi des Quiz, Atelier Bac Pratique (`/20`) & Contrôles chronométrés** :
+  - Enregistrement automatique des scores obtenus aux **Quiz** et à l'**Atelier Épreuve Pratique Bac STI (`bac-pratique.html`)** directement dans le tableau de bord administrateur.
+  - Bouton **`⏱️ Contrôle chronométré`** permettant de lancer en direct une épreuve avec compte à rebours sur l'écran de tous les élèves d'une classe.
+- **📢 Diffusion de messages par classe, Dictée vocale & Réponses des élèves** :
   - Envoi d'un message à **toute une classe** (ou toutes les classes) en un clic : affichage instantané sur l'écran des élèves connectés, ouverture WhatsApp ou e-mail groupé (`BCC`).
   - **🎤 Dictée vocale intégrée** (sans doublon de mots) avec bouton **🧹 Effacer**.
-  - **📋 Tableau de suivi de lecture en direct** : affiche pour chaque message diffusé la liste des élèves de la classe avec l'état **`✅ Lu`** (horodaté) ou **`⏳ Non lu (en attente)`**.
+  - **📋 Tableau de suivi de lecture & réponses en direct** : affiche l'état **`✅ Lu`** / **`⏳ Non lu`** ainsi que la **réponse ou question écrite par l'élève**.
 - **🔔 Notifications instantanées** : alerte sonore et notification système (PC & smartphone via `ntfy.sh` et Supabase Realtime) à chaque nouvelle demande d'inscription.
 
 ### 🛡️ Protection du contenu & Sécurité (`protection.js` / `protection.css` / `robots.txt`)
