@@ -760,7 +760,7 @@
           <div>
             <h2>CSS3</h2>
             <p>Mise en forme, mise en page et animations</p>
-            <div style="display:flex;gap:8px;margin-top:10px;"><a href="../cours/css3.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">📚 Cours</a> <a href="../quiz/html-css.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"><a href="../cours/html5.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#101728;border:2px solid #101728;box-shadow:2px 2px 0 #f4511e;">🌐 Cours HTML5</a> <a href="../cours/css3.html" style="font:600 12px/1 system-ui,sans-serif;color:#fff;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f4511e;border:2px solid #101728;box-shadow:2px 2px 0 #101728;">🎨 Cours CSS3</a> <a href="../quiz/html-css.html" style="font:600 12px/1 system-ui,sans-serif;color:#0f1726;text-decoration:none;padding:7px 12px;border-radius:999px;background:#f9f1e3;border:1px solid rgba(15,23,38,.25);">🎯 Quiz</a></div>
           </div>
         </div>
         <div class="exo-grid">
@@ -1574,10 +1574,7 @@
           '" title="' +
           echapperHtml(titre) +
           '" allow="fullscreen; autoplay; clipboard-write" allowfullscreen></iframe></main>' +
-          "<script src="../assets/js/supabase-umd.js"></script>
-<script src="../assets/js/config.js"></script>
-<script src="../assets/js/acces.js"></script>
-</body></html>";
+          "</body></html>";
 
         try {
           // Évite qu'un document ouvert puisse naviguer l'onglet d'origine.
@@ -1802,7 +1799,10 @@
   <script id="stix-top">(function(){document.addEventListener("click",function(e){var a=e.target&&e.target.closest?e.target.closest('a[href="#top"]'):null;if(!a)return;e.preventDefault();var de=document.documentElement,pr=de.style.scrollBehavior;de.style.scrollBehavior="auto";window.scrollTo(0,0);if(pr)de.style.scrollBehavior=pr;else de.style.removeProperty("scroll-behavior");if(location.hash==="#top"&&history.replaceState)history.replaceState(null,"",location.pathname+location.search);});})();</script>
   <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
-<script src="../assets/js/protection.js" defer></script>
+<script src="../assets/js/protection.js?v=38" defer></script>
 <!-- /Protection -->
+<script src="../assets/js/supabase-umd.js"></script>
+<script src="../assets/js/config.js?v=38"></script>
+<script src="../assets/js/acces.js?v=38"></script>
 </body>
 </html>

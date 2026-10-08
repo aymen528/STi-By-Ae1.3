@@ -518,10 +518,7 @@ function documentApercu(etape, avecBoot){
     : '';
   return '<!DOCTYPE html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n<title>Apercu - TP2</title>\n<style>\n'
        + reglages
-       + etape.c + '\n</style>\n</head>\n<body>\n' + etape.b + '\n<script src="../../../assets/js/supabase-umd.js"></script>
-<script src="../../../assets/js/config.js"></script>
-<script src="../../../assets/js/acces.js"></script>
-</body>\n</html>';
+       + etape.c + '\n</style>\n</head>\n<body>\n' + etape.b + '\n</body>\n</html>';
 }
 
 function setZoom(z){
@@ -760,5 +757,8 @@ zoomApercu = zoomEffectif();                        // la page de 800 px tient d
 $('zAuto').className = 'actif';
 afficher();
 </script>
+<script src="../../../assets/js/supabase-umd.js"></script>
+<script src="../../../assets/js/config.js?v=38"></script>
+<script src="../../../assets/js/acces.js?v=38"></script>
 </body>
 </html>

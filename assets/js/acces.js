@@ -7,6 +7,7 @@
   var chemin = location.pathname.split("/").pop() || "index.html";
   if (chemin === "portail.html" || chemin === "admin.html") return;
 
+  if (!window.supabase || !window.supabase.createClient) return;
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
   var PORTAIL = cfg.RACINE + "portail.html";
   var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
@@ -14,19 +15,26 @@
   var currentUid = null;
   var currentClasse = "";
 
-  /* Nettoyage immédiat des anciens caches Service Worker (v30–v35) qui bloquaient les liens de cours */
+  /* Nettoyage immédiat des anciens caches Service Worker et mise à jour forcée sur toutes les pages */
   try {
     if ("caches" in window) {
       caches.keys().then(function (cles) {
         cles.forEach(function (k) {
-          if (k !== "sti-atelier-v37") caches.delete(k);
+          if (k !== "sti-atelier-v38") caches.delete(k);
         });
       }).catch(function () {});
     }
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function (regs) {
-        regs.forEach(function (r) { r.update().catch(function () {}); });
+      navigator.serviceWorker.register(cfg.RACINE + "sw.js").then(function (reg) {
+        if (reg) reg.update().catch(function () {});
       }).catch(function () {});
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        try {
+          if (sessionStorage.getItem("sti-sw-reload-38") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-38", "1");
+        } catch (e) {}
+        location.reload();
+      });
     }
   } catch (e) {}
 

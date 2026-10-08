@@ -27640,10 +27640,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
           category: "Bases & intégration",
           difficulty: "FACILE",
           title: "Où place-t-on un script interne dans la page ?",
-          code: '<body>\n  ...\n  <script>\n    alert("Bonjour !");\n  <\/script>\n<script src="../assets/js/supabase-umd.js"></script>
-<script src="../assets/js/config.js"></script>
-<script src="../assets/js/acces.js"></script>
-</body>',
+          code: '<body>\n  ...\n  <script>\n    alert("Bonjour !");\n  <\/script>\n</body>',
           options: [
             "Juste avant la balise de fermeture </body>",
             "Dans le <head>, jamais ailleurs",
@@ -29801,7 +29798,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
     
   <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
-<script src="../assets/js/protection.js" defer></script>
+<script src="../assets/js/protection.js?v=38" defer></script>
 <!-- /Protection -->
+<script src="../assets/js/supabase-umd.js"></script>
+<script src="../assets/js/config.js?v=38"></script>
+<script src="../assets/js/acces.js?v=38"></script>
 </body>
 </html>

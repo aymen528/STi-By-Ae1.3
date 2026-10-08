@@ -489,7 +489,7 @@ const CATS = [
 ];
 const QUESTIONS = [
  {cat:'Basics',diff:'Easy',q:'What does PHP stand for?',code:null,options:['Personal Home Page','PHP: Hypertext Preprocessor','Private Hosting Platform','Preprocessed Hypertext Pages'],answer:1,explain:'PHP originally meant Personal Home Page, but now recursively stands for PHP: Hypertext Preprocessor.',hint:'It is a recursive acronym, like GNU.'},
- {cat:'Basics',diff:'Easy',q:'Which tags correctly open and close a PHP block?',code:null,options:['<php>...</php>','<?php ... ?>','<script php>...</script>','<% ... %>'],answer:1,explain:'Standard tags are <?php ... ?>. Short <?= ... ?> echoes directly.',hint:'Think angle bracket + question mark.'},
+ {cat:'Basics',diff:'Easy',q:'Which tags correctly open and close a PHP block?',code:null,options:['<php>...</php>','<?php ... ?>','<script php>...<\/script>','<% ... %>'],answer:1,explain:'Standard tags are <?php ... ?>. Short <?= ... ?> echoes directly.',hint:'Think angle bracket + question mark.'},
  {cat:'Basics',diff:'Easy',q:'Every PHP statement must end with…',code:'<?php\necho "Hello"\n?>',options:['A period .','A semicolon ;','A colon :','A slash /'],answer:1,explain:'Like C and JavaScript, PHP statements terminate with a semicolon.',hint:'Same as MySQL queries.'},
  {cat:'Syntax',diff:'Easy',q:'How do you correctly declare a variable in PHP?',code:null,options:['var myVar = "hi";','dim myVar = "hi";','$myVar = "hi";','@myVar = "hi";'],answer:2,explain:'All PHP variables start with $. No explicit type keyword needed.',hint:'$ is the magic sigil.'},
  {cat:'Syntax',diff:'Easy',q:'Which is the correct single-line comment?',code:null,options:['// comment','<!-- comment -->','** comment','## comment ##'],answer:0,explain:'// and # both work for single-line. /* */ is multi-line.',hint:'Same as JavaScript.'},
@@ -1218,10 +1218,10 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 <!-- 🔒 Protection du contenu STI -->
 <link rel="stylesheet" href="../assets/css/protection.css" />
-<script src="../assets/js/protection.js" defer></script>
+<script src="../assets/js/protection.js?v=38" defer></script>
 <!-- /Protection -->
 <script src="../assets/js/supabase-umd.js"></script>
-<script src="../assets/js/config.js"></script>
-<script src="../assets/js/acces.js"></script>
+<script src="../assets/js/config.js?v=38"></script>
+<script src="../assets/js/acces.js?v=38"></script>
 </body>
 </html>

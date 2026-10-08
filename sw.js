@@ -1,8 +1,8 @@
-/* STI by AE — Service Worker L'Atelier (v36)
+/* STI by AE — Service Worker L'Atelier (v38)
    Navigation instantanée : réseau d'abord pour les pages/scripts/styles (sans blocage ni timeout artificiel),
    cache en secours hors-ligne. */
 
-var CACHE = "sti-atelier-v37";
+var CACHE = "sti-atelier-v38";
 var SHELL = [
   "./",
   "./index.html",
@@ -24,7 +24,7 @@ var SHELL = [
   "./assets/icons/sti-icon-192.png",
   "./assets/icons/sti-icon-512.png",
   "./cours/html5.html",
-  "./cours/css.html",
+  "./cours/css3.html",
   "./cours/javascript.html",
   "./cours/php.html",
   "./cours/php-mysqli.html",
@@ -486,7 +486,7 @@ self.addEventListener("install", function (evt) {
     caches
       .open(CACHE)
       .then(function (c) {
-        return c.addAll(SHELL);
+        return Promise.allSettled(SHELL.map(function (u) { return c.add(u); }));
       })
       .catch(function () {})
   );
