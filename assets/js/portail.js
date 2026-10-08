@@ -254,7 +254,13 @@
           try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
           sha256(mdp).then(function (h) {
             if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
-              localStorage.setItem("sti-offline", String(Date.now()));
+              try {
+                localStorage.setItem("sti-offline", String(Date.now()));
+                localStorage.setItem("sti-reauth", JSON.stringify({
+                  e: emailConn,
+                  p: btoa(unescape(encodeURIComponent(mdp)))
+                }));
+              } catch (err) {}
               location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
             } else {
               msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
@@ -264,8 +270,14 @@
         }
         msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
       }
-      /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
+      /* login en ligne réussi : mémorise l'empreinte locale et le jeton de reconnexion pour la synchro hors-ligne */
       var isAdm = (r.data.user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase();
+      try {
+        localStorage.setItem("sti-reauth", JSON.stringify({
+          e: emailConn,
+          p: btoa(unescape(encodeURIComponent(mdp)))
+        }));
+      } catch (err) {}
       sha256(mdp).then(function (h) {
         try {
           localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h, isAdmin: isAdm }));

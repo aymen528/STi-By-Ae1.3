@@ -1,5 +1,5 @@
-/* Service Worker PWA — STI by AE V2.0 (Mode 100 % Hors-ligne v30) */
-const CACHE_NAME = 'sti-atelier-v30';
+/* Service Worker PWA — STI by AE V2.0 (Mode 100 % Hors-ligne + Synchro auto v31) */
+const CACHE_NAME = 'sti-atelier-v31';
 
 const SHELL_URLS = [
   "./",
@@ -476,10 +476,30 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+async function rafraichirShellEnLigne() {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const critiques = SHELL_URLS.filter((u) =>
+      u === './' || u.endsWith('.html') || u.endsWith('.js') || u.endsWith('.css') || u.endsWith('.webmanifest')
+    );
+    await Promise.allSettled(
+      critiques.map(async (u) => {
+        const resp = await fetch(u, { cache: 'no-cache' });
+        if (resp && resp.status === 200) {
+          await cache.put(u, resp);
+        }
+      })
+    );
+  } catch (e) {}
+  toutPrecharger();
+}
+
 self.addEventListener('message', (event) => {
   if (!event.data) return;
   if (event.data.type === 'PRECACHE_ALL') {
     toutPrecharger();
+  } else if (event.data.type === 'SYNC_UPDATE') {
+    rafraichirShellEnLigne();
   }
 });
 

@@ -116,6 +116,98 @@
     return "Sem. du " + fmt(lun) + " au " + fmt(dim) + act;
   }
 
+  var CLE_ADMIN_QUEUE = "sti-admin-queue";
+  function empilerActionAdmin(act) {
+    try {
+      var q = JSON.parse(localStorage.getItem(CLE_ADMIN_QUEUE) || "[]");
+      q.push(act);
+      localStorage.setItem(CLE_ADMIN_QUEUE, JSON.stringify(q));
+    } catch (e) {}
+  }
+
+  function majCacheLocalProfil(uid, patch) {
+    try {
+      profils.forEach(function (p) {
+        if (p.id === uid) Object.assign(p, patch);
+      });
+      var c = JSON.parse(localStorage.getItem("sti-admin-cache") || "null");
+      if (c && Array.isArray(c.tous)) {
+        c.tous.forEach(function (p) {
+          if (p.id === uid) Object.assign(p, patch);
+        });
+        localStorage.setItem("sti-admin-cache", JSON.stringify(c));
+      }
+      document.getElementById("s-total").textContent = profils.length;
+      document.getElementById("s-actifs").textContent = profils.filter(function (p) { return p.statut === "actif"; }).length;
+      document.getElementById("s-attente").textContent = profils.filter(function (p) { return p.statut === "en_attente"; }).length;
+      rendAbonnes();
+    } catch (e) {}
+  }
+
+  function assurerSessionAdmin(cb) {
+    if (!navigator.onLine) { cb(false); return; }
+    sb.auth.getSession().then(function (r) {
+      var s = r && r.data ? r.data.session : null;
+      if (s && s.user && estAdminEmail(s.user.email)) {
+        adminUid = s.user.id;
+        cb(true);
+        return;
+      }
+      var re = null;
+      try { re = JSON.parse(localStorage.getItem("sti-reauth") || "null"); } catch (e) {}
+      if (re && re.e && re.p && estAdminEmail(re.e)) {
+        var mdpClair = "";
+        try { mdpClair = decodeURIComponent(escape(atob(re.p))); } catch (e) {}
+        if (mdpClair) {
+          sb.auth.signInWithPassword({ email: re.e, password: mdpClair }).then(function (rs) {
+            if (rs && rs.data && rs.data.user) {
+              adminUid = rs.data.user.id;
+              cb(true);
+            } else {
+              cb(false);
+            }
+          }).catch(function () { cb(false); });
+          return;
+        }
+      }
+      cb(false);
+    }).catch(function () { cb(false); });
+  }
+
+  function synchroniserFileAdmin(suite) {
+    if (!navigator.onLine) { if (suite) suite(false); return; }
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistration().then(function (reg) { if (reg) reg.update(); }).catch(function () {});
+      if (navigator.serviceWorker.controller) {
+        try { navigator.serviceWorker.controller.postMessage({ type: "SYNC_UPDATE" }); } catch (e) {}
+      }
+    }
+    assurerSessionAdmin(function (ok) {
+      if (!ok) { if (suite) suite(false); return; }
+      var q = [];
+      try { q = JSON.parse(localStorage.getItem(CLE_ADMIN_QUEUE) || "[]"); } catch (e) {}
+      if (!q.length) { if (suite) suite(false); return; }
+      try { localStorage.removeItem(CLE_ADMIN_QUEUE); } catch (e) {}
+      var promesses = q.map(function (act) {
+        if (act.type === "profile_update") {
+          diffuserSignalStatut(act.uid, act.patch.statut || "actif", Boolean(act.gold));
+          return sb.from("profiles").update(act.patch).eq("id", act.uid);
+        }
+        if (act.type === "msg_classe" && act.payload) {
+          try { sb.channel("sti-diffusion").send({ type: "broadcast", event: "annonce", payload: act.payload }); } catch (e) {}
+          fetch("https://ntfy.sh/sti_v2_diffusion_9482", { method: "POST", body: JSON.stringify(act.payload) }).catch(function () {});
+          return adminUid
+            ? sb.from("acces").insert({ user_id: adminUid, page: "MSG_ENVOI:" + act.payload.id, lieu: JSON.stringify(act.payload), duree_sec: 0 })
+            : Promise.resolve();
+        }
+        return Promise.resolve();
+      });
+      Promise.allSettled(promesses).then(function () {
+        if (suite) suite(true);
+      });
+    });
+  }
+
   sb.auth.getSession().then(function (r) {
     var s = r && r.data ? r.data.session : null;
     if (!s || !estAdminEmail(s.user.email)) {
@@ -146,9 +238,18 @@
       localStorage.setItem("sti-admin-gold", "1");
     } catch (e) {}
     window.__STI_GOLD = true;
-    charge(false);
+    if (navigator.onLine) {
+      synchroniserFileAdmin(function () { charge(false); });
+    } else {
+      charge(false);
+    }
     setInterval(function () { if (navigator.onLine) charge(true); }, 15000);
-    window.addEventListener("online", function () { charge(false); });
+    window.addEventListener("online", function () {
+      msg("🔄 Connexion Internet rétablie : envoi des modifications et réception des données…", "ok");
+      synchroniserFileAdmin(function (avaitFile) {
+        charge(false, avaitFile);
+      });
+    });
     try {
       sb.channel("admin-demandes")
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, function () { charge(true); })
@@ -299,11 +400,14 @@
       localStorage.removeItem("sti-admin-gold");
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-session-cache");
+      localStorage.removeItem("sti-reauth");
       localStorage.removeItem("sti-cred");
     } catch (e) {}
     sb.auth.signOut().catch(function () {}).then(function () { location.replace(cfg.RACINE + "portail.html#deconnecte"); });
   });
-  document.getElementById("btn-refresh").addEventListener("click", function () { charge(false); });
+  document.getElementById("btn-refresh").addEventListener("click", function () {
+    synchroniserFileAdmin(function () { charge(false); });
+  });
   document.getElementById("btn-stats").addEventListener("click", function () {
     triParAcces = !triParAcces;
     this.classList.toggle("on", triParAcces);
@@ -1082,11 +1186,26 @@
   }
 
   function changeStatut(p, statut) {
+    if (!navigator.onLine) {
+      majCacheLocalProfil(p.id, { statut: statut });
+      empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { statut: statut }, gold: estGold(p) });
+      msg("📴 Hors-ligne : " + contact(p) + " → " + LIB[statut] + " (sera synchronisé dès la connexion Internet).", "ok");
+      return;
+    }
     sb.from("profiles").update({ statut: statut }).eq("id", p.id).then(function (r) {
-      if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      if (r.error) {
+        majCacheLocalProfil(p.id, { statut: statut });
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { statut: statut }, gold: estGold(p) });
+        msg("📴 Enregistré localement : " + contact(p) + " → " + LIB[statut] + " (sera envoyé dès la connexion).", "ok");
+        return;
+      }
       diffuserSignalStatut(p.id, statut, estGold(p));
       msg("✅ " + contact(p) + " → " + LIB[statut], "ok");
       charge(true);
+    }).catch(function () {
+      majCacheLocalProfil(p.id, { statut: statut });
+      empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { statut: statut }, gold: estGold(p) });
+      msg("📴 Enregistré localement : " + contact(p) + " → " + LIB[statut] + " (sera envoyé dès la connexion).", "ok");
     });
   }
 
@@ -1095,8 +1214,19 @@
     var baseLycee = lyceePropre(p);
     var nvLycee = nvGold ? (baseLycee + "|GOLD") : baseLycee;
     var nvStatut = nvGold ? "actif" : (p.statut === "en_attente" ? "actif" : p.statut);
+    if (!navigator.onLine) {
+      majCacheLocalProfil(p.id, { lycee: nvLycee, statut: nvStatut });
+      empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { lycee: nvLycee, statut: nvStatut }, gold: nvGold });
+      msg("📴 Hors-ligne : statut 👑 Gold de " + contact(p) + " enregistré localement (sera synchronisé dès la connexion).", "ok");
+      return;
+    }
     sb.from("profiles").update({ lycee: nvLycee, statut: nvStatut }).eq("id", p.id).then(function (r) {
-      if (r.error) { msg("❌ " + r.error.message, "err"); return; }
+      if (r.error) {
+        majCacheLocalProfil(p.id, { lycee: nvLycee, statut: nvStatut });
+        empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { lycee: nvLycee, statut: nvStatut }, gold: nvGold });
+        msg("📴 Statut 👑 Gold de " + contact(p) + " enregistré localement (sera synchronisé dès la connexion).", "ok");
+        return;
+      }
       diffuserSignalStatut(p.id, nvStatut, nvGold);
       msg(
         nvGold
@@ -1105,6 +1235,10 @@
         "ok"
       );
       charge(true);
+    }).catch(function () {
+      majCacheLocalProfil(p.id, { lycee: nvLycee, statut: nvStatut });
+      empilerActionAdmin({ type: "profile_update", uid: p.id, patch: { lycee: nvLycee, statut: nvStatut }, gold: nvGold });
+      msg("📴 Statut 👑 Gold de " + contact(p) + " enregistré localement (sera synchronisé dès la connexion).", "ok");
     });
   }
 
@@ -1424,6 +1558,16 @@
       texte: texte
     };
     arreterDictee();
+    if (!navigator.onLine) {
+      empilerActionAdmin({ type: "msg_classe", payload: payload });
+      btn.disabled = false;
+      btn.textContent = "🔔 Diffuser sur le site";
+      modalClasse.classList.remove("visible");
+      txtClasse.value = "";
+      texteBase = "";
+      msg("📴 Hors-ligne : message pour « " + libCl + " » mis en file d'attente, il sera diffusé dès la connexion Internet.", "ok");
+      return;
+    }
     try {
       sb.channel("sti-diffusion").send({ type: "broadcast", event: "annonce", payload: payload });
     } catch (e) {}
