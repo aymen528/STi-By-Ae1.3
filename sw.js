@@ -2,7 +2,7 @@
    Navigation instantanée : réseau d'abord pour les pages/scripts/styles (sans blocage ni timeout artificiel),
    cache en secours hors-ligne. */
 
-var CACHE = "sti-atelier-v40";
+var CACHE = "sti-atelier-v41";
 var SHELL = [
   "./",
   "./index.html",

@@ -436,7 +436,7 @@
     <div class="liens-haut">
       <a class="btn-nav" href="index.html">🏠 Accueil du site</a>
       <a class="btn-nav" href="portail.html">🔐 Portail élève</a>
-      <a class="btn-nav" href="admin.html">📊 Tableau de bord</a>
+      <a class="btn-nav" id="nav-admin-carte" href="admin.html" hidden style="display:none">📊 Tableau de bord</a>
     </div>
   </div>
 
@@ -498,8 +498,8 @@
     <a class="btn-act wa" id="btn-wa" href="#" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a>
     <a class="btn-act or" id="btn-dl-png" href="assets/images/carte-visite-sti-v2.png" download="Carte-Visite-STI-by-AE-V2.png">🖼️ Télécharger l'image HD</a>
     <button type="button" class="btn-act" id="btn-plein-ecran">🔍 Grand QR (Projecteur)</button>
-    <button type="button" class="btn-act" id="btn-vcard">👤 Ajouter aux contacts (.vcf)</button>
-    <button type="button" class="btn-act" id="btn-imprimer">🖨️ Imprimer la carte</button>
+    <button type="button" class="btn-act" id="btn-vcard" hidden style="display:none">👤 Ajouter aux contacts (.vcf)</button>
+    <button type="button" class="btn-act" id="btn-imprimer" hidden style="display:none">🖨️ Imprimer la carte</button>
   </div>
 
   <div class="msg-toast" id="msg-toast"></div>
@@ -517,6 +517,8 @@
   </div>
 </div>
 
+<script src="assets/js/supabase-umd.js"></script>
+<script src="assets/js/config.js?v=41"></script>
 <script>
 (function () {
   "use strict";
@@ -604,34 +606,86 @@
     if (e.target === modalQr) modalQr.classList.remove("ouvert");
   });
 
-  /* 5. Télécharger la fiche contact vCard (.vcf) */
-  document.getElementById("btn-vcard").addEventListener("click", function () {
-    var vcf = [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      "N:Essouyah;Aymen;;;",
-      "FN:Aymen Essouyah (STI by AE)",
-      "ORG:STI by AE V2.0 — Le Web de A à Z",
-      "TITLE:Professeur d'Informatique (STI 3e & 4e SI)",
-      "EMAIL;TYPE=INTERNET:aymenessouyah@gmail.com",
-      "URL:" + URL_SITE,
-      "NOTE:Plateforme interactive STI by AE V2.0 (HTML5, CSS3, JS, PHP, SQL & Atelier Bac Pratique)",
-      "END:VCARD"
-    ].join("\r\n");
-    var blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "Aymen-Essouyah-STI.vcf";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    notif("👤 Fiche contact Aymen-Essouyah-STI.vcf téléchargée !");
-  });
+  /* 5. Vérification stricte de la session Administrateur pour les actions réservées (.vcf, impression, tableau de bord) */
+  var estAdminCarte = false;
+  var btnVcard = document.getElementById("btn-vcard");
+  var btnImprimer = document.getElementById("btn-imprimer");
+  var navAdminCarte = document.getElementById("nav-admin-carte");
 
-  /* 6. Imprimer la carte */
-  document.getElementById("btn-imprimer").addEventListener("click", function () {
-    window.print();
-  });
+  function activerActionsAdmin(ok) {
+    estAdminCarte = !!ok;
+    [btnVcard, btnImprimer, navAdminCarte].forEach(function (el) {
+      if (!el) return;
+      el.hidden = !estAdminCarte;
+      el.style.display = estAdminCarte ? "" : "none";
+    });
+  }
+  activerActionsAdmin(false);
+
+  (function verifierSessionAdminCarte() {
+    var cfg = window.STI_AUTH || window.STI_CFG;
+    var adminEmail = ((cfg && (cfg.ADMIN || cfg.ADMIN_EMAIL)) || "aymenessouyah@gmail.com").trim().toLowerCase();
+    if (!cfg || !window.supabase) {
+      activerActionsAdmin(false);
+      return;
+    }
+    var sb = window.supabase.createClient(cfg.URL || cfg.SUPABASE_URL, cfg.CLE || cfg.SUPABASE_ANON);
+    sb.auth.getSession().then(function (r) {
+      var s = r && r.data && r.data.session;
+      if (s && s.user && (s.user.email || "").trim().toLowerCase() === adminEmail) {
+        activerActionsAdmin(true);
+      } else {
+        activerActionsAdmin(false);
+      }
+    }).catch(function () {
+      try {
+        var raw = localStorage.getItem("sti-session-cache");
+        if (raw) {
+          var obj = JSON.parse(raw);
+          if (!navigator.onLine && obj && obj.isAdmin && (obj.email || "").trim().toLowerCase() === adminEmail) {
+            activerActionsAdmin(true);
+            return;
+          }
+        }
+      } catch (e) {}
+      activerActionsAdmin(false);
+    });
+  })();
+
+  /* 6. Télécharger la fiche contact vCard (.vcf) — STRICTEMENT RÉSERVÉ À L'ADMIN */
+  if (btnVcard) {
+    btnVcard.addEventListener("click", function () {
+      if (!estAdminCarte) return;
+      var vcf = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        "N:Essouyah;Aymen;;;",
+        "FN:Aymen Essouyah (STI by AE)",
+        "ORG:STI by AE V2.0 — Le Web de A à Z",
+        "TITLE:Professeur d'Informatique (STI 3e & 4e SI)",
+        "EMAIL;TYPE=INTERNET:aymenessouyah@gmail.com",
+        "URL:" + URL_SITE,
+        "NOTE:Plateforme interactive STI by AE V2.0 (HTML5, CSS3, JS, PHP, SQL & Atelier Bac Pratique)",
+        "END:VCARD"
+      ].join("\r\n");
+      var blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Aymen-Essouyah-STI.vcf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      notif("👤 Fiche contact Aymen-Essouyah-STI.vcf téléchargée !");
+    });
+  }
+
+  /* 7. Imprimer la carte — réservé à l'admin */
+  if (btnImprimer) {
+    btnImprimer.addEventListener("click", function () {
+      if (!estAdminCarte) return;
+      window.print();
+    });
+  }
 })();
 </script>
 </body>

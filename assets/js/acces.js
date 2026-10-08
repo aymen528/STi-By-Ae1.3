@@ -7,6 +7,7 @@
   var chemin = location.pathname.split("/").pop() || "index.html";
   if (chemin === "portail.html" || chemin === "admin.html") return;
 
+  if (!window.supabase || !window.supabase.createClient) return;
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
   var PORTAIL = cfg.RACINE + "portail.html";
   var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
@@ -19,7 +20,7 @@
     if ("caches" in window) {
       caches.keys().then(function (cles) {
         cles.forEach(function (k) {
-          if (k !== "sti-atelier-v40") caches.delete(k);
+          if (k !== "sti-atelier-v39") caches.delete(k);
         });
       }).catch(function () {});
     }
@@ -29,8 +30,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-40") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-40", "1");
+          if (sessionStorage.getItem("sti-sw-reload-39") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-39", "1");
         } catch (e) {}
         location.reload();
       });
@@ -164,208 +165,26 @@
     } catch (e) {}
   }
 
-  function afficherToastSynchro(texte) {
-    if (window !== window.top) return;
-    try {
-      var ex = document.getElementById("sti-toast-sync");
-      if (ex) ex.remove();
-      var t = document.createElement("div");
-      t.id = "sti-toast-sync";
-      t.className = "sti-no-print";
-      t.style.cssText = "position:fixed;left:14px;bottom:14px;z-index:2147483647;background:#fffdf7;color:#177245;border:2px solid #23201a;border-radius:999px;padding:8px 15px;font:800 12px/1.3 system-ui,'Segoe UI',sans-serif;box-shadow:3px 3px 0 #23201a;transition:opacity .35s ease;";
-      t.textContent = texte;
-      (document.body || document.documentElement).appendChild(t);
-      setTimeout(function () {
-        t.style.opacity = "0";
-        setTimeout(function () { if (t.parentNode) t.remove(); }, 400);
-      }, 3800);
-    } catch (e) {}
-  }
-
-  /* Garantit une vraie session Supabase dès que l'appareil est connecté à Internet */
-  function assurerSessionEnLigne(cb) {
+  function synchroniserFileHorsLigne() {
     if (!navigator.onLine) return;
-    sb.auth.getSession().then(function (r) {
-      var s = r && r.data ? r.data.session : null;
-      if (s && s.user) {
-        currentUid = s.user.id;
-        cb(s.user);
-        return;
+    var q = [];
+    try { q = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]"); } catch (e) {}
+    if (!q.length) return;
+    try { localStorage.removeItem(CLE_FILE_OFFLINE); } catch (e) {}
+    var propres = q.map(function (it) {
+      var c = Object.assign({}, it);
+      delete c._sid;
+      return c;
+    });
+    sb.from("acces").insert(propres).then(function (r) {
+      if (r && r.error) {
+        q.forEach(empilerHorsLigne);
       }
-      var re = null;
-      try { re = JSON.parse(localStorage.getItem("sti-reauth") || "null"); } catch (e) {}
-      if (re && re.e && re.p) {
-        var mdpClair = "";
-        try { mdpClair = decodeURIComponent(escape(atob(re.p))); } catch (e) {}
-        if (mdpClair) {
-          sb.auth.signInWithPassword({ email: re.e, password: mdpClair }).then(function (rs) {
-            if (rs && rs.data && rs.data.user) {
-              currentUid = rs.data.user.id;
-              cb(rs.data.user);
-            }
-          }).catch(function () {});
-        }
-      }
-    }).catch(function () {});
-  }
-
-  /* Envoie les données enregistrées hors-ligne + reçoit les dernières données du serveur + met à jour le SW */
-  function synchroniserFileHorsLigne(estRetourInternet) {
-    if (!navigator.onLine) return;
-    /* 1. Demander au Service Worker de vérifier et mettre à jour les fichiers du site */
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistration().then(function (reg) {
-        if (reg) reg.update();
-      }).catch(function () {});
-      if (navigator.serviceWorker.controller) {
-        try { navigator.serviceWorker.controller.postMessage({ type: "SYNC_UPDATE" }); } catch (e) {}
-      }
-    }
-    var btnOff = document.getElementById("sti-btn-precache");
-    if (btnOff && localStorage.getItem("sti-precache-100") === "1") {
-      btnOff.textContent = "✅ 100 % prêt hors-ligne";
-    }
-
-    assurerSessionEnLigne(function (user) {
-      /* 2. ENVOYER la file d'attente hors-ligne (scores Quiz/Bac, durées d'étude, questions au prof) */
-      var q = [];
-      try { q = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]"); } catch (e) {}
-      var avaitFile = q.length > 0;
-      if (avaitFile) {
-        try { localStorage.removeItem(CLE_FILE_OFFLINE); } catch (e) {}
-        var propres = q.map(function (it) {
-          var c = Object.assign({}, it);
-          delete c._sid;
-          if (!c.user_id || c.user_id === "offline-user") c.user_id = user.id;
-          return c;
-        });
-        sb.from("acces").insert(propres).then(function (r) {
-          if (r && r.error) {
-            q.forEach(empilerHorsLigne);
-          } else {
-            /* Diffuser en temps réel les scores ou messages qui étaient en attente */
-            propres.forEach(function (row) {
-              var pg = String(row.page || "");
-              if (pg.indexOf("QUIZ:") === 0) {
-                try {
-                  var pQuiz = JSON.parse(row.lieu || "{}");
-                  sb.channel("sti-diffusion").send({ type: "broadcast", event: "quiz", payload: { uid: user.id, data: pQuiz } });
-                } catch (e) {}
-              } else if (pg.indexOf("MSG_LU:") === 0) {
-                var mid = pg.replace("MSG_LU:", "");
-                var repTxt = "";
-                try { repTxt = JSON.parse(row.lieu || "{}").reponse || ""; } catch (e) {}
-                try {
-                  sb.channel("sti-diffusion").send({ type: "broadcast", event: "lu", payload: { msgId: mid, uid: user.id, ts: row.fin, reponse: repTxt } });
-                } catch (e) {}
-                fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
-                  method: "POST",
-                  body: JSON.stringify({ type: "lu", msgId: mid, uid: user.id, ts: row.fin, reponse: repTxt })
-                }).catch(function () {});
-              }
-            });
-          }
-        }).catch(function () {
-          q.forEach(empilerHorsLigne);
-        });
-      }
-
-      /* 3. RECEVOIR les données à jour depuis Supabase (statut, Gold, classe, durée semaine, scores Quiz) */
-      if ((user.email || "").toLowerCase() !== (cfg.ADMIN || "").toLowerCase()) {
-        sb.from("profiles").select("statut,lycee,classe").eq("id", user.id).maybeSingle().then(function (rp) {
-          if (!rp || rp.error || !rp.data) return;
-          var st = rp.data.statut;
-          if (st === "en_attente") { sortirImmediatement("#attente"); return; }
-          if (st === "exclu") { sortirImmediatement("#exclu"); return; }
-          if (st !== "actif") { sortirImmediatement("#refuse"); return; }
-          currentClasse = rp.data.classe || "";
-          var isG = estGoldProfil(rp.data);
-          appliquerModeGold(isG, rp.data);
-          try {
-            localStorage.setItem("sti-offline", String(Date.now()));
-            localStorage.setItem("sti-session-cache", JSON.stringify({
-              id: user.id,
-              email: user.email,
-              user_metadata: user.user_metadata || {},
-              lycee: rp.data.lycee || "—",
-              classe: rp.data.classe || "—",
-              statut: "actif",
-              gold: isG,
-              isAdmin: false,
-              ts: Date.now()
-            }));
-          } catch (e) {}
-        });
-        rafraichirDureeEtScoresServeur(user.id);
-      }
-
-      if (estRetourInternet || avaitFile) {
-        afficherToastSynchro("🔄 Connexion Internet : données envoyées, reçues et mises à jour ✅");
-      }
+    }).catch(function () {
+      q.forEach(empilerHorsLigne);
     });
   }
-  window.addEventListener("online", function () {
-    synchroniserFileHorsLigne(true);
-  });
-
-  function rafraichirDureeEtScoresServeur(uid) {
-    if (!uid || uid === "offline-user") return;
-    /* Affichage immédiat depuis le cache local si disponible */
-    var elD = document.getElementById("sti-ma-duree-sem");
-    try {
-      var secCache = parseInt(localStorage.getItem("sti-duree-sem-cache") || "0", 10);
-      var qOff = JSON.parse(localStorage.getItem(CLE_FILE_OFFLINE) || "[]");
-      qOff.forEach(function (it) {
-        var pg = String((it && it.page) || "");
-        if (pg.indexOf("MSG_") !== 0 && pg.indexOf("QUIZ:") !== 0 && pg.indexOf("CTRL_") !== 0) {
-          secCache += Number((it && it.duree_sec) || 0);
-        }
-      });
-      if (elD && secCache > 0) {
-        var m0 = Math.round(secCache / 60);
-        elD.textContent = "⏱️ Cette semaine : " + (m0 < 60 ? m0 + " min" : Math.floor(m0 / 60) + " h " + (m0 % 60) + " min");
-      }
-    } catch (e) {}
-
-    if (!navigator.onLine) {
-      if (elD && elD.textContent.indexOf("calcul") !== -1) {
-        elD.textContent = "⏱️ Cette semaine : 0 min (hors-ligne)";
-      }
-      return;
-    }
-
-    var dNow = new Date();
-    var jour = dNow.getDay();
-    var decal = jour === 0 ? -6 : 1 - jour;
-    var lun = new Date(dNow.getFullYear(), dNow.getMonth(), dNow.getDate() + decal, 0, 0, 0);
-    sb.from("acces").select("debut,duree_sec,page,lieu").eq("user_id", uid).gte("debut", lun.toISOString()).then(function (ra) {
-      if (ra.error || !ra.data) return;
-      var tot = 0;
-      var mesScores = {};
-      try { mesScores = JSON.parse(localStorage.getItem("sti-mes-scores") || "{}"); } catch (e) {}
-      ra.data.forEach(function (a) {
-        var pg = a.page || "";
-        if (pg.indexOf("QUIZ:") === 0) {
-          try {
-            var qz = JSON.parse(a.lieu || "{}");
-            if (qz && qz.quiz && qz.note) mesScores[qz.quiz] = qz.note;
-          } catch (e) {}
-          return;
-        }
-        if (pg.indexOf("MSG_") === 0 || pg.indexOf("CTRL_") === 0) return;
-        tot += Number(a.duree_sec || 0);
-      });
-      try {
-        localStorage.setItem("sti-duree-sem-cache", String(tot));
-        localStorage.setItem("sti-mes-scores", JSON.stringify(mesScores));
-      } catch (e) {}
-      var elD2 = document.getElementById("sti-ma-duree-sem");
-      if (elD2) {
-        var m = Math.round(tot / 60);
-        elD2.textContent = "⏱️ Cette semaine : " + (m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min");
-      }
-    });
-  }
+  window.addEventListener("online", synchroniserFileHorsLigne);
 
   /* ---------- Enregistrement d'un score de Quiz ou Bac Pratique vers Supabase (ou file hors-ligne) ---------- */
   window.enregistrerScoreQuizSTI = function (nomQuiz, noteTexte, sur20) {
@@ -407,7 +226,6 @@
     try {
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-session-cache");
-      localStorage.removeItem("sti-reauth");
       localStorage.removeItem("sti-cred");
       localStorage.removeItem("sti-gold");
       localStorage.removeItem("sti-admin-gold");
@@ -457,7 +275,7 @@
   sb.auth.getSession().then(function (r) {
     var session = r && r.data ? r.data.session : null;
     if (!session) {
-      /* Mode hors-ligne ou jeton expiré : restauration immédiate de la session locale + reconnexion silencieuse dès qu'Internet est là */
+      /* Mode hors-ligne : restauration complète de la session locale validée (jusqu'à 30 jours) */
       var cache = null;
       try { cache = JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) {}
       var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
@@ -467,7 +285,6 @@
           currentUid = cache.id || "admin";
           appliquerModeGold(true);
           if (window === window.top) badgeAdmin();
-          if (navigator.onLine) synchroniserFileHorsLigne(false);
           return;
         }
         var fakeUser = {
@@ -481,7 +298,6 @@
         panneauCompte(fakeUser, cache || {});
         installerSuiviQuizAuto();
         journal(fakeUser.id);
-        if (navigator.onLine) synchroniserFileHorsLigne(true);
         return;
       }
       localStorage.removeItem("sti-offline");
@@ -851,8 +667,25 @@
     wrap.appendChild(porte);
     (document.body || document.documentElement).appendChild(wrap);
 
-    /* Calcul de la durée personnelle de la semaine en cours + récupération des scores serveur */
-    rafraichirDureeEtScoresServeur(user.id);
+    /* Calcul de la durée personnelle de la semaine en cours */
+    var dNow = new Date();
+    var jour = dNow.getDay();
+    var decal = jour === 0 ? -6 : 1 - jour;
+    var lun = new Date(dNow.getFullYear(), dNow.getMonth(), dNow.getDate() + decal, 0, 0, 0);
+    sb.from("acces").select("debut,duree_sec,page").eq("user_id", user.id).gte("debut", lun.toISOString()).then(function (ra) {
+      if (ra.error || !ra.data) return;
+      var tot = 0;
+      ra.data.forEach(function (a) {
+        var pg = a.page || "";
+        if (pg.indexOf("MSG_") === 0 || pg.indexOf("QUIZ:") === 0 || pg.indexOf("CTRL_") === 0) return;
+        tot += Number(a.duree_sec || 0);
+      });
+      var elD = document.getElementById("sti-ma-duree-sem");
+      if (elD) {
+        var m = Math.round(tot / 60);
+        elD.textContent = "⏱️ Cette semaine : " + (m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min");
+      }
+    });
 
     ecouterMessagesClasse(user.id, profil.classe || "");
   }
@@ -1006,22 +839,15 @@
         boite.remove();
         var tsNow = new Date().toISOString();
         var lieuVal = texteRep ? JSON.stringify({ classe: a.classe || "*", reponse: texteRep }) : (a.classe || "*");
-        var ligneLu = {
-          user_id: uid || currentUid || "offline-user",
-          page: "MSG_LU:" + a.id,
-          lieu: lieuVal,
-          fin: tsNow,
-          duree_sec: 0
-        };
-        if (!navigator.onLine) {
-          empilerHorsLigne(ligneLu);
-          return;
+        if (uid) {
+          sb.from("acces").insert({
+            user_id: uid,
+            page: "MSG_LU:" + a.id,
+            lieu: lieuVal,
+            fin: tsNow,
+            duree_sec: 0
+          }).then(function () {});
         }
-        sb.from("acces").insert(ligneLu).then(function (r) {
-          if (r && r.error) empilerHorsLigne(ligneLu);
-        }).catch(function () {
-          empilerHorsLigne(ligneLu);
-        });
         try {
           sb.channel("sti-diffusion").send({ type: "broadcast", event: "lu", payload: { msgId: a.id, uid: uid, ts: tsNow, reponse: texteRep } });
         } catch (e) {}
@@ -1034,7 +860,7 @@
     }
 
     function verifierDiffusion() {
-      if (enSortie || !navigator.onLine) return;
+      if (enSortie) return;
       fetch("https://ntfy.sh/" + CANAL_DIFFUSION + "/json?poll=1&since=all")
         .then(function (r) { return r.text(); })
         .then(function (txt) {
@@ -1065,7 +891,6 @@
 
     verifierDiffusion();
     setInterval(verifierDiffusion, 12000);
-    window.addEventListener("online", verifierDiffusion);
     try {
       sb.channel("sti-diffusion")
         .on("broadcast", { event: "annonce" }, function (p) {

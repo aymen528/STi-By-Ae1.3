@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="admin-verrouille">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,7 +10,38 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src https://vywujxmepvcbgedgmger.supabase.co wss://vywujxmepvcbgedgmger.supabase.co https://ipapi.co https://ntfy.sh; base-uri 'self'" />
 <link rel="icon" href="https://aymenessouyah.github.io/STiV2.0/assets/icons/STI_by_AE.ico" />
 <title>Tableau de bord — STI V2.0</title>
+<script>
+  /* Protection anti-flash à 0 ms : si aucune session administrateur n'est présente,
+     rediriger immédiatement vers le formulaire de connexion avant même d'afficher le DOM. */
+  (function () {
+    try {
+      var adminMail = "aymenessouyah@gmail.com";
+      var ok = false;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || "";
+        if (k.indexOf("sb-") === 0 && k.indexOf("-auth-token") !== -1) {
+          var v = (localStorage.getItem(k) || "").toLowerCase();
+          if (v.indexOf(adminMail) !== -1) { ok = true; break; }
+        }
+      }
+      if (!ok) {
+        var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+        if (c && c.isAdmin && String(c.email || "").toLowerCase() === adminMail) ok = true;
+      }
+      if (!ok) {
+        location.replace("portail.html#admin");
+      }
+    } catch (e) {
+      location.replace("portail.html#admin");
+    }
+  })();
+</script>
 <style>
+  html.admin-verrouille body {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: #f9f1e3; color: #23201a;
@@ -729,7 +760,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=40"></script>
-<script src="assets/js/admin.js?v=40"></script>
+<script src="assets/js/config.js?v=41"></script>
+<script src="assets/js/admin.js?v=41"></script>
 </body>
 </html>

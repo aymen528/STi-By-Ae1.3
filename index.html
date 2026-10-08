@@ -645,7 +645,7 @@
       }
 
       /* Terminal */
-      /* ─────────────── QR « Scanner-moi » ─────────────── */
+      /* ─────────────── QR « Scanner-moi » (affiché uniquement lors du clic sur Contact dans le footer) ─────────────── */
       .hero-right {
         display: flex;
         flex-direction: column;
@@ -653,17 +653,76 @@
         min-width: 0;
       }
 
-      .qr-card {
+      .modal-contact-qr {
         position: fixed;
-        right: 18px;
-        bottom: 18px;
-        z-index: 90;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(15, 23, 38, 0.72);
+        backdrop-filter: blur(5px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+      }
+      .modal-contact-qr.ouvert {
+        display: flex;
+      }
+      .modal-contact-boite {
+        position: relative;
+        width: 100%;
+        max-width: 390px;
+        background: var(--surface);
+        color: var(--ink);
+        border: 2px solid var(--border);
+        border-radius: 24px;
+        padding: 22px 20px 20px;
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .modal-contact-fermer {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        border: 1.5px solid var(--border);
+        background: var(--bg);
+        color: var(--ink);
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .btn-footer-contact {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        padding: 6px 13px;
+        border-radius: 999px;
+        border: 1.5px solid var(--accent);
+        background: rgba(244, 81, 30, 0.12);
+        color: var(--ink);
+        font: 700 0.86em/1.2 inherit;
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.18s ease;
+      }
+      .btn-footer-contact:hover {
+        background: var(--accent);
+        color: #fff;
+        transform: translateY(-1px);
+      }
+
+      .qr-card {
+        position: relative;
+        margin: 12px auto 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
-        width: 176px;
-        padding: 12px 12px 14px;
+        width: 100%;
+        max-width: 260px;
+        padding: 14px 14px 16px;
         text-align: center;
         background: linear-gradient(var(--surface), var(--surface)) padding-box,
           var(--grad) border-box;
@@ -674,7 +733,6 @@
         color: inherit;
         overflow: hidden;
         transition: transform 0.25s ease, box-shadow 0.25s ease;
-        animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s backwards;
       }
 
       .qr-card:hover {
@@ -808,21 +866,12 @@
 
       @media (max-width: 560px) {
         .qr-card {
-          right: 12px;
-          bottom: 12px;
-          width: 140px;
-          padding: 10px 10px 12px;
+          max-width: 240px;
+          padding: 12px 12px 14px;
         }
         .qr-frame img {
-          width: 100px;
-          height: 100px;
-        }
-        .qr-card-txt small,
-        .qr-url {
-          display: none;
-        }
-        .qr-card-txt strong {
-          font-size: 0.9em;
+          width: 118px;
+          height: 118px;
         }
       }
 
@@ -2389,35 +2438,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Carte QR « Scanner-moi » -->
-        <a
-          class="qr-card"
-          href="https://aymenessouyah.github.io/STiV2.0/"
-          title="Ouvrir le site sur votre téléphone"
-        >
-          <span class="qr-frame">
-            <img
-              src="assets/images/qr-code-site.png?v=40"
-              alt="QR code du site STI by AE"
-              width="118"
-              height="118"
-            />
-            <span class="qr-scan" aria-hidden="true"></span>
-            <i class="qr-corner c-tl" aria-hidden="true"></i>
-            <i class="qr-corner c-tr" aria-hidden="true"></i>
-            <i class="qr-corner c-bl" aria-hidden="true"></i>
-            <i class="qr-corner c-br" aria-hidden="true"></i>
-          </span>
-          <span class="qr-card-txt">
-            <strong>📱 Scanner-moi&nbsp;!</strong>
-            <small
-              >Flashez ce code avec votre téléphone pour passer directement
-              au site, où que vous soyez.</small
-            >
-            <span class="qr-url">🔗 aymenessouyah.github.io/STiV2.0</span>
-          </span>
-        </a>
         </div>
       </section>
 
@@ -3099,11 +3119,16 @@
             </ul>
           </div>
           <div>
-            <h5>À propos</h5>
+            <h5>À propos &amp; Contact</h5>
             <ul>
               <li>Lycée Raféha</li>
               <li>Enseignant : Aymen Essouyah</li>
               <li>Élaboré en collaboration avec l'intelligence artificielle</li>
+              <li>
+                <button type="button" class="btn-footer-contact" id="btnFooterContact">
+                  📬 Contact &amp; QR Code
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -3117,12 +3142,82 @@
           <p class="stack">
             <a href="https://aymenessouyah.github.io/STiV2.0/" target="_blank" rel="noopener">aymenessouyah.github.io/STiV2.0</a>
             ·
-            <a href="mailto:aymenessouyah@gmail.com">aymenessouyah@gmail.com</a>
+            <a href="#contact" id="lienFooterContact">📬 Contact (QR Code)</a>
           </p>
           <p class="stack">HTML5/CSS3 · JavaScript · SQL · PHP</p>
         </div>
       </div>
     </footer>
+
+    <!-- Modale Contact & QR Code (affichée uniquement lors du clic sur Contact dans le footer) -->
+    <div class="modal-contact-qr" id="modalContactQr" role="dialog" aria-modal="true" aria-labelledby="titreContactQr">
+      <div class="modal-contact-boite">
+        <button type="button" class="modal-contact-fermer" id="btnFermerContactQr" aria-label="Fermer">✕</button>
+        <h3 id="titreContactQr" style="margin:0 0 6px;font-size:1.18em">📬 Contact — STI by AE V2.0</h3>
+        <p style="margin:0 0 4px;font-size:0.92em;font-weight:700">👨‍🏫 M. Aymen Essouyah · Lycée Raféha</p>
+        <p style="margin:0 0 10px;font-size:0.86em">
+          ✉️ <a href="mailto:aymenessouyah@gmail.com" style="color:var(--accent);font-weight:700;text-decoration:none">aymenessouyah@gmail.com</a>
+        </p>
+
+        <!-- Carte QR « Scanner-moi » affichée uniquement lors du Contact -->
+        <a
+          class="qr-card"
+          href="https://aymenessouyah.github.io/STiV2.0/"
+          title="Ouvrir le site sur votre téléphone"
+        >
+          <span class="qr-frame">
+            <img
+              src="assets/images/qr-code-site.png?v=41"
+              alt="QR code du site STI by AE"
+              width="118"
+              height="118"
+            />
+            <span class="qr-scan" aria-hidden="true"></span>
+            <i class="qr-corner c-tl" aria-hidden="true"></i>
+            <i class="qr-corner c-tr" aria-hidden="true"></i>
+            <i class="qr-corner c-bl" aria-hidden="true"></i>
+            <i class="qr-corner c-br" aria-hidden="true"></i>
+          </span>
+          <span class="qr-card-txt">
+            <strong>📱 Scanner-moi&nbsp;!</strong>
+            <small
+              >Flashez ce code avec votre téléphone pour passer directement
+              au site, où que vous soyez.</small
+            >
+            <span class="qr-url">🔗 aymenessouyah.github.io/STiV2.0</span>
+          </span>
+        </a>
+
+        <div style="margin-top:12px">
+          <a href="carte-visite.html" style="display:inline-block;font-size:0.84em;font-weight:800;color:var(--accent);text-decoration:none">
+            🪪 Voir la carte de visite complète →
+          </a>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var modal = document.getElementById("modalContactQr");
+        var btn1 = document.getElementById("btnFooterContact");
+        var btn2 = document.getElementById("lienFooterContact");
+        var fermer = document.getElementById("btnFermerContactQr");
+        function ouvrirContact(e) {
+          if (e) e.preventDefault();
+          if (modal) modal.classList.add("ouvert");
+        }
+        function fermerContact() {
+          if (modal) modal.classList.remove("ouvert");
+        }
+        if (btn1) btn1.addEventListener("click", ouvrirContact);
+        if (btn2) btn2.addEventListener("click", ouvrirContact);
+        if (fermer) fermer.addEventListener("click", fermerContact);
+        if (modal) {
+          modal.addEventListener("click", function (e) {
+            if (e.target === modal) fermerContact();
+          });
+        }
+      })();
+    </script>
 
 
 
@@ -3624,8 +3719,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-40") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-40", "1");
+                if (sessionStorage.getItem("sti-sw-reload-41") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-41", "1");
               } catch (e) {}
               location.reload();
             }
