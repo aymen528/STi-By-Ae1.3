@@ -581,7 +581,7 @@ else if(k=='a'||k=='A'){el('auto').click();}
 else if(k=='f'||k=='F'){el('fs').click();}});
 init();build();render();
 </script>
-<!-- ⏯️ Barre de contrôles par symboles + étape actuelle (ajoutée, n'enlève rien) -->
+<!-- ⏯️ Barre de contrôles par symboles + étape actuelle + 🔄 Overlay « Tournez-moi » -->
 <nav id="phpm-ctrl" aria-label="Contrôles rapides">
   <button type="button" class="pc-btn" id="pc-prev" aria-label="Étape précédente">&#9664;</button>
   <button type="button" class="pc-btn" id="pc-auto" aria-label="Lecture automatique / pause">&#9205;</button>
@@ -589,6 +589,16 @@ init();build();render();
   <button type="button" class="pc-btn" id="pc-rst" aria-label="Recommencer">&#8635;</button>
   <span class="pc-etape" id="pc-etape">1/1</span>
 </nav>
+<div id="rot-overlay" role="dialog" aria-label="Passer en mode paysage">
+  <div class="rot-boite">
+    <div class="rot-phone" aria-hidden="true">📱</div>
+    <p class="rot-title">Tournez-moi ! 🔄</p>
+    <p class="rot-txt">Cette leçon animée se vit beaucoup mieux en <strong>plein écran paysage</strong>.<br />Tournez votre appareil, ou :</p>
+    <button type="button" class="rot-btn" id="rot-go">🖥️ Passer en plein écran paysage</button>
+    <br />
+    <button type="button" class="rot-skip" id="rot-skip">continuer en portrait</button>
+  </div>
+</div>
 <style>
   body{padding-bottom:78px}
   #phpm-ctrl{
@@ -614,10 +624,42 @@ init();build();render();
   @media screen and (max-width:920px){
     #phpm-ctrl{padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px))}
   }
-  @media print{#phpm-ctrl{display:none !important}}
+  #rot-overlay{
+    display:none;position:fixed;inset:0;z-index:99999;
+    flex-direction:column;align-items:center;justify-content:center;
+    padding:28px;text-align:center;
+    background:radial-gradient(120% 90% at 50% 12%,#2c3554 0%,#10162c 58%,#0a0e1c 100%);
+    color:#f9f1e3;font-family:system-ui,'Segoe UI',sans-serif;
+  }
+  #rot-overlay.cache{display:none !important}
+  #rot-overlay.force-show:not(.cache){display:flex !important}
+  .rot-phone{
+    display:inline-block;
+    font-size:64px;line-height:1;
+    animation:rot-bascule 1.8s ease-in-out infinite !important;
+  }
+  @keyframes rot-bascule{
+    0%,18%{transform:rotate(0deg)}
+    58%,100%{transform:rotate(90deg)}
+  }
+  .rot-title{margin:16px 0 6px;font-size:27px;font-weight:800}
+  .rot-txt{margin:0 0 22px;font-size:15px;line-height:1.55;color:#cdd6f0}
+  .rot-btn{
+    padding:14px 26px;border:none;border-radius:999px;cursor:pointer;
+    background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;
+    font-size:15px;font-weight:800;box-shadow:0 10px 26px rgba(244,81,30,.35);
+  }
+  .rot-skip{margin-top:16px;padding:6px 10px;background:none;border:none;cursor:pointer;color:#9aa3bd;font-size:13px;text-decoration:underline}
+  @media screen and (orientation:portrait) and (pointer:coarse),
+         screen and (orientation:portrait) and (max-width:920px),
+         screen and (max-width:680px){
+    #rot-overlay:not(.cache){display:flex}
+    body:has(#rot-overlay:not(.cache)){overflow:hidden}
+  }
+  @media print{#phpm-ctrl,#rot-overlay{display:none !important}}
 </style>
 <script>
-/* ⏯️ Barre de symboles : pilote les mêmes fonctions que les boutons d'origine */
+/* ⏯️ Barre de symboles + 🔄 Overlay « Tournez-moi » */
 (function () {
   function $(x) { return document.getElementById(x); }
   var prev = $("pc-prev"), nxt = $("pc-next"), rst = $("pc-rst"),
@@ -638,6 +680,61 @@ init();build();render();
   }
   sync();
   setInterval(sync, 400);
+
+  /* 🔄 Overlay « Tournez-moi » */
+  var overlay = $("rot-overlay");
+  if (overlay) {
+    if (window.innerHeight >= window.innerWidth || window.innerWidth <= 768) {
+      overlay.classList.add("force-show");
+    }
+    var cacher = function () {
+      overlay.classList.add("cache");
+      overlay.classList.remove("force-show");
+    };
+    var skip = $("rot-skip"), goBtn = $("rot-go");
+    if (skip) skip.addEventListener("click", cacher);
+    if (goBtn) goBtn.addEventListener("click", function () {
+      try {
+        if (window.self !== window.top) {
+          window.parent.postMessage({ type: "STI_PLEIN_ECRAN_GUICHET" }, "*");
+        }
+      } catch (e) {}
+      var elx = document.documentElement;
+      var req = elx.requestFullscreen || elx.webkitRequestFullscreen || elx.msRequestFullscreen;
+      if (req) {
+        try {
+          var pr = req.call(elx);
+          if (pr && pr.then) {
+            pr.then(function () {
+              if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(function () {});
+              }
+            }).catch(function () {});
+          }
+        } catch (err) {}
+      }
+      if (screen.orientation && screen.orientation.lock) {
+        try { screen.orientation.lock("landscape").catch(function () {}); } catch (err2) {}
+      }
+      cacher();
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > window.innerHeight && window.innerWidth > 680) cacher();
+    });
+    window.addEventListener("orientationchange", function () {
+      setTimeout(function () {
+        if (window.innerWidth > window.innerHeight) cacher();
+      }, 200);
+    });
+    window.addEventListener("message", function (ev) {
+      if (ev && ev.data && ev.data.type === "STI_OUVRIR_GUICHET") {
+        if (ev.data.portrait) {
+          overlay.classList.remove("cache");
+          overlay.classList.add("force-show");
+        }
+      }
+    });
+  }
 })();
 </script>
 

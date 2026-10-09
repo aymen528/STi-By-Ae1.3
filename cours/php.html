@@ -1589,6 +1589,18 @@ mysqli_close($connexion);
           if (e && e.preventDefault) e.preventDefault();
           M.hidden = false;
           document.body.style.overflow = "hidden";
+          var f = document.getElementById("animFrame");
+          var estPortrait = window.innerHeight > window.innerWidth || window.innerWidth <= 768;
+          function notifierGuichet() {
+            if (f && f.contentWindow) {
+              try {
+                f.contentWindow.postMessage({ type: "STI_OUVRIR_GUICHET", portrait: estPortrait }, "*");
+              } catch (err) {}
+            }
+          }
+          notifierGuichet();
+          setTimeout(notifierGuichet, 180);
+          setTimeout(notifierGuichet, 450);
         }
         function close() {
           if (document.fullscreenElement) {
@@ -1674,6 +1686,18 @@ mysqli_close($connexion);
           if (ev && ev.data && ev.data.type === "STI_FERMER_MODALE_PHP") {
             if (!M.hidden) close();
             if (!MR.hidden) closeRecap();
+          } else if (ev && ev.data && ev.data.type === "STI_PLEIN_ECRAN_GUICHET") {
+            if (!M.classList.contains("full")) {
+              M.classList.add("full");
+              document.getElementById("animFull").textContent = "⤡ Réduire";
+            }
+            if (B.requestFullscreen) {
+              B.requestFullscreen().then(function () {
+                if (screen.orientation && screen.orientation.lock) {
+                  screen.orientation.lock("landscape").catch(function () {});
+                }
+              }).catch(function () {});
+            }
           }
         });
 
