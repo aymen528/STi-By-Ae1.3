@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=70";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=71";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-70") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-70", "1");
+          if (sessionStorage.getItem("sti-sw-reload-71") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-71", "1");
         } catch (e) {}
         location.reload();
       });
@@ -318,7 +318,7 @@
     if (btnImp) btnImp.style.display = ok ? "block" : "none";
     var btnRoue = document.getElementById("sti-roue-btn");
     if (btnRoue) {
-      btnRoue.textContent = ok ? "👑" : "⚙️";
+      btnRoue.textContent = "⚙️";
       btnRoue.title = ok ? "Mon compte GOLD (capture & impression autorisées)" : "Mon compte";
       btnRoue.style.background = ok
         ? "radial-gradient(circle at 32% 30%,#fff6b3,#ffb300 68%)"
@@ -1193,7 +1193,7 @@
     btn.id = "sti-roue-btn";
     btn.type = "button";
     btn.className = "sti-roue";
-    btn.textContent = isG ? "👑" : "⚙️";
+    btn.textContent = "⚙️";
     btn.title = isG ? "Mon compte GOLD (capture & impression autorisées)" : "Mon compte";
     btn.style.cssText = "display:block;width:48px;height:48px;border-radius:50%;border:2px solid #23201a;background:" +
       (isG ? "radial-gradient(circle at 32% 30%,#fff6b3,#ffb300 68%)" : "radial-gradient(circle at 32% 30%,#ffb27a,#f4511e 68%)") +
@@ -1457,11 +1457,14 @@
     } catch (e) {}
   }
 
-  /* ---------- badge ADMIN visible sur tout le site (droite, milieu) + bouton Imprimer Gold + compteur de demandes ---------- */
+  /* ---------- badge ADMIN visible sur tout le site (droite, au-dessus de ⚙️) + bouton Imprimer Gold + compteur de demandes ---------- */
   function badgeAdmin() {
+    var exAdm = document.getElementById("sti-badge-admin-flottant");
+    if (exAdm) exAdm.remove();
     var cont = document.createElement("div");
+    cont.id = "sti-badge-admin-flottant";
     cont.className = "sti-no-print";
-    cont.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;flex-direction:column;align-items:flex-end;gap:8px;";
+    cont.style.cssText = "position:fixed;right:10px;top:calc(50% - 78px);transform:translateY(-50%);z-index:2147483645;display:flex;flex-direction:column;align-items:flex-end;gap:8px;";
 
     var b = document.createElement("a");
     b.href = PORTAIL.replace("portail.html", "admin.html");
@@ -1480,19 +1483,7 @@
       imprimerContenuGold();
     });
 
-    var btnS = document.createElement("button");
-    btnS.type = "button";
-    btnS.textContent = "🔍";
-    btnS.title = "Recherche globale rapide (Ctrl+K)";
-    btnS.style.cssText = "background:#fffdf7;color:#23201a;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
-    btnS.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (window.ouvrirRechercheGlobaleSTI) window.ouvrirRechercheGlobaleSTI("");
-    });
-
     cont.appendChild(b);
-    cont.appendChild(btnS);
     cont.appendChild(btnP);
     (document.body || document.documentElement).appendChild(cont);
 
@@ -2149,7 +2140,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v70)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v71)
      ===================================================================== */
   var STI_FLASHCARDS = [
     /* --- HTML5 --- */
