@@ -20,21 +20,24 @@
 <title>Accès — Plateforme STI V2.0</title>
 <style>
   :root {
-    --bg: #f9f1e3;
-    --surface: #fffcf3;
-    --surface-2: #f6eedc;
-    --border: #e7d9bd;
-    --edge: #0f1726;
-    --ink: #0f1726;
-    --muted: #6b6250;
-    --accent: #f4511e;
-    --accent-soft: #ffe2d2;
+    color-scheme: dark;
+    --bg: #0d1526;
+    --surface: #141f35;
+    --surface-2: #18243d;
+    --border: #26344f;
+    --edge: #f3e9d8;
+    --ink: #f3e9d8;
+    --muted: #a79b80;
+    --accent: #ff6a2b;
+    --accent-2: #ff9a5c;
+    --accent-soft: #2a1b10;
+    --term-bg: #070d19;
     --pop-sm: 2.5px 2.5px 0 var(--edge);
     --pop: 4px 4px 0 var(--edge);
     --pop-lg: 7px 7px 0 var(--edge);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  /* Fond identique à index.html (« L'Atelier » : crème + halo pêche en haut + grille de points) */
+  /* Fond mode sombre identique à index.html (« L'Atelier » dark : #0d1526 + halo orange + grille de points) */
   body {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
     padding: 24px 18px; color: var(--ink);
@@ -44,10 +47,10 @@
   }
   body::before {
     content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, #f8a86b 34%, transparent) 0%,
-      color-mix(in srgb, #f8a86b 0%, transparent) 44%
+    background: radial-gradient(
+      60% 44% at 70% -8%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 70%
     );
   }
   .bg-decor {
@@ -83,7 +86,7 @@
   }
   .halo {
     display: inline-block; padding: 6px; border-radius: 22px;
-    background: var(--accent-soft); border: 2px solid var(--edge);
+    background: var(--surface-2); border: 2px solid var(--edge);
     box-shadow: var(--pop-sm);
   }
   .entete img {
@@ -125,7 +128,7 @@
     color: var(--muted); font-size: 13px; font-weight: 600; margin-top: 8px;
   }
   .onglets {
-    display: flex; gap: 5px; margin-bottom: 8px; background: var(--surface-2);
+    display: flex; gap: 5px; margin-bottom: 8px; background: var(--bg);
     padding: 5px; border-radius: 14px; border: 2px solid var(--edge);
     box-shadow: var(--pop-sm);
   }
@@ -135,45 +138,47 @@
     cursor: pointer; transition: all .18s ease;
   }
   .onglets button.actif {
-    background: var(--ink); color: var(--bg);
-    border-color: var(--edge); box-shadow: 2.5px 2.5px 0 var(--accent);
+    background: var(--accent); color: #14100e;
+    border-color: var(--edge); box-shadow: 2.5px 2.5px 0 var(--edge);
   }
-  .onglets button:hover:not(.actif) { color: var(--accent); transform: translateY(-1px); }
+  .onglets button:hover:not(.actif) { color: var(--ink); transform: translateY(-1px); }
   label {
     display: block; font-weight: 800; color: var(--ink);
     margin: 13px 0 5px; text-transform: uppercase; letter-spacing: .06em; font-size: 11px;
   }
   input[type=email], input[type=password], input[type=text], input[type=tel], select {
     width: 100%; padding: 12.5px 14px; border-radius: 12px; border: 2px solid var(--edge);
-    background: #fff; color: var(--ink); font-size: 14.5px; font-weight: 600;
+    background: var(--bg); color: var(--ink); font-size: 14.5px; font-weight: 600;
     outline: none; transition: border-color .2s, box-shadow .2s;
   }
+  input::placeholder { color: rgba(167, 155, 128, 0.65); }
   input:focus, select:focus {
     border-color: var(--accent); box-shadow: 3px 3px 0 var(--accent);
   }
   .ligne-captcha { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
   canvas {
     border-radius: 12px; border: 2px solid var(--edge);
-    background: linear-gradient(160deg,#fff,#fdf6e8); box-shadow: var(--pop-sm);
+    background: var(--term-bg); box-shadow: var(--pop-sm);
   }
   .rafraichir {
-    border: 2px solid var(--edge); background: #fff; color: var(--accent); border-radius: 12px;
+    border: 2px solid var(--edge); background: var(--surface-2); color: var(--accent); border-radius: 12px;
     width: 46px; height: 46px; font-size: 19px; cursor: pointer; box-shadow: var(--pop-sm);
   }
   .rafraichir:active, .btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--edge); }
   .btn {
     width: 100%; margin-top: 20px; border: 2px solid var(--edge); border-radius: 999px; padding: 14px;
-    background: var(--ink); color: var(--bg); font-weight: 800;
-    font-size: 15px; letter-spacing: .2px; cursor: pointer; box-shadow: 4px 4px 0 var(--accent);
+    background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #14100e; font-weight: 900;
+    font-size: 15px; letter-spacing: .2px; cursor: pointer; box-shadow: 4px 4px 0 var(--edge);
     transition: transform .15s ease, box-shadow .15s ease;
     position: relative; overflow: hidden;
   }
-  .btn:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--accent); }
+  .btn:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--edge); }
   .btn:disabled { opacity: .5; cursor: wait; }
   .msg { margin-top: 14px; font-size: 13px; font-weight: 800; text-align: center; min-height: 18px; }
-  .msg.ok { color: #177245; } .msg.err { color: #c0392b; } .msg.att { color: #b47d09; }
+  .msg.ok { color: #5fe3a1; } .msg.err { color: #ff7a70; } .msg.att { color: #f2b532; }
   .lien-admin { margin-top: 16px; text-align: center; }
-  .lien-admin a { color: var(--muted); font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px dotted #b9a98d; }
+  .lien-admin a { color: var(--muted); font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px dotted var(--muted); }
+  .lien-admin a:hover { color: var(--accent); border-bottom-color: var(--accent); }
   .pied { margin-top: 14px; padding-top: 12px; border-top: 1.5px dashed var(--border); text-align: center; font-size: 11.5px; color: var(--muted); }
   .qr-zone {
     display: flex; align-items: center; gap: 14px; margin-top: 18px;
@@ -187,12 +192,12 @@
   .qr-site-pill {
     display: inline-flex; align-items: center; gap: 5px; margin-top: 6px;
     padding: 4px 10px; border-radius: 999px;
-    background: var(--accent-soft); border: 1.5px solid var(--edge);
+    background: var(--bg); border: 1.5px solid var(--edge);
     color: var(--ink) !important; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 11.2px !important; font-weight: 800; text-decoration: none;
     word-break: break-all;
   }
-  .qr-site-pill:hover { background: var(--accent); color: #fff !important; }
+  .qr-site-pill:hover { background: var(--accent); color: #14100e !important; }
   .qr-liens-bas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; align-items: center; }
   .qr-btn-carte {
     display: inline-flex; align-items: center; gap: 4px;
@@ -204,33 +209,33 @@
   form[hidden] { display: none; }
   .canal { display: flex; gap: 8px; margin-bottom: 14px; }
   .canal button {
-    flex: 1; border: 2px solid var(--edge); background: var(--surface); color: var(--ink);
+    flex: 1; border: 2px solid var(--edge); background: var(--bg); color: var(--ink);
     border-radius: 999px; padding: 8px 6px; font-weight: 800; font-size: 12.5px; cursor: pointer;
     box-shadow: var(--pop-sm); transition: transform .15s ease, background .2s ease;
   }
-  .canal button.on { background: var(--accent); color: #fff; }
+  .canal button.on { background: var(--accent); color: #14100e; }
   .canal button:not(.on):hover { transform: translateY(-1px); }
   #zone-code { animation: entree .5s both; }
-  .code-titre { background: #fdf3e2; border: 1.5px dashed #f2b532; border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; }
-  .code-titre b { color: #d84315; }
-  .btn-sec { background: var(--surface) !important; color: var(--ink) !important; margin-top: 8px; font-size: 13px !important; box-shadow: var(--pop-sm) !important; }
+  .code-titre { background: var(--surface-2); border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 12px; font-size: 13px; margin-bottom: 12px; color: var(--ink); }
+  .code-titre b { color: var(--accent); }
+  .btn-sec { background: var(--surface-2) !important; color: var(--ink) !important; margin-top: 8px; font-size: 13px !important; box-shadow: var(--pop-sm) !important; }
   .otp-cases {
     display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 8px 0 14px;
   }
   .otp-case {
     width: 100%; height: 52px; padding: 0 !important; text-align: center;
-    font-size: 22px; font-weight: 900; color: var(--ink); background: var(--surface);
+    font-size: 22px; font-weight: 900; color: var(--ink); background: var(--bg);
     border: 2px solid var(--edge); border-radius: 12px;
     box-shadow: var(--pop-sm);
     transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
   }
   .otp-case:focus {
-    outline: none; border-color: var(--accent); background: #fff8ee;
+    outline: none; border-color: var(--accent); background: var(--surface-2);
     transform: translateY(-2px); box-shadow: 4px 4px 0 var(--accent);
   }
-  .otp-case.rempli { background: #fdf3e2; border-color: var(--accent); }
+  .otp-case.rempli { background: var(--surface-2); border-color: var(--accent); }
   .champ { position: relative; display: block; }
-  .champ .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .8; pointer-events: none; }
+  .champ .ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .85; pointer-events: none; }
   .champ input { padding-left: 41px; }
   ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
   @media (max-width: 480px) {
@@ -346,7 +351,7 @@
     </form>
 
     <div class="qr-zone">
-      <img src="assets/images/qr-code-site.png?v=50" alt="QR code du site STI by AE" />
+      <img src="assets/images/qr-code-site.png?v=51" alt="QR code du site STI by AE" />
       <div>
         <b>📱 Scannez-moi !</b><br />
         <span>Ouvrez la plateforme sur votre téléphone ou partagez l'accès.</span><br />
@@ -364,7 +369,7 @@
   </div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=50"></script>
+<script src="assets/js/config.js?v=51"></script>
 <script>
   /* ================= Tagline STI : effet machine à écrire (dactylo) identique à index.html ================= */
   (function () {
@@ -414,6 +419,6 @@
     document.getElementById("msg").textContent = "❌ Le script Supabase n'a pas pu être chargé — rechargez la page.";
   }
 </script>
-<script src="assets/js/portail.js?v=50"></script>
+<script src="assets/js/portail.js?v=51"></script>
 </body>
 </html>
