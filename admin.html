@@ -213,6 +213,31 @@
   .btn-outil.vert { background: #e3f6e8; color: #177245; border-color: #177245; box-shadow: 2px 2px 0 #177245; }
   .btn-outil.vert:hover { background: #d2eedb; color: #115934; }
 
+  /* Bandeau récapitulatif quand une classe est appelée / sélectionnée */
+  .bandeau-classe {
+    display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    background: linear-gradient(120deg, #fff8eb 0%, #f3ead9 100%);
+    border: 2px solid #23201a; border-left: 6px solid #f4511e; border-radius: 14px;
+    padding: 10px 14px; margin-bottom: 12px;
+    box-shadow: 3px 3px 0 rgba(244,81,30,.35);
+    font-size: 13px; color: #23201a;
+  }
+  .bandeau-classe.visible { display: flex; }
+  .bandeau-classe-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .bc-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px; border-radius: 999px; font-weight: 900; font-size: 12px;
+    border: 1.5px solid #23201a; background: #fffdf7; color: #23201a;
+    box-shadow: 1.5px 1.5px 0 #23201a;
+  }
+  .bc-pill.online { background: #e3f6e8; color: #177245; border-color: #177245; box-shadow: 1.5px 1.5px 0 #177245; }
+  .bc-pill.effectif { background: #23201a; color: #ffb27a; }
+  .resume-classe-modal {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    background: #f6eedc; border: 1.5px solid #23201a; border-radius: 10px;
+    padding: 7px 11px; margin: -4px 0 12px; font-size: 12px; font-weight: 800; color: #23201a;
+  }
+
   .table-wrap { overflow-x: auto; border: 2px solid #23201a; border-radius: 16px; background: #fffdf7; box-shadow: 5px 5px 0 rgba(244,81,30,.45); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
   th { text-align: left; color: #7a6f5d; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 12px 14px; border-bottom: 2px solid #23201a; background: #f3ead9; }
@@ -476,9 +501,9 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v51</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v52</span>
         </h1>
-        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v51)</strong></div>
+        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v52)</strong></div>
       </div>
     </div>
     <div class="barre-util">
@@ -571,6 +596,9 @@
     <button type="button" class="btn-outil" id="btn-export-csv" title="Télécharger la liste filtrée au format Excel (CSV)">📥 Exporter Excel (CSV)</button>
   </div>
 
+  <!-- Bandeau affiché dès qu'une classe est appelée/sélectionnée : effectif de la classe + nombre en ligne -->
+  <div class="bandeau-classe" id="bandeau-classe-active" role="status" aria-live="polite"></div>
+
   <div class="table-wrap">
     <table>
       <thead><tr><th>Nom &amp; Prénom</th><th>Contact (e-mail / tél.)</th><th>Lycée &amp; Classe</th><th class="only-mob">Actions</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th class="only-pc">Actions</th></tr></thead>
@@ -652,6 +680,7 @@
       <h3>📢 Message groupé à une classe</h3>
       <p>Choisissez la classe destinataire et saisissez (ou dictez) votre annonce :</p>
       <select id="msg-classe"></select>
+      <div class="resume-classe-modal" id="resume-msg-classe"></div>
       <div class="barre-dictee">
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button type="button" class="btn-dicter" id="btn-dicter-msg">🎙️ Dicter</button>
@@ -682,6 +711,7 @@
       <p>Lancez un compte à rebours en direct sur l'écran de tous les élèves de la classe choisie :</p>
       <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">🏫 Classe cible :</label>
       <select id="ctrl-classe"></select>
+      <div class="resume-classe-modal" id="resume-ctrl-classe"></div>
       <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">📝 Épreuve / Sujet :</label>
       <select id="ctrl-sujet">
         <option value="bac-pratique.html">🧪 Atelier Épreuve Pratique Bac STI (/20)</option>
@@ -787,11 +817,11 @@
   </div>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v51)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v52)</span>
   </footer>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=51"></script>
-<script src="assets/js/admin.js?v=51"></script>
+<script src="assets/js/config.js?v=52"></script>
+<script src="assets/js/admin.js?v=52"></script>
 </body>
 </html>

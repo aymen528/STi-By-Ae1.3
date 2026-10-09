@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v51";
+    var versionDefaut = "v52";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -493,10 +493,85 @@
     document.getElementById("zone-detail").classList.remove("visible");
   });
 
+  function statsPourSelection(clFiltre, lyFiltre) {
+    var cl = (clFiltre !== undefined) ? clFiltre : (selFiltreClasse ? selFiltreClasse.value : "*");
+    var ly = (lyFiltre !== undefined) ? lyFiltre : (selFiltreLycee ? selFiltreLycee.value : "*");
+    var sous = profils.filter(function (p) {
+      if (ly && ly !== "*" && lyceePropre(p) !== ly) return false;
+      if (cl && cl !== "*" && (p.classe || "—") !== cl) return false;
+      return true;
+    });
+    var enLigneList = sous.filter(function (p) { return estEnLigne(p.id); });
+    var actifs = sous.filter(function (p) { return p.statut === "actif"; }).length;
+    var attente = sous.filter(function (p) { return p.statut === "en_attente"; }).length;
+    var idsMap = {};
+    sous.forEach(function (p) { idsMap[p.id] = true; });
+    var nbConnex = acces.filter(function (a) { return Boolean(idsMap[a.user_id]); }).length;
+    return {
+      classe: cl,
+      lycee: ly,
+      total: sous.length,
+      enLigne: enLigneList.length,
+      actifs: actifs,
+      attente: attente,
+      connex: nbConnex,
+      nomsEnLigne: enLigneList.map(function (p) { return nomPrenomTexte(p) || contact(p); })
+    };
+  }
+
+  function majBandeauEtCompteursClasse() {
+    var st = statsPourSelection();
+    var elOn = document.getElementById("s-enligne");
+    var elTot = document.getElementById("s-total");
+    var elAct = document.getElementById("s-actifs");
+    var elAtt = document.getElementById("s-attente");
+    var elCon = document.getElementById("s-connex");
+    if (elOn) elOn.textContent = st.enLigne;
+    if (elTot) elTot.textContent = st.total;
+    if (elAct) elAct.textContent = st.actifs;
+    if (elAtt) elAtt.textContent = st.attente;
+    if (elCon) elCon.textContent = st.connex;
+
+    var bandeau = document.getElementById("bandeau-classe-active");
+    if (!bandeau) return;
+    if ((!st.classe || st.classe === "*") && (!st.lycee || st.lycee === "*")) {
+      bandeau.classList.remove("visible");
+      bandeau.innerHTML = "";
+      return;
+    }
+    bandeau.classList.add("visible");
+    var titre = st.classe && st.classe !== "*"
+      ? ("🏫 Classe appelée : <strong>" + st.classe + "</strong>" + (st.lycee && st.lycee !== "*" ? " <span style='color:#7a6f5d'>(" + st.lycee + ")</span>" : ""))
+      : ("🏛️ Lycée appelé : <strong>" + st.lycee + "</strong>");
+    var detailOn = st.nomsEnLigne.length
+      ? " <span style='font-size:11.5px;color:#177245;font-weight:800'>(" + st.nomsEnLigne.join(" · ") + ")</span>"
+      : "";
+    bandeau.innerHTML =
+      "<div class='bandeau-classe-badges'>" +
+        "<span>" + titre + "</span>" +
+        "<span class='bc-pill effectif'>👥 Effectif : " + st.total + " élève(s)</span>" +
+        "<span class='bc-pill online'>🟢 En ligne : " + st.enLigne + " / " + st.total + "</span>" +
+        "<span class='bc-pill'>✅ Actifs : " + st.actifs + " · ⏳ En attente : " + st.attente + "</span>" +
+        detailOn +
+      "</div>" +
+      "<button type='button' class='btn-outil' id='btn-reset-bandeau-classe'>✖ Toutes les classes</button>";
+    var bRes = document.getElementById("btn-reset-bandeau-classe");
+    if (bRes) {
+      bRes.addEventListener("click", function () {
+        if (selFiltreClasse) selFiltreClasse.value = "*";
+        if (selFiltreLycee) selFiltreLycee.value = "*";
+        rendAbonnes();
+      });
+    }
+  }
+
   function majCompteurEnLigne() {
-    var nb = profils.filter(function (p) { return estEnLigne(p.id); }).length;
-    var el = document.getElementById("s-enligne");
-    if (el) el.textContent = nb;
+    majFiltreClasses();
+    majBandeauEtCompteursClasse();
+    if (typeof majResumeClasseModal === "function") {
+      majResumeClasseModal(document.getElementById("msg-classe"), "resume-msg-classe");
+      majResumeClasseModal(document.getElementById("ctrl-classe"), "resume-ctrl-classe");
+    }
   }
 
   function chargerDepuisCacheAdmin(garderMsg, raison) {
@@ -647,11 +722,6 @@
       majSelectSemaine();
       majFiltreClasses();
       majCompteurEnLigne();
-
-      document.getElementById("s-total").textContent = profils.length;
-      document.getElementById("s-actifs").textContent = profils.filter(function (p) { return p.statut === "actif"; }).length;
-      document.getElementById("s-attente").textContent = profils.filter(function (p) { return p.statut === "en_attente"; }).length;
-      document.getElementById("s-connex").textContent = acces.length;
       rendAbonnes();
       rendQuiz();
       rendSuiviMessages();
@@ -739,14 +809,16 @@
   });
 
   function majFiltreClasses() {
+    var totalGlobalOn = profils.filter(function (p) { return estEnLigne(p.id); }).length;
     if (selFiltreLycee) {
       var valLycee = selFiltreLycee.value;
       var lycees = obtenirLyceesActifs();
-      selFiltreLycee.innerHTML = "<option value='*'>🏛️ Tous les lycées</option>";
+      selFiltreLycee.innerHTML = "<option value='*'>🏛️ Tous les lycées (" + profils.length + " · 🟢 " + totalGlobalOn + ")</option>";
       lycees.forEach(function (ly) {
+        var stL = statsPourSelection("*", ly);
         var optL = document.createElement("option");
         optL.value = ly;
-        optL.textContent = ly;
+        optL.textContent = "🏛️ " + ly + " (" + stL.total + " élève(s) · 🟢 " + stL.enLigne + " en ligne)";
         selFiltreLycee.appendChild(optL);
       });
       if (valLycee && (valLycee === "*" || lycees.indexOf(valLycee) !== -1)) {
@@ -755,12 +827,15 @@
     }
     if (!selFiltreClasse) return;
     var valPrec = selFiltreClasse.value;
+    var lyActuel = selFiltreLycee ? selFiltreLycee.value : "*";
+    var stToutes = statsPourSelection("*", lyActuel);
     var classes = obtenirClassesActives();
-    selFiltreClasse.innerHTML = "<option value='*'>🏫 Toutes les classes</option>";
+    selFiltreClasse.innerHTML = "<option value='*'>🏫 Toutes les classes (" + stToutes.total + " élève(s) · 🟢 " + stToutes.enLigne + " en ligne)</option>";
     classes.forEach(function (cl) {
+      var stC = statsPourSelection(cl, lyActuel);
       var opt = document.createElement("option");
       opt.value = cl;
-      opt.textContent = cl;
+      opt.textContent = "🏫 " + cl + " (" + stC.total + " élève(s) · 🟢 " + stC.enLigne + " en ligne)";
       selFiltreClasse.appendChild(opt);
     });
     if (valPrec && (valPrec === "*" || classes.indexOf(valPrec) !== -1)) {
@@ -926,6 +1001,8 @@
   }
 
   function rendAbonnes() {
+    majFiltreClasses();
+    majBandeauEtCompteursClasse();
     var liste = obtenirListeFiltree();
     var nbAttLot = liste.filter(function (p) { return p.statut === "en_attente"; }).length;
     if (btnActiverLot) {
@@ -1594,7 +1671,9 @@
         listeCfgClasses.innerHTML = "<div style='padding:10px;color:#7a6f5d;text-align:center'>Aucune classe enregistrée.</div>";
       }
       classes.forEach(function (cl) {
-        var nb = profils.filter(function (p) { return (p.classe || "—") === cl; }).length;
+        var stCl = statsPourSelection(cl, "*");
+        var nb = stCl.total;
+        var nbOn = stCl.enLigne;
         var row = document.createElement("div");
         row.className = "ecole-item";
         var gauche = document.createElement("div");
@@ -1603,11 +1682,20 @@
         spNom.textContent = "🏫 " + cl;
         var spNb = document.createElement("span");
         spNb.className = "ecole-nb";
-        spNb.textContent = nb + " élève(s)";
+        spNb.textContent = "👥 " + nb + " élève(s) · 🟢 " + nbOn + " en ligne";
         gauche.append(spNom, spNb);
 
         var btns = document.createElement("div");
         btns.className = "ecole-btns";
+        var bCall = document.createElement("button");
+        bCall.type = "button";
+        bCall.textContent = "👁️ Appeler";
+        bCall.title = "Afficher les élèves et les connectés de cette classe dans le tableau de bord";
+        bCall.addEventListener("click", function () {
+          if (selFiltreClasse) selFiltreClasse.value = cl;
+          if (modalEcoles) modalEcoles.classList.remove("visible");
+          rendAbonnes();
+        });
         var bEdit = document.createElement("button");
         bEdit.type = "button";
         bEdit.textContent = "✏️ Changer";
@@ -1625,7 +1713,7 @@
         bDel.addEventListener("click", function () {
           supprimerClasseGlobale(cl);
         });
-        btns.append(bEdit, bDel);
+        btns.append(bCall, bEdit, bDel);
         row.append(gauche, btns);
         listeCfgClasses.appendChild(row);
       });
@@ -1880,25 +1968,51 @@
   var selCtrlClasse = document.getElementById("ctrl-classe");
   var CANAL_DIFFUSION = "sti_v2_diffusion_9482";
 
+  function majResumeClasseModal(selEl, boxId) {
+    if (!selEl) return;
+    var box = document.getElementById(boxId);
+    if (!box) return;
+    var cl = selEl.value || "*";
+    var st = statsPourSelection(cl, "*");
+    var lib = cl === "*" ? "Toutes les classes" : ("Classe " + cl);
+    box.innerHTML =
+      "<span>🏫 <strong>" + lib + "</strong></span>" +
+      "<span>👥 Effectif : <strong>" + st.total + " élève(s)</strong> · <strong style='color:#177245'>🟢 " + st.enLigne + " en ligne</strong></span>";
+  }
+
   function remplirClassesSelect(selEl) {
     if (!selEl) return;
     var classesBase = obtenirClassesActives();
+    var valPrec = selEl.value;
     selEl.innerHTML = "";
+    var stTous = statsPourSelection("*", "*");
     var optTous = document.createElement("option");
     optTous.value = "*";
-    optTous.textContent = "Toutes les classes (" + profils.length + " abonné(s))";
+    optTous.textContent = "Toutes les classes (" + stTous.total + " élève(s) · 🟢 " + stTous.enLigne + " en ligne)";
     selEl.appendChild(optTous);
     classesBase.forEach(function (cl) {
-      var nb = abonnesDeClasse(cl).length;
+      var stC = statsPourSelection(cl, "*");
       var opt = document.createElement("option");
       opt.value = cl;
-      opt.textContent = cl + " (" + nb + " abonné(s))";
+      opt.textContent = cl + " (" + stC.total + " élève(s) · 🟢 " + stC.enLigne + " en ligne)";
       selEl.appendChild(opt);
+    });
+    if (valPrec && (valPrec === "*" || classesBase.indexOf(valPrec) !== -1)) {
+      selEl.value = valPrec;
+    } else if (selFiltreClasse && selFiltreClasse.value && selFiltreClasse.value !== "*") {
+      selEl.value = selFiltreClasse.value;
+    }
+  }
+
+  if (selCtrlClasse) {
+    selCtrlClasse.addEventListener("change", function () {
+      majResumeClasseModal(selCtrlClasse, "resume-ctrl-classe");
     });
   }
 
   document.getElementById("btn-controle").addEventListener("click", function () {
     remplirClassesSelect(selCtrlClasse);
+    majResumeClasseModal(selCtrlClasse, "resume-ctrl-classe");
     modalCtrl.classList.add("visible");
   });
   document.getElementById("btn-fermer-ctrl").addEventListener("click", function () {
@@ -1956,10 +2070,12 @@
 
   function remplirClasses() {
     remplirClassesSelect(selClasse);
+    majResumeClasseModal(selClasse, "resume-msg-classe");
     majListeWaClasse();
   }
 
   function majListeWaClasse() {
+    majResumeClasseModal(selClasse, "resume-msg-classe");
     var liste = abonnesDeClasse(selClasse.value);
     var avecTel = liste.filter(function (p) { return Boolean(telDeProfil(p)); });
     listeWaClasse.innerHTML = "";
