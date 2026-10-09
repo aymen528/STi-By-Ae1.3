@@ -578,9 +578,9 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v55</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v56</span>
         </h1>
-        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v55)</strong></div>
+        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v56)</strong></div>
       </div>
     </div>
     <div class="barre-util">
@@ -705,15 +705,24 @@
     </div>
   </div>
 
-  <h2>🏆 Résultats des Quiz &amp; Atelier Bac Pratique</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:22px 0 10px">
+    <h2 style="margin:0">🏆 Résultats des Quiz &amp; Atelier Bac Pratique</h2>
+    <button type="button" class="btn-outil" id="btn-ouvrir-purge-quiz" style="background:#fde2e6;color:#c0392b;border-color:#c0392b;box-shadow:2px 2px 0 #c0392b" title="Effacer les résultats de Quiz et Bac Pratique en choisissant le mois cible">🗑️ Effacer par mois…</button>
+  </div>
   <div class="table-wrap">
     <table>
       <thead><tr><th>Candidat (Nom, Prénom &amp; Contact)</th><th>Lycée / Classe</th><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead>
       <tbody id="tb-quiz"></tbody>
     </table>
   </div>
+  <div id="wrap-voir-plus-quiz" style="display:none;text-align:center;margin:10px 0 4px">
+    <button type="button" class="btn-outil" id="btn-voir-plus-quiz">➕ Voir plus</button>
+  </div>
 
-  <h2>📨 Suivi de lecture des messages diffusés &amp; réponses des élèves <span id="resume-suivi-msg" style="font-size:12px;color:#7a6f5d;font-weight:800;margin-left:6px"></span></h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:22px 0 10px">
+    <h2 style="margin:0">📨 Suivi de lecture des messages diffusés &amp; réponses des élèves <span id="resume-suivi-msg" style="font-size:12px;color:#7a6f5d;font-weight:800;margin-left:6px"></span></h2>
+    <button type="button" class="btn-outil" id="btn-ouvrir-purge-msg" style="background:#fde2e6;color:#c0392b;border-color:#c0392b;box-shadow:2px 2px 0 #c0392b" title="Effacer un message diffusé et son suivi de lecture/réponses">🗑️ Effacer par message…</button>
+  </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
     <select id="sel-suivi-msg" style="border:2px solid #23201a;border-radius:10px;padding:7px 12px;background:#fffdf7;color:#23201a;font-weight:800;font-size:13px;min-width:260px;max-width:100%">
       <option value="">Aucun message diffusé pour le moment</option>
@@ -755,6 +764,36 @@
       <div class="modal-actions">
         <button type="button" id="btn-annuler-purge-acces">Annuler</button>
         <button type="button" class="btn-danger" id="btn-confirmer-purge-acces">🗑️ Effacer ce mois</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de suppression des résultats Quiz & Bac Pratique par mois cible -->
+  <div class="modal-fond" id="modal-purge-quiz" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:430px">
+      <h3>🗑️ Effacer les résultats de Quiz &amp; Bac</h3>
+      <p>Choisissez le <strong>mois cible</strong> dont vous souhaitez supprimer les notes et résultats de Quiz / Atelier Bac Pratique :</p>
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#23201a">📅 Mois cible à effacer :</label>
+      <select id="sel-mois-purge-quiz" style="width:100%;border:2px solid #23201a;border-radius:10px;padding:9px 12px;font-size:13.5px;font-weight:800;background:#fff;color:#23201a;margin-bottom:10px"></select>
+      <div class="resume-classe-modal" id="resume-purge-quiz" style="margin-bottom:14px"></div>
+      <div class="modal-actions">
+        <button type="button" id="btn-annuler-purge-quiz">Annuler</button>
+        <button type="button" class="btn-danger" id="btn-confirmer-purge-quiz">🗑️ Effacer ce mois</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de suppression du suivi de lecture et des réponses par message cible -->
+  <div class="modal-fond" id="modal-purge-msg" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:460px">
+      <h3>🗑️ Effacer le suivi d'un message</h3>
+      <p>Choisissez le <strong>message cible</strong> (ou les questions spontanées) à supprimer du suivi de lecture et des réponses :</p>
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#23201a">📨 Message cible à effacer :</label>
+      <select id="sel-cible-purge-msg" style="width:100%;border:2px solid #23201a;border-radius:10px;padding:9px 12px;font-size:13px;font-weight:800;background:#fff;color:#23201a;margin-bottom:10px"></select>
+      <div class="resume-classe-modal" id="resume-purge-msg" style="margin-bottom:14px"></div>
+      <div class="modal-actions">
+        <button type="button" id="btn-annuler-purge-msg">Annuler</button>
+        <button type="button" class="btn-danger" id="btn-confirmer-purge-msg">🗑️ Effacer ce message</button>
       </div>
     </div>
   </div>
@@ -927,11 +966,11 @@
   </div>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v55)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v56)</span>
   </footer>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=55"></script>
-<script src="assets/js/admin.js?v=55"></script>
+<script src="assets/js/config.js?v=56"></script>
+<script src="assets/js/admin.js?v=56"></script>
 </body>
 </html>

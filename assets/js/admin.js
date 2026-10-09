@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v55";
+    var versionDefaut = "v56";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -586,10 +586,66 @@
     return false;
   }
 
+  var idsAccesParMsg = {};
+
+  function estQuizPurge(tsIso) {
+    if (!cfgEcoles || !cfgEcoles.purgesQuizMois) return false;
+    var t = new Date(tsIso).getTime() || 0;
+    var ym = cleMois(tsIso);
+    if (cfgEcoles.purgesQuizMois["*"] && t <= Number(cfgEcoles.purgesQuizMois["*"])) return true;
+    if (ym && cfgEcoles.purgesQuizMois[ym] && t <= Number(cfgEcoles.purgesQuizMois[ym])) return true;
+    return false;
+  }
+
+  function estMsgPurge(mid, tsIso) {
+    if (!cfgEcoles || !cfgEcoles.purgesMsg) return false;
+    var t = tsIso ? (new Date(tsIso).getTime() || 0) : 0;
+    if (cfgEcoles.purgesMsg["*"]) {
+      if (!t || t <= Number(cfgEcoles.purgesMsg["*"])) return true;
+    }
+    if (mid && cfgEcoles.purgesMsg[mid]) {
+      if (mid === "__libre" || mid === "libre") {
+        if (!t || t <= Number(cfgEcoles.purgesMsg[mid])) return true;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function appliquerDonneesAdmin(tous, tousAcces, txtNtfy, estHorsLigne, tsCache) {
     var adminIds = {};
     tous.forEach(function (p) { if (estAdminEmail(p.email)) adminIds[p.id] = true; });
     profils = tous.filter(function (p) { return !estAdminEmail(p.email); });
+
+    /* 1) Charger en priorité la dernière configuration CFG_ECOLES (dont purgesMois, purgesQuizMois, purgesMsg) */
+    tousAcces.forEach(function (a) {
+      if ((a.page || "") === "CFG_ECOLES") {
+        try {
+          var ce = JSON.parse(a.lieu || "{}");
+          if (ce && Array.isArray(ce.lycees) && Array.isArray(ce.classes) && Number(ce.ts || 0) > Number(cfgEcoles.ts || 0)) {
+            cfgEcoles = Object.assign(cfgEcoles, ce);
+            localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
+          }
+        } catch (e) {}
+      }
+    });
+    if (txtNtfy) {
+      txtNtfy.trim().split("\n").forEach(function (ln) {
+        if (!ln) return;
+        try {
+          var ev0 = JSON.parse(ln);
+          if (!ev0 || !ev0.message) return;
+          var obj0 = JSON.parse(ev0.message);
+          if (obj0 && obj0.type === "cfg_ecoles" && Array.isArray(obj0.lycees) && Array.isArray(obj0.classes)) {
+            if (Number(obj0.ts || 0) > Number(cfgEcoles.ts || 0)) {
+              cfgEcoles = Object.assign(cfgEcoles, obj0);
+              localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
+            }
+          }
+        } catch (e) {}
+      });
+    }
 
     var mapMsg = {};
     lecturesParMsg = {};
@@ -597,23 +653,33 @@
     questionsLibres = [];
     scoresParUser = {};
     listeResultatsQuiz = [];
+    idsAccesParMsg = {};
 
     tousAcces.forEach(function (a) {
         var pg = a.page || "";
+        if (pg === "SUPPR_ACCES") return;
         if (pg.indexOf("MSG_ENVOI:") === 0) {
           try {
             var m = JSON.parse(a.lieu || "{}");
-            if (m && m.id) mapMsg[m.id] = m;
+            if (m && m.id && !estMsgPurge(m.id, m.ts || a.debut)) {
+              mapMsg[m.id] = m;
+              if (!idsAccesParMsg[m.id]) idsAccesParMsg[m.id] = [];
+              if (a.id) idsAccesParMsg[m.id].push(a.id);
+            }
           } catch (e) {}
         } else if (pg.indexOf("MSG_LU:") === 0) {
           var mid = pg.slice(7);
+          var cleCheck = mid === "libre" ? "__libre" : mid;
+          if (estMsgPurge(cleCheck, a.debut)) return;
+          if (!idsAccesParMsg[cleCheck]) idsAccesParMsg[cleCheck] = [];
+          if (a.id) idsAccesParMsg[cleCheck].push(a.id);
           var repTxt = "";
           try {
             var objL = JSON.parse(a.lieu || "{}");
             if (objL && objL.reponse) repTxt = objL.reponse;
           } catch (e) {}
           if (mid === "libre") {
-            if (repTxt) questionsLibres.push({ uid: a.user_id, ts: a.debut, reponse: repTxt });
+            if (repTxt) questionsLibres.push({ id: a.id, uid: a.user_id, ts: a.debut, reponse: repTxt });
           } else {
             if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
             if (!lecturesParMsg[mid][a.user_id]) lecturesParMsg[mid][a.user_id] = a.debut;
@@ -622,14 +688,6 @@
               if (!reponsesParMsg[mid][a.user_id]) reponsesParMsg[mid][a.user_id] = repTxt;
             }
           }
-        } else if (pg === "CFG_ECOLES") {
-          try {
-            var ce = JSON.parse(a.lieu || "{}");
-            if (ce && Array.isArray(ce.lycees) && Array.isArray(ce.classes) && Number(ce.ts || 0) > Number(cfgEcoles.ts || 0)) {
-              cfgEcoles = Object.assign(cfgEcoles, ce);
-              localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
-            }
-          } catch (e) {}
         } else if (pg.indexOf("QUIZ:") === 0) {
           var nomQ = pg.slice(5);
           var infoQ = { quiz: nomQ, note: (a.duree_sec || 0) + "/20", ts: a.debut };
@@ -637,13 +695,17 @@
             var parsedQ = JSON.parse(a.lieu || "{}");
             if (parsedQ && parsedQ.note) infoQ = parsedQ;
           } catch (e) {}
+          var tsQuiz = infoQ.ts || a.debut;
+          if (estQuizPurge(tsQuiz)) return;
           if (!scoresParUser[a.user_id]) scoresParUser[a.user_id] = {};
           if (!scoresParUser[a.user_id][nomQ]) scoresParUser[a.user_id][nomQ] = infoQ.note;
           listeResultatsQuiz.push({
+            id: a.id,
             uid: a.user_id,
+            nomQ: nomQ,
             quiz: infoQ.quiz || nomQ,
             note: infoQ.note || "—",
-            ts: infoQ.ts || a.debut
+            ts: tsQuiz
           });
         }
       });
@@ -655,22 +717,21 @@
             var ev = JSON.parse(ln);
             if (!ev || !ev.message) return;
             var obj = JSON.parse(ev.message);
-            if (obj && obj.type === "cfg_ecoles" && Array.isArray(obj.lycees) && Array.isArray(obj.classes)) {
-              if (Number(obj.ts || 0) > Number(cfgEcoles.ts || 0)) {
-                cfgEcoles = Object.assign(cfgEcoles, obj);
-                localStorage.setItem("sti-cfg-ecoles", JSON.stringify(cfgEcoles));
-              }
-            } else if (obj && obj.id && obj.texte && !obj.type) {
-              if (!mapMsg[obj.id]) mapMsg[obj.id] = obj;
+            if (obj && obj.id && obj.texte && !obj.type) {
+              var tsM = obj.ts || (ev.time ? new Date(ev.time * 1000).toISOString() : "");
+              if (!estMsgPurge(obj.id, tsM) && !mapMsg[obj.id]) mapMsg[obj.id] = obj;
             } else if (obj && obj.type === "lu" && obj.msgId && obj.uid) {
+              var tsLu = obj.ts || new Date(ev.time * 1000).toISOString();
+              var cleLu = obj.msgId === "libre" ? "__libre" : obj.msgId;
+              if (estMsgPurge(cleLu, tsLu)) return;
               if (obj.msgId === "libre") {
                 if (obj.reponse && !questionsLibres.some(function (q) { return q.uid === obj.uid && q.reponse === obj.reponse; })) {
-                  questionsLibres.push({ uid: obj.uid, ts: obj.ts || new Date(ev.time * 1000).toISOString(), reponse: obj.reponse });
+                  questionsLibres.push({ uid: obj.uid, ts: tsLu, reponse: obj.reponse });
                 }
               } else {
                 if (!lecturesParMsg[obj.msgId]) lecturesParMsg[obj.msgId] = {};
                 if (!lecturesParMsg[obj.msgId][obj.uid]) {
-                  lecturesParMsg[obj.msgId][obj.uid] = obj.ts || new Date(ev.time * 1000).toISOString();
+                  lecturesParMsg[obj.msgId][obj.uid] = tsLu;
                 }
                 if (obj.reponse) {
                   if (!reponsesParMsg[obj.msgId]) reponsesParMsg[obj.msgId] = {};
@@ -1392,14 +1453,26 @@
     window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
   }
 
-  /* ---------- Point 5 : Tableau des résultats Quiz & Atelier Bac Pratique ---------- */
+  /* ---------- Point 5 : Tableau des résultats Quiz & Atelier Bac Pratique (5 premiers + Voir plus + Effacer par mois) ---------- */
+  var toutVoirQuiz = false;
+  var wrapVoirPlusQuiz = document.getElementById("wrap-voir-plus-quiz");
+  var btnVoirPlusQuiz = document.getElementById("btn-voir-plus-quiz");
+  if (btnVoirPlusQuiz) {
+    btnVoirPlusQuiz.addEventListener("click", function () {
+      toutVoirQuiz = !toutVoirQuiz;
+      rendQuiz();
+    });
+  }
+
   function rendQuiz() {
     var tb = document.getElementById("tb-quiz");
     if (!tb) return;
     tb.innerHTML = "";
     var mapProf = {};
     profils.forEach(function (p) { mapProf[p.id] = p; });
-    if (!listeResultatsQuiz.length) {
+    var totalQ = listeResultatsQuiz.length;
+    if (!totalQ) {
+      if (wrapVoirPlusQuiz) wrapVoirPlusQuiz.style.display = "none";
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
       td0.colSpan = 5;
@@ -1409,7 +1482,8 @@
       tb.appendChild(tr0);
       return;
     }
-    listeResultatsQuiz.slice(0, 40).forEach(function (q) {
+    var limQ = toutVoirQuiz ? totalQ : 5;
+    listeResultatsQuiz.slice(0, limQ).forEach(function (q) {
       var p = mapProf[q.uid];
       var tr = document.createElement("tr");
       var nomEl = p ? contact(p) : q.uid;
@@ -1422,6 +1496,267 @@
         tr.appendChild(td);
       });
       tb.appendChild(tr);
+    });
+    if (wrapVoirPlusQuiz && btnVoirPlusQuiz) {
+      if (totalQ > 5) {
+        wrapVoirPlusQuiz.style.display = "block";
+        btnVoirPlusQuiz.textContent = toutVoirQuiz
+          ? "➖ Voir moins (afficher les 5 premiers)"
+          : ("➕ Voir plus (" + (totalQ - 5) + " autre(s) résultat(s))");
+      } else {
+        wrapVoirPlusQuiz.style.display = "none";
+      }
+    }
+  }
+
+  /* ---------- Suppression des résultats Quiz & Bac Pratique par mois cible ---------- */
+  var btnOuvrirPurgeQuiz = document.getElementById("btn-ouvrir-purge-quiz");
+  var modalPurgeQuiz = document.getElementById("modal-purge-quiz");
+  var selMoisPurgeQuiz = document.getElementById("sel-mois-purge-quiz");
+  var resumePurgeQuiz = document.getElementById("resume-purge-quiz");
+  var btnAnnulerPurgeQuiz = document.getElementById("btn-annuler-purge-quiz");
+  var btnConfirmerPurgeQuiz = document.getElementById("btn-confirmer-purge-quiz");
+
+  function quizDuMois(ym) {
+    if (!ym || ym === "*") return listeResultatsQuiz.slice();
+    return listeResultatsQuiz.filter(function (q) { return cleMois(q.ts) === ym; });
+  }
+
+  function majResumePurgeQuiz() {
+    if (!selMoisPurgeQuiz || !resumePurgeQuiz) return;
+    var ym = selMoisPurgeQuiz.value || "*";
+    var nb = quizDuMois(ym).length;
+    var lib = ym === "*" ? "Tous les mois" : libelleMois(ym);
+    resumePurgeQuiz.innerHTML =
+      "<span>📅 <strong>" + lib + "</strong></span>" +
+      "<span style='color:#c0392b'>🗑️ <strong>" + nb + " résultat(s)</strong> à supprimer</span>";
+  }
+
+  function remplirMoisPurgeQuiz() {
+    if (!selMoisPurgeQuiz) return;
+    var mapMois = {};
+    var now = new Date();
+    for (var k = 0; k < 6; k++) {
+      var dRef = new Date(now.getFullYear(), now.getMonth() - k, 1);
+      var ymRef = dRef.getFullYear() + "-" + String(dRef.getMonth() + 1).padStart(2, "0");
+      mapMois[ymRef] = 0;
+    }
+    listeResultatsQuiz.forEach(function (q) {
+      var ym = cleMois(q.ts);
+      mapMois[ym] = (mapMois[ym] || 0) + 1;
+    });
+    var listeMois = Object.keys(mapMois).sort().reverse();
+    selMoisPurgeQuiz.innerHTML = "";
+    var premierAvecDonnees = "";
+    listeMois.forEach(function (ym) {
+      var nb = mapMois[ym] || 0;
+      if (!premierAvecDonnees && nb > 0) premierAvecDonnees = ym;
+      var opt = document.createElement("option");
+      opt.value = ym;
+      opt.textContent = "📅 " + libelleMois(ym) + " (" + nb + " résultat(s))";
+      selMoisPurgeQuiz.appendChild(opt);
+    });
+    var optTous = document.createElement("option");
+    optTous.value = "*";
+    optTous.textContent = "🗓️ Tous les mois — Tout effacer (" + listeResultatsQuiz.length + " résultat(s))";
+    selMoisPurgeQuiz.appendChild(optTous);
+
+    if (premierAvecDonnees) selMoisPurgeQuiz.value = premierAvecDonnees;
+    majResumePurgeQuiz();
+  }
+
+  if (btnOuvrirPurgeQuiz) {
+    btnOuvrirPurgeQuiz.addEventListener("click", function () {
+      remplirMoisPurgeQuiz();
+      if (modalPurgeQuiz) modalPurgeQuiz.classList.add("visible");
+    });
+  }
+  if (selMoisPurgeQuiz) {
+    selMoisPurgeQuiz.addEventListener("change", majResumePurgeQuiz);
+  }
+  if (btnAnnulerPurgeQuiz) {
+    btnAnnulerPurgeQuiz.addEventListener("click", function () {
+      if (modalPurgeQuiz) modalPurgeQuiz.classList.remove("visible");
+    });
+  }
+  if (btnConfirmerPurgeQuiz) {
+    btnConfirmerPurgeQuiz.addEventListener("click", function () {
+      var ym = selMoisPurgeQuiz ? selMoisPurgeQuiz.value : "*";
+      var cibles = quizDuMois(ym);
+      var lib = ym === "*" ? "tous les mois" : libelleMois(ym);
+      if (!cfgEcoles.purgesQuizMois || typeof cfgEcoles.purgesQuizMois !== "object") {
+        cfgEcoles.purgesQuizMois = {};
+      }
+      cfgEcoles.purgesQuizMois[ym] = Date.now();
+      sauvegarderCfgEcoles();
+
+      var ids = cibles.map(function (q) { return q.id; }).filter(Boolean);
+      listeResultatsQuiz = listeResultatsQuiz.filter(function (q) {
+        return ym === "*" ? false : (cleMois(q.ts) !== ym);
+      });
+
+      /* Recalcul immédiat des badges de scores par élève */
+      scoresParUser = {};
+      listeResultatsQuiz.forEach(function (q) {
+        var cleQ = q.nomQ || q.quiz;
+        if (!scoresParUser[q.uid]) scoresParUser[q.uid] = {};
+        if (!scoresParUser[q.uid][cleQ]) scoresParUser[q.uid][cleQ] = q.note;
+      });
+
+      try {
+        var cLoc = JSON.parse(localStorage.getItem("sti-admin-cache") || "null");
+        if (cLoc && Array.isArray(cLoc.tousAcces)) {
+          var mapIds = {};
+          ids.forEach(function (id) { mapIds[id] = true; });
+          cLoc.tousAcces = cLoc.tousAcces.filter(function (a) { return !mapIds[a.id]; });
+          localStorage.setItem("sti-admin-cache", JSON.stringify(cLoc));
+        }
+      } catch (e) {}
+
+      if (modalPurgeQuiz) modalPurgeQuiz.classList.remove("visible");
+      rendQuiz();
+      rendAbonnes();
+
+      if (ids.length && navigator.onLine) {
+        sb.from("acces").update({ page: "SUPPR_ACCES" }).in("id", ids).then(function () {});
+        sb.from("acces").delete().in("id", ids).then(function () {});
+      }
+      msg("🗑️ " + cibles.length + " résultat(s) de Quiz / Bac de " + lib + " supprimé(s).", "ok");
+    });
+  }
+
+  /* ---------- Suppression du Suivi de lecture des messages & réponses (par message cible) ---------- */
+  var btnOuvrirPurgeMsg = document.getElementById("btn-ouvrir-purge-msg");
+  var modalPurgeMsg = document.getElementById("modal-purge-msg");
+  var selCiblePurgeMsg = document.getElementById("sel-cible-purge-msg");
+  var resumePurgeMsg = document.getElementById("resume-purge-msg");
+  var btnAnnulerPurgeMsg = document.getElementById("btn-annuler-purge-msg");
+  var btnConfirmerPurgeMsg = document.getElementById("btn-confirmer-purge-msg");
+
+  function majResumePurgeMsg() {
+    if (!selCiblePurgeMsg || !resumePurgeMsg) return;
+    var val = selCiblePurgeMsg.value || "";
+    if (!val) {
+      resumePurgeMsg.innerHTML = "<span>Aucun message à supprimer.</span>";
+      return;
+    }
+    if (val === "*") {
+      resumePurgeMsg.innerHTML =
+        "<span>🗓️ <strong>Tous les messages &amp; questions</strong></span>" +
+        "<span style='color:#c0392b'>🗑️ <strong>" + messagesDiffuses.length + " message(s) + " + questionsLibres.length + " question(s)</strong></span>";
+      return;
+    }
+    if (val === "__libre") {
+      resumePurgeMsg.innerHTML =
+        "<span>💬 <strong>Questions spontanées des élèves</strong></span>" +
+        "<span style='color:#c0392b'>🗑️ <strong>" + questionsLibres.length + " question(s)</strong> à supprimer</span>";
+      return;
+    }
+    var mTrouve = null;
+    messagesDiffuses.forEach(function (m) { if (m.id === val) mTrouve = m; });
+    var nbLu = Object.keys(lecturesParMsg[val] || {}).length;
+    var nbRep = Object.keys(reponsesParMsg[val] || {}).length;
+    var libCl = mTrouve ? (mTrouve.classe === "*" ? "Toutes les classes" : mTrouve.classe) : "Message";
+    resumePurgeMsg.innerHTML =
+      "<span>📨 <strong>" + libCl + "</strong></span>" +
+      "<span style='color:#c0392b'>🗑️ Supprimer ce message (" + nbLu + " lu(s) · " + nbRep + " réponse(s))</span>";
+  }
+
+  function remplirCiblesPurgeMsg() {
+    if (!selCiblePurgeMsg) return;
+    selCiblePurgeMsg.innerHTML = "";
+    messagesDiffuses.forEach(function (m) {
+      var opt = document.createElement("option");
+      opt.value = m.id;
+      var libCl = m.classe === "*" ? "Toutes les classes" : m.classe;
+      var court = (m.texte || "").replace(/\s+/g, " ").slice(0, 44);
+      var nbL = Object.keys(lecturesParMsg[m.id] || {}).length;
+      opt.textContent = "📨 [" + libCl + " · " + fmtDate(m.ts) + "] « " + court + ((m.texte || "").length > 44 ? "…" : "") + " » (" + nbL + " lu)";
+      selCiblePurgeMsg.appendChild(opt);
+    });
+    var optLibre = document.createElement("option");
+    optLibre.value = "__libre";
+    optLibre.textContent = "💬 Questions spontanées des élèves (" + questionsLibres.length + " question(s))";
+    selCiblePurgeMsg.appendChild(optLibre);
+
+    var optTous = document.createElement("option");
+    optTous.value = "*";
+    optTous.textContent = "🗓️ Tous les messages diffusés & questions — Tout effacer (" + messagesDiffuses.length + " msg)";
+    selCiblePurgeMsg.appendChild(optTous);
+
+    if (selSuiviMsg && selSuiviMsg.value) {
+      selCiblePurgeMsg.value = selSuiviMsg.value;
+    }
+    majResumePurgeMsg();
+  }
+
+  if (btnOuvrirPurgeMsg) {
+    btnOuvrirPurgeMsg.addEventListener("click", function () {
+      remplirCiblesPurgeMsg();
+      if (modalPurgeMsg) modalPurgeMsg.classList.add("visible");
+    });
+  }
+  if (selCiblePurgeMsg) {
+    selCiblePurgeMsg.addEventListener("change", majResumePurgeMsg);
+  }
+  if (btnAnnulerPurgeMsg) {
+    btnAnnulerPurgeMsg.addEventListener("click", function () {
+      if (modalPurgeMsg) modalPurgeMsg.classList.remove("visible");
+    });
+  }
+  if (btnConfirmerPurgeMsg) {
+    btnConfirmerPurgeMsg.addEventListener("click", function () {
+      var cible = selCiblePurgeMsg ? selCiblePurgeMsg.value : "";
+      if (!cible) return;
+      if (!cfgEcoles.purgesMsg || typeof cfgEcoles.purgesMsg !== "object") {
+        cfgEcoles.purgesMsg = {};
+      }
+      var nowMs = Date.now();
+      cfgEcoles.purgesMsg[cible] = nowMs;
+      if (cible === "__libre") cfgEcoles.purgesMsg["libre"] = nowMs;
+
+      var ids = [];
+      if (cible === "*") {
+        Object.keys(idsAccesParMsg).forEach(function (k) {
+          ids = ids.concat(idsAccesParMsg[k] || []);
+        });
+        messagesDiffuses = [];
+        lecturesParMsg = {};
+        reponsesParMsg = {};
+        questionsLibres = [];
+        idsAccesParMsg = {};
+      } else if (cible === "__libre") {
+        ids = (idsAccesParMsg["__libre"] || []).slice();
+        questionsLibres = [];
+        delete idsAccesParMsg["__libre"];
+      } else {
+        ids = (idsAccesParMsg[cible] || []).slice();
+        messagesDiffuses = messagesDiffuses.filter(function (m) { return m.id !== cible; });
+        delete lecturesParMsg[cible];
+        delete reponsesParMsg[cible];
+        delete idsAccesParMsg[cible];
+      }
+
+      sauvegarderCfgEcoles();
+
+      try {
+        var cLoc = JSON.parse(localStorage.getItem("sti-admin-cache") || "null");
+        if (cLoc && Array.isArray(cLoc.tousAcces) && ids.length) {
+          var mapIds = {};
+          ids.forEach(function (id) { mapIds[id] = true; });
+          cLoc.tousAcces = cLoc.tousAcces.filter(function (a) { return !mapIds[a.id]; });
+          localStorage.setItem("sti-admin-cache", JSON.stringify(cLoc));
+        }
+      } catch (e) {}
+
+      if (modalPurgeMsg) modalPurgeMsg.classList.remove("visible");
+      rendSuiviMessages();
+
+      if (ids.length && navigator.onLine) {
+        sb.from("acces").update({ page: "SUPPR_ACCES" }).in("id", ids).then(function () {});
+        sb.from("acces").delete().in("id", ids).then(function () {});
+      }
+      msg("🗑️ Suivi du message sélectionné effacé avec succès.", "ok");
     });
   }
 

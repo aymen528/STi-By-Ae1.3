@@ -30,8 +30,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-55") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-55", "1");
+          if (sessionStorage.getItem("sti-sw-reload-56") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-56", "1");
         } catch (e) {}
         location.reload();
       });
