@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noai, noimageai">
+<link rel="icon" href="../assets/icons/STI_by_AE.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PHP – Voir l'effet (animation)</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b1f2a;--mut:#667;--bd:#d9dce6;--ac:#2563eb;--ok:#16a34a;--ko:#dc2626;--wa:#f59e0b;--code:#0f172a;--codetx:#e2e8f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131a;--card:#181c26;--tx:#e8eaf0;--mut:#9aa;--bd:#2b3140;--ac:#60a5fa;--ok:#4ade80;--ko:#f87171;--wa:#fbbf24;--code:#0a0d13}}
+:root[data-theme="dark"]{--bg:#10131a;--card:#181c26;--tx:#e8eaf0;--mut:#9aa;--bd:#2b3140;--ac:#60a5fa;--ok:#4ade80;--ko:#f87171;--wa:#fbbf24;--code:#0a0d13}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+main{max-width:880px;margin:auto}
+h1{font-size:1.3rem;margin:0 0 12px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+nav button,.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on,.btn.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+.sec{display:none}.sec.on{display:block}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+input[type=text],input[type=password],input[type=number],select{padding:7px 9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;max-width:100%}
+label{cursor:pointer}
+.code,pre{background:var(--code);color:var(--codetx);padding:10px 12px;border-radius:8px;overflow-x:auto;margin:8px 0;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.code div{padding:0 6px;border-left:3px solid transparent;transition:.3s}
+.code div.cur{background:#2563eb55;border-color:#60a5fa}
+.code div.skip{opacity:.35;text-decoration:line-through}
+.cap{font-size:.8rem;color:var(--mut);margin:6px 0 2px}
+.out{background:#fff;color:#111;border:1px solid var(--bd);border-radius:8px;padding:8px 12px;min-height:60px;font:13px/1.6 ui-monospace,Menlo,Consolas,monospace}
+.out div{animation:in .4s}
+.out .ok{color:#15803d}.out .wa{color:#b45309;background:#fef3c7;padding:2px 6px;border-radius:4px;margin:2px 0}.out .ko{color:#fff;background:#dc2626;padding:2px 6px;border-radius:4px;margin:2px 0}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.flow{display:flex;align-items:center;gap:8px;margin:10px 0}
+.box{flex:0 0 auto;padding:10px 12px;border:2px solid var(--ac);border-radius:10px;text-align:center;font-weight:600;background:color-mix(in srgb,var(--ac) 10%,transparent)}
+.box.bad{border-color:var(--ko);animation:shake .4s 2}.box.good{border-color:var(--ok)}
+.track{flex:1;height:30px;position:relative;border-bottom:2px dashed var(--bd)}
+.pkt{position:absolute;top:2px;left:0;padding:2px 8px;border-radius:12px;background:var(--wa);color:#000;font-size:12px;transition:left 1s ease-in-out,background .3s;white-space:nowrap}
+.pkt.go{left:calc(100% - 70px)}
+.pkt.back{left:0;background:var(--ok);color:#fff}.pkt.back.no{background:var(--ko)}
+.bd{display:inline-block;padding:2px 10px;border-radius:12px;font-weight:700;color:#fff;animation:in .4s}
+.t{background:var(--ok)}.f{background:var(--ko)}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left}
+th{background:color-mix(in srgb,var(--ac) 12%,transparent);font-size:.85rem}
+tr.me{background:color-mix(in srgb,var(--wa) 25%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.url{background:var(--bg);border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font:13px ui-monospace,monospace;overflow-x:auto;white-space:nowrap}
+.note{font-size:.85rem;color:var(--mut);margin-top:8px}
+</style>
+</head>
+<body>
+<div style="max-width:880px;margin:0 auto 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--card);border:1px solid var(--bd);border-radius:12px">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95rem">
+    <span>🪄</span>
+    <span>PHP Récap — Voir l'effet en direct</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <a class="btn p" href="php.html" style="text-decoration:none;font-weight:700;font-size:.88rem">🐘 ← Retour au cours PHP</a>
+    <a class="btn" href="../index.html#cours" style="text-decoration:none;font-weight:700;font-size:.88rem">🏠 Accueil</a>
+  </div>
+</div>
+<main>
+<h1>PHP : voir l'effet, étape par étape</h1>
+<nav id="tabs">
+<button class="on" data-t="t1">1. include / require</button>
+<button data-t="t3">2. isset / empty</button>
+<button data-t="t4">3. GET / POST</button>
+<button data-t="t8">4. Fonctions arithmétiques</button>
+<button data-t="t7">5. Chaînes de caractères</button>
+<button data-t="t5">6. Conversion</button>
+<button data-t="t6">7. Guillemets ' "</button>
+<button data-t="t9">8. Date et formats</button>
+</nav>
+
+<!-- 1 -->
+<section id="t1" class="sec on card">
+<div class="row">
+<label><input type="radio" name="k1" value="include" checked> include</label>
+<label><input type="radio" name="k1" value="require"> require</label>
+<label><input type="checkbox" id="ex1"> le fichier connexion.php existe</label>
+<button class="btn p" id="go1">▶ Exécuter</button>
+</div>
+<p class="cap">Script PHP</p><div class="code" id="cd1"></div>
+<p class="cap">Résultat dans le navigateur</p><div class="out" id="o1"></div>
+<p class="note"><b>include</b> : si le fichier manque → simple Warning, le script continue. <b>require</b> : Warning puis Fatal error, le script s'arrête. (variantes : include_once / require_once évitent un double chargement)</p>
+</section>
+
+<!-- 3 -->
+<section id="t3" class="sec card">
+<div class="code"><div>if (isset($_POST['nom']))   { ... }</div><div>if (empty($_POST['nom']))   { ... }</div></div>
+<div class="row">Valeur reçue pour le champ <b>nom</b> :
+<select id="st3"><option value="abs">champ absent (non envoyé)</option><option value="vide">'' (chaîne vide)</option><option value="zero">'0'</option><option value="abc" selected>'abc'</option></select>
+<button class="btn p" id="go3">▶ Tester</button></div>
+<table><thead><tr><th>Valeur de $_POST['nom']</th><th>isset()</th><th>empty()</th><th>isset() && !empty()</th></tr></thead><tbody id="tb3"></tbody></table>
+<div class="out" id="o3" style="margin-top:10px"></div>
+<p class="note">isset : la variable existe et n'est pas NULL. empty : vaut false, '', '0', 0, null ou absente. Un champ texte vide est <b>envoyé</b> (isset = true) mais empty = true.</p>
+</section>
+
+<!-- 4 -->
+<section id="t4" class="sec card">
+<div class="row">
+nom <input type="text" id="n4" value="Ali" size="8">
+âge <input type="number" id="a4" value="17" style="width:70px">
+<label><input type="radio" name="m4" value="GET" checked> GET</label>
+<label><input type="radio" name="m4" value="POST"> POST</label>
+<button class="btn p" id="go4">▶ Envoyer</button>
+</div>
+<div class="code" id="cd4"></div>
+<div class="flow"><div class="box">Formulaire<br><small>navigateur</small></div><div class="track"><div class="pkt" id="pk4">données</div></div><div class="box">traitement.php<br><small>serveur</small></div></div>
+<p class="cap">Barre d'adresse</p><div class="url" id="u4"></div>
+<div class="two"><div><p class="cap">Dans le serveur : print_r($_GET / $_POST)</p><pre id="pr4">—</pre></div>
+<div><p class="cap">Affichage final</p><div class="out" id="o4"></div></div></div>
+<p class="note">GET : données visibles dans l'URL (limitées, pas pour les mots de passe). POST : données dans le corps de la requête, invisibles dans l'URL.</p>
+</section>
+
+<!-- 5 -->
+<section id="t5" class="sec card">
+<div class="row">Valeur reçue (toujours une chaîne) : <input type="text" id="v5" value="17abc" size="12"> <button class="btn p" id="go5">▶ Convertir</button></div>
+<div class="row" id="pre5"></div>
+<div class="row"><label><input type="checkbox" id="rg5"> filter_var avec min_range=0 et max_range=120</label></div>
+<table><thead><tr><th>Expression PHP</th><th>Résultat</th></tr></thead><tbody id="tb5"></tbody></table>
+<div class="out" id="o5" style="margin-top:10px"></div>
+<p class="note">(int) et (float) ne signalent jamais d'erreur : ils lisent le début de la chaîne et ignorent la suite. Pour valider, utilisez is_numeric() ou filter_var(), qui répondent false si la valeur est invalide.</p>
+<hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
+<h2 style="font-size:1.05rem;margin:0 0 6px">Conversion automatique (type juggling)</h2>
+<div class="row">$a = <input type="text" id="a6" value="5" size="7"> (chaîne) &nbsp; $b = <input type="text" id="b6" value="3" size="5"> (nombre) <button class="btn p" id="go6">▶ Comparer</button></div>
+<table><thead><tr><th>Expression</th><th>Résultat</th><th>Pourquoi</th></tr></thead><tbody id="tb6"></tbody></table>
+<p class="note">Essayez : "5" et 5, "5.0" et 5, "5abc" et 5, "abc" et 0. Retenez : <b>+</b> est numérique, <b>.</b> concatène, <b>==</b> convertit avant de comparer, <b>===</b> compare aussi le type.</p>
+<hr style="border:0;border-top:1px solid var(--bd);margin:16px 0">
+<h2 style="font-size:1.05rem;margin:0 0 6px">Entier → chaîne</h2>
+<div class="row">$n = <input type="number" id="n7" value="42" style="width:120px"> <button class="btn p" id="go7">▶ Convertir</button></div>
+<p class="cap">Cliquez sur une forme pour voir l'entier devenir une chaîne :</p>
+<div class="row" id="mb7"></div>
+<div class="flow" style="justify-content:center"><div class="box" id="c7a">42<br><small>int</small></div><div style="font-size:22px">→</div><div class="box" id="c7b">?<br><small>?</small></div></div>
+<table><thead><tr><th>Expression</th><th>Résultat</th><th>Remarque</th></tr></thead><tbody id="tb7"></tbody></table>
+<p class="note">Un entier devient une chaîne sans perte (contrairement au sens inverse). Les 4 premières formes donnent le même résultat ; number_format et str_pad servent à l'affichage.</p>
+<div class="card" style="margin-top:14px">
+<h2 style="font-size:1.05rem;margin:0 0 6px">Transtypage : conversion de type</h2>
+<p>Le transtypage consiste à convertir une valeur vers un autre type : entier (<code>int</code>), réel (<code>float</code>), chaîne (<code>string</code>) ou booléen (<code>bool</code>).</p>
+<div class="row">Valeur à convertir : <input type="text" id="castVal" value="12.8abc" size="12">
+<select id="castType"><option value="int">(int)</option><option value="float">(float)</option><option value="string">(string)</option><option value="bool">(bool)</option></select>
+<button class="btn p" id="castGo">▶ Convertir</button></div>
+<div class="code"><div id="castCode">$v = (int) "12.8abc";</div></div>
+<div class="out" id="castOut"></div>
+<p class="note">Exemples : <code>(int) 12.8</code> donne <code>12</code> ; <code>(float) "12.8"</code> donne <code>12.8</code> ; <code>(string) 25</code> donne <code>"25"</code> ; <code>(bool) "0"</code> donne <code>false</code>. Attention : convertir n'est pas valider une donnée.</p>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="t6" class="sec card">
+<div class="row">$nom = <input type="text" id="n8" value="Ali" size="12"> <button class="btn p" id="go8">▶ Afficher</button> <span class="cap">(essayez O'Brien)</span></div>
+<table><thead><tr><th>Code PHP</th><th>Résultat</th><th>Explication</th></tr></thead><tbody id="tb8"></tbody></table>
+<div class="out" id="o8" style="margin-top:10px"></div>
+<p class="note">Retenez : <b>'</b> = texte brut (presque rien n'est interprété) ; <b>"</b> = les variables et les séquences \n \t \" sont interprétées ; <b>"…'$x'…"</b> = les apostrophes sont de simples caractères du texte et la variable est remplacée (cas typique d'une requête SQL).</p>
+</section>
+
+<!-- 7 : fonctions de chaînes -->
+<section id="t7" class="sec card">
+  <h2 style="font-size:1.1rem;margin-top:0">Fonctions PHP de manipulation des chaînes</h2>
+  <p>Chaque exemple présente le code PHP, le résultat obtenu et le rôle de la fonction.</p>
+  <table>
+    <thead><tr><th>Fonction</th><th>Exemple PHP</th><th>Résultat</th><th>Explication</th></tr></thead>
+    <tbody>
+      <tr><td><code>substr()</code></td><td><code>$ch = "Informatique";<br>echo substr($ch, 3, 4);</code></td><td><code>orma</code></td><td>Extrait 4 caractères à partir de l'indice 3 (les indices commencent à 0).</td></tr>
+      <tr><td><code>trim()</code></td><td><code>$ch = "  Ali  ";<br>echo "[" . trim($ch) . "]";</code></td><td><code>[Ali]</code></td><td>Supprime les espaces (et certains caractères blancs) au début et à la fin.</td></tr>
+      <tr><td><code>strlen()</code></td><td><code>$ch = "Bonjour";<br>echo strlen($ch);</code></td><td><code>7</code></td><td>Renvoie la longueur de la chaîne en octets.</td></tr>
+      <tr><td><code>implode()</code></td><td><code>$t = ["Ali", "Sami", "Amel"];<br>echo implode(" - ", $t);</code></td><td><code>Ali - Sami - Amel</code></td><td>Assemble les éléments d'un tableau en une chaîne en plaçant le séparateur entre eux.</td></tr>
+      <tr><td><code>explode()</code></td><td><code>$ch = "rouge,vert,bleu";<br>print_r(explode(",", $ch));</code></td><td><code>Array ( [0] =&gt; rouge [1] =&gt; vert [2] =&gt; bleu )</code></td><td>Découpe une chaîne à chaque occurrence du séparateur et renvoie un tableau.</td></tr>
+      <tr><td><code>str_replace()</code></td><td><code>echo str_replace("chat", "chien", "Le chat dort.");</code></td><td><code>Le chien dort.</code></td><td>Remplace toutes les occurrences du modèle recherché par le texte de remplacement.</td></tr>
+      <tr><td><code>chr()</code></td><td><code>echo chr(65);</code></td><td><code>A</code></td><td>Renvoie le caractère correspondant au code ASCII 65.</td></tr>
+      <tr><td><code>ord()</code></td><td><code>echo ord("A");</code></td><td><code>65</code></td><td>Renvoie la valeur du premier octet de la chaîne (65 pour « A » en ASCII).</td></tr>
+      <tr><td><code>strpos()</code></td><td><code>echo strpos("Bonjour tout le monde", "tout");</code></td><td><code>8</code></td><td>Renvoie la position de la première occurrence, à partir de 0. Renvoie <code>false</code> si le texte n'est pas trouvé.</td></tr>
+      <tr><td><code>strcmp()</code></td><td><code>echo strcmp("abc", "abc");</code></td><td><code>0</code></td><td>Compare deux chaînes : 0 si elles sont identiques, une valeur négative ou positive sinon.</td></tr>
+      <tr><td><code>strrev()</code></td><td><code>echo strrev("STI");</code></td><td><code>ITS</code></td><td>Inverse l'ordre des caractères.</td></tr>
+      <tr><td><code>strtolower()</code></td><td><code>echo strtolower("Bonjour STI");</code></td><td><code>bonjour sti</code></td><td>Convertit les lettres ASCII en minuscules.</td></tr>
+      <tr><td><code>strtoupper()</code></td><td><code>echo strtoupper("Bonjour STI");</code></td><td><code>BONJOUR STI</code></td><td>Convertit les lettres ASCII en majuscules.</td></tr>
+    </tbody>
+  </table>
+  <div class="card" style="margin-top:12px">
+    <h3 style="font-size:1rem;margin-top:0">Tester quelques fonctions</h3>
+    <div class="row">Chaîne : <input type="text" id="s7" value="Bonjour STI" style="width: min(100%, 260px)"></div>
+    <div class="row">
+      <button class="btn" id="b7lower">strtolower()</button>
+      <button class="btn" id="b7upper">strtoupper()</button>
+      <button class="btn" id="b7rev">strrev()</button>
+      <button class="btn" id="b7len">strlen()</button>
+      <button class="btn" id="b7trim">trim()</button>
+    </div>
+    <p class="cap">Code PHP simulé</p><div class="code" id="cd7"></div>
+    <p class="cap">Résultat</p><div class="out" id="o7"></div>
+  </div>
+  <p class="note"><b>Attention :</b> <code>strpos()</code> peut renvoyer la position <code>0</code>. Il faut donc tester le résultat avec <code>=== false</code> pour distinguer « non trouvé » de « trouvé au début ». Pour le texte UTF-8 accentué, <code>strlen()</code>, <code>strrev()</code>, <code>strtolower()</code> et <code>strtoupper()</code> ont des limites ; des fonctions multioctets comme <code>mb_strlen()</code> et <code>mb_strtolower()</code> peuvent être nécessaires.</p>
+</section>
+
+<section id="t8" class="sec card">
+<h2 style="font-size:1.05rem;margin:0 0 8px">Fonctions arithmétiques</h2>
+<div class="two">
+<div class="card"><b>abs() — valeur absolue</b><div class="code"><div>$n = abs(-15);</div><div>echo $n; // 15</div></div><p>Renvoie la distance à zéro : <code>abs(-7.5)</code> donne <code>7.5</code>.</p></div>
+<div class="card"><b>sqrt() — racine carrée</b><div class="code"><div>$n = sqrt(81);</div><div>echo $n; // 9</div></div><p><code>sqrt(2)</code> donne environ <code>1.4142</code>. Pour une valeur négative, le résultat réel n'est pas défini.</p></div>
+<div class="card"><b>round() — arrondir</b><div class="code"><div>round(3.6);    // 4</div><div>round(3.14159, 2); // 3.14</div></div><p>Le deuxième argument indique le nombre de chiffres après la virgule.</p></div>
+<div class="card"><b>rand() — nombre pseudo-aléatoire</b><div class="code"><div>$n = rand(1, 6);</div><div>echo $n; // entier de 1 à 6</div></div><p>Les deux bornes sont incluses. Pour un tirage sécurisé, utiliser plutôt <code>random_int()</code>.</p></div>
+</div>
+<h3 style="font-size:1rem">Tester une fonction</h3>
+<div class="row"><select id="mathFn"><option value="abs">abs(-12.5)</option><option value="sqrt">sqrt(81)</option><option value="round">round(3.14159, 2)</option><option value="rand">rand(1, 6)</option></select><button class="btn p" id="mathGo">▶ Calculer</button></div>
+<div class="out" id="mathOut">Cliquez sur « Calculer ».</div>
+<p class="note">La page simule les résultats en JavaScript pour l'apprentissage ; dans un vrai fichier PHP, ces fonctions sont exécutées côté serveur.</p>
+</section>
+
+<section id="t9" class="sec card">
+<h2 style="font-size:1.05rem;margin:0 0 8px">La fonction date() et les formats</h2>
+<p>En PHP, <code>date()</code> reçoit une chaîne de format. Les lettres sont sensibles à la casse : <code>Y</code> et <code>y</code> n'ont pas le même sens.</p>
+<div class="code"><div>echo date("Y-m-d"); // 2026-10-09</div><div>echo date("y-m-d"); // 26-10-09</div><div>echo date("d-m-Y"); // 09-10-2026</div><div>echo date("d/m/Y"); // 09/10/2026</div><div>echo date("H:i:s"); // heure:minutes:secondes</div></div>
+<table><thead><tr><th>Code</th><th>Signification</th><th>Exemple</th></tr></thead><tbody>
+<tr><td><code>Y</code></td><td>Année sur 4 chiffres</td><td>2026</td></tr><tr><td><code>y</code></td><td>Année sur 2 chiffres</td><td>26</td></tr>
+<tr><td><code>m</code></td><td>Mois sur 2 chiffres (01–12)</td><td>10</td></tr><tr><td><code>n</code></td><td>Mois sans zéro initial</td><td>10</td></tr>
+<tr><td><code>d</code></td><td>Jour du mois sur 2 chiffres (01–31)</td><td>09</td></tr><tr><td><code>j</code></td><td>Jour sans zéro initial</td><td>9</td></tr>
+<tr><td><code>H</code></td><td>Heure au format 24 h (00–23)</td><td>16</td></tr><tr><td><code>i</code></td><td>Minutes (00–59)</td><td>50</td></tr><tr><td><code>s</code></td><td>Secondes (00–59)</td><td>00</td></tr></tbody></table>
+<div class="row"><label for="dateFmt">Choisir un format :</label><select id="dateFmt"><option value="Y-m-d">Y-m-d</option><option value="y-m-d">y-m-d</option><option value="d-m-Y">d-m-Y</option><option value="d/m/Y">d/m/Y</option><option value="H:i:s">H:i:s</option></select><button class="btn p" id="dateGo">▶ Voir l'exemple</button></div>
+<div class="out" id="dateOut">Sélectionnez un format puis cliquez.</div>
+<p class="note"><b>Attention :</b> les tirets et les barres obliques sont des séparateurs littéraux. Par exemple, <code>date("Y-m-d")</code> donne année-mois-jour, tandis que <code>date("y-m-d")</code> donne la même structure mais avec l'année sur 2 chiffres. Le résultat réel dépend de la date et du fuseau horaire du serveur PHP.</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+});
+const add=(el,t,c)=>{const d=document.createElement('div');d.className=c||'';d.innerHTML=t;el.appendChild(d)};
+const cur=(box,i)=>[...box.children].forEach((d,j)=>d.classList.toggle('cur',j===i));
+
+/* 1 */
+function code1(){const k=document.querySelector('input[name=k1]:checked').value;
+  $('cd1').innerHTML=`<div>echo "Début";</div><div>${k} "connexion.php";</div><div>echo "Suite du script";</div>`;return k}
+document.querySelectorAll('input[name=k1]').forEach(r=>r.onchange=code1);code1();
+$('go1').onclick=()=>{
+  const k=code1(),ex=$('ex1').checked,o=$('o1');o.innerHTML='';
+  const L=[...$('cd1').children];let fatal=false;
+  const s=[
+    ()=>{cur($('cd1'),0);add(o,'Début','ok')},
+    ()=>{cur($('cd1'),1);
+      if(ex)add(o,'✔ connexion.php chargé','ok');
+      else{add(o,`Warning: ${k}(connexion.php): Failed to open stream: No such file or directory`,'wa');
+        if(k==='include')add(o,'Warning: include(): Failed opening \'connexion.php\' for inclusion','wa');
+        else{add(o,"Fatal error: Uncaught Error: Failed opening required 'connexion.php'",'ko');fatal=true}}},
+    ()=>{if(fatal){L[2].classList.add('skip');cur($('cd1'),-1);add(o,'⛔ Script arrêté : la ligne 3 n\'est jamais exécutée','wa')}
+      else{cur($('cd1'),2);add(o,'Suite du script','ok')}}
+  ];
+  L.forEach(d=>d.classList.remove('skip'));
+  s.forEach((f,i)=>setTimeout(f,i*800));
+};
+
+/* 3 */
+const S={abs:['(absent)',false,true],vide:["''",true,true],zero:["'0'",true,true],abc:["'abc'",true,false]};
+const bd=v=>`<span class="bd ${v?'t':'f'}">${v?'true':'false'}</span>`;
+function draw3(sel){$('tb3').innerHTML=Object.entries(S).map(([k,[l,i,e]])=>`<tr class="${k===sel?'me':''}"><td>${l}</td><td>${k===sel?bd(i):'·'}</td><td>${k===sel?bd(e):'·'}</td><td>${k===sel?bd(i&&!e):'·'}</td></tr>`).join('')}
+$('go3').onclick=()=>{const k=$('st3').value,[l,i,e]=S[k];draw3(k);const o=$('o3');o.innerHTML='';
+  add(o,`isset($_POST['nom']) → ${i}`,i?'ok':'wa');
+  setTimeout(()=>add(o,`empty($_POST['nom']) → ${e}`,e?'wa':'ok'),500);
+  setTimeout(()=>add(o,(i&&!e)?'✔ Champ rempli : on peut traiter la donnée':'✖ Champ manquant ou vide : afficher un message d\'erreur',(i&&!e)?'ok':'ko'),1000)};
+draw3('');
+
+/* 4 */
+function code4(){const m=document.querySelector('input[name=m4]:checked').value,v='$_'+m;
+  $('cd4').innerHTML=`<div>&lt;form action="traitement.php" method="${m.toLowerCase()}"&gt;</div><div>$nom = ${v}['nom'];</div><div>$age = ${v}['age'];</div><div>echo "Bonjour $nom, vous avez $age ans";</div>`;return m}
+document.querySelectorAll('input[name=m4]').forEach(r=>r.onchange=code4);code4();
+$('go4').onclick=()=>{
+  const m=code4(),n=$('n4').value,a=$('a4').value,pk=$('pk4');
+  pk.className='pkt';pk.textContent=m==='GET'?'?nom=…&age=…':'(corps caché)';
+  $('u4').textContent='formulaire.php';$('pr4').textContent='—';$('o4').innerHTML='';
+  cur($('cd4'),0);void pk.offsetWidth;pk.classList.add('go');
+  setTimeout(()=>{
+    pk.classList.remove('go');
+    $('u4').textContent='traitement.php'+(m==='GET'?`?nom=${encodeURIComponent(n)}&age=${encodeURIComponent(a)}`:'');
+    $('pr4').textContent=`Array\n(\n    [nom] => ${n}\n    [age] => ${a}\n)`;
+    cur($('cd4'),1);
+    setTimeout(()=>cur($('cd4'),2),600);
+    setTimeout(()=>{cur($('cd4'),3);add($('o4'),`Bonjour ${esc(n)}, vous avez ${esc(a)} ans`,'ok')},1200);
+  },1100);
+};
+/* 5 */
+const NUM=/^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?/;
+let tk=0;
+['17','3.9','3,5','17abc','abc','','0','0.0',' 12 '].forEach(p=>{const b=document.createElement('button');b.className='btn';b.textContent=p===''?'(vide)':`'${p}'`;b.onclick=()=>{$('v5').value=p;run5()};$('pre5').appendChild(b)});
+function run5(){
+  const my=++tk,s=$('v5').value,m=s.match(NUM),f=m?parseFloat(m[0]):0,i=Math.trunc(f),full=!!m&&s.slice(m[0].length).trim()==='',b=!(s===''||s==='0'),t=s.trim();
+  let fv=/^[+-]?(0|[1-9]\d*)$/.test(t)?parseInt(t,10):false;
+  if($('rg5').checked&&fv!==false&&(fv<0||fv>120))fv=false;
+  const q=`'${esc(s)}'`,tb=$('tb5'),o=$('o5');tb.innerHTML='';o.innerHTML='';
+  const R=[[`(int) ${q}`,`<code>int(${i})</code>`],[`(float) ${q}`,`<code>float(${f})</code>`],[`(bool) ${q}`,bd(b)],[`is_numeric(${q})`,bd(full)],[`filter_var(${q}, FILTER_VALIDATE_INT)`,fv===false?bd(false):`<code>int(${fv})</code>`]];
+  R.forEach((r,k)=>setTimeout(()=>{if(my!==tk)return;const tr=document.createElement('tr');tr.innerHTML=`<td><code>${r[0]}</code></td><td>${r[1]}</td>`;tr.style.animation='in .4s';tb.appendChild(tr)},k*450));
+  setTimeout(()=>{
+    if(my!==tk)return;
+    if(!m)add(o,`⚠ Aucune erreur : (int) donne 0 en silence. Un âge « ${esc(s)} » deviendrait 0.`,'ko');
+    else if(!full)add(o,`⚠ Valeur partiellement numérique : PHP lit le début (${f}) et ignore la suite sans prévenir.`,'wa');
+    else if(i!==f)add(o,`⚠ Les décimales sont tronquées, pas arrondies : ${f} → ${i}.`,'wa');
+    else add(o,'✔ Valeur numérique propre : conversion sans perte.','ok');
+    if(/^\s*\d+,\d+\s*$/.test(s))add(o,'La virgule n\'est pas un séparateur décimal : str_replace(\',\', \'.\', $v) avant la conversion.','wa');
+    if(!b)add(o,"(bool) vaut false uniquement pour '' et '0' (même '0.0' donne true).",'wa');
+    if(fv===false)add(o,'filter_var refuse la valeur : c\'est la méthode à utiliser pour valider.','ok');
+  },R.length*450);
+}
+$('go5').onclick=run5;$('v5').oninput=run5;$('rg5').onchange=run5;run5();
+/* 6 : type juggling */
+let tk6=0;
+function run6(){
+  const my=++tk6,a=$('a6').value,bs=$('b6').value.trim(),b=Number(bs),tb=$('tb6');tb.innerHTML='';
+  if(bs===''||isNaN(b)){tb.innerHTML='<tr><td colspan=3>$b doit être un nombre</td></tr>';return}
+  const m=a.match(NUM),full=!!m&&a.slice(m[0].length).trim()==='',x=m?parseFloat(m[0]):0;
+  const fl=/[.eE]/.test(a)||/[.eE]/.test(bs),fmt=n=>Number.isInteger(n)&&!fl?`int(${n})`:`float(${n})`;
+  const A=`&quot;${esc(a)}&quot;`;
+  const R=[
+    [`${A} + ${bs}`,full?`<code>${fmt(x+b)}</code>`:(m?`<code>${fmt(x+b)}</code> + Warning`:'<span class=\'bd f\'>erreur</span>'),full?'+ est numérique : la chaîne est convertie en nombre':(m?'chaîne partiellement numérique : début lu, avertissement PHP':'chaîne non numérique : erreur ou avertissement selon la version de PHP, à éviter')],
+    [`${A} . ${bs}`,`<code>string(&quot;${esc(a+bs)}&quot;)</code>`,'. est la concaténation : le nombre devient du texte'],
+    [`${A} == ${bs}`,bd(full?x===b:a===String(bs)),full?'comparaison souple : conversion en nombre puis comparaison':'chaîne non numérique : comparée comme texte (PHP 8)'],
+    [`${A} === ${bs}`,bd(false),'comparaison stricte : types différents (string ≠ nombre)']
+  ];
+  R.forEach((r,k)=>setTimeout(()=>{if(my!==tk6)return;const tr=document.createElement('tr');tr.innerHTML=`<td><code>${r[0]}</code></td><td>${r[1]}</td><td>${r[2]}</td>`;tr.style.animation='in .4s';tb.appendChild(tr)},k*450));
+}
+$('go6').onclick=run6;$('a6').oninput=run6;$('b6').oninput=run6;run6();
+/* 7 : entier -> chaîne */
+let tk7=0;
+function run7(){
+  const my=++tk7,v=$('n7').value.trim(),n=Number(v),tb=$('tb7');tb.innerHTML='';
+  if(v===''||!Number.isInteger(n)){tb.innerHTML='<tr><td colspan=3>$n doit être un entier</td></tr>';return}
+  const s=String(n),q=x=>`<code>string(&quot;${x}&quot;)</code>`;
+  const R=[
+    ['gettype($n)','<code>integer</code>','type de départ : int('+n+')'],
+    ['(string) $n',q(s),'cast explicite'],
+    ['strval($n)',q(s),'fonction équivalente au cast'],
+    ['&quot;$n&quot;',q(s),'interpolation dans des guillemets doubles'],
+    ['$n . &quot;&quot;',q(s),'concaténation avec une chaîne vide'],
+    ['number_format($n)',q(n.toLocaleString('en-US')),'séparateur de milliers (virgule)'],
+    ['str_pad($n, 6, &quot;0&quot;, STR_PAD_LEFT)',q(s.padStart(6,'0')),'complété par des zéros à gauche'],
+    ['strlen((string) $n)',`<code>int(${s.replace('-','').length})</code>`,'nombre de chiffres de l\'entier']
+  ];
+  R.forEach((r,k)=>setTimeout(()=>{if(my!==tk7)return;const tr=document.createElement('tr');tr.innerHTML=`<td><code>${r[0]}</code></td><td>${r[1]}</td><td>${r[2]}</td>`;tr.style.animation='in .4s';tb.appendChild(tr)},k*400));
+}
+$('go7').onclick=run7;$('n7').oninput=run7;run7();
+const F=['(string) $n','strval($n)','&quot;$n&quot;','$n . &quot;&quot;'];
+function morph(k){
+  const v=$('n7').value.trim(),n=Number(v);if(v===''||!Number.isInteger(n))return;
+  const a=$('c7a'),b=$('c7b');
+  a.innerHTML=`${n}<br><small>int</small>`;
+  b.className='box';b.style.transition='none';b.style.opacity=0;b.style.transform='translateX(-30px) scale(.6)';b.innerHTML=`?<br><small>${F[k]}</small>`;
+  void b.offsetWidth;
+  b.style.transition='all .6s';b.style.opacity=1;b.style.transform='none';
+  setTimeout(()=>{b.innerHTML=`&quot;${n}&quot;<br><small>string</small>`;b.classList.add('good')},650);
+}
+F.forEach((f,k)=>{const x=document.createElement('button');x.className='btn';x.innerHTML=f;x.onclick=()=>morph(k);$('mb7').appendChild(x)});
+/* 8 : guillemets */
+let tk8=0;
+function run8(){
+  const my=++tk8,v=$('n8').value,tb=$('tb8'),o=$('o8'),E=esc;tb.innerHTML='';o.innerHTML='';
+  const nl='<span style="color:var(--mut)">↵</span>';
+  const sql=`SELECT * FROM etudiant WHERE nom='${E(v)}'`;
+  const R=[
+    [`'Bonjour $nom'`,`Bonjour $nom`,`guillemets simples : texte littéral, la variable n'est pas remplacée`],
+    [`"Bonjour $nom"`,`Bonjour ${E(v)}`,`guillemets doubles : la variable est remplacée par sa valeur`],
+    [`'Ligne 1\\nLigne 2'`,`Ligne 1\\nLigne 2`,`entre ' ' le \\n reste du texte brut`],
+    [`"Ligne 1\\nLigne 2"`,`Ligne 1${nl}Ligne 2`,`entre " " le \\n devient un retour à la ligne (invisible en HTML : utiliser &lt;br&gt; ou nl2br)`],
+    [`'C\\'est $nom'`,`C'est $nom`,`entre ' ' seuls \\' et \\\\ sont des échappements`],
+    [`"Il dit \\"salut\\" à $nom"`,`Il dit "salut" à ${E(v)}`,`\\" permet d'écrire un guillemet double dans un texte entre " "`],
+    [`"SELECT * FROM etudiant WHERE nom='$nom'"`,sql,`le ' à l'intérieur de " " est un simple caractère : forme la plus courante pour une requête SQL`],
+    [`'SELECT * FROM etudiant WHERE nom=\\'$nom\\''`,`SELECT * FROM etudiant WHERE nom='$nom'`,`entre ' ' la variable n'est PAS remplacée : MySQL chercherait le texte « $nom »`],
+    [`'SELECT * FROM etudiant WHERE nom=\\'' . $nom . '\\''`,sql,`concaténation avec . : même résultat que la ligne 7, plus long mais explicite`],
+    [`"Nom : $_POST['nom']"`,`<span class='bd f'>Parse error</span>`,`les ' d'une clé de tableau dans " " provoquent une erreur de syntaxe`],
+    [`"Nom : {$_POST['nom']}"`,`Nom : ${E(v)}`,`les accolades { } règlent le problème (ou $_POST[nom] sans apostrophes)`]
+  ];
+  R.forEach((r,k)=>setTimeout(()=>{if(my!==tk8)return;const tr=document.createElement('tr');tr.innerHTML=`<td><code>${E(r[0])}</code></td><td><code>${r[1]}</code></td><td>${r[2]}</td>`;tr.style.animation='in .4s';tb.appendChild(tr)},k*350));
+  setTimeout(()=>{
+    if(my!==tk8)return;
+    if(v.includes("'"))add(o,`⚠ La valeur contient une apostrophe : la requête devient nom='${E(v)}' → les ' ne sont plus équilibrés, erreur SQL (et risque d'injection). Solutions : mysqli_real_escape_string() ou, mieux, les requêtes préparées.`,'ko');
+    else add(o,`✔ Valeur sans apostrophe : la requête de la ligne 7 est correcte. Essayez O'Brien pour voir le problème.`,'ok');
+  },R.length*350);
+}
+$('go8').onclick=run8;$('n8').oninput=run8;run8();
+
+/* 9 : fonctions de chaînes */
+function test7(fn, code, result) {
+  $('cd7').innerHTML = '<div>' + esc(code) + '</div>';
+  $('o7').innerHTML = '';
+  add($('o7'), esc(result), 'ok');
+  cur($('cd7'), 0);
+}
+$('b7lower').onclick=()=>{const s=$('s7').value;test7('lower','echo strtolower($ch);',s.replace(/[A-Z]/g,c=>c.toLowerCase()))};
+$('b7upper').onclick=()=>{const s=$('s7').value;test7('upper','echo strtoupper($ch);',s.replace(/[a-z]/g,c=>c.toUpperCase()))};
+$('b7rev').onclick=()=>{const s=$('s7').value;test7('rev','echo strrev($ch);',Array.from(s).reverse().join(''))};
+$('b7len').onclick=()=>{const s=$('s7').value;test7('len','echo strlen($ch);',new TextEncoder().encode(s).length)};
+$('b7trim').onclick=()=>{const s=$('s7').value;test7('trim','echo trim($ch);','['+s.trim()+']')};
+test7('lower','echo strtolower($ch);','bonjour sti');
+
+
+/* Transtypage interactif */
+function runCast(){const v=document.getElementById('castVal').value,t=document.getElementById('castType').value;let result,type;
+ if(t==='int'){const m=v.trim().match(/^[+-]?\d+/);result=m?parseInt(m[0],10):0;type='int';}
+ else if(t==='float'){const m=v.trim().match(/^[+-]?(?:\d+\.?\d*|\.\d+)/);result=m?parseFloat(m[0]):0;type='float';}
+ else if(t==='string'){result=v;type='string';}
+ else {result=!(v===''||v==='0');type='bool';}
+ document.getElementById('castCode').textContent='$v = ('+t+') '+JSON.stringify(v)+';';
+ document.getElementById('castOut').textContent='Résultat : '+(t==='bool'?(result?'true':'false'):JSON.stringify(result))+'   | Type : '+type;
+}
+document.getElementById('castGo').onclick=runCast;runCast();
+/* Fonctions arithmétiques : simulation côté navigateur */
+document.getElementById('mathGo').onclick=()=>{const f=document.getElementById('mathFn').value;let r;if(f==='abs')r=Math.abs(-12.5);else if(f==='sqrt')r=Math.sqrt(81);else if(f==='round')r=Math.round(3.14159*100)/100;else r=Math.floor(Math.random()*6)+1;document.getElementById('mathOut').textContent='Résultat simulé : '+r;};
+/* Exemples de formats date() */
+document.getElementById('dateGo').onclick=()=>{const f=document.getElementById('dateFmt').value;const d={Y:2026,y:'26',m:'10',n:10,d:'09',j:9,H:'16',i:'50',s:'00'};let r='';for(let i=0;i<f.length;i++){const c=f[i];r+=Object.prototype.hasOwnProperty.call(d,c)?d[c]:c;}document.getElementById('dateOut').textContent='date("'+f+'") → '+r+' (exemple pédagogique)';};
+</script>
+<!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../assets/css/protection.css" />
+<script src="../assets/js/protection.js?v=57" defer></script>
+<script src="../assets/js/supabase-umd.js"></script>
+<script src="../assets/js/config.js?v=57"></script>
+<script src="../assets/js/acces.js?v=57"></script>
+</body>
+</html>

@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v56";
+    var versionDefaut = "v57";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
