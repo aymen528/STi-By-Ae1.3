@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=71";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=72";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-71") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-71", "1");
+          if (sessionStorage.getItem("sti-sw-reload-72") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-72", "1");
         } catch (e) {}
         location.reload();
       });
@@ -2140,7 +2140,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v71)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v72)
      ===================================================================== */
   var STI_FLASHCARDS = [
     /* --- HTML5 --- */
@@ -2217,13 +2217,50 @@
     fond.className = "sti-no-print";
     fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.76);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:14px;font:600 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
 
-    var boite = document.createElement("div");
-    boite.style.cssText = "background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:18px 20px;max-width:620px;width:100%;box-shadow:7px 7px 0 #f4511e,0 20px 55px rgba(0,0,0,.45);color-scheme:light;";
+    var st3d = document.createElement("style");
+    st3d.textContent =
+      ".sti-fc-scene{perspective:1200px;-webkit-perspective:1200px;position:relative;min-height:255px;margin:4px 0 8px;user-select:none;}" +
+      ".sti-fc-table-shadow{position:absolute;left:16px;right:16px;bottom:-6px;height:18px;border-radius:50%;background:rgba(26,26,46,.28);filter:blur(8px);transition:transform .62s cubic-bezier(.22,1,.36,1),opacity .62s ease;pointer-events:none;z-index:0;}" +
+      ".sti-fc-scene.flipping .sti-fc-table-shadow{transform:scale(.86) translateY(8px);opacity:.16;}" +
+      ".sti-fc-inner{position:relative;width:100%;min-height:255px;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .68s cubic-bezier(.34,1.38,.64,1);cursor:pointer;z-index:1;}" +
+      ".sti-fc-inner.is-flipped{transform:rotateY(180deg);}" +
+      ".sti-fc-inner.anim-to-back{animation:stiFcFlipBack .68s cubic-bezier(.25,.9,.35,1.15) forwards;}" +
+      ".sti-fc-inner.anim-to-front{animation:stiFcFlipFront .68s cubic-bezier(.25,.9,.35,1.15) forwards;}" +
+      ".sti-fc-inner.deal-next{animation:stiFcDealNext .36s cubic-bezier(.22,1,.36,1);}" +
+      ".sti-fc-inner.deal-prev{animation:stiFcDealPrev .36s cubic-bezier(.22,1,.36,1);}" +
+      "@keyframes stiFcFlipBack{" +
+        "0%{transform:translateY(0) scale(1) rotateX(0deg) rotateY(0deg);}" +
+        "45%{transform:translateY(-16px) scale(1.045) rotateX(6deg) rotateY(90deg);}" +
+        "100%{transform:translateY(0) scale(1) rotateX(0deg) rotateY(180deg);}" +
+      "}" +
+      "@keyframes stiFcFlipFront{" +
+        "0%{transform:translateY(0) scale(1) rotateX(0deg) rotateY(180deg);}" +
+        "45%{transform:translateY(-16px) scale(1.045) rotateX(6deg) rotateY(90deg);}" +
+        "100%{transform:translateY(0) scale(1) rotateX(0deg) rotateY(0deg);}" +
+      "}" +
+      "@keyframes stiFcDealNext{" +
+        "0%{opacity:0;transform:translateX(38px) rotateZ(3deg) scale(.95);}" +
+        "100%{opacity:1;transform:translateX(0) rotateZ(0deg) scale(1);}" +
+      "}" +
+      "@keyframes stiFcDealPrev{" +
+        "0%{opacity:0;transform:translateX(-38px) rotateZ(-3deg) scale(.95);}" +
+        "100%{opacity:1;transform:translateX(0) rotateZ(0deg) scale(1);}" +
+      "}" +
+      ".sti-fc-face{position:absolute;inset:0;width:100%;min-height:255px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:3px solid #23201a;border-radius:18px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:5px 6px 0 #23201a,0 12px 26px rgba(0,0,0,.14);overflow:hidden;box-sizing:border-box;}" +
+      ".sti-fc-front{background:linear-gradient(145deg,#ffffff 0%,#fffdf7 100%);transform:rotateY(0deg);}" +
+      ".sti-fc-back{background:linear-gradient(145deg,#fff8ec 0%,#fff2d6 100%);transform:rotateY(180deg);}" +
+      ".sti-fc-glare{position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.65) 50%,transparent 62%);transform:translateX(-70%);transition:transform .68s ease;pointer-events:none;}" +
+      ".sti-fc-inner.is-flipped .sti-fc-glare{transform:translateX(70%);}";
 
-    boite.innerHTML =
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:18px 20px;max-width:630px;width:100%;box-shadow:7px 7px 0 #f4511e,0 20px 55px rgba(0,0,0,.45);color-scheme:light;";
+    boite.appendChild(st3d);
+
+    var wrapContent = document.createElement("div");
+    wrapContent.innerHTML =
       "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px'>" +
         "<div>" +
-          "<h3 style='margin:0;font-size:17px;font-weight:900;color:#23201a'>🃏 Flashcards Bac STI <span style='font-size:12px;color:#f4511e'>(Recto / Verso)</span></h3>" +
+          "<h3 style='margin:0;font-size:17px;font-weight:900;color:#23201a'>🃏 Flashcards Bac STI <span style='font-size:12px;color:#f4511e'>(Recto / Verso 3D)</span></h3>" +
           "<div id='sti-fc-stat' style='font-size:11.5px;color:#177245;font-weight:800;margin-top:2px'>Progression : 0 maîtrisée(s)</div>" +
         "</div>" +
         "<button type='button' id='sti-fc-close' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 11px;font-weight:900;font-size:12px;cursor:pointer'>✕ Fermer</button>" +
@@ -2237,21 +2274,31 @@
         (ok4 ? "<button type='button' data-t='php' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🐘 PHP</button>" : "") +
         "<button type='button' id='sti-fc-todo-only' style='margin-left:auto;border:1.8px dashed #23201a;background:#fff;color:#23201a;border-radius:999px;padding:4px 10px;font-weight:800;font-size:11px;cursor:pointer'>🔁 À revoir uniquement</button>" +
       "</div>" +
-      "<div id='sti-fc-card' tabindex='0' style='min-height:225px;border:2.5px solid #23201a;border-radius:18px;padding:18px;background:#ffffff;box-shadow:4px 4px 0 #23201a;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:transform .16s ease,background .16s ease;user-select:none'></div>" +
-      "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:13px'>" +
+      "<div class='sti-fc-scene' id='sti-fc-scene'>" +
+        "<div class='sti-fc-table-shadow'></div>" +
+        "<div id='sti-fc-card' class='sti-fc-inner' tabindex='0'>" +
+          "<div class='sti-fc-face sti-fc-front' id='sti-fc-front'></div>" +
+          "<div class='sti-fc-face sti-fc-back' id='sti-fc-back'></div>" +
+        "</div>" +
+      "</div>" +
+      "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:15px'>" +
         "<div style='display:flex;gap:6px'>" +
           "<button type='button' id='sti-fc-prev' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 13px;font-weight:900;font-size:12px;cursor:pointer'>◀ Préc.</button>" +
-          "<button type='button' id='sti-fc-flip' style='border:2px solid #23201a;background:#ffd54f;color:#23201a;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>🔄 Retourner</button>" +
+          "<button type='button' id='sti-fc-flip' style='border:2px solid #23201a;background:#ffd54f;color:#23201a;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>🔄 Retourner la carte</button>" +
           "<button type='button' id='sti-fc-next' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 13px;font-weight:900;font-size:12px;cursor:pointer'>Suiv. ▶</button>" +
           "<button type='button' id='sti-fc-shuf' title='Mélanger les cartes' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:7px 11px;font-weight:900;font-size:12px;cursor:pointer'>🔀</button>" +
         "</div>" +
         "<button type='button' id='sti-fc-master' style='border:2px solid #23201a;background:#e3f6e8;color:#177245;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ Je maîtrise</button>" +
       "</div>";
+    boite.appendChild(wrapContent);
 
     fond.appendChild(boite);
     (document.body || document.documentElement).appendChild(fond);
 
+    var sceneEl = boite.querySelector("#sti-fc-scene");
     var cardEl = boite.querySelector("#sti-fc-card");
+    var frontEl = boite.querySelector("#sti-fc-front");
+    var backEl = boite.querySelector("#sti-fc-back");
     var statEl = boite.querySelector("#sti-fc-stat");
     var btnMaster = boite.querySelector("#sti-fc-master");
     var btnTodoOnly = boite.querySelector("#sti-fc-todo-only");
@@ -2265,11 +2312,30 @@
       }
     }
 
-    function afficherCarte() {
+    function retournerCarte3D() {
+      if (!cartesActives.length) return;
+      retourne = !retourne;
+      cardEl.classList.remove("deal-next", "deal-prev", "anim-to-back", "anim-to-front");
+      void cardEl.offsetWidth;
+      sceneEl.classList.add("flipping");
+      cardEl.classList.toggle("is-flipped", retourne);
+      cardEl.classList.add(retourne ? "anim-to-back" : "anim-to-front");
+      setTimeout(function () {
+        sceneEl.classList.remove("flipping");
+      }, 420);
+    }
+
+    function afficherCarte(animDir) {
       majCompteurGlobal();
+      cardEl.classList.remove("is-flipped", "anim-to-back", "anim-to-front", "deal-next", "deal-prev");
+      if (animDir === "next" || animDir === "prev") {
+        void cardEl.offsetWidth;
+        cardEl.classList.add(animDir === "next" ? "deal-next" : "deal-prev");
+      }
+
       if (!cartesActives.length) {
-        cardEl.style.background = "#f9f1e3";
-        cardEl.innerHTML = "<div style='margin:auto;text-align:center;padding:24px'><div style='font-size:28px;margin-bottom:6px'>🎉</div><b>Toutes les cartes de ce filtre sont maîtrisées !</b><br><span style='font-size:12px;color:#5a5244'>Désactivez le filtre « À revoir uniquement » ou changez de module.</span></div>";
+        frontEl.innerHTML = "<div style='margin:auto;text-align:center;padding:24px'><div style='font-size:28px;margin-bottom:6px'>🎉</div><b>Toutes les cartes de ce filtre sont maîtrisées !</b><br><span style='font-size:12px;color:#5a5244'>Désactivez le filtre « À revoir uniquement » ou changez de module.</span></div>";
+        backEl.innerHTML = frontEl.innerHTML;
         btnMaster.style.display = "none";
         return;
       }
@@ -2280,49 +2346,39 @@
       btnMaster.style.background = estOk ? "#f3ead9" : "#e3f6e8";
       btnMaster.style.color = estOk ? "#5a5244" : "#177245";
 
-      if (!retourne) {
-        cardEl.style.background = "#ffffff";
-        cardEl.innerHTML =
-          "<div style='display:flex;justify-content:space-between;align-items:center'>" +
-            "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #23201a;background:#f3ead9;font-size:11px;font-weight:900'>" + esc(c.badge) + " · RECTO (Question)</span>" +
-            "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + (estOk ? " · ✅" : "") + "</span>" +
-          "</div>" +
-          "<div style='font-size:16px;font-weight:900;color:#23201a;margin:18px 0;line-height:1.45'>" + esc(c.q) + "</div>" +
-          "<div style='font-size:11.5px;color:#f4511e;font-weight:800;text-align:center'>👆 Cliquez sur la carte (ou appuyez sur Espace) pour voir la réponse au verso</div>";
-      } else {
-        cardEl.style.background = "#fff8ec";
-        cardEl.innerHTML =
-          "<div style='display:flex;justify-content:space-between;align-items:center'>" +
-            "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #177245;background:#e3f6e8;color:#177245;font-size:11px;font-weight:900'>💡 VERSO (Réponse &amp; Syntaxe Bac)</span>" +
-            "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + "</span>" +
-          "</div>" +
-          "<div style='font-size:14px;font-weight:800;color:#23201a;margin:12px 0 10px;line-height:1.45'>" + esc(c.a) + "</div>" +
-          (c.code ? "<pre style='margin:0;padding:10px 12px;border-radius:11px;background:#17172e;color:#f5f3ff;font:700 12px/1.45 ui-monospace,Consolas,monospace;overflow-x:auto;border:2px solid #23201a'>" + esc(c.code) + "</pre>" : "") +
-          "<div style='font-size:11px;color:#7a6f5d;font-weight:800;text-align:right;margin-top:8px'>Cliquez pour revenir à la question</div>";
-      }
+      frontEl.innerHTML =
+        "<div class='sti-fc-glare'></div>" +
+        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+          "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #23201a;background:#f3ead9;font-size:11px;font-weight:900'>" + esc(c.badge) + " · RECTO (Question)</span>" +
+          "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + (estOk ? " · ✅" : "") + "</span>" +
+        "</div>" +
+        "<div style='font-size:16.5px;font-weight:900;color:#23201a;margin:18px 0;line-height:1.45'>" + esc(c.q) + "</div>" +
+        "<div style='font-size:11.5px;color:#f4511e;font-weight:800;text-align:center'>👆 Cliquez sur la carte (ou Espace) pour la retourner en 3D</div>";
+
+      backEl.innerHTML =
+        "<div class='sti-fc-glare'></div>" +
+        "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+          "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #177245;background:#e3f6e8;color:#177245;font-size:11px;font-weight:900'>💡 VERSO (Réponse &amp; Syntaxe Bac)</span>" +
+          "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + "</span>" +
+        "</div>" +
+        "<div style='font-size:13.8px;font-weight:800;color:#23201a;margin:10px 0 8px;line-height:1.42'>" + esc(c.a) + "</div>" +
+        (c.code ? "<pre style='margin:0;padding:9px 11px;border-radius:11px;background:#17172e;color:#f5f3ff;font:700 11.8px/1.4 ui-monospace,Consolas,monospace;overflow-x:auto;border:2px solid #23201a'>" + esc(c.code) + "</pre>" : "") +
+        "<div style='font-size:11px;color:#7a6f5d;font-weight:800;text-align:right;margin-top:6px'>👆 Cliquez pour retourner côté question</div>";
     }
 
-    cardEl.addEventListener("click", function () {
-      if (!cartesActives.length) return;
-      retourne = !retourne;
-      afficherCarte();
-    });
-    boite.querySelector("#sti-fc-flip").addEventListener("click", function () {
-      if (!cartesActives.length) return;
-      retourne = !retourne;
-      afficherCarte();
-    });
+    cardEl.addEventListener("click", retournerCarte3D);
+    boite.querySelector("#sti-fc-flip").addEventListener("click", retournerCarte3D);
     boite.querySelector("#sti-fc-prev").addEventListener("click", function () {
       if (!cartesActives.length) return;
       indexCourant = (indexCourant - 1 + cartesActives.length) % cartesActives.length;
       retourne = false;
-      afficherCarte();
+      afficherCarte("prev");
     });
     boite.querySelector("#sti-fc-next").addEventListener("click", function () {
       if (!cartesActives.length) return;
       indexCourant = (indexCourant + 1) % cartesActives.length;
       retourne = false;
-      afficherCarte();
+      afficherCarte("next");
     });
     boite.querySelector("#sti-fc-shuf").addEventListener("click", function () {
       for (var i = cartesActives.length - 1; i > 0; i--) {
@@ -2333,7 +2389,22 @@
       }
       indexCourant = 0;
       retourne = false;
-      afficherCarte();
+      afficherCarte("next");
+    });
+    cardEl.addEventListener("keydown", function (e) {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        retournerCarte3D();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        boite.querySelector("#sti-fc-next").click();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        boite.querySelector("#sti-fc-prev").click();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        fond.remove();
+      }
     });
     btnMaster.addEventListener("click", function () {
       if (!cartesActives.length) return;
