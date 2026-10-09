@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noai, noimageai" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="../assets/icons/STI_by_AE.ico" />
+<title>SQL – Effet des contraintes (animation)</title>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("courssql-theme") || localStorage.getItem("sti-theme");
+    if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.setAttribute("data-theme", "dark");
+    window.addEventListener("storage", function (e) {
+      if (e.key === "courssql-theme" || e.key === "sti-theme") {
+        document.documentElement.setAttribute("data-theme", e.newValue === "light" ? "light" : "dark");
+      }
+    });
+  } catch (err) {}
+})();
+</script>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1b1f2a;--mut:#667;--bd:#d9dce6;--ac:#2563eb;--ok:#16a34a;--ko:#dc2626;--wa:#f59e0b;--code:#0f172a;--codetx:#e2e8f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10131a;--card:#181c26;--tx:#e8eaf0;--mut:#9aa;--bd:#2b3140;--ac:#60a5fa;--ok:#4ade80;--ko:#f87171;--wa:#fbbf24;--code:#0a0d13}}
+:root[data-theme="dark"]{--bg:#10131a;--card:#181c26;--tx:#e8eaf0;--mut:#9aa;--bd:#2b3140;--ac:#60a5fa;--ok:#4ade80;--ko:#f87171;--wa:#fbbf24;--code:#0a0d13}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+main{max-width:860px;margin:auto}
+h1{font-size:1.3rem;margin:0 0 12px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+nav button,.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on,.btn.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+pre{background:var(--code);color:var(--codetx);padding:10px 12px;border-radius:8px;overflow-x:auto;margin:8px 0;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+input[type=text],input[type=number],select{padding:7px 9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;max-width:100%}
+.sec{display:none}.sec.on{display:block}
+.cells{display:flex;gap:4px;margin:6px 0;flex-wrap:wrap}
+.cell{width:34px;height:40px;border:1px solid var(--bd);border-radius:6px;display:grid;place-items:center;font:600 16px ui-monospace,monospace;opacity:0;transform:translateY(-14px);animation:in .35s forwards}
+.cell.pad{background:color-mix(in srgb,var(--wa) 30%,transparent);border-color:var(--wa);color:var(--wa)}
+.cell.fill{background:color-mix(in srgb,var(--ac) 18%,transparent);border-color:var(--ac)}
+.cell.len{background:color-mix(in srgb,var(--ok) 25%,transparent);border-color:var(--ok);font-size:12px}
+.cell.free{background:transparent;border-style:dashed;color:var(--mut)}
+.cell.rej{background:color-mix(in srgb,var(--ko) 25%,transparent);border-color:var(--ko);color:var(--ko)}
+.cell.over{border:1px dashed var(--ko);color:var(--ko);text-decoration:line-through;opacity:.7}
+.msg.wa{display:block;background:color-mix(in srgb,var(--wa) 20%,transparent);border:1px solid var(--wa)}
+@keyframes in{to{opacity:1;transform:none}}
+table{border-collapse:collapse;width:100%;max-width:100%}
+th,td{border:1px solid var(--bd);padding:6px 10px;text-align:left}
+th{background:color-mix(in srgb,var(--ac) 12%,transparent);font-size:.85rem}
+tr.new{animation:flash 1.2s}
+tr.upd td.fk{animation:flash 1.4s}
+tr.warn{background:color-mix(in srgb,var(--ko) 20%,transparent);animation:shake .4s 2}
+tr.gone{animation:gone .8s forwards}
+@keyframes flash{0%{background:color-mix(in srgb,var(--ok) 50%,transparent)}100%{background:transparent}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes gone{to{opacity:0;transform:translateX(40px);background:var(--ko)}}
+.msg{margin-top:8px;padding:9px 12px;border-radius:8px;display:none;font-size:.92rem}
+.msg.ok{display:block;background:color-mix(in srgb,var(--ok) 18%,transparent);border:1px solid var(--ok)}
+.msg.ko{display:block;background:color-mix(in srgb,var(--ko) 16%,transparent);border:1px solid var(--ko);animation:shake .4s 2}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.cap{font-size:.8rem;color:var(--mut);margin:0 0 4px}
+label{cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>SQL : voir l'effet des contraintes</h1>
+<nav id="tabs">
+<button class="on" data-t="t1">CHAR / VARCHAR</button>
+<button data-t="t2">CHECK</button>
+<button data-t="t3">ON UPDATE CASCADE</button>
+<button data-t="t4">ON DELETE</button>
+</nav>
+
+<section id="t1" class="sec on card">
+<pre>nom_char    CHAR(10),
+nom_varchar VARCHAR(10)</pre>
+<div class="row"><input type="text" id="txt" value="Ali" maxlength="20" placeholder="Saisir un texte"> <button class="btn p" id="go1">▶ Stocker</button> <span class="cap">(essayez plus de 10 caractères)</span></div>
+<div class="row"><label><input type="radio" name="m1" value="1" checked> Mode strict (défaut) : erreur</label> <label><input type="radio" name="m1" value="0"> Mode non strict / INSERT IGNORE : troncature</label></div>
+<p class="cap">CHAR(10) : longueur fixe, complétée par des espaces (en orange)</p><div class="cells" id="c1"></div>
+<p class="cap">VARCHAR(10) : longueur variable, 1 octet de longueur (en vert) + les caractères utiles</p><div class="cells" id="c2"></div>
+<div class="msg" id="m1"></div>
+</section>
+
+<section id="t2" class="sec card">
+<pre>CREATE TABLE etudiant(
+  id   INT PRIMARY KEY,
+  nom  VARCHAR(10),
+  note DECIMAL(4,2),
+  CONSTRAINT chk_note CHECK (note BETWEEN 0 AND 20)
+);</pre>
+<div class="row"><input type="text" id="nm" value="Omar" size="8" maxlength="10"> <input type="number" id="nt" value="15" step="0.5"> <button class="btn p" id="go2">INSERT</button> <button class="btn" id="rs2">Réinitialiser</button></div>
+<table><thead><tr><th>id</th><th>nom</th><th>note</th></tr></thead><tbody id="tb2"></tbody></table>
+<div class="msg" id="m2"></div>
+</section>
+
+<section id="t3" class="sec card">
+<pre>CREATE TABLE etudiant(
+  ...,
+  id_classe INT,
+  FOREIGN KEY (id_classe) REFERENCES classe(id_classe)
+  <span id="sq3">ON UPDATE CASCADE</span>
+);</pre>
+<div class="row">
+<label><input type="radio" name="m3" value="1" checked> avec ON UPDATE CASCADE</label>
+<label><input type="radio" name="m3" value="0"> sans (RESTRICT)</label>
+</div>
+<div class="row">UPDATE classe SET id_classe = <input type="number" id="nv3" value="10" style="width:80px"> WHERE id_classe = <select id="sl3"><option>1</option><option>2</option></select>
+<button class="btn p" id="go3">▶ Exécuter</button> <button class="btn" id="rs3">Réinitialiser</button></div>
+<div class="two"><div><p class="cap">Table parent : classe</p><table><thead><tr><th>id_classe</th><th>nom</th></tr></thead><tbody id="p3"></tbody></table></div>
+<div><p class="cap">Table enfant : etudiant</p><table><thead><tr><th>id</th><th>nom</th><th>id_classe (FK)</th></tr></thead><tbody id="e3"></tbody></table></div></div>
+<div class="msg" id="m3"></div>
+</section>
+
+<section id="t4" class="sec card">
+<pre>FOREIGN KEY (id_classe) REFERENCES classe(id_classe)
+<span id="sq4">-- sans ON DELETE CASCADE (RESTRICT par défaut)</span></pre>
+<div class="row">
+<label><input type="radio" name="m4" value="0" checked> sans ON DELETE CASCADE</label>
+<label><input type="radio" name="m4" value="1"> avec ON DELETE CASCADE (comparer)</label>
+</div>
+<div class="row">DELETE FROM classe WHERE id_classe = <select id="sl4"><option>1</option><option>2</option></select>
+<button class="btn p" id="go4">▶ Exécuter</button> <button class="btn" id="rs4">Réinitialiser</button></div>
+<div class="two"><div><p class="cap">Table parent : classe</p><table><thead><tr><th>id_classe</th><th>nom</th></tr></thead><tbody id="p4"></tbody></table></div>
+<div><p class="cap">Table enfant : etudiant</p><table><thead><tr><th>id</th><th>nom</th><th>id_classe (FK)</th></tr></thead><tbody id="e4"></tbody></table></div></div>
+<div class="msg" id="m4"></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const msg=(id,t,c)=>{const m=$(id);m.className='msg';void m.offsetWidth;m.className='msg '+c;m.textContent=t};
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));
+});
+
+/* 1. CHAR / VARCHAR */
+function cell(cls,t,i){const d=document.createElement('div');d.className='cell '+cls;d.textContent=t;d.style.animationDelay=(i*70)+'ms';return d}
+function run1(){
+  const v=$('txt').value,c1=$('c1'),c2=$('c2');c1.innerHTML='';c2.innerHTML='';
+  if(v.length>10){
+    const strict=document.querySelector('input[name=m1]:checked').value==='1';
+    for(let i=0;i<v.length;i++){const k=strict?'rej':(i<10?'fill':'over');c1.appendChild(cell(k,v[i],i));c2.appendChild(cell(k,v[i],i))}
+    if(strict)msg('m1',"ERREUR 1406 : Data too long for column at row 1. "+v.length+" caractères > 10 : en mode strict l'INSERT est refusé, rien n'est stocké.",'ko');
+    else msg('m1',"AVERTISSEMENT 1265 : Data truncated. Seuls les 10 premiers caractères « "+v.slice(0,10)+" » sont stockés ; les "+(v.length-10)+" derniers (barrés) sont perdus silencieusement.",'wa');
+    return}
+  for(let i=0;i<10;i++)c1.appendChild(i<v.length?cell('fill',v[i],i):cell('pad','␣',i));
+  c2.appendChild(cell('len',v.length,0));
+  for(let i=0;i<10;i++)c2.appendChild(i<v.length?cell('fill',v[i],i+1):cell('free','',i+1));
+  msg('m1',`CHAR(10) occupe 10 octets ; VARCHAR(10) occupe ${v.length+1} octet(s) (${v.length} + 1 de longueur). Économie : ${10-v.length-1} octet(s).`,'ok');
+}
+$('go1').onclick=run1;$('txt').oninput=run1;
+document.querySelectorAll('input[name=m1]').forEach(r=>r.onchange=run1);run1();
+
+/* 2. CHECK */
+let r2,id2;
+function init2(){r2=[[1,'Ali',14],[2,'Sana',17]];id2=3;draw2();$('m2').className='msg'}
+function draw2(n){$('tb2').innerHTML=r2.map(r=>`<tr class="${r[0]===n?'new':''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+$('go2').onclick=()=>{
+  const nom=$('nm').value,note=parseFloat($('nt').value);
+  if(isNaN(note)){return msg('m2','Saisissez une note.','ko')}
+  if(note<0||note>20){
+    $('tb2').insertAdjacentHTML('beforeend',`<tr class="warn"><td>${id2}</td><td>${nom}</td><td>${note}</td></tr>`);
+    msg('m2',`ERREUR 3819 : Check constraint 'chk_note' is violated. La ligne (${nom}, ${note}) est refusée.`,'ko');
+    setTimeout(()=>draw2(),1400);return;
+  }
+  r2.push([id2,nom,note]);draw2(id2);id2++;
+  msg('m2',`CHECK (note BETWEEN 0 AND 20) respecté : ${note} est accepté, 1 ligne insérée.`,'ok');
+};
+$('rs2').onclick=init2;init2();
+
+/* 3 & 4 : clés étrangères */
+function fk(k){
+  let cl,et;
+  const p=$('p'+k),e=$('e'+k);
+  function init(){cl=[[1,'4SI1'],[2,'4SI2']];et=[[1,'Ali',1],[2,'Sana',1],[3,'Omar',2]];draw();$('m'+k).className='msg'}
+  function draw(o={}){
+    p.innerHTML=cl.map(r=>`<tr class="${o.pu===r[0]?'new':''}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+    e.innerHTML=et.map(r=>`<tr class="${o.eu&&o.eu.includes(r[0])?'upd':''} ${o.w&&o.w.includes(r[0])?'warn':''}"><td>${r[0]}</td><td>${r[1]}</td><td class="fk">${r[2]}</td></tr>`).join('')}
+  function doUpd(){
+    const old=+$('sl3').value,nv=+$('nv3').value,casc=document.querySelector('input[name=m3]:checked').value==='1';
+    if(cl.some(r=>r[0]===nv))return msg('m3',`Erreur : id_classe = ${nv} existe déjà (clé primaire).`,'ko');
+    const kids=et.filter(r=>r[2]===old).map(r=>r[0]);
+    if(kids.length&&!casc){draw({w:kids});return msg('m3',`ERREUR 1451 : Cannot delete or update a parent row: a foreign key constraint fails. ${kids.length} étudiant(s) référencent encore la classe ${old} : la modification est refusée.`,'ko')}
+    cl.find(r=>r[0]===old)[0]=nv;
+    et.forEach(r=>{if(r[2]===old)r[2]=nv});
+    draw({pu:nv,eu:kids});
+    msg('m3',kids.length?`ON UPDATE CASCADE : la classe ${old} devient ${nv} et la FK de ${kids.length} étudiant(s) a été modifiée automatiquement.`:`Aucun étudiant n'était lié : seule la classe a changé.`,'ok');
+  }
+  function doDel(){
+    const id=+$('sl4').value,casc=document.querySelector('input[name=m4]:checked').value==='1';
+    const kids=et.filter(r=>r[2]===id).map(r=>r[0]);
+    if(kids.length&&!casc){draw({w:kids});return msg('m4',`ERREUR 1451 : Cannot delete or update a parent row: a foreign key constraint fails. ${kids.length} étudiant(s) dépendent de la classe ${id} : la suppression est refusée (sans ON DELETE CASCADE).`,'ko')}
+    if(kids.length){
+      [...e.rows].forEach((tr,i)=>{if(kids.includes(et[i][0]))tr.className='gone'});
+      msg('m4',`ON DELETE CASCADE : la classe ${id} est supprimée, et ses ${kids.length} étudiant(s) disparaissent avec elle.`,'ok');
+      setTimeout(()=>{et=et.filter(r=>r[2]!==id);cl=cl.filter(r=>r[0]!==id);draw()},900);
+    }else{cl=cl.filter(r=>r[0]!==id);draw();msg('m4',`Classe ${id} supprimée (aucun étudiant lié).`,'ok')}
+  }
+  $('go'+k).onclick=k==='3'?doUpd:doDel;$('rs'+k).onclick=init;init();
+}
+fk('3');fk('4');
+document.querySelectorAll('input[name=m3]').forEach(r=>r.onchange=()=>$('sq3').textContent=document.querySelector('input[name=m3]:checked').value==='1'?'ON UPDATE CASCADE':'-- sans ON UPDATE CASCADE (RESTRICT)');
+document.querySelectorAll('input[name=m4]').forEach(r=>r.onchange=()=>$('sq4').textContent=document.querySelector('input[name=m4]:checked').value==='1'?'ON DELETE CASCADE':'-- sans ON DELETE CASCADE (RESTRICT par défaut)');
+</script>
+<!-- 🔒 Protection du contenu STI -->
+<link rel="stylesheet" href="../assets/css/protection.css" />
+<script src="../assets/js/protection.js?v=66" defer></script>
+<script src="../assets/js/supabase-umd.js"></script>
+<script src="../assets/js/config.js?v=66"></script>
+<script src="../assets/js/acces.js?v=66"></script>
+</body>
+</html>
