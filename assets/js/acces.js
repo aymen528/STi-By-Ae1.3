@@ -30,8 +30,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-47") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-47", "1");
+          if (sessionStorage.getItem("sti-sw-reload-48") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-48", "1");
         } catch (e) {}
         location.reload();
       });
@@ -197,14 +197,58 @@
     }
   }
 
-  /* Application immédiate dès 0 ms à partir du cache de session local */
+  /* Application immédiate dès 0 ms à partir du cache de session local (ou session permanente elevelabo3) */
   try {
-    var cacheInit = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-    var admInit = localStorage.getItem("sti-admin-gold") === "1" || Boolean(cacheInit && cacheInit.isAdmin);
+    var permInit = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+    var cacheInit = permInit || JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+    var admInit = localStorage.getItem("sti-admin-gold") === "1" || Boolean(cacheInit && (cacheInit.isAdmin || estClasseProfLabo(cacheInit.classe)));
     appliquerVerrou4SI((cacheInit && cacheInit.classe) || "", admInit);
   } catch (e) {
     appliquerVerrou4SI("", false);
   }
+
+  /* Intercepteur universel de téléchargement hors-ligne (<a download>) :
+     En mode hors-ligne sur Chrome/Edge, un clic natif sur <a download> contourne parfois le Service Worker.
+     On récupère le fichier depuis le Cache Storage (ou via fetch SW) et on déclenche un téléchargement Blob en mémoire. */
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a[download]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (!href || href.indexOf("blob:") === 0 || href.indexOf("data:") === 0) return;
+    if (a.hasAttribute("data-sti-blob-ready")) return;
+    e.preventDefault();
+    var nomDl = a.getAttribute("download") || href.split("/").pop() || "ressource";
+    var absUrl = a.href;
+    (async function () {
+      try {
+        var rep = null;
+        if ("caches" in window) {
+          rep = await caches.match(absUrl, { ignoreSearch: true });
+          if (!rep) rep = await caches.match(href, { ignoreSearch: true });
+        }
+        if (!rep) {
+          rep = await fetch(absUrl);
+        }
+        if (rep && rep.ok) {
+          var blob = await rep.blob();
+          var bUrl = URL.createObjectURL(blob);
+          var tmp = document.createElement("a");
+          tmp.href = bUrl;
+          tmp.download = nomDl;
+          tmp.setAttribute("data-sti-blob-ready", "1");
+          document.body.appendChild(tmp);
+          tmp.click();
+          setTimeout(function () {
+            if (tmp.parentNode) tmp.parentNode.removeChild(tmp);
+            URL.revokeObjectURL(bUrl);
+          }, 2000);
+          return;
+        }
+      } catch (err) {}
+      /* Secours si non trouvé */
+      window.open(absUrl, "_blank");
+    })();
+  });
 
   /* ---------- Activation / révocation en direct du mode Compte GOLD (capture d'écran + impression) ---------- */
   function appliquerModeGold(actif) {
@@ -617,15 +661,43 @@
 
   var sessionInitialisee = false;
   function lireCacheSessionLocal() {
-    try { return JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) { return null; }
+    try {
+      var perm = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+      if (perm && estClasseProfLabo(perm.classe)) {
+        perm.ts = Date.now();
+        perm.gold = true;
+        perm.statut = "actif";
+        perm.permanent = true;
+        return perm;
+      }
+      var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+      if (c && estClasseProfLabo(c.classe)) {
+        c.ts = Date.now();
+        c.gold = true;
+        c.statut = "actif";
+        c.permanent = true;
+        try { localStorage.setItem("sti-labo3-permanent", JSON.stringify(c)); } catch (e) {}
+        return c;
+      }
+      return c;
+    } catch (e) { return null; }
   }
 
   function restaurerDepuisCacheLocal() {
     var cache = lireCacheSessionLocal();
+    var estLaboPerm = Boolean(cache && (cache.permanent || estClasseProfLabo(cache.classe)));
     var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
     var tsValide = (cache && cache.ts) || tOff;
-    if (tsValide && Date.now() - tsValide < 30 * 86400000) {
+    if (estLaboPerm || (tsValide && Date.now() - tsValide < 30 * 86400000)) {
       sessionInitialisee = true;
+      if (estLaboPerm) {
+        try {
+          localStorage.setItem("sti-gold", "1");
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify(cache));
+          localStorage.setItem("sti-labo3-permanent", JSON.stringify(cache));
+        } catch (e) {}
+      }
       if (cache && cache.isAdmin) {
         currentUid = cache.id || "admin";
         appliquerModeGold(true);
@@ -636,13 +708,13 @@
       }
       var fakeUser = {
         id: (cache && cache.id) || "offline-user",
-        email: (cache && cache.email) || "Abonné hors-ligne",
+        email: (cache && cache.email) || (estLaboPerm ? "Poste Labo 3" : "Abonné hors-ligne"),
         user_metadata: (cache && cache.user_metadata) || {}
       };
       currentUid = fakeUser.id;
       currentClasse = (cache && cache.classe) || "";
-      appliquerModeGold(Boolean(cache && cache.gold), cache || {});
-      appliquerVerrou4SI(currentClasse, false);
+      appliquerModeGold(Boolean(estLaboPerm || (cache && cache.gold)), cache || {});
+      appliquerVerrou4SI(currentClasse, estLaboPerm);
       panneauCompte(fakeUser, cache || {});
       installerSuiviQuizAuto();
       journal(fakeUser.id);
@@ -652,11 +724,13 @@
     return false;
   }
 
-  /* Sur PC Windows hors-ligne (même si navigator.onLine reste true à cause d'une carte réseau virtuelle),
-     restaurer immédiatement la session locale si l'appel réseau tarde > 1,5 s ou si navigator.onLine === false */
-  if (!navigator.onLine) {
-    restaurerDepuisCacheLocal();
-  }
+  /* Si ce PC du labo possède une session permanente elevelabo3 (ou si hors-ligne), restaurer dès 0 ms sans jamais redemander login/mot de passe */
+  (function verifImmediateLabo3OuHorsLigne() {
+    var cInit = lireCacheSessionLocal();
+    if (!navigator.onLine || (cInit && (cInit.permanent || estClasseProfLabo(cInit.classe)))) {
+      restaurerDepuisCacheLocal();
+    }
+  })();
   var timerSecoursHorsLigne = setTimeout(function () {
     if (!sessionInitialisee) restaurerDepuisCacheLocal();
   }, 1500);
@@ -707,12 +781,12 @@
       var st = rp.data.statut;
       if (st === "actif") {
         currentClasse = rp.data.classe || "";
+        var isLaboP = estClasseProfLabo(currentClasse);
         var isG = estGoldProfil(rp.data);
         appliquerModeGold(isG, rp.data);
-        appliquerVerrou4SI(currentClasse, false);
+        appliquerVerrou4SI(currentClasse, isLaboP);
         try {
-          localStorage.setItem("sti-offline", String(Date.now()));
-          localStorage.setItem("sti-session-cache", JSON.stringify({
+          var objSess = {
             id: user.id,
             email: user.email,
             user_metadata: user.user_metadata || {},
@@ -720,9 +794,17 @@
             classe: rp.data.classe || "—",
             statut: "actif",
             gold: isG,
+            permanent: isLaboP,
             isAdmin: false,
             ts: Date.now()
-          }));
+          };
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify(objSess));
+          if (isLaboP) {
+            localStorage.setItem("sti-labo3-permanent", JSON.stringify(objSess));
+          } else {
+            localStorage.removeItem("sti-labo3-permanent");
+          }
         } catch (e) {}
         return true;
       }
@@ -736,14 +818,17 @@
       var cacheFallback = lireCacheSessionLocal() || {};
       var p = (profil && (profil.classe || profil.lycee)) ? profil : cacheFallback;
       currentClasse = (p && p.classe) || "";
+      var isLaboP = estClasseProfLabo(currentClasse);
       appliquerModeGold(estGoldProfil(p), p);
-      appliquerVerrou4SI(currentClasse, false);
-      verrouBio(user, function () {
+      appliquerVerrou4SI(currentClasse, isLaboP);
+      var suiteEntree = function () {
         panneauCompte(user, p || {});
         surveillerSessionTempsReel(user.id, appliquerStatut);
         installerSuiviQuizAuto();
         journal(user.id);
-      });
+      };
+      if (isLaboP) suiteEntree();
+      else verrouBio(user, suiteEntree);
     }
 
     var dejaEntre = false;
@@ -1017,16 +1102,23 @@
     });
     pan.appendChild(btnImp);
 
-    var out = document.createElement("button");
-    out.type = "button";
-    out.textContent = "🚪 Déconnexion";
-    out.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:#fff;color:#c0392b;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
-    out.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      sortirImmediatement("#deconnecte");
-    });
-    pan.appendChild(out);
+    if (estClasseProfLabo(profil && profil.classe)) {
+      var badgePerm = document.createElement("div");
+      badgePerm.textContent = "🖥️ Poste Labo 3 · Session permanente";
+      badgePerm.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #177245;background:#e3f6e8;color:#177245;text-align:center;border-radius:9px;padding:6px 10px;font-weight:900;font-size:11px;";
+      pan.appendChild(badgePerm);
+    } else {
+      var out = document.createElement("button");
+      out.type = "button";
+      out.textContent = "🚪 Déconnexion";
+      out.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:#fff;color:#c0392b;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+      out.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sortirImmediatement("#deconnecte");
+      });
+      pan.appendChild(out);
+    }
 
     var porte = document.createElement("div");
     porte.className = "sti-wrap";

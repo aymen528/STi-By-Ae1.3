@@ -22,7 +22,8 @@
       if (localStorage.getItem("sti-gold") === "1" || localStorage.getItem("sti-admin-gold") === "1") {
         return true;
       }
-      var cSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+      var permLab = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+      var cSess = permLab || JSON.parse(localStorage.getItem("sti-session-cache") || "null");
       if (cSess) {
         var clNorm = String(cSess.classe || "").trim().toLowerCase();
         try { clNorm = clNorm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}

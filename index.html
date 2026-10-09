@@ -85,7 +85,8 @@
       (function () {
         try {
           var isAdm = localStorage.getItem("sti-admin-gold") === "1";
-          var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+          var perm = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+          var c = perm || JSON.parse(localStorage.getItem("sti-session-cache") || "null");
           if (c && c.isAdmin) isAdm = true;
           var cl = String((c && c.classe) || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
           var clNorm = cl.normalize ? cl.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : cl;
@@ -3199,7 +3200,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=47"
+              src="assets/images/qr-code-site.png?v=48"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3774,8 +3775,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-47") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-47", "1");
+                if (sessionStorage.getItem("sti-sw-reload-48") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-48", "1");
               } catch (e) {}
               location.reload();
             }

@@ -4,7 +4,27 @@
   var cfg = window.STI_AUTH;
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
 
-  /* Enregistrement du Service Worker dès le portail pour garantir le mode Hors-ligne sur PC Windows & Mobile */
+  /* Si la classe "elevelabo3" a déjà été connectée une fois sur ce PC du labo,
+     ne plus jamais demander login ni mot de passe (sauf si le prof ouvre explicitement #admin) */
+  try {
+    var hInit = location.hash.replace("#", "");
+    var permLabo = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+    var sessLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+    var clVerif = String((permLabo && permLabo.classe) || (sessLoc && sessLoc.classe) || "").trim().toLowerCase().replace(/[\s._\-]+/g, "");
+    if (clVerif === "elevelabo3" && hInit !== "admin" && hInit !== "attente" && hInit !== "refuse" && hInit !== "exclu") {
+      var objPerm = permLabo || sessLoc;
+      objPerm.ts = Date.now();
+      objPerm.gold = true;
+      objPerm.statut = "actif";
+      objPerm.permanent = true;
+      localStorage.setItem("sti-gold", "1");
+      localStorage.setItem("sti-offline", String(Date.now()));
+      localStorage.setItem("sti-session-cache", JSON.stringify(objPerm));
+      localStorage.setItem("sti-labo3-permanent", JSON.stringify(objPerm));
+      location.replace(cfg.RACINE + "index.html");
+      return;
+    }
+  } catch (e) {}
   try {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js").then(function (reg) {
@@ -338,8 +358,7 @@
       } catch (e) {}
       if (st === "actif") {
         try {
-          localStorage.setItem("sti-offline", String(Date.now()));
-          localStorage.setItem("sti-session-cache", JSON.stringify({
+          var objSessPortail = {
             id: user.id,
             email: user.email,
             user_metadata: user.user_metadata || {},
@@ -347,9 +366,19 @@
             classe: rp.data.classe || "—",
             statut: "actif",
             gold: isG,
+            permanent: isLabo,
             isAdmin: false,
             ts: Date.now()
-          }));
+          };
+          localStorage.setItem("sti-offline", String(Date.now()));
+          localStorage.setItem("sti-session-cache", JSON.stringify(objSessPortail));
+          if (isLabo) {
+            localStorage.setItem("sti-labo3-permanent", JSON.stringify(objSessPortail));
+            location.href = cfg.RACINE;
+            return;
+          } else {
+            localStorage.removeItem("sti-labo3-permanent");
+          }
         } catch (e) {}
         if (bioDispo() && !localStorage.getItem("sti-bio")) {
           if (window.confirm("Activer la connexion biométrique (empreinte / visage) sur cet appareil ?")) {

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noai, noimageai" />
 <link rel="icon" href="assets/icons/STI_by_AE.ico" />
-<link rel="stylesheet" href="assets/css/protection.css?v=47" />
+<link rel="stylesheet" href="assets/css/protection.css?v=48" />
 <title>🧪 Atelier Épreuve Pratique Bac STI — STI By A'e V2.0</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,7 +152,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <button type="button" class="btn btn-prim" id="btn-ouvrir-enonce-pdf" onclick="ouvrirDocModal('projets/sti0/projetsti0.pdf.html', '📄 Énoncé officiel — Projet STI 0 (projetsti0.pdf)')">📄 Énoncé (projetsti0.pdf)</button>
-      <a class="btn btn-gold" id="btn-dl-ressources-zip" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip">📦 Télécharger ressources (.zip)</a>
+      <a class="btn btn-gold" id="btn-dl-ressources-zip" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip" onclick="return window.telechargerRessourcesSTI0(event)">📦 Télécharger ressources (.zip)</a>
       <span id="statut-envoi" style="font-size:12.5px;font-weight:800;color:#177245"></span>
     </div>
   </div>
@@ -164,7 +164,7 @@
         <strong id="modal-doc-titre" style="font-size:14px;color:#23201a">📄 Document</strong>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <a class="btn" href="projets/sti0/projetsti0.pdf" download="projetsti0.pdf">⤓ projetsti0.pdf</a>
-          <a class="btn btn-gold" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip">📦 Ressources (.zip)</a>
+          <a class="btn btn-gold" href="projets/sti0/ressources-projet-sti0.zip" download="Projet_STI_0_Ressources.zip" onclick="return window.telechargerRessourcesSTI0(event)">📦 Ressources (.zip)</a>
           <button type="button" class="btn btn-prim" onclick="fermerDocModal()">✕ Fermer</button>
         </div>
       </div>
@@ -201,13 +201,36 @@
   <div class="eval-box" id="zone-eval"></div>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=47"></script>
-<script src="assets/js/protection.js?v=47"></script>
-<script src="assets/js/acces.js?v=47"></script>
+<script src="assets/js/config.js?v=48"></script>
+<script src="assets/js/protection.js?v=48"></script>
+<script src="assets/js/acces.js?v=48"></script>
 <script>
 (function () {
   "use strict";
 
+  window.STI0_ZIP_B64 = "UEsDBBQAAAAIAC+kSF1uEso9FwQAAJQLAAAKAAAAaW5kZXguaHRtbJ1W247bNhB9369gFRRZF5Z1yXrteGWj6SYF9ikLePPQR1qiJDaUqJKU7W2Q/8l/9Mcy1JWS7V2ggCFLmuHMmZkzowl++fj5/umvx08oVRnbXAX6DzGcJ2srFtbmCqEgJTjSN3CbEYVRmGIhiVpbX57+tJcWckxhjjOytvaUHAoulIVCniuSg/KBRipdR2RPQ2JXD1NEc6ooZrYMMSNrrzelqGJk8yj430Sh7dMDcpGNPoRhSSgLnFpaa0r13N4jtBKcK/SteULItneMlCv0xiPv8BLfjQQ+SN7tln58a0pinkcgiL14Hr83BYocFQGJG3sLvzP2vfn/zfC740db0n9pnqzgXkRE2PCqt5VhkdB8hdz+VYGjqNJ3x4Z1RaZXreHo2fCTEpqkaoU81/11fGykClEpO8YZZc8rZG1Jwgn68mBN0QcBFZgiiXNpSyJo3GPa4fBrInip87HH4rrOzaRXCDnjopVV6TGEEZUFw+AtZuQ4RocljYgBryLECvm3bmHkSZ+0ZSpo/nWQLBMYoznBwk4EjigQ7dpbuhFJpg0oXeaJ+eBPTvG/ieP4FdwNlogKEirKoXZwtszyMwX0b4oj8m6LCzGn3rgqwBSglTe7ESQbcwR4oxTPVuiivcIwxwscUgXQ3dlyfnfOizt7/5IXf3nqJsd7w8X/zE6CC03T89axYV+zyI5IyAWuLeU8J69UrEu9549Sj9r20+wo5RBCK4Sw4ZjkjEZIJDt87c/nU9Rf3Nl8MkrmoWm8W9dgpRLQQ7RG7c58eTbUVcr3REzNVzMMSYvN8WHQexjpoOEqbp9EeiZDQ8LIDDNmeGsooDhUCJeK352j0+ISnRbzAZ90N9rdWJrdjCFkmOYm/4E2oHeuiwaFenGW0FjAR+clq810McdkX/whwS7nfswkf8gkPahwxA+QFFRNAH2p6OQCherfzJuMwf+ekYhidJ3ho93AXLgQ+2TwORmM8te77Xt3N56zF3Jh9tCgfcaWioGt0fQYpqQ/Opwgp/AFP9yNxQehJ4a+XgYzZrLBk2FR+4Mj/sELwN/ydeHu09ND9X/gdJtG4LQbUaAr0ywiFaR2EQlSb/NHKQgukcapYJZJRf8piYTDXqdVbLbwQcUJkSgjuSwJk7DnmGtP4BSdNqRx06ELMEoFiddWY2Gm1wQLKaiIXs3qtauE/YthKddWNWIsI+7NIxaKhrQgAroepl9lJXBwp3POlxHIBYemi3sOMTEFHhhEOMzCqZ/AMQIMqtr2Ojf//YAW34bwiQ/BFiSVvaV5zEWGK4vID3YC1sfts1RaVSLI4BMJ0xzGYUKrI/2QevtgHIXKGr6aajpNOZvNFljTIWvGTb3odnmWIjyphV5T19Z9o7IJnPpo66K1Gjg1jYAa1Q7+E1BLAwQUAAAACAAvpEhdkKBLuKUCAAD1CQAADAAAAFNvbmRhZ2UuaHRtbMVWzXLUMAy+9ymEL5xK+sOB6WQzdKBlOsO2ZVoOHL2xkphJ7NQ/S8sbLaceeALyYsibbZbdpiWdpcMptqRPkj/LiuIX78/eXX45P4LCVWWyFYcPlFzlI5YZlmwBxAVyERa0rNBxSAtuLLoR+3x5vP2GQbRQOulKTM6N/ooOLi5PYAe24UIrwXOMo1Yb/EV3DuOJFjcLcKZNBYpXSHEZ8NRJrUZsgX5VFzUDCl5oMWK1to6BVtZPKklpsNZFcCKxFJTanYBEJeaoRBJPki6TSRJHC/HSbpIcelegcjKTKQ/RIYITZVMj6/nuIACX9o5P2uMsJebPbRDMw74dc1m2QZ24b3HQL46lqr0Dd1MTIQ6v6cAtORV5Y2Dld1rv7wTy1x3Q3gxJbKwdCISaW4ub5RdcfNNGdDmK+t+k+AGVeXpuKwISWSwxdYvc8uCSrduQlW6vecpLj6GmTpSQVx4NTLUzCHNcKILW7q8OxiwZc5v6UqrBmGOWHDezSqqHMXHUnmbt1I/yS7u2WJeS4nXyES2YZmaR+2uwOpXhS+cj1dOqvEhOf91SjOK+4pNHG04RHWaZNNX8WfVbnnnZrzh9CHHBlQU+lXZdPai4dgeVTuBIqtCa5qlbeizG8byZkdx6A2Ufh1YrB5kMzNlHb6nnJRkupL57Rle7rCvHnkf0f+GDWN4bxvJLb6kxUzPqYZMYn9OMKuPKWRBaOmh+hCdptbekW/OWEv2m+VmGzmaon/Nys0vY24zFZ4UPuoT9waV+j3yBU4lKEYvgFYJqZilaK10zg1ov6j+VTt+g2rDU9zej6VnhD3TTTlADL2VO04qReeFW/i2rMZFGky7SoVK+RNONTz2AdsDpEEdqSkyvIuKo7qafaHX8oT01rnbiagctau7zIe83UEsDBBQAAAAIAC+kSF2l7QsBSwEAAHQCAAARAAAAU3RhdGlzdGlxdWVzLmh0bWyNkk1OwzAQhfc9xeB9MbBCyMmmFAkJiUoNC5ZOPI1dJbGxJxW9ET1HL4aD0z8hIVZ2ZuZ9eZkXcfX4OiveF3PQ1Db5RAwHNLKrM7byLJ8ACI1SDZd4bZEkVFr6gJSxt+Jpes+Aj00y1GC+8HaNBMviGW5gCkuSZAKZjx6D4GlkgPIDVZRWbUfCyvoWOtlixmoGsiJju4ydI66ddgyiDW1VxpwNxMB2oS9bEw2xxBlIBhsVTR4KsdRgjZ3KRZlfeipzwcfecbjQ+68WQfUQbKdkjSdMwAYrGl2SxhbZSRf71g2uYSObHgdHM21NMB76DihRHwRPQ3/obln+ggH8fhdQ9p/RRmXi+Q/lXVKuMao2Ru139rdI8PQVZxUHsjF13LY3tSaWC9O5noC2LjLTftnhFXNlCP0QvODuuHJ+ufP4HNNMWaeIY+Y//9g3UEsBAhQDFAAAAAgAL6RIXW4Syj0XBAAAlAsAAAoAAAAAAAAAAAAAAKSBAAAAAGluZGV4Lmh0bWxQSwECFAMUAAAACAAvpEhdkKBLuKUCAAD1CQAADAAAAAAAAAAAAAAApIE/BAAAU29uZGFnZS5odG1sUEsBAhQDFAAAAAgAL6RIXaXtCwFLAQAAdAIAABEAAAAAAAAAAAAAAKSBDgcAAFN0YXRpc3RpcXVlcy5odG1sUEsFBgAAAAADAAMAsQAAAIgIAAAAAA==";
+  window.telechargerRessourcesSTI0 = function (e) {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    try {
+      var bin = atob(window.STI0_ZIP_B64);
+      var len = bin.length;
+      var bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+      var blob = new Blob([bytes], { type: "application/zip" });
+      var bUrl = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = bUrl;
+      a.download = "Projet_STI_0_Ressources.zip";
+      a.setAttribute("data-sti-blob-ready", "1");
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        if (a.parentNode) a.parentNode.removeChild(a);
+        URL.revokeObjectURL(bUrl);
+      }, 2000);
+    } catch (err) {}
+    return false;
+  };
   window.ouvrirDocModal = function (url, titre) {
     var m = document.getElementById("modal-doc-bac");
     var f = document.getElementById("modal-doc-frame");
@@ -231,7 +254,7 @@
         "<b style='font-size:12.5px;color:#23201a'>📂 Fichiers du Projet STI 0 :</b>" +
         "<button type='button' class='btn btn-prim' style='padding:6px 12px;font-size:12px' onclick=\"ouvrirDocModal('projets/sti0/projetsti0.pdf.html', '📄 Énoncé officiel — Projet STI 0 (projetsti0.pdf)')\">📖 Lire l'énoncé (projetsti0.pdf)</button>" +
         "<a class='btn' style='padding:6px 12px;font-size:12px' href='projets/sti0/projetsti0.pdf' download='projetsti0.pdf'>⤓ Télécharger projetsti0.pdf</a>" +
-        "<a class='btn btn-gold' style='padding:6px 12px;font-size:12px' href='projets/sti0/ressources-projet-sti0.zip' download='Projet_STI_0_Ressources.zip'>📦 Télécharger ressources (.zip : index.html, Sondage.html, Statistiques.html)</a>" +
+        "<a class='btn btn-gold' style='padding:6px 12px;font-size:12px' href='projets/sti0/ressources-projet-sti0.zip' download='Projet_STI_0_Ressources.zip' onclick='return window.telechargerRessourcesSTI0(event)'>📦 Télécharger ressources (.zip : index.html, Sondage.html, Statistiques.html)</a>" +
         "<button type='button' class='btn' style='padding:6px 12px;font-size:12px' onclick=\"ouvrirDocModal('projets/sti0/index.html', '👁️ Aperçu des pages ressources — Projet STI 0')\">👁️ Voir les 3 pages ressources</button>" +
         "</div>" +
         "<div><b>I. Base de données <code>BDDC6</code> :</b> Tables <code>Sondage(NumS, Theme, DateDebut)</code>, <code>Question(NumQ, NumS#, Contenu)</code>, <code>Participant(IdParticipant, Mail, Mdp, Genre)</code> et <code>Reponse(NumQ#, NumS#, IdParticipant#, Rep)</code>.<br>" +
