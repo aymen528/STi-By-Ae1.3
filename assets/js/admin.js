@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v62";
+    var versionDefaut = "v63";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -54,6 +54,131 @@
           });
         }
         charge(false);
+      });
+    }
+  })();
+
+  /* ---------- Jauge d'espace Supabase (pourcentage + quantité restante sur 500 Mo) à côté de la version ---------- */
+  var QUOTA_SUPABASE_OCTETS = 500 * 1024 * 1024; // 500 Mo (Plan Free Supabase)
+  var dernierQuotaInfo = null;
+
+  function formaterOctets(oct) {
+    var n = Math.max(0, Number(oct) || 0);
+    if (n >= 1024 * 1024) {
+      return (n / (1024 * 1024)).toFixed(2).replace(".", ",") + " Mo";
+    }
+    if (n >= 1024) {
+      return (n / 1024).toFixed(1).replace(".", ",") + " Ko";
+    }
+    return Math.round(n) + " octets";
+  }
+
+  function majAffichageQuotaSupabase(octetsUtilises, nbProfTotal, nbAccesTotal, depuisRpc) {
+    var utilise = Math.max(64 * 1024, Math.min(QUOTA_SUPABASE_OCTETS, Number(octetsUtilises) || 0));
+    var restant = Math.max(0, QUOTA_SUPABASE_OCTETS - utilise);
+    var pctUtilise = (utilise / QUOTA_SUPABASE_OCTETS) * 100;
+    var pctRestant = Math.max(0, Math.min(100, 100 - pctUtilise));
+
+    var strPctRestant = (pctRestant >= 99.9 ? "99,9" : pctRestant.toFixed(2).replace(".", ",")) + " %";
+    var strPctUtilise = (pctUtilise < 0.01 ? "0,01" : pctUtilise.toFixed(2).replace(".", ",")) + " %";
+    var moRestants = (restant / (1024 * 1024)).toFixed(2).replace(".", ",");
+    var strQteRestante = moRestants + " Mo / 500 Mo";
+    var strUtilise = formaterOctets(utilise);
+
+    dernierQuotaInfo = {
+      utilise: utilise,
+      restant: restant,
+      pctRestant: strPctRestant,
+      pctUtilise: strPctUtilise,
+      strQteRestante: strQteRestante,
+      strUtilise: strUtilise,
+      nbProf: nbProfTotal || 0,
+      nbAcces: nbAccesTotal || 0,
+      depuisRpc: Boolean(depuisRpc)
+    };
+
+    try {
+      localStorage.setItem("sti-supabase-quota", JSON.stringify(dernierQuotaInfo));
+    } catch (e) {}
+
+    var elBadge = document.getElementById("badge-supabase-quota");
+    var elPct = document.getElementById("sb-pct-restant");
+    var elQte = document.getElementById("sb-qte-restante");
+    var elBarre = document.getElementById("sb-jauge-barre");
+    var elSous = document.getElementById("sous-supabase-quota");
+    var elPied = document.getElementById("pied-supabase-quota");
+
+    if (elPct) elPct.textContent = strPctRestant;
+    if (elQte) elQte.textContent = strQteRestante;
+    if (elBarre) elBarre.style.width = Math.max(4, pctRestant.toFixed(1)) + "%";
+
+    if (elBadge) {
+      elBadge.classList.remove("alerte", "danger");
+      if (pctRestant < 10) elBadge.classList.add("danger");
+      else if (pctRestant < 30) elBadge.classList.add("alerte");
+      elBadge.title =
+        "🗄️ Base Supabase (Quota 500 Mo) : " + strPctRestant + " restant (" + moRestants + " Mo libres sur 500 Mo) · " +
+        "Utilisé : " + strUtilise + " (" + strPctUtilise + ") · " +
+        (nbProfTotal || 0) + " profil(s) & " + (nbAccesTotal || 0) + " entrée(s) d'accès/messages/quiz";
+    }
+    if (elSous) {
+      elSous.textContent =
+        "🗄️ Supabase : " + strPctRestant + " restant (" + moRestants + " Mo libres / 500 Mo · " + strUtilise + " utilisés)";
+    }
+    if (elPied) {
+      elPied.textContent =
+        "🗄️ Supabase : " + strPctRestant + " restant (" + strQteRestante + " · " + strUtilise + " utilisés)";
+    }
+  }
+
+  function calculerQuotaSupabase(tousProfils, tousLesAcces, countProfilsExact, countAccesExact) {
+    var arrP = Array.isArray(tousProfils) ? tousProfils : [];
+    var arrA = Array.isArray(tousLesAcces) ? tousLesAcces : [];
+    var nbP = typeof countProfilsExact === "number" && countProfilsExact >= arrP.length ? countProfilsExact : arrP.length;
+    var nbA = typeof countAccesExact === "number" && countAccesExact >= arrA.length ? countAccesExact : arrA.length;
+
+    /* Taille réelle JSON des données + structure tables/index Postgres (auth.users + profiles + acces) */
+    var octetsJsonP = 0;
+    var octetsJsonA = 0;
+    try { octetsJsonP = JSON.stringify(arrP).length; } catch (e) {}
+    try { octetsJsonA = JSON.stringify(arrA).length; } catch (e) {}
+
+    var moyParProfil = arrP.length > 0 ? Math.max(1200, Math.round(octetsJsonP / arrP.length) + 3400) : 4600;
+    var moyParAcces = arrA.length > 0 ? Math.max(450, Math.round(octetsJsonA / arrA.length) + 850) : 1250;
+    var baseSysteme = 380 * 1024; // Schémas auth + public + index B-tree de base (~380 Ko)
+    var totalEstime = baseSysteme + (nbP * moyParProfil) + (nbA * moyParAcces);
+
+    majAffichageQuotaSupabase(totalEstime, nbP, nbA, false);
+
+    /* Si la fonction RPC SQL public.admin_taille_base() est installée côté Supabase, utiliser la mesure exacte pg_database_size */
+    if (navigator.onLine && sb && typeof sb.rpc === "function") {
+      sb.rpc("admin_taille_base").then(function (r) {
+        if (r && !r.error && typeof r.data === "number" && r.data > 0) {
+          majAffichageQuotaSupabase(r.data, nbP, nbA, true);
+        }
+      }).catch(function () {});
+    }
+  }
+
+  (function initQuotaSupabaseDepuisCache() {
+    try {
+      var q = JSON.parse(localStorage.getItem("sti-supabase-quota") || "null");
+      if (q && typeof q.utilise === "number") {
+        majAffichageQuotaSupabase(q.utilise, q.nbProf || 0, q.nbAcces || 0, q.depuisRpc);
+      }
+    } catch (e) {}
+    var elBadge = document.getElementById("badge-supabase-quota");
+    if (elBadge) {
+      elBadge.addEventListener("click", function () {
+        if (dernierQuotaInfo) {
+          msg(
+            "🗄️ Quota Supabase (500 Mo) : " + dernierQuotaInfo.pctRestant + " restant — " +
+            dernierQuotaInfo.strQteRestante + " disponibles (utilisé : " + dernierQuotaInfo.strUtilise +
+            " soit " + dernierQuotaInfo.pctUtilise + " · " + dernierQuotaInfo.nbProf + " profil(s) · " +
+            dernierQuotaInfo.nbAcces + " enregistrement(s) d'accès/messages/quiz).",
+            "ok"
+          );
+        }
       });
     }
   })();
@@ -797,6 +922,7 @@
       rendQuiz();
       rendSuiviMessages();
       rendAcces();
+      calculerQuotaSupabase(tous, tousAcces, window.__stiCountProfils, window.__stiCountAcces);
       if (!estHorsLigne) verifierNouvellesDemandes();
       if (estHorsLigne) {
         var dtStr = tsCache ? new Date(tsCache).toLocaleString("fr-FR") : "récemment";
@@ -818,8 +944,8 @@
       }
     }, 3500);
     Promise.all([
-      sb.from("profiles").select("*").order("cree_le", { ascending: false }),
-      sb.from("acces").select("*").order("debut", { ascending: false }).limit(600),
+      sb.from("profiles").select("*", { count: "exact" }).order("cree_le", { ascending: false }),
+      sb.from("acces").select("*", { count: "exact" }).order("debut", { ascending: false }).limit(600),
       fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all").then(function (r) { return r.text(); }).catch(function () { return ""; })
     ]).then(function (res) {
       clearTimeout(timerOffAdmin);
@@ -833,6 +959,8 @@
       resolu = true;
       var tous = res[0].data || [];
       var tousAcces = res[1].data || [];
+      window.__stiCountProfils = typeof res[0].count === "number" ? res[0].count : tous.length;
+      window.__stiCountAcces = typeof res[1].count === "number" ? res[1].count : tousAcces.length;
       var txtNtfy = res[2] || "";
       try {
         localStorage.setItem("sti-admin-cache", JSON.stringify({

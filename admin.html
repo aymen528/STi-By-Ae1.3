@@ -94,6 +94,34 @@
   .badge-version:hover {
     background: #f4511e; color: #fff;
   }
+  .badge-supabase {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #e3f6e8; color: #135d37;
+    border: 1.5px solid #177245; border-radius: 999px;
+    padding: 3px 10px; font-size: 11px; font-weight: 900;
+    box-shadow: 1.5px 1.5px 0 #177245;
+    letter-spacing: .15px; cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .badge-supabase:hover {
+    transform: translateY(-1px);
+    background: #d0f0d9;
+  }
+  .badge-supabase.alerte {
+    background: #fff3b0; color: #7a5200; border-color: #b47d09; box-shadow: 1.5px 1.5px 0 #b47d09;
+  }
+  .badge-supabase.danger {
+    background: #fde2e6; color: #a61b29; border-color: #c0392b; box-shadow: 1.5px 1.5px 0 #c0392b;
+  }
+  .jauge-sb-mini {
+    display: inline-block; width: 34px; height: 7px; border-radius: 99px;
+    background: rgba(19, 93, 55, 0.18); border: 1px solid currentColor;
+    overflow: hidden; vertical-align: middle;
+  }
+  .jauge-sb-mini > i {
+    display: block; height: 100%; background: currentColor; border-radius: 99px;
+    transition: width .35s ease;
+  }
   .pied-admin-version {
     margin-top: 28px; padding-top: 14px;
     border-top: 2px dashed rgba(35,32,26,.18);
@@ -578,9 +606,10 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v62</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v63</span>
+          <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
-        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v62)</strong></div>
+        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v63)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
       </div>
     </div>
     <div class="barre-util">
@@ -966,11 +995,11 @@
   </div>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v62)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v63)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span>
   </footer>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=62"></script>
-<script src="assets/js/admin.js?v=62"></script>
+<script src="assets/js/config.js?v=63"></script>
+<script src="assets/js/admin.js?v=63"></script>
 </body>
 </html>

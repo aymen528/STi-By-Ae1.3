@@ -137,3 +137,20 @@ begin
 end $$;
 revoke execute on function public.admin_supprimer_abonne(uuid) from public, anon;
 grant execute on function public.admin_supprimer_abonne(uuid) to authenticated;
+
+-- 8) Taille utilisée dans Supabase (pour afficher le % et la quantité restante sur 500 Mo)
+drop function if exists public.admin_taille_base() cascade;
+create function public.admin_taille_base() returns bigint
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.est_admin() then
+    raise exception 'action reservee a l''administrateur';
+  end if;
+  return (
+    coalesce(pg_total_relation_size('public.profiles'), 0) +
+    coalesce(pg_total_relation_size('public.acces'), 0) +
+    coalesce(pg_total_relation_size('auth.users'), 0)
+  );
+end $$;
+revoke execute on function public.admin_taille_base() from public, anon;
+grant execute on function public.admin_taille_base() to authenticated;
