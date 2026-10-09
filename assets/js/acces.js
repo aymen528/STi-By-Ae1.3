@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=66";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=67";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-66") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-66", "1");
+          if (sessionStorage.getItem("sti-sw-reload-67") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-67", "1");
         } catch (e) {}
         location.reload();
       });
