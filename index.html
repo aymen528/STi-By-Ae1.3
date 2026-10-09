@@ -88,7 +88,8 @@
           var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
           if (c && c.isAdmin) isAdm = true;
           var cl = String((c && c.classe) || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
-          var ok4 = isAdm || /^4(E|ÈME|EME)?SI([1-5])?$/i.test(cl);
+          var clNorm = cl.normalize ? cl.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : cl;
+          var ok4 = isAdm || clNorm === "ELEVELABO3" || /^4(E|ÈME|EME)?SI([1-5])?$/i.test(cl);
           if (ok4) document.documentElement.classList.add("sti-4si-autorise");
         } catch (e) {}
       })();
@@ -3198,7 +3199,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=46"
+              src="assets/images/qr-code-site.png?v=47"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3773,8 +3774,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-46") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-46", "1");
+                if (sessionStorage.getItem("sti-sw-reload-47") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-47", "1");
               } catch (e) {}
               location.reload();
             }

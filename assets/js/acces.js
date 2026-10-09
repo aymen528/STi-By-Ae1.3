@@ -30,24 +30,33 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-46") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-46", "1");
+          if (sessionStorage.getItem("sti-sw-reload-47") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-47", "1");
         } catch (e) {}
         location.reload();
       });
     }
   } catch (e) {}
 
+  function estClasseProfLabo(classe) {
+    var c = String(classe || "").trim().toLowerCase();
+    try { c = c.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+    c = c.replace(/[\s._\-]+/g, "");
+    return c === "elevelabo3";
+  }
+
   function estGoldProfil(p) {
-    return Boolean(p && (p.gold === true || /\|\s*GOLD$/i.test(p.lycee || "")));
+    if (!p) return false;
+    if (estClasseProfLabo(p.classe)) return true;
+    return Boolean(p.gold === true || /\|\s*GOLD$/i.test(p.lycee || ""));
   }
   function lyceePropre(p) {
     return ((p && p.lycee) || "—").replace(/\s*\|\s*GOLD$/i, "") || "—";
   }
   function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
 
-  /* ---------- Restriction des espaces réservés exclusivement aux classes de 4e SI (4SI 1, 2, 3, 4 ou 5) et au Prof (Admin) ----------
-     Tout ce qui est PHP + Atelier Bac Pratique est caché par défaut et affiché uniquement pour 4SI (1 à 5) et le Prof :
+  /* ---------- Restriction des espaces réservés exclusivement aux classes de 4e SI (4SI 1, 2, 3, 4 ou 5), à la classe elevelabo3 et au Prof (Admin) ----------
+     Tout ce qui est PHP + Atelier Bac Pratique est caché par défaut et affiché uniquement pour 4SI (1 à 5), elevelabo3 et le Prof :
      - Atelier Bac Pratique (bac-pratique.html)
      - PHP Cours (cours/php.html, cours/coursphp.html, cours/php-mysqli.html, supports-pdf/cours-php.html, documents/annexes/annexe-php*, documents/complet/complet-4eme-si*)
      - PHP Exercices (section #php dans exercices/series-exercices.html + exercices/php/* + exercices/resume-fonctions-standards.html)
@@ -81,7 +90,7 @@
   })();
 
   function estAutorise4SI(classe, estAdmin) {
-    if (estAdmin || estAdminGlobal) return true;
+    if (estAdmin || estAdminGlobal || estClasseProfLabo(classe)) return true;
     var c = String(classe || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
     return /^4(E|ÈME|EME)?SI([1-5])?$/i.test(c);
   }

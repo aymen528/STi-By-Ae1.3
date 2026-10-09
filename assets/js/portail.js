@@ -175,9 +175,11 @@
       var supC = cfgEc.supprClasses || [];
       var classes = cfgEc.classes.filter(function (c) { return c && supC.indexOf(c) === -1; });
       if (!classes.length) {
-        ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"].forEach(function (c) {
+        ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2", "elevelabo3"].forEach(function (c) {
           if (supC.indexOf(c) === -1) classes.push(c);
         });
+      } else if (classes.indexOf("elevelabo3") === -1 && supC.indexOf("elevelabo3") === -1) {
+        classes.push("elevelabo3");
       }
       selC.innerHTML = "";
       classes.forEach(function (c, i) {
@@ -312,6 +314,13 @@
     });
   }
 
+  function estClasseProfLabo(classe) {
+    var c = String(classe || "").trim().toLowerCase();
+    try { c = c.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+    c = c.replace(/[\s._\-]+/g, "");
+    return c === "elevelabo3";
+  }
+
   function verifierStatutEtEntrer(user) {
     sb.from("profiles").select("statut,lycee,classe,nom,prenom,phone").eq("id", user.id).maybeSingle().then(function (rp) {
       if (rp.error && estHorsLigne(rp.error)) {
@@ -320,7 +329,8 @@
         return;
       }
       var st = rp.data && rp.data.statut;
-      var isG = Boolean(rp.data && /\|\s*GOLD$/i.test(rp.data.lycee || ""));
+      var isLabo = estClasseProfLabo(rp.data && rp.data.classe);
+      var isG = Boolean(isLabo || (rp.data && /\|\s*GOLD$/i.test(rp.data.lycee || "")));
       try {
         localStorage.removeItem("sti-admin-gold");
         if (isG) localStorage.setItem("sti-gold", "1");

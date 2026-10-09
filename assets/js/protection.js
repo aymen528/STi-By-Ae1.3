@@ -14,13 +14,24 @@
   var MSG_PROTECT =
     "\uD83D\uDD12 Contenu protégé \u00A9 A. Essouyah \u2014 copie et captures non autorisées";
 
-  /* Détecte immédiatement (0 ms) si l'utilisateur connecté est l'Admin ou un compte Gold */
+  /* Détecte immédiatement (0 ms) si l'utilisateur connecté est l'Admin, la classe elevelabo3 ou un compte Gold */
   function estGoldActif() {
     try {
       if (window.__STI_GOLD === true) return true;
       if (window.top && window.top !== window && window.top.__STI_GOLD === true) return true;
       if (localStorage.getItem("sti-gold") === "1" || localStorage.getItem("sti-admin-gold") === "1") {
         return true;
+      }
+      var cSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+      if (cSess) {
+        var clNorm = String(cSess.classe || "").trim().toLowerCase();
+        try { clNorm = clNorm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+        clNorm = clNorm.replace(/[\s._\-]+/g, "");
+        if (cSess.gold === true || cSess.isAdmin === true || clNorm === "elevelabo3") {
+          localStorage.setItem("sti-gold", "1");
+          window.__STI_GOLD = true;
+          return true;
+        }
       }
       var adminEmail = (
         (window.STI_AUTH && window.STI_AUTH.ADMIN) ||

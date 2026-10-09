@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v46";
+    var versionDefaut = "v47";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -74,8 +74,16 @@
   function estAdminEmail(em) {
     return (em || "").trim().toLowerCase() === (cfg.ADMIN || "").trim().toLowerCase();
   }
+  function estClasseProfLabo(classe) {
+    var c = String(classe || "").trim().toLowerCase();
+    try { c = c.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
+    c = c.replace(/[\s._\-]+/g, "");
+    return c === "elevelabo3";
+  }
   function estGold(p) {
-    return Boolean(p && (p.gold === true || /\|\s*GOLD$/i.test(p.lycee || "")));
+    if (!p) return false;
+    if (estClasseProfLabo(p.classe)) return true;
+    return Boolean(p.gold === true || /\|\s*GOLD$/i.test(p.lycee || ""));
   }
   function lyceePropre(p) {
     return ((p && p.lycee) || "—").replace(/\s*\|\s*GOLD$/i, "") || "—";
@@ -121,7 +129,7 @@
   /* ---------- Configuration dynamique des Lycées et des Classes ---------- */
   var cfgEcoles = {
     lycees: ["Lycée Rafèha"],
-    classes: ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"],
+    classes: ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2", "elevelabo3"],
     supprLycees: [],
     supprClasses: [],
     ts: 0
@@ -150,9 +158,11 @@
     var suppr = cfgEcoles.supprClasses || [];
     var liste = (cfgEcoles.classes || []).filter(function (c) { return c && suppr.indexOf(c) === -1; });
     if (!liste.length) {
-      ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2"].forEach(function (c) {
+      ["3eme SI1", "3eme SI2", "4eme SI1", "4eme SI2", "elevelabo3"].forEach(function (c) {
         if (suppr.indexOf(c) === -1) liste.push(c);
       });
+    } else if (liste.indexOf("elevelabo3") === -1 && suppr.indexOf("elevelabo3") === -1) {
+      liste.push("elevelabo3");
     }
     profils.forEach(function (p) {
       var c = p.classe || "";
