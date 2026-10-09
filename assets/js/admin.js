@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v52";
+    var versionDefaut = "v53";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -790,6 +790,37 @@
   var selFiltreStatut = document.getElementById("filtre-statut");
   var btnActiverLot = document.getElementById("btn-activer-lot");
   var btnExportCsv = document.getElementById("btn-export-csv");
+  var btnVueListe = document.getElementById("btn-vue-liste");
+  var btnVueNoeuds = document.getElementById("btn-vue-noeuds");
+  var grilleNoeuds = document.getElementById("grille-noeuds-abonnes");
+  var wrapTableAbonnes = document.getElementById("wrap-table-abonnes");
+  var modeVueAbonnes = "liste";
+  try {
+    var vSauv = localStorage.getItem("sti-admin-vue-abonnes");
+    if (vSauv === "noeuds" || vSauv === "liste") modeVueAbonnes = vSauv;
+  } catch (e) {}
+
+  function appliquerModeVueAbonnes(nvMode) {
+    modeVueAbonnes = nvMode === "noeuds" ? "noeuds" : "liste";
+    try { localStorage.setItem("sti-admin-vue-abonnes", modeVueAbonnes); } catch (e) {}
+    if (btnVueListe) btnVueListe.classList.toggle("actif", modeVueAbonnes === "liste");
+    if (btnVueNoeuds) btnVueNoeuds.classList.toggle("actif", modeVueAbonnes === "noeuds");
+    if (grilleNoeuds) grilleNoeuds.classList.toggle("visible", modeVueAbonnes === "noeuds");
+    if (wrapTableAbonnes) wrapTableAbonnes.style.display = modeVueAbonnes === "noeuds" ? "none" : "";
+  }
+  appliquerModeVueAbonnes(modeVueAbonnes);
+  if (btnVueListe) {
+    btnVueListe.addEventListener("click", function () {
+      appliquerModeVueAbonnes("liste");
+      rendAbonnes();
+    });
+  }
+  if (btnVueNoeuds) {
+    btnVueNoeuds.addEventListener("click", function () {
+      appliquerModeVueAbonnes("noeuds");
+      rendAbonnes();
+    });
+  }
 
   if (selSemaine) selSemaine.addEventListener("change", rendAbonnes);
   if (inpRecherche) inpRecherche.addEventListener("input", rendAbonnes);
@@ -1017,6 +1048,9 @@
     }
     var tb = document.getElementById("tb-abonnes");
     tb.innerHTML = "";
+    if (grilleNoeuds) grilleNoeuds.innerHTML = "";
+    appliquerModeVueAbonnes(modeVueAbonnes);
+
     if (!liste.length) {
       var trVide = document.createElement("tr");
       var tdVide = document.createElement("td");
@@ -1025,8 +1059,113 @@
       tdVide.textContent = "Aucun abonné correspondant à ce filtre.";
       trVide.appendChild(tdVide);
       tb.appendChild(trVide);
+      if (grilleNoeuds) {
+        var ndVide = document.createElement("div");
+        ndVide.style.cssText = "grid-column:1/-1;text-align:center;color:#7a6f5d;padding:22px;background:#fffdf7;border:2px dashed #23201a;border-radius:16px;font-weight:800;";
+        ndVide.textContent = "Aucun abonné correspondant à ce filtre.";
+        grilleNoeuds.appendChild(ndVide);
+      }
       return;
     }
+
+    /* Rendu des Nœuds (Nom, Prénom, Classe, État de l'abonné) */
+    if (grilleNoeuds) {
+      liste.forEach(function (p) {
+        var nd = document.createElement("div");
+        var isG = estGold(p);
+        var estNdGold = isG && p.statut === "actif";
+        nd.className = "noeud-abonne " + (estNdGold ? "nd-gold" : ("nd-" + (p.statut || "en_attente")));
+        nd.title = "Cliquer pour voir les connexions de cet abonné";
+        nd.addEventListener("click", function () { detail(p); });
+
+        var haut = document.createElement("div");
+        haut.className = "noeud-haut";
+
+        var pastille = document.createElement("div");
+        pastille.className = "noeud-pastille";
+        var ini = (
+          ((p.prenom || "").trim().charAt(0) || "") +
+          ((p.nom || "").trim().charAt(0) || "")
+        ).toUpperCase();
+        if (!ini) ini = (contact(p).replace(/[^a-zA-Z0-9]/g, "").slice(0, 2) || "ST").toUpperCase();
+        pastille.textContent = ini;
+        if (estEnLigne(p.id)) {
+          var ptOn = document.createElement("span");
+          ptOn.className = "point-online";
+          ptOn.title = "En ligne maintenant";
+          pastille.appendChild(ptOn);
+        }
+
+        var idBox = document.createElement("div");
+        idBox.className = "noeud-identite";
+        var divNom = document.createElement("div");
+        divNom.className = "noeud-nom";
+        var np = nomPrenomTexte(p);
+        divNom.textContent = np || contact(p);
+        var divSub = document.createElement("div");
+        divSub.className = "noeud-sub";
+        divSub.textContent = (p.nom || p.prenom)
+          ? ("Nom : " + (p.nom || "—") + " · Prénom : " + (p.prenom || "—"))
+          : contact(p);
+        idBox.append(divNom, divSub);
+        haut.append(pastille, idBox);
+
+        var meta = document.createElement("div");
+        meta.className = "noeud-meta";
+        var spCl = document.createElement("span");
+        spCl.className = "noeud-classe";
+        spCl.textContent = "🏫 " + (p.classe || "—");
+        spCl.title = "Lycée : " + lyceePropre(p) + " — Cliquer pour modifier";
+        spCl.addEventListener("click", function (e) {
+          e.stopPropagation();
+          ouvrirAffectation(p);
+        });
+
+        var spEtat = document.createElement("span");
+        if (estNdGold) {
+          spEtat.className = "st gold";
+          spEtat.textContent = "👑 Gold";
+        } else {
+          spEtat.className = "st " + (p.statut || "en_attente");
+          spEtat.textContent = LIB[p.statut] || p.statut;
+        }
+        meta.append(spCl, spEtat);
+
+        if (estEnLigne(p.id)) {
+          var bOnNd = document.createElement("span");
+          bOnNd.className = "badge-online";
+          bOnNd.style.marginLeft = "0";
+          var pgOnNd = (enLigneMap[p.id] && enLigneMap[p.id].page) || "site";
+          bOnNd.textContent = "🟢 En ligne (" + pgOnNd + ")";
+          meta.appendChild(bOnNd);
+        }
+
+        var barreAct = document.createElement("div");
+        barreAct.className = "noeud-actions";
+        function btnNd(txt, fn, cls, tit) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "act" + (cls ? " " + cls : "");
+          b.textContent = txt;
+          if (tit) b.title = tit;
+          b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
+          barreAct.appendChild(b);
+        }
+        if (p.statut !== "actif") {
+          btnNd("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
+        }
+        btnNd("👑", function () { basculerGold(p); }, isG ? "gold-on" : "", isG ? "Retirer Gold" : "Accorder Gold");
+        btnNd("✏️", function () { ouvrirAffectation(p); }, "", "Modifier Nom, Prénom, Lycée ou Classe");
+        if (p.statut !== "exclu") {
+          btnNd("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure");
+        }
+        btnNd("🗑️", function () { supprime(p); }, "del", "Supprimer");
+
+        nd.append(haut, meta, barreAct);
+        grilleNoeuds.appendChild(nd);
+      });
+    }
+
     var classesDispo = obtenirClassesActives();
     liste.forEach(function (p) {
       var tr = document.createElement("tr");

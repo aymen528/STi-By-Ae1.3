@@ -238,6 +238,83 @@
     padding: 7px 11px; margin: -4px 0 12px; font-size: 12px; font-weight: 800; color: #23201a;
   }
 
+  /* Sélecteur de mode d'affichage : Liste détaillée vs Nœuds */
+  .choix-vue-abonnes {
+    display: inline-flex; background: #f3ead9; border: 2px solid #23201a;
+    border-radius: 999px; padding: 3px; gap: 3px; box-shadow: 2px 2px 0 #23201a;
+  }
+  .btn-vue {
+    border: 0; background: transparent; color: #5a5244; font-size: 12px; font-weight: 900;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer; transition: all .15s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn-vue.actif {
+    background: linear-gradient(120deg, #f4511e, #ff8a50); color: #fff;
+    box-shadow: 0 2px 6px rgba(244,81,30,.45);
+  }
+  .btn-vue:hover:not(.actif) { color: #f4511e; }
+
+  /* Vue en Nœuds des abonnés (Nom, Prénom, Classe, État) */
+  .grille-noeuds {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+    gap: 12px; margin-bottom: 14px;
+  }
+  .grille-noeuds.visible { display: grid; }
+  .noeud-abonne {
+    position: relative; display: flex; flex-direction: column; gap: 8px;
+    padding: 13px 14px; border-radius: 18px; border: 2px solid #23201a;
+    background: #fffdf7; box-shadow: 4px 4px 0 #23201a;
+    cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .noeud-abonne:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #f4511e; }
+  .noeud-abonne.nd-actif { background: #e3f6e8; }
+  .noeud-abonne.nd-gold { background: linear-gradient(135deg, #fff6b8 0%, #ffe478 100%); }
+  .noeud-abonne.nd-en_attente { background: #f5ead2; }
+  .noeud-abonne.nd-exclu { background: #fde2e6; }
+  .noeud-abonne.nd-suspendu { background: #ece7dd; }
+  .noeud-haut { display: flex; align-items: center; gap: 10px; }
+  .noeud-pastille {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: #23201a; color: #ffb27a; border: 2px solid #23201a;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 13.5px; letter-spacing: .5px;
+    position: relative; box-shadow: 2px 2px 0 rgba(244,81,30,.45);
+  }
+  .noeud-pastille .point-online {
+    position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px;
+    border-radius: 50%; background: #17b26a; border: 2px solid #fffdf7;
+    box-shadow: 0 0 0 2px rgba(23,178,106,.35);
+  }
+  .noeud-identite { min-width: 0; flex: 1; }
+  .noeud-nom {
+    font-weight: 900; font-size: 13.5px; color: #23201a; line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .noeud-sub {
+    font-size: 11px; font-weight: 700; color: #5a5244; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .noeud-meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;
+    padding-top: 7px; border-top: 1px dashed rgba(35,32,26,.18);
+  }
+  .noeud-classe {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,253,247,.85); border: 1.5px solid #23201a;
+    border-radius: 999px; padding: 2px 9px; font-size: 11px; font-weight: 900; color: #23201a;
+  }
+  .noeud-actions {
+    display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 2px;
+  }
+  .noeud-actions .act { margin: 0; padding: 3px 7px; font-size: 11px; }
+  @media (max-width: 768px) {
+    .grille-noeuds { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .noeud-abonne { padding: 10px; border-radius: 14px; box-shadow: 2.5px 2.5px 0 #23201a; }
+    .noeud-pastille { width: 32px; height: 32px; font-size: 12px; }
+    .noeud-nom { font-size: 12px; }
+  }
+
   .table-wrap { overflow-x: auto; border: 2px solid #23201a; border-radius: 16px; background: #fffdf7; box-shadow: 5px 5px 0 rgba(244,81,30,.45); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 680px; }
   th { text-align: left; color: #7a6f5d; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 12px 14px; border-bottom: 2px solid #23201a; background: #f3ead9; }
@@ -501,9 +578,9 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v52</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v53</span>
         </h1>
-        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v52)</strong></div>
+        <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v53)</strong></div>
       </div>
     </div>
     <div class="barre-util">
@@ -566,7 +643,13 @@
   <div class="msg" id="msg"></div>
 
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:18px 0 10px">
-    <h2 style="margin:0">👥 Liste des Abonnés <span id="note-tri" style="font-size:11px;color:#7a6f5d;font-weight:700"></span></h2>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <h2 style="margin:0">👥 Liste des Abonnés <span id="note-tri" style="font-size:11px;color:#7a6f5d;font-weight:700"></span></h2>
+      <div class="choix-vue-abonnes" role="tablist" aria-label="Mode d'affichage des abonnés">
+        <button type="button" class="btn-vue actif" id="btn-vue-liste" data-vue="liste" title="Afficher le tableau détaillé complet">📋 Liste détaillée</button>
+        <button type="button" class="btn-vue" id="btn-vue-noeuds" data-vue="noeuds" title="Afficher sous forme de nœuds (Nom, Prénom, Classe, État)">🔵 Nœuds</button>
+      </div>
+    </div>
     <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#7a6f5d">
       <span>📅 Période :</span>
       <select id="sel-semaine" style="border:2px solid #23201a;border-radius:999px;padding:5px 12px;background:#fffdf7;color:#23201a;font-weight:800;font-size:12.5px"></select>
@@ -599,7 +682,10 @@
   <!-- Bandeau affiché dès qu'une classe est appelée/sélectionnée : effectif de la classe + nombre en ligne -->
   <div class="bandeau-classe" id="bandeau-classe-active" role="status" aria-live="polite"></div>
 
-  <div class="table-wrap">
+  <!-- Affichage en Nœuds (Nom, Prénom, Classe, État de l'abonné) -->
+  <div class="grille-noeuds" id="grille-noeuds-abonnes" aria-label="Nœuds des abonnés"></div>
+
+  <div class="table-wrap" id="wrap-table-abonnes">
     <table>
       <thead><tr><th>Nom &amp; Prénom</th><th>Contact (e-mail / tél.)</th><th>Lycée &amp; Classe</th><th class="only-mob">Actions</th><th>Connexions</th><th>Durée / semaine</th><th>Statut</th><th>Inscrit le</th><th class="only-pc">Actions</th></tr></thead>
       <tbody id="tb-abonnes"></tbody>
@@ -817,11 +903,11 @@
   </div>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v52)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v53)</span>
   </footer>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=52"></script>
-<script src="assets/js/admin.js?v=52"></script>
+<script src="assets/js/config.js?v=53"></script>
+<script src="assets/js/admin.js?v=53"></script>
 </body>
 </html>
