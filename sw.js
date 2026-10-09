@@ -3,7 +3,7 @@
    - Pré-chargement automatique en arrière-plan des 426 fichiers du site
    - Réponse 0 ms hors-ligne et secours rapide (2,2 s) sur PC Windows même si une carte réseau virtuelle garde navigator.onLine = true */
 
-var CACHE = "sti-atelier-v72";
+var CACHE = "sti-atelier-v73";
 var SHELL = [
   "./",
   "./index.html",
@@ -523,7 +523,7 @@ self.addEventListener("install", function (evt) {
       .open(CACHE)
       .then(function (c) {
         return Promise.allSettled(SHELL.map(function (u) {
-          return fetch(u).then(function (rep) {
+          return fetch(u, { cache: "reload" }).then(function (rep) {
             if (rep && rep.ok) return c.put(u, rep);
           }).catch(function () {});
         }));
@@ -544,6 +544,12 @@ self.addEventListener("activate", function (evt) {
               var ancCache = await caches.open(k);
               var reqs = await ancCache.keys();
               for (var r of reqs) {
+                var rPath = "";
+                try { rPath = new URL(r.url).pathname; } catch (e) {}
+                /* Ne jamais copier les anciens .html, .js, .css ou .webmanifest d'une version précédente */
+                if (/\.(html|js|css|webmanifest)$/i.test(rPath) || rPath.slice(-1) === "/") {
+                  continue;
+                }
                 var deja = await nvCache.match(r, { ignoreSearch: true });
                 if (!deja) {
                   var rep = await ancCache.match(r);
@@ -573,6 +579,8 @@ self.addEventListener("message", function (evt) {
 });
 
 async function chercherDansCache(req, url) {
+  var mExact = await caches.match(req);
+  if (mExact) return mExact;
   var m = await caches.match(req, { ignoreSearch: true });
   if (m) return m;
   if (url.origin === self.location.origin) {
@@ -624,11 +632,17 @@ self.addEventListener("fetch", function (evt) {
         if (enCache && self.navigator && self.navigator.onLine === false) {
           return enCache;
         }
-        var promReseau = fetch(req).then(function (rep) {
+        var promReseau = fetch(req, { cache: "no-cache" }).then(function (rep) {
           if (rep && rep.ok) {
             var copie = rep.clone();
+            var copieNue = rep.clone();
             caches.open(CACHE).then(function (c) {
               c.put(req, copie);
+              if (url.search) {
+                var urlNue = new URL(req.url);
+                urlNue.search = "";
+                c.put(urlNue.toString(), copieNue);
+              }
               if (url.pathname.slice(-1) === "/" || /\/STiV2\.0\/index\.html$/i.test(url.pathname)) {
                 c.put("./index.html", rep.clone());
               }
