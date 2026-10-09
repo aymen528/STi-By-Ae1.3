@@ -1,56 +1,96 @@
-# 📚 STI By A'e — Le Web de A à Z (Version 2.0)
+# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v73`)
 
 Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'Informatique (STI)** :
-cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP corrigés, quiz interactifs et projets en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
+cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
-> **Version** : **2.0** (PWA installable, portail d'accès sécurisé & tableau de bord temps réel)  
-> **Site en ligne (V2.0)** : [./index.html](./index.html)
+> **Version** : **V2.0 · `v73`** (PWA 100 % hors-ligne, portail d'accès sécurisé & tableau de bord temps réel)  
+> **Accès local / en ligne** : [./index.html](./index.html)
 
 ---
 
-## ✨ Nouveautés de la Version 2.0
+## ✨ Fonctionnalités principales de la Version 2.0
 
-### 🔐 Portail d'accès & Authentification (`portail.html`)
+### 🔐 1. Portail d'accès & Gestion des profils (`portail.html`)
+- **Identité visuelle unifiée** : thème sombre de l'accueil (`#0d1526` + halo orange + grille de points) avec animation dactylo **`STI`**.
 - **Double mode d'inscription et de connexion** :
-  - **Par e-mail** (validation par l'administrateur).
-  - **Par téléphone (`+216`)** avec saisie du **nom et prénom**, préfixe tunisien automatique `+216 ` et validation par **code WhatsApp à 6 chiffres** (6 cases OTP individuelles).
-- **Sélection du lycée et de la classe** (`Lycée Farhat Hached Rades`, `3ème SI`, `4ème SI`, ou saisie libre).
-- **Captcha visuel anti-robot** à la connexion et à l'inscription.
-- **Connexion biométrique** (empreinte digitale / reconnaissance faciale WebAuthn) et **mode hors-ligne** (cache PWA 24 h pour les abonnés déjà validés).
+  - **Par e-mail** (avec validation par l'administrateur).
+  - **Par téléphone (`+216`)** avec saisie obligatoire du **Nom** et du **Prénom**, préfixe tunisien `+216 ` et validation par **code WhatsApp à 6 chiffres** (6 cases OTP individuelles).
+- **Sélection dynamique du lycée et de la classe** synchronisée avec la configuration de l'administrateur.
+- **Session permanente « Labo » (`elevelabo3`)** : tout poste connecté avec la classe `elevelabo3` conserve une session permanente illimitée sur le PC du laboratoire sans redemander d'identifiant ni de mot de passe.
+- **Restriction automatique par niveau (`3ème SI` vs `4ème SI`)** :
+  - Les ressources **PHP / MySQLi**, l'**Atelier Bac Pratique** et le **Projet STI 0** sont automatiquement masqués et verrouillés dès `0 ms` pour toutes les classes autres que **`4SI` (`4SI1` à `4SI5`)**, **`elevelabo3`** et le **Professeur (Admin)**.
 
-### 📊 Tableau de bord Administrateur temps réel (`admin.html`)
-- **Gestion en direct des abonnés** (l'administrateur n'est jamais listé parmi les abonnés) :
-  - **✅ Activer**, **⏳ Mettre en attente**, **⛔ Exclure**, **🗑️ Supprimer définitivement** et **🔑 Réinitialiser le mot de passe** (via modales sécurisées).
-  - **Éjection instantanée en direct** : toute exclusion (`⛔`), mise en attente (`⏳`) ou suppression (`🗑️`) coupe immédiatement la session active du candidat (< 1 s) et le renvoie vers le portail.
-- **👑 Compte GOLD** :
-  - Un bouton **👑** permet d'accorder (ou de retirer en direct) le statut **Gold** à un abonné : déblocage de la **capture d'écran**, de l'**impression (`Ctrl + P` / bouton `🖨️ Imprimer`)** et de la **copie de texte/code**.
-  - **L'administrateur est toujours 👑 Gold par défaut** sur toutes les pages et boîtes du site (avec bouton `🖨️` d'impression rapide).
-- **⏱️ Comptage de la durée totale d'accès par semaine & Indicateur `🟢 En ligne`** :
-  - Indicateur **`🟢 En ligne (page en cours)`** en temps réel à côté des élèves connectés et compteur global en haut du tableau de bord.
-  - Calcul automatique du temps passé par chaque candidat **semaine par semaine** (du lundi au dimanche) et en **cumul global**, avec sélecteur de semaine et historique détaillé par candidat.
-- **🔎 Recherche instantanée, filtres par classe/état, validation groupée & Export Excel (CSV)** :
-  - Barre de recherche et filtres rapides (*En ligne*, *Actifs*, *👑 Gold*, *En attente*, *Exclus*, ou par classe).
-  - Bouton **`✅ Tout activer`** pour valider en un clic toutes les demandes en attente d'une classe.
-  - Bouton **`📥 Exporter Excel (CSV)`** pour télécharger la fiche complète de présence, durée et scores de la classe.
-- **🏆 Suivi des Quiz, Atelier Bac Pratique (`/20`) & Contrôles chronométrés** :
-  - Enregistrement automatique des scores obtenus aux **Quiz** et à l'**Atelier Épreuve Pratique Bac STI (`bac-pratique.html`)** directement dans le tableau de bord administrateur.
-  - Bouton **`⏱️ Contrôle chronométré`** permettant de lancer en direct une épreuve avec compte à rebours sur l'écran de tous les élèves d'une classe.
-- **📢 Diffusion de messages par classe, Dictée vocale & Réponses des élèves** :
-  - Envoi d'un message à **toute une classe** (ou toutes les classes) en un clic : affichage instantané sur l'écran des élèves connectés, ouverture WhatsApp ou e-mail groupé (`BCC`).
-  - **🎤 Dictée vocale intégrée** (sans doublon de mots) avec bouton **🧹 Effacer**.
-  - **📋 Tableau de suivi de lecture & réponses en direct** : affiche l'état **`✅ Lu`** / **`⏳ Non lu`** ainsi que la **réponse ou question écrite par l'élève**.
-- **🔔 Notifications instantanées** : alerte sonore et notification système (PC & smartphone via `ntfy.sh` et Supabase Realtime) à chaque nouvelle demande d'inscription.
+---
 
-### 🛡️ Protection du contenu & Sécurité (`protection.js` / `protection.css` / `robots.txt`)
-- **Protection anti-copie et anti-capture** pour les comptes standards : clic droit, `Ctrl+C/X/A/S/P`, `PrintScreen`, glisser-déposer, filigrane diagonal et blocage d'impression.
-- **Déconnexion globale immédiate** : cliquer sur **🚪 Déconnexion** (même depuis une boîte `iframe` ouverte dans une page scrollée) purge la session et redirige instantanément toute l'application vers le portail.
-- **Protection anti-IA (`noai` / `noimageai`)** : blocage des robots d'entraînement IA (`GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, etc.) dans `robots.txt` et balises meta sur toutes les pages.
+### 🎓 2. Outils d'étude & Confort Élève (`index.html` & `assets/js/acces.js`)
+- **🃏 Mode « Flashcards Bac STI » en 3D réaliste (`Recto / Verso 3D`)** :
+  - Plus de **30 cartes de révision officielles** couvrant **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
+  - **Moteur physique 3D à 60 images/seconde (`requestAnimationFrame`)** : décollage de la carte au-dessus de la table, rotation en perspective trapézoïdale (`perspective(520px)`), tranche carton bristol épaisse, reflet lumineux et ombre portée dynamique au sol.
+  - Filtres par technologie, mode **« 🔁 À revoir uniquement »**, mélange aléatoire (`🔀`), navigation clavier (`Espace`, `Entrée`, `◀`, `▶`, `Échap`) et sauvegarde hors-ligne des cartes maîtrisées (`✅ Je maîtrise`).
+- **💻 Mini « Bac à sable » de code en direct (`HTML / CSS / JS`)** :
+  - Éditeur interactif **100 % hors-ligne** avec 3 onglets (**HTML**, **CSS**, **JavaScript**), aperçu instantané et **console JS intégrée** (`console.log` & erreurs d'exécution).
+  - Modèles Type Bac préchargés : *Formulaire HTML5 + contrôle `verif()`*, *Flexbox & `@keyframes` CSS3*, *Chaînes et fonctions JavaScript (`indexOf`, `substring`, `Date`)* et *Page vierge*.
+- **🔍 Recherche profonde globale (`Ctrl + K` ou `/`)** :
+  - Recherche instantanée à travers tous les chapitres, balises HTML5 (`<datalist>`, `<fieldset>`…), propriétés CSS3 (`flexbox`, `@keyframes`…), fonctions JS/PHP (`isNaN`, `mysqli_fetch_array`…) et commandes SQL (`FOREIGN KEY`, `GROUP BY`, `HAVING`…) avec ouverture directe de la section exacte.
+- **📍 Reprise automatique de lecture & Marque-pages** :
+  - Mémorisation automatique du dernier chapitre lu et du pourcentage d'avancement dans chaque cours.
+  - Bandeau **« Reprendre votre dernière révision »** en haut de l'accueil, pastilles d'avancement sur les cartes de cours et notification **« Reprendre ➔ »** à l'ouverture d'un cours.
+- **📝 Carnet de notes personnel (`Alt + N`)** :
+  - Prise de notes personnelle par cours, sauvegardée automatiquement dans le navigateur (100 % hors-ligne) et téléchargeable en fichier `.txt`.
 
-### 📱 Application PWA & Partage
-- **PWA installable** sur ordinateur, Android et iOS (`manifest.webmanifest` + Service Worker `sw.js` en stratégie *Network-First* pour les pages, scripts et styles) ; le bouton **« Installer STI by AE »** disparaît automatiquement une fois l'application installée.
-- **QR Codes intégrés** (portail et badge fixe *« Scanner-moi ! »* sur l'accueil) pointant vers `./index.html`.
-- **Aperçu Open Graph (Facebook / WhatsApp)** configuré avec le logo officiel `assets/icons/sti-icon-512.png`.
+---
+
+### 📖 3. Cours interactifs, Animations & Projets Bac
+- **🐘 Cours PHP (`cours/php.html`), `cours/PHP-recap.html` & `cours/php-mysqli.html`** :
+  - Bouton magique permanent **`🪄 PHP-recap ✨`** sous l'en-tête ouvrant la fiche récapitulative complète `cours/PHP-recap.html` en boîte modale plein écran.
+  - Bouton **`🎬`** dans l'en-tête ouvrant l'animation interactive du guichet Client / Serveur Apache / PHP / MySQL.
+  - Boîte interactive dédiée aux fonctions **PHP & MySQLi** (`cours/php-mysqli.html`).
+- **🗄️ Cours SQL (`cours/sql.html`) & Animation des contraintes (`cours/sql-contraintes.html`)** :
+  - Cours complet LDD / LMD avec bouton **`⚡ Voir l'animation : Effet des contraintes`** en fin de chapitre ouvrant `cours/sql-contraintes.html` en modale néo-brutaliste.
+  - Simulateur SQL interactif permettant de tester en direct l'effet de `PRIMARY KEY`, `FOREIGN KEY`, `ON DELETE CASCADE`, `UNIQUE`, `CHECK`, `NOT NULL`, `DEFAULT` et `AUTO_INCREMENT` avec journal SGBD.
+- **🎬 Leçons animées pas à pas** :
+  - **`cssanimee/`** : découverte visuelle et animée des balises HTML5 et propriétés CSS3 des annexes officielles.
+  - **`Positionnement-animee/`** : leçon animée pas à pas sur le positionnement CSS et Flexbox.
+- **🧪 Atelier Bac Pratique (`bac-pratique.html`) & Projet STI 0 (`projets/sti0/`)** :
+  - Épreuves pratiques complètes avec barème sur 20, correction guidée et téléchargement hors-ligne garanti de l'énoncé PDF (`projetsti0.pdf`) et de l'archive des ressources (`ressources-projet-sti0.zip`).
+- **🪪 Carte de visite numérique (`carte-visite.html`)** :
+  - Carte professionnelle interactive avec logo **AE** ; l'export contact (`.vcf`) et l'impression sont strictement réservés à l'administrateur.
+
+---
+
+### 📊 4. Tableau de bord Administrateur temps réel (`admin.html`)
+- **Verrou anti-flash `0 ms`, Version & Jauge d'espace Supabase** :
+  - Protection immédiate de `admin.html` dès `0 ms` avant le premier rendu.
+  - Affichage permanent de la version (`STI V2.0 · v73`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
+- **Gestion complète des abonnés, des classes et des lycées** :
+  - L'administrateur n'apparaît jamais dans la liste des abonnés.
+  - Ajout, renommage (avec migration automatique des élèves) et suppression de **classes** et de **lycées** synchronisés sur tous les appareils.
+  - Affichage en direct de l'**effectif de la classe sélectionnée** et du **nombre d'élèves `🟢 En ligne`**.
+  - Deux modes d'affichage : **`📋 Liste détaillée`** (lignes colorées selon l'état : vert clair = actif, doré = 👑 Gold, beige = en attente, rose = exclu) et **`🔵 Nœuds`** compacts.
+  - Changement direct de la classe d'un abonné et actions rapides (**`✅ Activer`**, **`👑 Gold`**, **`⏳ Attente`**, **`⛔ Exclure`**, **`🔑 Mot de passe`**, **`🗑️ Supprimer`**) avec **éjection en direct (`< 1 s`)** en cas d'exclusion ou de suppression.
+- **📋 Fiche récapitulative individuelle par élève (`#modal-fiche-eleve`)** :
+  - En cliquant sur **`📋 Fiche`** (ou sur un nœud en vue `🔵 Nœuds`), ouverture du bilan complet de l'élève : coordonnées, classe, statut, temps d'étude hebdomadaire et global, moyenne générale aux quiz, historique détaillé des notes et messages lus/réponses.
+- **📥 Exports Excel (CSV) par classe** :
+  - Export CSV des abonnés (incluant le nombre de quiz passés, la moyenne `/20` et le dernier score).
+  - Filtre par classe et bouton **`📥 Exporter notes (CSV)`** dans la section *Résultats Quiz & Contrôles*.
+- **Affichage compact & Purges ciblées** :
+  - Affichage par défaut des **5 premiers éléments** avec bouton **`➕ Voir plus`** pour le journal des connexions, le suivi de lecture des messages et les résultats des quiz.
+  - Boutons de nettoyage ciblé : **`🗑️ Effacer par mois…`** (journal des connexions et résultats de quiz) et **`🗑️ Effacer par message…`** (suivi de lecture).
+- **📢 Diffusion de messages par classe, Dictée vocale & Contrôle chronométré** :
+  - Envoi de messages ciblés par classe avec **🎤 dictée vocale sans répétition**, bouton **🧹 Effacer**, accusé de lecture (`✅ Lu` / `⏳ Non lu`) et réponse directe des élèves.
+  - Lancement en direct d'un **`⏱️ Contrôle chronométré`** avec compte à rebours synchronisé sur les écrans de la classe.
+
+---
+
+### 🛡️ 5. Protection du contenu, Compte 👑 Gold & Verrouillage du code source
+- **Compte 👑 Gold** :
+  - Le statut **👑 Gold** (accordé par l'administrateur) débloque la **copie de texte/code**, la **capture d'écran** et l'**impression (`Ctrl + P` / `🖨️`)** pour l'abonné bénéficiaire.
+  - **L'administrateur est toujours 👑 Gold par défaut** sur l'ensemble du site.
+- **Verrouillage strict du code source pour 100 % des abonnés (`assets/js/protection.js`)** :
+  - Le clic droit, l'enregistrement de page (`Ctrl + S`), l'affichage du code source (`Ctrl + U`), les outils de développement (`F12`, `Ctrl + Shift + I / J / C / K`) et le bouclier **Anti-DevTools (`#sti-devtools-overlay`)** sont **bloqués pour 100 % des abonnés**, y compris les comptes **👑 Gold** et **`elevelabo3`** (seul l'administrateur strict est exempté).
+- **Protection Anti-IA (`robots.txt` & balises `noai` / `noimageai`)** :
+  - Interdiction d'indexation par les robots d'entraînement IA (`GPTBot`, `ClaudeBot`, `Google-Extended`, `CCBot`, `Bytespider`, etc.) sur toutes les pages.
 
 ---
 
@@ -59,12 +99,14 @@ cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP co
 ```text
 STiV2.0/
 │
-├── index.html                        # 🏠 Accueil — navigation, splash V2.0, leçons animées & QR code
+├── index.html                        # 🏠 Accueil — cours, recherche Ctrl+K, Flashcards 3D & Bac à sable
 ├── portail.html                      # 🔐 Portail de connexion / inscription (e-mail & WhatsApp +216)
-├── admin.html                        # 📊 Tableau de bord administrateur temps réel
-├── sw.js                             # ⚙️ Service Worker PWA (cache & mode hors-ligne)
+├── admin.html                        # 📊 Tableau de bord administrateur temps réel + quota Supabase
+├── bac-pratique.html                 # 🧪 Atelier Épreuve Pratique Bac STI (réservé 4SI / Labo / Admin)
+├── carte-visite.html                 # 🪪 Carte de visite numérique AE (.vcf & impression réservés Admin)
+├── sw.js                             # ⚙️ Service Worker PWA (cache 100 % hors-ligne v73 — 371 fichiers)
 ├── manifest.webmanifest              # 📱 Manifeste d'installation PWA
-├── robots.txt                        # 🤖 Directives SEO & interdiction des crawlers IA
+├── robots.txt                        # 🤖 Directives SEO & blocage des crawlers IA
 ├── sitemap.xml                       # 🗺️ Plan du site
 ├── README.md                         # 📄 Documentation du projet
 │
@@ -72,77 +114,81 @@ STiV2.0/
 │   ├── css/
 │   │   ├── atelier.css               #   Thème principal « L'Atelier » (crème / orange / mode sombre)
 │   │   ├── atelier-pages.css         #   Styles des pages de cours et exercices
-│   │   └── protection.css            #   Verrous visuels anti-copie / anti-impression (sauf 👑 Gold)
+│   │   ├── atelier-php.css           #   Styles spécifiques au module PHP
+│   │   └── protection.css            #   Verrous visuels anti-copie / anti-impression
 │   ├── js/
-│   │   ├── config.js                 #   Configuration Supabase & identifiant admin
-│   │   ├── portail.js                #   Logique d'inscription/connexion, OTP 6 cases, captcha, biométrie
-│   │   ├── acces.js                  #   Verrou de session temps réel, roue compte, 👑 Gold, journal durée
-│   │   ├── admin.js                  #   Logique du tableau de bord, stats par semaine, diffusion & dictée
-│   │   ├── protection.js             #   Protection du contenu & déverrouillage automatique Admin / 👑 Gold
+│   │   ├── config.js                 #   Configuration Supabase & identifiant administrateur
+│   │   ├── portail.js                #   Inscription/connexion, OTP WhatsApp 6 cases, biométrie, labo3
+│   │   ├── acces.js                  #   Session temps réel, roue ⚙️, Flashcards 3D, Sandbox, Notes, Ctrl+K
+│   │   ├── admin.js                  #   Tableau de bord, quota Supabase, fiche élève, exports CSV, purges
+│   │   ├── protection.js             #   Bouclier code source / Anti-DevTools & privilèges 👑 Gold / Admin
 │   │   └── supabase-umd.js           #   Client Supabase UMD local
+│   ├── fonts/                        #   Polices locales embarquées (Manrope, Baloo 2, JetBrains Mono)
+│   ├── fontawesome/                  #   Icônes Font Awesome locales
 │   ├── icons/                        #   Icônes PWA (192, 512) & favicon STI_by_AE.ico
-│   ├── images/                       #   Logos & illustrations (qr-stiv2.png, lycee_logo.png…)
+│   ├── images/                       #   Logos & QR code de contact (qr-code-site.png, qr-stiv2.png)
 │   ├── audio/                        #   Exemples audio HTML5
 │   └── video/                        #   Exemples vidéo HTML5
 │
-├── cours/                            # 📖 Cours interactifs
+├── cours/                            # 📖 Cours interactifs & Fiches récapitulatives
 │   ├── html5.html                    #   Cours HTML5 complet
-│   ├── css3.html                     #   Cours CSS3 complet (+ lien leçons animées en fin de page)
+│   ├── css3.html                     #   Cours CSS3 complet (+ accès aux leçons animées)
 │   ├── javascript.html               #   Cours JavaScript
-│   ├── php.html                      #   Cours PHP (+ boîte interactive PHP & MySQLi)
-│   ├── php-mysqli.html               #   Boîte animée PHP & MySQLi
-│   ├── sql.html                      #   Cours SQL
+│   ├── sql.html                      #   Cours SQL (+ bouton modale vers l'animation des contraintes)
+│   ├── sql-contraintes.html          #   Animation interactive néo-brutaliste : Effet des contraintes SQL
 │   ├── sql-bases-ldd-lmd-lcd.html    #   Bases de données : LDD, LMD, LCD
+│   ├── php.html                      #   Cours PHP (+ boutons 🪄 PHP-recap ✨, 🎬 Guichet & MySQLi)
+│   ├── PHP-recap.html                #   Fiche récapitulative PHP complète (intégrée en modale)
+│   ├── php-mysqli.html               #   Boîte interactive PHP & MySQLi
 │   ├── datalist.html                 #   Focus interactif sur <datalist>
 │   ├── fiche-revision-html5.html     #   Guide & fiche de révision HTML5
 │   └── annexe-fleuriste-html5.html   #   Exemple commenté « Le Fleuriste »
 │
-├── cssanimee/                        # 🎬 Leçon animée 1 : Les balises HTML5 & propriétés CSS3 pas à pas
+├── cssanimee/                        # 🎬 Leçon animée 1 : Balises HTML5 & propriétés CSS3 des annexes
 │   └── index.html
 │
-├── Positionnement-animee/            # 📐 Leçon animée 2 : Le positionnement CSS pas à pas
+├── Positionnement-animee/            # 📐 Leçon animée 2 : Positionnement CSS & Flexbox pas à pas
 │   └── index.html
 │
-├── quiz/                             # 🎯 Quiz interactifs & défis
+├── quiz/                             # 🎯 Quiz interactifs & Défis (avec remontée des notes à l'Admin)
 │   ├── html-css.html                 #   Quiz HTML5 / CSS3
 │   ├── javascript.html               #   Quiz JavaScript
-│   ├── php.html                      #   Quiz PHP
-│   ├── pp.html                       #   PHP Playground & défis interactifs
-│   └── sql.html                      #   Quiz SQL
+│   ├── sql.html                      #   Quiz SQL
+│   ├── php.html                      #   Quiz PHP (4SI)
+│   └── pp.html                       #   PHP Playground & défis interactifs (4SI)
 │
 ├── exercices/                        # ✏️ Séries d'exercices & TP corrigés
-│   ├── series-exercices.html         #   Portail des séries d'exercices (avec boîtes modales)
+│   ├── series-exercices.html         #   Portail des séries d'exercices (filtré selon le niveau)
 │   ├── resume-fonctions-standards.html
 │   ├── html-css/                     #   Activités & TP HTML/CSS
 │   ├── javascript/                   #   TP JavaScript 1 → 5 + corrigés
-│   ├── php/                          #   TP PHP 1 → 4 + corrigés
-│   └── sql/                          #   TP Bases de données & SQL + atelier 3 fenêtres
+│   ├── sql/                          #   TP Bases de données & SQL + atelier 3 fenêtres
+│   └── php/                          #   TP PHP 1 → 4 + corrigés (4SI)
 │
 ├── projets/                          # 🛠️ Projets pédagogiques complets
+│   ├── sti0/                         #   Projet STI 0 (énoncé PDF + archive ressources ZIP hors-ligne)
 │   ├── carte-bancaire/               #   TP Carte bancaire (énoncé + correction)
 │   ├── formulaire-inscription/       #   Formulaire d'inscription avancé
 │   ├── fleurs/                       #   Projet « Fleuriste » (HTML/CSS/JS + PHP)
 │   └── site-tunisie/                 #   Site vitrine Tunisie (Nord / Centre / Sud)
 │
-├── documents/                        # 📄 Documents & annexes PDF
-│   └── annexes/                      #   Annexes officielles des 5 modules (HTML5, CSS3, JS, PHP, SQL)
+├── documents/                        # 📄 Annexes officielles PDF (HTML5, CSS3, JS, SQL, PHP)
+│   └── annexes/
 │
-├── tools/                            # 🔧 Scripts & schéma de base de données
-│   └── supabase-schema.sql           #   Script SQL complet (tables profiles & acces, RLS, fonctions admin)
-│
-└── app-mobile/                       # 📱 Package Android
-    └── STI-By-AE.apk
+└── tools/                            # 🔧 Administration & Base de données
+    └── supabase-schema.sql           #   Schéma SQL complet (tables, RLS, fonctions RPC & quota base)
 ```
 
 ---
 
-## 🚀 Déploiement & Architecture
+## 🚀 Architecture & Mode 100 % Hors-ligne (`sti-atelier-v73`)
 
-- **Hébergement** : GitHub Pages ([./index.html](./index.html)).
-- **Backend & Temps réel** : Supabase (PostgreSQL, Row-Level Security, Auth, Realtime Broadcast & Postgres Changes) + relais de notifications `ntfy.sh`.
-- **Mode 100 % Hors-ligne (PWA `sti-atelier-v39`)** :
-  - Pré-chargement automatique en tâche de fond de toutes les pages du site (cours, leçons animées, séries d'exercices, TP, projets, quiz, annexes, Atelier Bac Pratique, portail et tableau de bord) + bouton **« 📲 Télécharger 100 % hors-ligne »** dans le panneau du compte abonné.
-  - Maintien de la session abonné et Admin hors-ligne (`sti-session-cache` / `sti-offline` jusqu'à 30 jours) + reconnexion hors-ligne par empreinte SHA-256 (`sti-cred`).
-  - File d'attente hors-ligne (`sti-offline-queue`) synchronisant automatiquement vers Supabase les scores de quiz, durées d'étude et questions au professeur dès le retour de la connexion Internet.
-  - Consultation hors-ligne du tableau de bord administrateur (`sti-admin-cache` : abonnés, durées, notes de quiz, filtres et export CSV).
-- **Installation base de données** : exécuter `tools/supabase-schema.sql` dans l'éditeur SQL Supabase pour initialiser ou reconstruire les tables `public.profiles`, `public.acces`, les politiques RLS et les fonctions d'administration.
+1. **Service Worker (`sw.js`) sans aucun lien mort** :
+   - Pré-chargement automatique en tâche de fond des **371 fichiers existants** du site (cours, animations, exercices, quiz, PDF, archives `.zip`, polices et icônes).
+   - Purge automatique des anciens fichiers `.html`, `.js` et `.css` lors des changements de version pour garantir l'application immédiate des mises à jour.
+   - Génération de `Blob` locaux (et Base64 embarqué pour `ressources-projet-sti0.zip`) permettant de télécharger les archives et sujets PDF même lorsque le PC du laboratoire est totalement déconnecté d'Internet.
+2. **Synchronisation différée automatique** :
+   - Les scores de quiz, durées d'étude hebdomadaires et réponses aux messages réalisés hors-ligne sont stockés dans `sti-offline-queue` et synchronisés automatiquement vers Supabase dès le retour de la connexion.
+3. **Base de données Supabase (`tools/supabase-schema.sql`)** :
+   - Tables `public.profiles` et `public.acces` sécurisées par Row-Level Security (RLS).
+   - Fonctions RPC d'administration (`admin_creer_abonne`, `admin_maj_statut`, `admin_changer_mdp`, `admin_supprimer_abonne`, `admin_taille_base`).
