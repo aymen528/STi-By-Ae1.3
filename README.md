@@ -4,7 +4,7 @@ Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'I
 cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
-> **Version** : **V2.0 · `v74`** (PWA 100 % hors-ligne, portail d'accès sécurisé & tableau de bord temps réel)  
+> **Version** : **V2.0 · `v75`** (PWA 100 % hors-ligne, portail d'accès sécurisé & tableau de bord temps réel)  
 > **Accès local / en ligne** : [./index.html](./index.html)
 
 ---
@@ -62,7 +62,7 @@ cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D,
 ### 📊 4. Tableau de bord Administrateur temps réel (`admin.html`)
 - **Verrou anti-flash `0 ms`, Version & Jauge d'espace Supabase** :
   - Protection immédiate de `admin.html` dès `0 ms` avant le premier rendu.
-  - Affichage permanent de la version (`STI V2.0 · v74`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
+  - Affichage permanent de la version (`STI V2.0 · v75`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
 - **Gestion complète des abonnés, des classes et des lycées** :
   - L'administrateur n'apparaît jamais dans la liste des abonnés.
   - Ajout, renommage (avec migration automatique des élèves) et suppression de **classes** et de **lycées** synchronisés sur tous les appareils.
@@ -181,7 +181,7 @@ STiV2.0/
 
 ---
 
-## 🚀 Architecture & Mode 100 % Hors-ligne (`sti-atelier-v74`)
+## 🚀 Architecture & Mode 100 % Hors-ligne (`sti-atelier-v75`)
 
 1. **Service Worker (`sw.js`) sans aucun lien mort** :
    - Pré-chargement automatique en tâche de fond des **371 fichiers existants** du site (cours, animations, exercices, quiz, PDF, archives `.zip`, polices et icônes).

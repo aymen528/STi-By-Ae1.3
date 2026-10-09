@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=74";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=75";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-74") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-74", "1");
+          if (sessionStorage.getItem("sti-sw-reload-75") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-75", "1");
         } catch (e) {}
         location.reload();
       });
@@ -2140,7 +2140,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v74)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v75)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */
@@ -2723,4 +2723,51 @@
     editor.value = codeState[langActif] || "";
     executerCode();
   };
+
+  /* ---------- 4. Bouton universel « ⬆ Haut » sur toutes les pages qui n'en ont pas déjà un ---------- */
+  (function installerBoutonHautUniversel() {
+    function initBtnHaut() {
+      if (document.getElementById("sti-auto-to-top")) return;
+      if (document.querySelector("#backToTopBtn, #backToTop, #to-top, .to-top, #btn-admin-to-top, .back-to-top-btn")) return;
+      if (!document.body) return;
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "sti-auto-to-top";
+      btn.className = "sti-no-print";
+      btn.setAttribute("aria-label", "Remonter en haut de la page");
+      btn.title = "Remonter en haut";
+      btn.textContent = "⬆ Haut";
+      btn.style.cssText =
+        "position:fixed;right:16px;bottom:16px;z-index:2147483640;display:inline-flex;align-items:center;gap:6px;" +
+        "padding:8px 14px;border-radius:999px;border:2.5px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);" +
+        "color:#fff;font:900 12px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a,0 8px 18px rgba(0,0,0,.22);" +
+        "opacity:0;visibility:hidden;transform:translateY(12px) scale(.92);pointer-events:none;transition:opacity .2s ease,transform .2s ease,visibility .2s ease;";
+
+      btn.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      document.body.appendChild(btn);
+
+      function majVisibilite() {
+        var y = window.scrollY || document.documentElement.scrollTop || 0;
+        var vis = y > 220;
+        btn.style.opacity = vis ? "1" : "0";
+        btn.style.visibility = vis ? "visible" : "hidden";
+        btn.style.transform = vis ? "translateY(0) scale(1)" : "translateY(12px) scale(.92)";
+        btn.style.pointerEvents = vis ? "auto" : "none";
+      }
+
+      window.addEventListener("scroll", majVisibilite, { passive: true });
+      majVisibilite();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initBtnHaut);
+    } else {
+      setTimeout(initBtnHaut, 120);
+    }
+  })();
 })();
+
