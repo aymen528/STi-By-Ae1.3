@@ -14,23 +14,24 @@
   var currentUid = null;
   var currentClasse = "";
 
-  /* Nettoyage immédiat des anciens caches Service Worker et mise à jour forcée sur toutes les pages */
+  /* Enregistrement du Service Worker et pré-chargement automatique en arrière-plan pour le mode 100 % Hors-ligne (PC Windows & Mobile) */
   try {
-    if ("caches" in window) {
-      caches.keys().then(function (cles) {
-        cles.forEach(function (k) {
-          if (k !== "sti-atelier-v45") caches.delete(k);
-        });
-      }).catch(function () {});
-    }
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register(cfg.RACINE + "sw.js").then(function (reg) {
         if (reg) reg.update().catch(function () {});
+        setTimeout(function () {
+          try {
+            var swTarget = (reg && reg.active) || navigator.serviceWorker.controller;
+            if (swTarget && navigator.onLine) {
+              swTarget.postMessage({ type: "PRECACHE_ALL" });
+            }
+          } catch (e) {}
+        }, 2000);
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-45") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-45", "1");
+          if (sessionStorage.getItem("sti-sw-reload-46") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-46", "1");
         } catch (e) {}
         location.reload();
       });
@@ -605,38 +606,58 @@
     }
   });
 
+  var sessionInitialisee = false;
+  function lireCacheSessionLocal() {
+    try { return JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) { return null; }
+  }
+
+  function restaurerDepuisCacheLocal() {
+    var cache = lireCacheSessionLocal();
+    var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
+    var tsValide = (cache && cache.ts) || tOff;
+    if (tsValide && Date.now() - tsValide < 30 * 86400000) {
+      sessionInitialisee = true;
+      if (cache && cache.isAdmin) {
+        currentUid = cache.id || "admin";
+        appliquerModeGold(true);
+        appliquerVerrou4SI("Admin", true);
+        if (window === window.top && !document.getElementById("sti-badge-admin-flottant")) badgeAdmin();
+        if (navigator.onLine) synchroniserFileHorsLigne(false);
+        return true;
+      }
+      var fakeUser = {
+        id: (cache && cache.id) || "offline-user",
+        email: (cache && cache.email) || "Abonné hors-ligne",
+        user_metadata: (cache && cache.user_metadata) || {}
+      };
+      currentUid = fakeUser.id;
+      currentClasse = (cache && cache.classe) || "";
+      appliquerModeGold(Boolean(cache && cache.gold), cache || {});
+      appliquerVerrou4SI(currentClasse, false);
+      panneauCompte(fakeUser, cache || {});
+      installerSuiviQuizAuto();
+      journal(fakeUser.id);
+      if (navigator.onLine) synchroniserFileHorsLigne(true);
+      return true;
+    }
+    return false;
+  }
+
+  /* Sur PC Windows hors-ligne (même si navigator.onLine reste true à cause d'une carte réseau virtuelle),
+     restaurer immédiatement la session locale si l'appel réseau tarde > 1,5 s ou si navigator.onLine === false */
+  if (!navigator.onLine) {
+    restaurerDepuisCacheLocal();
+  }
+  var timerSecoursHorsLigne = setTimeout(function () {
+    if (!sessionInitialisee) restaurerDepuisCacheLocal();
+  }, 1500);
+
   sb.auth.getSession().then(function (r) {
+    clearTimeout(timerSecoursHorsLigne);
     var session = r && r.data ? r.data.session : null;
     if (!session) {
-      /* Mode hors-ligne ou jeton expiré : restauration immédiate de la session locale + reconnexion silencieuse dès qu'Internet est là */
-      var cache = null;
-      try { cache = JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) {}
-      var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
-      var tsValide = (cache && cache.ts) || tOff;
-      if (tsValide && Date.now() - tsValide < 30 * 86400000) {
-        if (cache && cache.isAdmin) {
-          currentUid = cache.id || "admin";
-          appliquerModeGold(true);
-          appliquerVerrou4SI("Admin", true);
-          if (window === window.top) badgeAdmin();
-          if (navigator.onLine) synchroniserFileHorsLigne(false);
-          return;
-        }
-        var fakeUser = {
-          id: (cache && cache.id) || "offline-user",
-          email: (cache && cache.email) || "Abonné hors-ligne",
-          user_metadata: (cache && cache.user_metadata) || {}
-        };
-        currentUid = fakeUser.id;
-        currentClasse = (cache && cache.classe) || "";
-        appliquerModeGold(Boolean(cache && cache.gold), cache || {});
-        appliquerVerrou4SI(currentClasse, false);
-        panneauCompte(fakeUser, cache || {});
-        installerSuiviQuizAuto();
-        journal(fakeUser.id);
-        if (navigator.onLine) synchroniserFileHorsLigne(true);
-        return;
-      }
+      /* Mode hors-ligne ou jeton expiré : restauration immédiate de la session locale */
+      if (restaurerDepuisCacheLocal()) return;
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-gold");
@@ -644,6 +665,7 @@
       redirigerTop(PORTAIL + "#connexion");
       return;
     }
+    sessionInitialisee = true;
     var user = session.user;
     currentUid = user.id;
     synchroniserFileHorsLigne();
@@ -662,13 +684,13 @@
       } catch (e) {}
       appliquerModeGold(true);
       appliquerVerrou4SI("Admin", true);
-      if (window === window.top) badgeAdmin();
+      if (window === window.top && !document.getElementById("sti-badge-admin-flottant")) badgeAdmin();
       journal(user.id);
       return;
     }
 
     function appliquerStatut(rp) {
-      if (rp.error) return true;
+      if (!rp || rp.error) return true;
       if (!rp.data) {
         sortirImmediatement("#refuse");
         return false;
@@ -702,22 +724,47 @@
     }
 
     function entrer(profil) {
-      currentClasse = (profil && profil.classe) || "";
-      appliquerModeGold(estGoldProfil(profil), profil);
+      var cacheFallback = lireCacheSessionLocal() || {};
+      var p = (profil && (profil.classe || profil.lycee)) ? profil : cacheFallback;
+      currentClasse = (p && p.classe) || "";
+      appliquerModeGold(estGoldProfil(p), p);
       appliquerVerrou4SI(currentClasse, false);
       verrouBio(user, function () {
-        panneauCompte(user, profil || {});
+        panneauCompte(user, p || {});
         surveillerSessionTempsReel(user.id, appliquerStatut);
         installerSuiviQuizAuto();
         journal(user.id);
       });
     }
 
+    var dejaEntre = false;
+    var timerProfilOff = setTimeout(function () {
+      if (!dejaEntre) {
+        dejaEntre = true;
+        entrer(lireCacheSessionLocal() || {});
+      }
+    }, 2000);
+
     sb.from("profiles").select("statut,lycee,classe").eq("id", user.id).maybeSingle().then(function (rp) {
-      if (rp.error) { entrer({}); return; }
+      clearTimeout(timerProfilOff);
+      if (!rp || rp.error) {
+        if (!dejaEntre) { dejaEntre = true; entrer(lireCacheSessionLocal() || {}); }
+        return;
+      }
       if (!appliquerStatut(rp)) return;
-      entrer(rp.data || {});
+      if (!dejaEntre) {
+        dejaEntre = true;
+        entrer(rp.data || {});
+      }
+    }).catch(function () {
+      clearTimeout(timerProfilOff);
+      if (!dejaEntre) { dejaEntre = true; entrer(lireCacheSessionLocal() || {}); }
     });
+  }).catch(function () {
+    clearTimeout(timerSecoursHorsLigne);
+    if (!restaurerDepuisCacheLocal()) {
+      redirigerTop(PORTAIL + "#connexion");
+    }
   });
 
   /* ---------- Surveillance continue : exclusion / retrait / mise en attente / passage Gold en direct ---------- */
@@ -840,6 +887,8 @@
 
   /* ---------- roue « mon compte » chic + Progression personnelle + Écrire au prof ---------- */
   function panneauCompte(user, profil) {
+    var existWrap = document.getElementById("sti-roue-wrap");
+    if (existWrap) existWrap.remove();
     var isG = estGoldProfil(profil);
     var st = document.createElement("style");
     st.textContent =
@@ -851,6 +900,7 @@
     document.head.appendChild(st);
 
     var wrap = document.createElement("div");
+    wrap.id = "sti-roue-wrap";
     wrap.className = "sti-no-print";
     wrap.style.cssText = "position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:2147483646;display:flex;align-items:center;";
 

@@ -4,6 +4,21 @@
   var cfg = window.STI_AUTH;
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
 
+  /* Enregistrement du Service Worker dès le portail pour garantir le mode Hors-ligne sur PC Windows & Mobile */
+  try {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(function (reg) {
+        if (reg) reg.update().catch(function () {});
+        setTimeout(function () {
+          try {
+            var swT = (reg && reg.active) || navigator.serviceWorker.controller;
+            if (swT && navigator.onLine) swT.postMessage({ type: "PRECACHE_ALL" });
+          } catch (e) {}
+        }, 1800);
+      }).catch(function () {});
+    }
+  } catch (e) {}
+
   /* ---------- Utilitaires téléphone & code WhatsApp ---------- */
   function normaliserTel(brut) {
     var s = String(brut || "").replace(/[\s.\-()]/g, "");
@@ -263,12 +278,19 @@
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
   /* Clic sur « 📊 Tableau de bord administrateur » depuis le portail :
-     vérifier d'abord la session admin sans JAMAIS ouvrir admin.html si non connecté */
+     vérifier d'abord la session admin (en ligne ou cache local hors-ligne) sans JAMAIS ouvrir admin.html si non connecté */
   var lienAdminPortail = document.getElementById("lien-admin-portail");
   if (lienAdminPortail) {
     lienAdminPortail.addEventListener("click", function (e) {
       e.preventDefault();
       var adminMail = (cfg.ADMIN || "aymenessouyah@gmail.com").trim().toLowerCase();
+      try {
+        var cLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+        if (cLoc && cLoc.isAdmin && String(cLoc.email || "").trim().toLowerCase() === adminMail) {
+          location.href = cfg.RACINE + "admin.html";
+          return;
+        }
+      } catch (err) {}
       sb.auth.getSession().then(function (r) {
         var s = r && r.data ? r.data.session : null;
         if (s && s.user && (s.user.email || "").trim().toLowerCase() === adminMail) {
@@ -354,24 +376,38 @@
       emailConn = emailDeTel(telConn);
     }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;
+    var connexionResolue = false;
+    function tenterConnexionLocaleHorsLigne() {
+      if (connexionResolue) return;
+      connexionResolue = true;
+      btn.disabled = false;
+      var cred = null;
+      try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
+      sha256(mdp).then(function (h) {
+        if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
+          localStorage.setItem("sti-offline", String(Date.now()));
+          location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
+        } else {
+          msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
+        }
+      });
+    }
+    var timerConnOff = setTimeout(function () {
+      if (!connexionResolue) tenterConnexionLocaleHorsLigne();
+    }, 3500);
     sb.auth.signInWithPassword({ email: emailConn, password: mdp }).then(function (r) {
+      clearTimeout(timerConnOff);
+      if (connexionResolue) return;
       btn.disabled = false;
       if (r.error) {
         if (estHorsLigne(r.error)) {
-          var cred = null;
-          try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
-          sha256(mdp).then(function (h) {
-            if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
-              localStorage.setItem("sti-offline", String(Date.now()));
-              location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
-            } else {
-              msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
-            }
-          });
+          tenterConnexionLocaleHorsLigne();
           return;
         }
+        connexionResolue = true;
         msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
       }
+      connexionResolue = true;
       /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
       var isAdm = (r.data.user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase();
       sha256(mdp).then(function (h) {
@@ -415,6 +451,9 @@
         }
       }
       verifierStatutEtEntrer(r.data.user);
+    }).catch(function () {
+      clearTimeout(timerConnOff);
+      tenterConnexionLocaleHorsLigne();
     });
   });
 

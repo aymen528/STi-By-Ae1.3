@@ -7,9 +7,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PHQuizzer — Master PHP Interactively</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css" />
+<link rel="stylesheet" href="../assets/assets/fontawesome/css/all.min.css" />
+<link rel="stylesheet" href="../assets/css/tailwind.css" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = {
+if (window.tailwind) tailwind.config = {
   theme: { extend: {
     colors: { php: {50:'#eef0ff',100:'#d9ddff',200:'#b3b9f5',300:'#8a92e8',400:'#777BB4',500:'#5b63b8',600:'#4F5B93',700:'#3f4775',800:'#2a2f52',900:'#0a0e1e',950:'#070a18'}, neon:'#22d3ee', lime2:'#a3e635' },
     fontFamily: { sans:['Inter','sans-serif'], mono:['JetBrains Mono','monospace'] }

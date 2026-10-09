@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v45";
+    var versionDefaut = "v46";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -59,9 +59,15 @@
   })();
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function (regs) {
-      regs.forEach(function (r) { r.update(); });
-    });
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      if (reg) reg.update().catch(function () {});
+      setTimeout(function () {
+        try {
+          var swT = (reg && reg.active) || navigator.serviceWorker.controller;
+          if (swT && navigator.onLine) swT.postMessage({ type: "PRECACHE_ALL" });
+        } catch (e) {}
+      }, 2000);
+    }).catch(function () {});
   }
 
   var LIB = { actif: "Actif", en_attente: "En attente", suspendu: "Suspendu", exclu: "Exclu" };
@@ -247,13 +253,30 @@
     return "Sem. du " + fmt(lun) + " au " + fmt(dim) + act;
   }
 
+  function lireCacheSessAdmin() {
+    try {
+      var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+      if (c && c.isAdmin && estAdminEmail(c.email)) return c;
+    } catch (e) {}
+    return null;
+  }
+
+  /* Déverrouillage immédiat 0 ms sur PC Windows / Mobile hors-ligne si le cache admin local est valide */
+  var cacheAdminInit = lireCacheSessAdmin();
+  if (cacheAdminInit) {
+    adminUid = cacheAdminInit.id || "admin";
+    document.documentElement.classList.remove("admin-verrouille");
+    window.__STI_GOLD = true;
+    if (!navigator.onLine) {
+      setTimeout(function () { chargerDepuisCacheAdmin(false, "Appareil hors-ligne."); }, 0);
+    }
+  }
+
   sb.auth.getSession().then(function (r) {
     var s = r && r.data ? r.data.session : null;
     if (!s || !estAdminEmail(s.user.email)) {
-      var cacheSess = null;
-      try { cacheSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) {}
-      var estAdminOff = !navigator.onLine && cacheSess && cacheSess.isAdmin && estAdminEmail(cacheSess.email);
-      if (!estAdminOff) {
+      var cacheSess = lireCacheSessAdmin();
+      if (!cacheSess) {
         try {
           localStorage.removeItem("sti-admin-gold");
           localStorage.removeItem("sti-session-cache");
@@ -261,7 +284,7 @@
         location.replace(cfg.RACINE + "portail.html#admin");
         return;
       }
-      adminUid = (cacheSess && cacheSess.id) || "admin";
+      adminUid = cacheSess.id || "admin";
     } else {
       adminUid = s.user.id;
       try {
@@ -321,6 +344,15 @@
         .subscribe();
     } catch (e) {}
     majBoutonNotif();
+  }).catch(function () {
+    var cacheSess = lireCacheSessAdmin();
+    if (cacheSess) {
+      adminUid = cacheSess.id || "admin";
+      document.documentElement.classList.remove("admin-verrouille");
+      chargerDepuisCacheAdmin(false, "Mode Hors-ligne actif.");
+    } else {
+      location.replace(cfg.RACINE + "portail.html#admin");
+    }
   });
 
   function bipNotif() {
@@ -627,11 +659,19 @@
       return;
     }
     if (!garderMsg) msg("Chargement…", "");
+    var resolu = false;
+    var timerOffAdmin = setTimeout(function () {
+      if (!resolu) {
+        resolu = true;
+        chargerDepuisCacheAdmin(garderMsg, "Mode Hors-ligne (serveur injoignable).");
+      }
+    }, 3500);
     Promise.all([
       sb.from("profiles").select("*").order("cree_le", { ascending: false }),
       sb.from("acces").select("*").order("debut", { ascending: false }).limit(600),
       fetch("https://ntfy.sh/sti_v2_diffusion_9482/json?poll=1&since=all").then(function (r) { return r.text(); }).catch(function () { return ""; })
     ]).then(function (res) {
+      clearTimeout(timerOffAdmin);
       if (res[0].error || res[1].error) {
         var errTxt = (res[0].error || res[1].error).message;
         if (!chargerDepuisCacheAdmin(garderMsg, errTxt)) {
@@ -639,6 +679,7 @@
         }
         return;
       }
+      resolu = true;
       var tous = res[0].data || [];
       var tousAcces = res[1].data || [];
       var txtNtfy = res[2] || "";
@@ -653,7 +694,11 @@
       appliquerDonneesAdmin(tous, tousAcces, txtNtfy, false, Date.now());
       if (!garderMsg) msg("✅ " + profils.length + " abonné(s), " + acces.length + " connexion(s) journalisée(s).", "ok");
     }).catch(function () {
-      chargerDepuisCacheAdmin(garderMsg, "Impossible de joindre le serveur.");
+      clearTimeout(timerOffAdmin);
+      if (!resolu) {
+        resolu = true;
+        chargerDepuisCacheAdmin(garderMsg, "Impossible de joindre le serveur.");
+      }
     });
   }
 
