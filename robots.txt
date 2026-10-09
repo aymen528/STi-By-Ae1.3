@@ -1,5 +1,4 @@
 # ============================================================
-#  Plateforme STI par A. Essouyah — aymenessouyah.github.io/STi
 #  Contenu pédagogique protégé © A. Essouyah.
 #
 #  L'exploration, l'indexation, l'extraction ou l'utilisation de
@@ -97,4 +96,3 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://aymenessouyah.github.io/STiV2.0/sitemap.xml

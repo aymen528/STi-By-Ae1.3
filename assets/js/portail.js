@@ -76,16 +76,21 @@
         lignes.push("✉️ " + d.email);
         lignes.push("🏫 " + d.lycee + " · " + d.classe);
       }
+      var urlAdmin = (cfg && cfg.RACINE && cfg.RACINE.indexOf("http") === 0)
+        ? (cfg.RACINE.replace(/\/?$/, "/") + "admin.html")
+        : (typeof location !== "undefined" && location.origin && location.origin !== "null"
+            ? new URL("admin.html", location.href).href
+            : "admin.html");
       var headers = {
         "Title": d.tel ? "Nouvelle demande STI V2.0 (Telephone)" : "Nouvelle demande STI V2.0 (E-mail)",
         "Priority": "high",
         "Tags": "bell,mortar_board",
-        "Click": "https://aymenessouyah.github.io/STiV2.0/admin.html"
+        "Click": urlAdmin
       };
       if (d.tel) {
         var ch = d.tel.replace(/\D/g, "");
         var txtWa = "Bonjour " + d.prenom + " " + d.nom + ", voici votre code de confirmation pour la plateforme STI V2.0 : *" + d.code + "*";
-        headers["Actions"] = "view, Envoyer code WhatsApp, https://wa.me/" + ch + "?text=" + encodeURIComponent(txtWa) + "; view, Tableau de bord, https://aymenessouyah.github.io/STiV2.0/admin.html";
+        headers["Actions"] = "view, Envoyer code WhatsApp, https://wa.me/" + ch + "?text=" + encodeURIComponent(txtWa) + "; view, Tableau de bord, " + urlAdmin;
       }
       fetch("https://ntfy.sh/" + NTFY_CANAL, {
         method: "POST",

@@ -5,7 +5,7 @@ cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP co
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
 > **Version** : **2.0** (PWA installable, portail d'accès sécurisé & tableau de bord temps réel)  
-> **Site en ligne (V2.0)** : [https://aymenessouyah.github.io/STiV2.0/](https://aymenessouyah.github.io/STiV2.0/)
+> **Site en ligne (V2.0)** : [./index.html](./index.html)
 
 ---
 
@@ -49,7 +49,7 @@ cours complets, leçons animées pas à pas, annexes, séries d'exercices, TP co
 
 ### 📱 Application PWA & Partage
 - **PWA installable** sur ordinateur, Android et iOS (`manifest.webmanifest` + Service Worker `sw.js` en stratégie *Network-First* pour les pages, scripts et styles) ; le bouton **« Installer STI by AE »** disparaît automatiquement une fois l'application installée.
-- **QR Codes intégrés** (portail et badge fixe *« Scanner-moi ! »* sur l'accueil) pointant vers `https://aymenessouyah.github.io/STiV2.0/`.
+- **QR Codes intégrés** (portail et badge fixe *« Scanner-moi ! »* sur l'accueil) pointant vers `./index.html`.
 - **Aperçu Open Graph (Facebook / WhatsApp)** configuré avec le logo officiel `assets/icons/sti-icon-512.png`.
 
 ---
@@ -138,7 +138,7 @@ STiV2.0/
 
 ## 🚀 Déploiement & Architecture
 
-- **Hébergement** : GitHub Pages ([https://aymenessouyah.github.io/STiV2.0/](https://aymenessouyah.github.io/STiV2.0/)).
+- **Hébergement** : GitHub Pages ([./index.html](./index.html)).
 - **Backend & Temps réel** : Supabase (PostgreSQL, Row-Level Security, Auth, Realtime Broadcast & Postgres Changes) + relais de notifications `ntfy.sh`.
 - **Mode 100 % Hors-ligne (PWA `sti-atelier-v39`)** :
   - Pré-chargement automatique en tâche de fond de toutes les pages du site (cours, leçons animées, séries d'exercices, TP, projets, quiz, annexes, Atelier Bac Pratique, portail et tableau de bord) + bouton **« 📲 Télécharger 100 % hors-ligne »** dans le panneau du compte abonné.

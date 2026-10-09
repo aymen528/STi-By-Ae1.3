@@ -2,6 +2,8 @@
 window.STI_AUTH = {
   URL: "https://vywujxmepvcbgedgmger.supabase.co",
   CLE: "sb_publishable_FI5FimytONd5VdWK6GfXLA_I6vPTrvn",
-  RACINE: "https://aymenessouyah.github.io/STiV2.0/",
+  RACINE: (typeof location !== "undefined" && location.origin && location.origin !== "null")
+    ? (location.origin + location.pathname.replace(/(?:portail|admin|index|carte-visite|bac-pratique|404)\.html.*$|\/(?:cours|exercices|projets|annexes)\/.*$/, "").replace(/\/?$/, "/"))
+    : "./",
   ADMIN: "aymenessouyah@gmail.com"
 };
