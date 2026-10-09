@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v54";
+    var versionDefaut = "v55";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -688,12 +688,22 @@
 
       acces = tousAcces.filter(function (a) {
         var pg = a.page || "";
-        return !adminIds[a.user_id] &&
-          pg !== "CFG_ECOLES" &&
-          pg.indexOf("MSG_ENVOI:") !== 0 &&
-          pg.indexOf("MSG_LU:") !== 0 &&
-          pg.indexOf("QUIZ:") !== 0 &&
-          pg.indexOf("CTRL_") !== 0;
+        if (
+          adminIds[a.user_id] ||
+          pg === "CFG_ECOLES" ||
+          pg === "SUPPR_ACCES" ||
+          pg.indexOf("MSG_ENVOI:") === 0 ||
+          pg.indexOf("MSG_LU:") === 0 ||
+          pg.indexOf("QUIZ:") === 0 ||
+          pg.indexOf("CTRL_") === 0
+        ) return false;
+        if (cfgEcoles && cfgEcoles.purgesMois) {
+          var tDeb = new Date(a.debut).getTime() || 0;
+          var ym = cleMois(a.debut);
+          if (cfgEcoles.purgesMois["*"] && tDeb <= Number(cfgEcoles.purgesMois["*"])) return false;
+          if (ym && cfgEcoles.purgesMois[ym] && tDeb <= Number(cfgEcoles.purgesMois[ym])) return false;
+        }
+        return true;
       });
       counts = {};
       dureesSemaine = {};
@@ -1435,12 +1445,41 @@
     });
   }
 
+  function cleMois(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    return d.getFullYear() + "-" + m;
+  }
+
+  var NOMS_MOIS = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  ];
+  function libelleMois(ym) {
+    if (!ym || ym === "*") return "Tous les mois";
+    var parts = String(ym).split("-");
+    var an = parts[0] || "";
+    var idx = parseInt(parts[1], 10) - 1;
+    var nom = NOMS_MOIS[idx] || ym;
+    return nom + " " + an;
+  }
+
   function rendAcces() {
     var emails = {};
     profils.forEach(function (p) { emails[p.id] = contact(p); });
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
     var totalA = acces.length;
+    if (!totalA) {
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 5;
+      td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
+      td0.textContent = "Aucune connexion enregistrée.";
+      tr0.appendChild(td0);
+      ta.appendChild(tr0);
+    }
     var limiteA = toutVoirAcces ? totalA : 5;
     acces.slice(0, limiteA).forEach(function (a) {
       var tr = document.createElement("tr");
@@ -1459,6 +1498,128 @@
         wrapVoirPlusAcces.style.display = "none";
       }
     }
+  }
+
+  /* ---------- Suppression des Dernières connexions par mois cible ---------- */
+  var btnOuvrirPurgeAcces = document.getElementById("btn-ouvrir-purge-acces");
+  var modalPurgeAcces = document.getElementById("modal-purge-acces");
+  var selMoisPurge = document.getElementById("sel-mois-purge");
+  var resumePurgeAcces = document.getElementById("resume-purge-acces");
+  var btnAnnulerPurgeAcces = document.getElementById("btn-annuler-purge-acces");
+  var btnConfirmerPurgeAcces = document.getElementById("btn-confirmer-purge-acces");
+
+  function connexionsDuMois(ym) {
+    if (!ym || ym === "*") return acces.slice();
+    return acces.filter(function (a) { return cleMois(a.debut) === ym; });
+  }
+
+  function majResumePurgeMois() {
+    if (!selMoisPurge || !resumePurgeAcces) return;
+    var ym = selMoisPurge.value || "*";
+    var nb = connexionsDuMois(ym).length;
+    var lib = ym === "*" ? "Tous les mois" : libelleMois(ym);
+    resumePurgeAcces.innerHTML =
+      "<span>📅 <strong>" + lib + "</strong></span>" +
+      "<span style='color:#c0392b'>🗑️ <strong>" + nb + " connexion(s)</strong> à supprimer</span>";
+  }
+
+  function remplirMoisPurge() {
+    if (!selMoisPurge) return;
+    var mapMois = {};
+    var now = new Date();
+    for (var k = 0; k < 6; k++) {
+      var dRef = new Date(now.getFullYear(), now.getMonth() - k, 1);
+      var ymRef = dRef.getFullYear() + "-" + String(dRef.getMonth() + 1).padStart(2, "0");
+      mapMois[ymRef] = 0;
+    }
+    acces.forEach(function (a) {
+      var ym = cleMois(a.debut);
+      mapMois[ym] = (mapMois[ym] || 0) + 1;
+    });
+    var listeMois = Object.keys(mapMois).sort().reverse();
+    selMoisPurge.innerHTML = "";
+    var premierAvecDonnees = "";
+    listeMois.forEach(function (ym) {
+      var nb = mapMois[ym] || 0;
+      if (!premierAvecDonnees && nb > 0) premierAvecDonnees = ym;
+      var opt = document.createElement("option");
+      opt.value = ym;
+      opt.textContent = "📅 " + libelleMois(ym) + " (" + nb + " connexion(s))";
+      selMoisPurge.appendChild(opt);
+    });
+    var optTous = document.createElement("option");
+    optTous.value = "*";
+    optTous.textContent = "🗓️ Tous les mois — Tout effacer (" + acces.length + " connexion(s))";
+    selMoisPurge.appendChild(optTous);
+
+    if (premierAvecDonnees) selMoisPurge.value = premierAvecDonnees;
+    majResumePurgeMois();
+  }
+
+  if (btnOuvrirPurgeAcces) {
+    btnOuvrirPurgeAcces.addEventListener("click", function () {
+      remplirMoisPurge();
+      if (modalPurgeAcces) modalPurgeAcces.classList.add("visible");
+    });
+  }
+  if (selMoisPurge) {
+    selMoisPurge.addEventListener("change", majResumePurgeMois);
+  }
+  if (btnAnnulerPurgeAcces) {
+    btnAnnulerPurgeAcces.addEventListener("click", function () {
+      if (modalPurgeAcces) modalPurgeAcces.classList.remove("visible");
+    });
+  }
+  if (btnConfirmerPurgeAcces) {
+    btnConfirmerPurgeAcces.addEventListener("click", function () {
+      var ym = selMoisPurge ? selMoisPurge.value : "*";
+      var cibles = connexionsDuMois(ym);
+      var lib = ym === "*" ? "tous les mois" : libelleMois(ym);
+      if (!cfgEcoles.purgesMois || typeof cfgEcoles.purgesMois !== "object") {
+        cfgEcoles.purgesMois = {};
+      }
+      cfgEcoles.purgesMois[ym] = Date.now();
+      sauvegarderCfgEcoles();
+
+      var ids = cibles.map(function (a) { return a.id; }).filter(Boolean);
+      acces = acces.filter(function (a) {
+        return ym === "*" ? false : (cleMois(a.debut) !== ym);
+      });
+
+      /* Recalcul immédiat des compteurs et durées */
+      counts = {};
+      dureesSemaine = {};
+      dureesTotales = {};
+      acces.forEach(function (a) {
+        counts[a.user_id] = (counts[a.user_id] || 0) + 1;
+        var sec = dureeLigne(a);
+        dureesTotales[a.user_id] = (dureesTotales[a.user_id] || 0) + sec;
+        var sk = cleSemaine(a.debut);
+        if (!dureesSemaine[sk]) dureesSemaine[sk] = {};
+        dureesSemaine[sk][a.user_id] = (dureesSemaine[sk][a.user_id] || 0) + sec;
+      });
+
+      try {
+        var cLoc = JSON.parse(localStorage.getItem("sti-admin-cache") || "null");
+        if (cLoc && Array.isArray(cLoc.tousAcces)) {
+          var mapIds = {};
+          ids.forEach(function (id) { mapIds[id] = true; });
+          cLoc.tousAcces = cLoc.tousAcces.filter(function (a) { return !mapIds[a.id]; });
+          localStorage.setItem("sti-admin-cache", JSON.stringify(cLoc));
+        }
+      } catch (e) {}
+
+      if (modalPurgeAcces) modalPurgeAcces.classList.remove("visible");
+      rendAcces();
+      rendAbonnes();
+      majCompteurEnLigne();
+
+      if (ids.length && navigator.onLine) {
+        sb.from("acces").update({ page: "SUPPR_ACCES" }).in("id", ids).then(function () {});
+        sb.from("acces").delete().in("id", ids).then(function () {});
+      }
+      msg("🗑️ " + cibles.length + " connexion(s) de " + lib + " supprimée(s).", "ok");
+    });
   }
 
   /* ---------- Point 8 : Tableau de suivi de lecture des messages + réponses & questions libres des élèves ---------- */

@@ -102,6 +102,9 @@ create policy acces_sel on public.acces for select to authenticated
 create policy acces_upd_self on public.acces for update to authenticated
   using (user_id = auth.uid() or public.est_admin());
 
+create policy acces_del_admin on public.acces for delete to authenticated
+  using (public.est_admin());
+
 -- 6) Nouveau mot de passe défini par l'admin (l'ancien reste invisible)
 create function public.admin_set_password(uid uuid, newpass text) returns void
 language plpgsql security definer set search_path = public as $$
