@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=67";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=68";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-67") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-67", "1");
+          if (sessionStorage.getItem("sti-sw-reload-68") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-68", "1");
         } catch (e) {}
         location.reload();
       });
@@ -1051,12 +1051,36 @@
       "<div id='sti-ma-duree-sem' style='margin-top:5px;font-size:11px;font-weight:800;color:#177245'>⏱️ Cette semaine : calcul…</div>" +
       "</div>";
 
+    var btnSearchPan = document.createElement("button");
+    btnSearchPan.type = "button";
+    btnSearchPan.textContent = "🔍 Recherche rapide (Ctrl+K)";
+    btnSearchPan.style.cssText = "display:block;width:100%;margin:8px 0 0 auto;border:1.5px solid #23201a;background:linear-gradient(120deg,#fffdf7,#f3ead9);color:#23201a;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    btnSearchPan.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+      if (window.ouvrirRechercheGlobaleSTI) window.ouvrirRechercheGlobaleSTI("");
+    });
+    pan.appendChild(btnSearchPan);
+
+    var btnNotesPan = document.createElement("button");
+    btnNotesPan.type = "button";
+    btnNotesPan.textContent = "📝 Mes notes de révision";
+    btnNotesPan.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #23201a;background:#fff;color:#23201a;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    btnNotesPan.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+      if (window.ouvrirCarnetNotesSTI) window.ouvrirCarnetNotesSTI();
+    });
+    pan.appendChild(btnNotesPan);
+
     var btnBac = document.createElement("a");
     btnBac.id = "sti-btn-bac-pan";
     btnBac.href = cfg.RACINE + "bac-pratique.html";
     btnBac.textContent = "🧪 Atelier Bac Pratique (/20)";
     btnBac.hidden = !ok4SI;
-    btnBac.style.cssText = "display:" + (ok4SI ? "block" : "none") + ";margin:8px 0 0 auto;border:1.5px solid #23201a;background:#f3ead9;color:#23201a;text-decoration:none;text-align:center;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;";
+    btnBac.style.cssText = "display:" + (ok4SI ? "block" : "none") + ";margin:6px 0 0 auto;border:1.5px solid #23201a;background:#f3ead9;color:#23201a;text-decoration:none;text-align:center;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;";
     pan.appendChild(btnBac);
 
     var btnProf = document.createElement("button");
@@ -1432,7 +1456,19 @@
       imprimerContenuGold();
     });
 
+    var btnS = document.createElement("button");
+    btnS.type = "button";
+    btnS.textContent = "🔍";
+    btnS.title = "Recherche globale rapide (Ctrl+K)";
+    btnS.style.cssText = "background:#fffdf7;color:#23201a;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
+    btnS.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (window.ouvrirRechercheGlobaleSTI) window.ouvrirRechercheGlobaleSTI("");
+    });
+
     cont.appendChild(b);
+    cont.appendChild(btnS);
     cont.appendChild(btnP);
     (document.body || document.documentElement).appendChild(cont);
 
@@ -1579,4 +1615,512 @@
       insere();
     }).catch(function () { insere(); });
   }
+
+  /* =====================================================================
+     CONFORT D'UTILISATION ÉLÈVE (v68) :
+     1) Index de recherche profonde (chapitres, balises, fonctions, clauses SQL, annexes)
+     2) Palette de recherche globale rapide (Ctrl+K sur toutes les pages)
+     3) Reprise automatique de lecture (Marque-page intelligent par cours)
+     4) Carnet de notes personnel hors-ligne par cours (Alt+N ou menu élève)
+     ===================================================================== */
+  var STI_SEARCH_ITEMS = [
+    /* --- HTML5 --- */
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "En-tête & Structure d'une page HTML5", sub: "<!DOCTYPE html>, <head>, <meta charset>, <title>, <link>", url: "cours/html5.html#entete", kw: "doctype html head meta title link utf8 structure" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Balises sémantiques de structuration", sub: "<header>, <nav>, <main>, <section>, <article>, <aside>, <footer>", url: "cours/html5.html#structuration", kw: "header nav main section article aside footer semantique mise en page" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Conteneurs & blocs génériques", sub: "<div>, <span>, <details>, <summary>, <dialog>", url: "cours/html5.html#conteneurs", kw: "div span details summary dialog conteneur bloc inline" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Listes ordonnées, à puces et de définitions", sub: "<ul>, <ol>, <li>, <dl>, <dt>, <dd>, attribut type / start", url: "cours/html5.html#listes", kw: "ul ol li dl dt dd liste puces numerotee" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Tableaux HTML5 & fusion de cellules", sub: "<table>, <caption>, <thead>, <tbody>, <tfoot>, <tr>, <th>, <td>, rowspan, colspan", url: "cours/html5.html#tableaux", kw: "table tr td th thead tbody tfoot caption rowspan colspan tableau fusion" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Texte, liens, images, audio et vidéo", sub: "<a>, <img>, <figure>, <figcaption>, <audio>, <video>, <source>, controls, autoplay", url: "cours/html5.html#texte-media", kw: "a href img src alt figure figcaption audio video source media lien hypertexte" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Attributs globaux & événements HTML", sub: "id, class, name, onclick, onchange, onblur, oninput, onsubmit, onload", url: "cours/html5.html#attributs-evenements", kw: "onclick onchange onblur oninput onsubmit onkeydown onkeyup evenement attribut" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Attribut target & cadres intégrés (<iframe>)", sub: "_blank, _self, _parent, _top, <iframe name=...>, srcdoc", url: "cours/html5.html#iframe", kw: "iframe target blank self parent top cadre srcdoc" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Formulaires HTML5 & contrôles de saisie", sub: "<form>, <input>, <select>, <option>, <textarea>, <fieldset>, <legend>, <label>, <output>, required, pattern", url: "cours/html5.html#formulaires", kw: "form input text password number range date email tel radio checkbox select option textarea fieldset legend label output required pattern placeholder min max step" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Focus interactif sur la balise <datalist>", sub: "Suggestions d'auto-complétion reliées à <input list='...'>", url: "cours/datalist.html", kw: "datalist list option autocompletion suggestion input" },
+    { tech: "htmlcss", badge: "🌐 HTML5", title: "Fiche de révision HTML5 & Exemple « Le Fleuriste »", sub: "Synthèse des balises du Bac + formulaire complet commenté", url: "cours/fiche-revision-html5.html", kw: "fiche revision html5 fleuriste annexe resume" },
+
+    /* --- CSS3 --- */
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "1. Sélecteurs CSS3 & Pseudo-classes", sub: "Balise, .classe, #id, universel *, :hover, :focus, :active, :nth-child()", url: "cours/css3.html#point-1", kw: "selecteur class id hover focus active visited nth-child pseudo classe css" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "2. Polices, Typographie & Effets de texte", sub: "@font-face, font-family, font-size, font-weight, text-align, text-decoration, text-shadow, text-transform", url: "cours/css3.html#point-2", kw: "font-face font-family font-size font-weight font-style text-align text-decoration text-shadow text-transform line-height color" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "3. Arrière-plan & Dégradés CSS3", sub: "background-color, background-image, background-size, linear-gradient, radial-gradient", url: "cours/css3.html#point-3", kw: "background color image repeat position size cover linear-gradient radial-gradient degrade" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "4. Modèle de boîte & Propriété display", sub: "display: block, inline, inline-block, none, width, height, margin, padding", url: "cours/css3.html#point-4", kw: "display block inline inline-block none visibility margin padding width height box-sizing" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "5. Float, Positionnement & Flexbox", sub: "position (relative, absolute, fixed, sticky), display: flex, justify-content, align-items, flex-wrap", url: "cours/css3.html#point-5", kw: "float clear position static relative absolute fixed sticky flex flexbox justify-content align-items flex-direction gap z-index" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "6. Bordures, Coins arrondis & Ombres", sub: "border, border-radius, box-shadow, outline", url: "cours/css3.html#point-6", kw: "border solid dashed radius arrondi box-shadow ombre" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "7. Listes & Tableaux stylisés en CSS", sub: "list-style-type, border-collapse, border-spacing, caption-side", url: "cours/css3.html#point-7", kw: "list-style-type list-style-image border-collapse border-spacing empty-cells" },
+    { tech: "htmlcss", badge: "🎨 CSS3", title: "8. Transformations 2D, Transitions & Animations (@keyframes)", sub: "transform (rotate, scale, translate, skew), transition, @keyframes, animation, filter", url: "cours/css3.html#point-8", kw: "transform rotate scale translate skew transition keyframes animation duration infinite filter blur opacity" },
+    { tech: "htmlcss", badge: "🎨 Animation", title: "Leçon animée : CSS pas à pas", sub: "Visualiser en direct la construction d'une page HTML5/CSS3", url: "cssanimee/index.html", kw: "css pas a pas animation interactive lecon" },
+    { tech: "htmlcss", badge: "🎨 Animation", title: "Simulateur de Positionnement & Flexbox animé", sub: "Manipuler static, relative, absolute, fixed et Flexbox", url: "Positionnement-animee/index.html", kw: "positionnement anime flexbox simulateur" },
+
+    /* --- JavaScript --- */
+    { tech: "js", badge: "📜 JavaScript", title: "Introduction & Intégration du code JS", sub: "Balise <script>, fichier externe .js, attributs defer / async", url: "cours/javascript.html#sec2", kw: "script src defer async placer javascript externe" },
+    { tech: "js", badge: "📜 JavaScript", title: "Variables, Types & Opérateurs", sub: "var, let, const, portée locale/globale, typeof, +, -, *, /, %", url: "cours/javascript.html#sec3", kw: "var let const variable portee globale locale typeof operateur modulo" },
+    { tech: "js", badge: "📜 JavaScript", title: "Entrées / Sorties & Boîtes de dialogue", sub: "alert(), prompt(), confirm(), document.write(), console.log(), innerHTML", url: "cours/javascript.html#sec5", kw: "alert prompt confirm console log document write innerhtml entree sortie" },
+    { tech: "js", badge: "📜 JavaScript", title: "Fonctions globales de conversion & test", sub: "parseInt(), parseFloat(), Number(), String(), isNaN(), eval()", url: "cours/javascript.html#sec7", kw: "parseint parsefloat number string isnan conversion numerique" },
+    { tech: "js", badge: "📜 JavaScript", title: "Objet Math (calculs et hasard)", sub: "Math.abs(), Math.sqrt(), Math.round(), Math.trunc(), Math.floor(), Math.random(), Math.pow()", url: "cours/javascript.html#sec8", kw: "math abs sqrt round trunc floor ceil random pow min max pi aleatoire" },
+    { tech: "js", badge: "📜 JavaScript", title: "Chaînes de caractères (Objet String)", sub: "ch.length, indexOf, lastIndexOf, substring, substr, charAt, charCodeAt, String.fromCharCode, toUpperCase, toLowerCase, trim, replace", url: "cours/javascript.html#sec9", kw: "string chaine length indexof lastindexof substring substr slice charat charcodeat fromcharcode touppercase tolowercase trim replace split" },
+    { tech: "js", badge: "📜 JavaScript", title: "Tableaux JavaScript (Objet Array)", sub: "new Array(), [], length, push(), pop(), join(), sort(), reverse()", url: "cours/javascript.html#sec10", kw: "array tableau length push pop shift unshift join sort reverse indice" },
+    { tech: "js", badge: "📜 JavaScript", title: "Objet Date (gestion des dates et heures)", sub: "new Date(), getFullYear(), getMonth(), getDate(), getDay(), getHours(), getMinutes()", url: "cours/javascript.html#sec11", kw: "date getfullyear getmonth getdate getday gethours getminutes gettime annee mois jour" },
+    { tech: "js", badge: "📜 JavaScript", title: "Structures conditionnelles & Boucles", sub: "if / else, switch / case, opérateur ternaire, for, while, do...while", url: "cours/javascript.html#sec12", kw: "if else switch case break default for while do boucle condition" },
+    { tech: "js", badge: "📜 JavaScript", title: "Fonctions en JavaScript", sub: "function nom(param), return, passage de paramètres, appel sur événement", url: "cours/javascript.html#sec14", kw: "function fonction return parametre argument" },
+    { tech: "js", badge: "📜 JavaScript", title: "Manipulation du DOM & Formulaires en JS", sub: "document.getElementById(), getElementsByName(), querySelector(), .value, .checked, .selectedIndex, .style", url: "cours/javascript.html#sec15", kw: "dom document getelementbyid getelementsbyname queryselector queryselectorall value checked selectedindex options focus style classlist" },
+    { tech: "js", badge: "📜 Fonctions Bac", title: "Fonctions standards JS (verifnom, alpha, numérique, email)", sub: "Algorithmes classiques de contrôle de saisie en JavaScript", url: "exercices/resume-fonctions-standards.html#js", kw: "verifnom verifmail alpha alphanumerique controle saisie bac formulaire" },
+
+    /* --- SQL --- */
+    { tech: "sql", badge: "🗄️ SQL", title: "1. Introduction : BD, SGBD & Sous-langages (LDD, LMD, LCD)", sub: "Concepts de base de données relationnelle, tables, colonnes (attributs) et lignes (tuples)", url: "cours/sql.html#intro", kw: "bd sgbd base de donnees ldd lmd lcd table tuple attribut relation" },
+    { tech: "sql", badge: "🗄️ SQL", title: "Clé primaire (PRIMARY KEY) & Clé étrangère (FOREIGN KEY)", sub: "Identification unique, intégrité référentielle et relations 1:N / N:M entre tables", url: "cours/sql.html#intro-cles", kw: "primary key foreign key references cle primaire cle etrangere relation parent enfant" },
+    { tech: "sql", badge: "🗄️ SQL · LDD", title: "CREATE TABLE & Types de données SQL", sub: "INT, DECIMAL(p,d), CHAR(n) vs VARCHAR(n), DATE, DATETIME, TEXT, AUTO_INCREMENT", url: "cours/sql.html#ldd-create", kw: "create table int integer decimal float char varchar text date time datetime timestamp auto_increment" },
+    { tech: "sql", badge: "🗄️ SQL · LDD", title: "Contraintes SQL, REFERENCES & ON DELETE / ON UPDATE CASCADE", sub: "PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, DEFAULT, CHECK, ON DELETE CASCADE", url: "cours/sql.html#ldd-constraints", kw: "constraint check not null unique default references on delete cascade on update cascade restrict integrite" },
+    { tech: "sql", badge: "🎬 Simulateur SQL", title: "Animation interactive : Voir l'effet des contraintes SQL", sub: "Simuler en direct CHAR vs VARCHAR, CHECK, ON UPDATE CASCADE et ON DELETE CASCADE / RESTRICT", url: "cours/sql-contraintes.html", kw: "simulateur animation contraintes char varchar check on update cascade on delete cascade restrict erreur 1451 3819 1406" },
+    { tech: "sql", badge: "🗄️ SQL · LDD", title: "ALTER TABLE & DROP TABLE (Modifier ou supprimer une structure)", sub: "ADD COLUMN, MODIFY, CHANGE, DROP COLUMN, ADD CONSTRAINT, DROP TABLE, DROP DATABASE", url: "cours/sql.html#ldd-alter", kw: "alter table add modify change drop column constraint rename drop database" },
+    { tech: "sql", badge: "🗄️ SQL · LMD", title: "INSERT INTO, UPDATE & DELETE (Mise à jour des données)", sub: "Insérer des lignes, modifier avec UPDATE ... SET ... WHERE, supprimer avec DELETE FROM", url: "cours/sql.html#lmd", kw: "insert into values update set where delete from lmd manipulation" },
+    { tech: "sql", badge: "🗄️ SQL · LMD", title: "SELECT, WHERE, ORDER BY, Jointures & Opérateurs SQL", sub: "Projection, restriction, DISTINCT, BETWEEN, IN, LIKE (% _), IS NULL, jointures entre tables", url: "cours/sql.html#lmd-aggr", kw: "select from where and or not distinct order by asc desc between in like null limit jointure inner join" },
+    { tech: "sql", badge: "🗄️ SQL · LMD", title: "Fonctions d'agrégation, GROUP BY & HAVING", sub: "COUNT(), SUM(), AVG(), MIN(), MAX(), regroupement GROUP BY et filtre HAVING", url: "cours/sql.html#lmd-aggr", kw: "count sum avg min max group by having agregation statistique" },
+    { tech: "sql", badge: "🗄️ SQL · Fonctions", title: "Fonctions SQL sur les chaînes et les dates", sub: "CONCAT, LENGTH, UPPER, LOWER, SUBSTR, NOW(), CURDATE(), YEAR(), MONTH(), DAY(), DATEDIFF()", url: "cours/sql.html#lmd-strings", kw: "concat length char_length upper lower substr substring trim now curdate year month day datediff date_add" },
+    { tech: "sql", badge: "🗄️ SQL · Fiche", title: "Fiche synthèse SQL : LDD, LMD, LCD commentés", sub: "Récapitulatif rapide de toutes les commandes SQL avec exemples", url: "cours/sql-bases-ldd-lmd-lcd.html", kw: "fiche recap sql ldd lmd lcd resume commandes" },
+
+    /* --- PHP & MySQLi (réservé 4SI / elevelabo3 / Prof) --- */
+    { tech: "php", only4si: true, badge: "🐘 PHP", title: "Principe Client / Serveur & Syntaxe générale PHP", sub: "Balises <?php ... ?>, echo, print, commentaires, exécution côté serveur", url: "cours/php.html#s1b", kw: "php client serveur apache echo print syntaxe script" },
+    { tech: "php", only4si: true, badge: "🐘 PHP", title: "Variables, Types, Opérateurs & Fonctions de test", sub: "$variable, constantes define, isset(), empty(), unset(), is_numeric(), settype()", url: "cours/php.html#s2", kw: "variable dollar define constante isset empty unset is_numeric gettype settype" },
+    { tech: "php", only4si: true, badge: "🐘 PHP", title: "Chaînes de caractères & Tableaux en PHP", sub: "strlen, strpos, substr, strtoupper, strtolower, trim, explode, array(), foreach, count()", url: "cours/php.html#s4", kw: "strlen strpos substr str_replace strtoupper strtolower trim explode implode array tableau associatif foreach count" },
+    { tech: "php", only4si: true, badge: "🐘 PHP", title: "Fonctions de Date & Heure en PHP", sub: "date('Y-m-d'), time(), checkdate(), getdate(), mktime(), strtotime()", url: "cours/php.html#s6", kw: "date time checkdate getdate mktime strtotime timestamp heure" },
+    { tech: "php", only4si: true, badge: "🐘 PHP", title: "Formulaires & Variables Superglobales ($_POST, $_GET)", sub: "Récupération des champs HTML avec $_POST['...'], $_GET['...'], $_SERVER, require / include", url: "cours/php.html#s7", kw: "post get request server superglobale formulaire action method include require header" },
+    { tech: "php", only4si: true, badge: "🐘 MySQLi", title: "Dialogue PHP ↔ MySQL : Fonctions MySQLi essentielles", sub: "mysqli_connect, mysqli_select_db, mysqli_query, mysqli_fetch_array, mysqli_fetch_row, mysqli_num_rows, mysqli_affected_rows, mysqli_close", url: "cours/php.html#s8-2", kw: "mysqli connect query fetch_array fetch_row fetch_assoc num_rows affected_rows error close base de donnees" },
+    { tech: "php", only4si: true, badge: "🎬 Animation PHP", title: "Animation interactive : Le Guichet PHP ↔ MySQL", sub: "Suivre étape par étape le trajet d'une requête entre le navigateur, PHP et MySQL", url: "cours/php-mysqli.html", kw: "animation guichet php mysql mysqli etapes" },
+    { tech: "php", only4si: true, badge: "🪄 PHP-recap", title: "Fiche magique PHP-recap (Synthèse complète Bac)", sub: "Toutes les fonctions PHP, MySQLi et patrons d'insertion / sélection en un coup d'œil", url: "cours/PHP-recap.html", kw: "php recap fiche revision synthese" },
+    { tech: "php", only4si: true, badge: "🧪 Bac Pratique", title: "Atelier Bac Pratique & Projet STI 0", sub: "Énoncés types Bac Pratique notés sur 20 + Projet complet STI 0 avec corrigé", url: "bac-pratique.html", kw: "bac pratique examen sujet corrige projet sti0" },
+
+    /* --- Séries d'exercices & Annexes --- */
+    { tech: "all", badge: "✏️ Exercices", title: "Séries d'exercices corrigés (CSS3, JS, BD/SQL, PHP)", sub: "Exercices progressifs et problèmes types Bac", url: "exercices/series-exercices.html", kw: "exercices series td corrige revision entrainement" },
+    { tech: "all", badge: "📄 Annexe", title: "Annexe officielle HTML5 / CSS3 / JavaScript", sub: "Aide-mémoire officiel des balises, propriétés et méthodes", url: "documents/annexes/annexe-html-css-js.pdf.html", kw: "annexe pdf html css javascript aide memoire" },
+    { tech: "sql", badge: "📄 Annexe", title: "Annexe officielle SQL", sub: "Aide-mémoire officiel des commandes LDD et LMD", url: "documents/annexes/annexe-sql.pdf.html", kw: "annexe pdf sql aide memoire" }
+  ];
+
+  function normaliserTexteSTI(t) {
+    return (t || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function est4SIAutoriseActuel() {
+    return document.documentElement.classList.contains("sti-4si-autorise") ||
+      estAutorise4SI(currentClasse, Boolean(localStorage.getItem("sti-admin-gold") === "1"));
+  }
+
+  window.STI_SEARCH_INDEX = STI_SEARCH_ITEMS;
+
+  window.rechercherChapitresSTI = function (requete, filtreTech) {
+    var q = normaliserTexteSTI(requete);
+    var ok4 = est4SIAutoriseActuel();
+    var mots = q ? q.split(" ").filter(Boolean) : [];
+    var resultats = [];
+
+    for (var i = 0; i < STI_SEARCH_ITEMS.length; i++) {
+      var it = STI_SEARCH_ITEMS[i];
+      if (it.only4si && !ok4) continue;
+      if (filtreTech && filtreTech !== "all" && it.tech !== "all" && it.tech !== filtreTech) continue;
+
+      if (!mots.length) {
+        resultats.push({ item: it, score: 1 });
+        continue;
+      }
+
+      var haystackTitle = normaliserTexteSTI(it.title);
+      var haystackSub = normaliserTexteSTI(it.sub);
+      var haystackKw = normaliserTexteSTI(it.kw + " " + it.badge);
+      var haystackAll = haystackTitle + " " + haystackSub + " " + haystackKw;
+
+      var tousPresents = true;
+      var score = 0;
+      for (var m = 0; m < mots.length; m++) {
+        var mot = mots[m];
+        if (haystackAll.indexOf(mot) === -1) {
+          tousPresents = false;
+          break;
+        }
+        if (haystackTitle.indexOf(mot) !== -1) score += 5;
+        if (haystackKw.indexOf(mot) !== -1) score += 3;
+        if (haystackSub.indexOf(mot) !== -1) score += 2;
+      }
+      if (tousPresents) {
+        resultats.push({ item: it, score: score });
+      }
+    }
+
+    resultats.sort(function (a, b) { return b.score - a.score; });
+    return resultats.map(function (r) { return r.item; });
+  };
+
+  /* ---------- Palette de Recherche Globale (Ctrl+K sur toutes les pages) ---------- */
+  window.ouvrirRechercheGlobaleSTI = function (qInit) {
+    var exist = document.getElementById("sti-global-search-modal");
+    if (exist) exist.remove();
+
+    var racine = cfg.RACINE || "./";
+    var fond = document.createElement("div");
+    fond.id = "sti-global-search-modal";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.72);backdrop-filter:blur(5px);display:flex;align-items:flex-start;justify-content:center;padding:min(8vh,56px) 14px 18px;font:600 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:2.5px solid #23201a;border-radius:20px;max-width:650px;width:100%;max-height:82vh;display:flex;flex-direction:column;box-shadow:7px 7px 0 #f4511e,0 24px 60px rgba(0,0,0,.45);overflow:hidden;color-scheme:light;";
+
+    boite.innerHTML =
+      "<div style='display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:2px solid #23201a;background:#f9f1e3'>" +
+      "<span style='font-size:18px'>🔍</span>" +
+      "<input type='search' id='sti-gs-input' placeholder='Rechercher un chapitre, une balise, une fonction ou une clause SQL (ex : CASCADE, CHECK, datalist, flexbox, substring)…' style='flex:1;border:2px solid #23201a;border-radius:11px;padding:9px 12px;font:700 13.5px/1.3 system-ui,sans-serif;background:#fff;color:#23201a;outline:none' />" +
+      "<button type='button' id='sti-gs-close' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:10px;padding:6px 11px;font-weight:900;font-size:12px;cursor:pointer'>Échap ✕</button>" +
+      "</div>" +
+      "<div id='sti-gs-chips' style='display:flex;gap:6px;flex-wrap:wrap;padding:8px 16px;background:#fffdf7;border-bottom:1px dashed #e2d5be;font-size:11.5px'>" +
+      "<span style='color:#7a6f5d;font-weight:800;margin-right:2px'>Suggestions :</span>" +
+      "<button type='button' data-q='cascade' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>ON DELETE CASCADE</button>" +
+      "<button type='button' data-q='char varchar' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>CHAR vs VARCHAR</button>" +
+      "<button type='button' data-q='datalist' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>&lt;datalist&gt;</button>" +
+      "<button type='button' data-q='flexbox' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>Flexbox</button>" +
+      "<button type='button' data-q='substring' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>Chaînes JS</button>" +
+      "<button type='button' data-q='group by' style='border:1.5px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:2px 9px;font-weight:800;font-size:11px;cursor:pointer'>GROUP BY / HAVING</button>" +
+      "</div>" +
+      "<div id='sti-gs-list' style='padding:10px 14px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:7px'></div>" +
+      "<div style='padding:8px 16px;border-top:1.5px solid #e2d5be;background:#f9f1e3;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#7a6f5d;font-weight:700'>" +
+      "<span>💡 Astuce : appuyez sur <b>Ctrl + K</b> sur n'importe quelle page pour ouvrir cette recherche</span>" +
+      "<span>↑↓ Naviguer · Entrée Ouvrir</span>" +
+      "</div>";
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var inp = boite.querySelector("#sti-gs-input");
+    var listEl = boite.querySelector("#sti-gs-list");
+    var selIdx = 0;
+    var currentLinks = [];
+
+    function renderList() {
+      var items = window.rechercherChapitresSTI(inp.value, "all").slice(0, 18);
+      selIdx = 0;
+      if (!items.length) {
+        listEl.innerHTML = "<div style='padding:22px;text-align:center;color:#7a6f5d;font-weight:700'>Aucun chapitre trouvé pour « " + esc(inp.value) + " ». Essayez un mot plus court (ex : <b>table</b>, <b>date</b>, <b>check</b>, <b>dom</b>).</div>";
+        currentLinks = [];
+        return;
+      }
+      listEl.innerHTML = items.map(function (it, idx) {
+        var href = racine + it.url;
+        return "<a href='" + esc(href) + "' class='sti-gs-item' data-idx='" + idx + "' style='display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:12px;border:1.8px solid " + (idx === 0 ? "#f4511e" : "#e2d5be") + ";background:" + (idx === 0 ? "#fff5ee" : "#ffffff") + ";color:#23201a;text-decoration:none;transition:transform .12s,border-color .12s'>" +
+          "<div style='min-width:0'>" +
+          "<div style='display:flex;align-items:center;gap:7px;flex-wrap:wrap'>" +
+          "<span style='display:inline-block;padding:1px 8px;border-radius:999px;border:1.5px solid #23201a;background:#f3ead9;font-size:10.5px;font-weight:900'>" + esc(it.badge) + "</span>" +
+          "<strong style='font-size:13px;color:#23201a'>" + esc(it.title) + "</strong>" +
+          "</div>" +
+          "<div style='font-size:11.5px;color:#5a5244;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>" + esc(it.sub) + "</div>" +
+          "</div>" +
+          "<span style='font-weight:900;color:#f4511e;font-size:14px;flex-shrink:0'>➔</span>" +
+          "</a>";
+      }).join("");
+      currentLinks = Array.prototype.slice.call(listEl.querySelectorAll(".sti-gs-item"));
+      currentLinks.forEach(function (a) {
+        a.addEventListener("click", function () {
+          fond.remove();
+        });
+      });
+    }
+
+    function majSelection(nvIdx) {
+      if (!currentLinks.length) return;
+      selIdx = (nvIdx + currentLinks.length) % currentLinks.length;
+      currentLinks.forEach(function (a, i) {
+        var actif = i === selIdx;
+        a.style.borderColor = actif ? "#f4511e" : "#e2d5be";
+        a.style.background = actif ? "#fff5ee" : "#ffffff";
+        if (actif && a.scrollIntoView) a.scrollIntoView({ block: "nearest" });
+      });
+    }
+
+    boite.querySelector("#sti-gs-close").addEventListener("click", function () { fond.remove(); });
+    fond.addEventListener("click", function (e) { if (e.target === fond) fond.remove(); });
+    boite.querySelectorAll("#sti-gs-chips button[data-q]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        inp.value = b.getAttribute("data-q") || "";
+        renderList();
+        inp.focus();
+      });
+    });
+
+    inp.value = qInit || "";
+    inp.addEventListener("input", renderList);
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { e.preventDefault(); majSelection(selIdx + 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); majSelection(selIdx - 1); }
+      else if (e.key === "Enter" && currentLinks[selIdx]) {
+        e.preventDefault();
+        var href = currentLinks[selIdx].getAttribute("href");
+        fond.remove();
+        if (href) location.href = href;
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        fond.remove();
+      }
+    });
+
+    renderList();
+    setTimeout(function () { inp.focus(); inp.select(); }, 20);
+  };
+
+  /* Raccourci clavier global Ctrl+K (et Alt+N pour les notes) sur toutes les pages */
+  if (window === window.top) {
+    document.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key || "").toLowerCase() === "k") {
+        var modSearch = document.getElementById("moduleSearch");
+        /* Sur index.html, si #moduleSearch est visible et pas déjà focus, on focus #moduleSearch ;
+           si on refait Ctrl+K ou sur toute autre page, on ouvre la palette globale */
+        if (modSearch && document.activeElement !== modSearch && !document.getElementById("sti-global-search-modal")) {
+          e.preventDefault();
+          modSearch.focus();
+          modSearch.select();
+          return;
+        }
+        e.preventDefault();
+        window.ouvrirRechercheGlobaleSTI(modSearch ? modSearch.value : "");
+      } else if (e.altKey && (e.key || "").toLowerCase() === "n") {
+        e.preventDefault();
+        if (window.ouvrirCarnetNotesSTI) window.ouvrirCarnetNotesSTI();
+      }
+    });
+  }
+
+  /* ---------- Carnet de notes personnel hors-ligne par cours (Alt+N) ---------- */
+  window.ouvrirCarnetNotesSTI = function () {
+    var exist = document.getElementById("sti-notes-modal");
+    if (exist) exist.remove();
+
+    var CLE_NOTES = "sti-notes-eleve";
+    var notesObj = {};
+    try { notesObj = JSON.parse(localStorage.getItem(CLE_NOTES) || "{}") || {}; } catch (e) {}
+
+    var clePage = (chemin || "accueil").replace(/^\/+|\/+$/g, "") || "accueil";
+    var titrePage = (document.title || clePage).replace(/\s*[—–|-]\s*STI.*$/i, "").trim();
+    var ongletActif = clePage;
+
+    var fond = document.createElement("div");
+    fond.id = "sti-notes-modal";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.68);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;font:600 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:2.5px solid #23201a;border-radius:20px;padding:18px 20px;max-width:520px;width:100%;box-shadow:6px 6px 0 #f4511e;color-scheme:light;";
+    boite.innerHTML =
+      "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px'>" +
+      "<h3 style='margin:0;font-size:16px;font-weight:900;color:#f4511e'>📝 Mes notes de révision personnelles</h3>" +
+      "<button type='button' id='sti-notes-close' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:4px 10px;font-weight:900;font-size:12px;cursor:pointer'>✕</button>" +
+      "</div>" +
+      "<div style='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap'>" +
+      "<button type='button' id='sti-tab-page' style='border:2px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:5px 12px;font-weight:800;font-size:11.5px;cursor:pointer'>📄 Sur cette page (" + esc(titrePage.slice(0, 26)) + ")</button>" +
+      "<button type='button' id='sti-tab-global' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:5px 12px;font-weight:800;font-size:11.5px;cursor:pointer'>📌 Mémo général Bac STI</button>" +
+      "</div>" +
+      "<textarea id='sti-notes-area' style='width:100%;min-height:170px;border:2px solid #23201a;border-radius:12px;padding:11px;font:600 13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:#fff;color:#23201a;resize:vertical' placeholder='Écrivez vos remarques, formules SQL, astuces JS/HTML/CSS… (sauvegardé automatiquement hors-ligne sur votre appareil)'></textarea>" +
+      "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px'>" +
+      "<span id='sti-notes-stat' style='font-size:11.5px;color:#177245;font-weight:800'>✓ Sauvegarde automatique hors-ligne</span>" +
+      "<div style='display:flex;gap:7px'>" +
+      "<button type='button' id='sti-notes-copy' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:6px 12px;font-weight:800;font-size:11.5px;cursor:pointer'>📋 Copier</button>" +
+      "<button type='button' id='sti-notes-dl' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:6px 13px;font-weight:900;font-size:11.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>⬇️ .txt</button>" +
+      "</div></div>";
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var area = boite.querySelector("#sti-notes-area");
+    var stat = boite.querySelector("#sti-notes-stat");
+    var tabPage = boite.querySelector("#sti-tab-page");
+    var tabGlobal = boite.querySelector("#sti-tab-global");
+
+    function chargerOnglet(cle) {
+      ongletActif = cle;
+      area.value = notesObj[cle] || "";
+      var estPage = cle === clePage;
+      tabPage.style.background = estPage ? "#f4511e" : "#f3ead9";
+      tabPage.style.color = estPage ? "#fff" : "#23201a";
+      tabGlobal.style.background = !estPage ? "#f4511e" : "#f3ead9";
+      tabGlobal.style.color = !estPage ? "#fff" : "#23201a";
+      area.focus();
+    }
+
+    area.addEventListener("input", function () {
+      notesObj[ongletActif] = area.value;
+      try { localStorage.setItem(CLE_NOTES, JSON.stringify(notesObj)); } catch (e) {}
+      stat.textContent = "✓ Enregistré (" + area.value.length + " car.)";
+    });
+
+    tabPage.addEventListener("click", function () { chargerOnglet(clePage); });
+    tabGlobal.addEventListener("click", function () { chargerOnglet("__global__"); });
+    boite.querySelector("#sti-notes-close").addEventListener("click", function () { fond.remove(); });
+    fond.addEventListener("click", function (e) { if (e.target === fond) fond.remove(); });
+
+    boite.querySelector("#sti-notes-copy").addEventListener("click", function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(area.value || "").then(function () {
+          stat.textContent = "✅ Copié dans le presse-papiers !";
+        });
+      }
+    });
+
+    boite.querySelector("#sti-notes-dl").addEventListener("click", function () {
+      var contenu = "=== MES NOTES DE RÉVISION STI ===\n\n" +
+        "[Page : " + titrePage + "]\n" + (notesObj[clePage] || "(Aucune note)") + "\n\n" +
+        "[Mémo général Bac STI]\n" + (notesObj["__global__"] || "(Aucune note)") + "\n";
+      var blob = new Blob([contenu], { type: "text/plain;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "mes-notes-sti.txt";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+    });
+
+    chargerOnglet(clePage);
+  };
+
+  /* ---------- Reprise automatique de lecture (Marque-page intelligent par cours) ---------- */
+  (function installerRepriseLectureAuto() {
+    if (window !== window.top) return;
+    var p = (location.pathname || "").toLowerCase();
+    var CLE_BM = "sti-reading-bookmarks";
+    var CLE_LAST = "sti-last-reading";
+
+    var mapCours = [
+      { match: "cours/html5.html", id: "html5", name: "Cours HTML5", icon: "🌐", relUrl: "cours/html5.html", only4si: false },
+      { match: "cours/courshtml5.html", id: "html5", name: "Cours HTML5", icon: "🌐", relUrl: "cours/html5.html", only4si: false },
+      { match: "cours/css3.html", id: "css3", name: "Cours CSS3", icon: "🎨", relUrl: "cours/css3.html", only4si: false },
+      { match: "cours/courscss3.html", id: "css3", name: "Cours CSS3", icon: "🎨", relUrl: "cours/css3.html", only4si: false },
+      { match: "cours/javascript.html", id: "js", name: "Cours JavaScript", icon: "📜", relUrl: "cours/javascript.html", only4si: false },
+      { match: "cours/sql.html", id: "sql", name: "Cours SQL", icon: "🗄️", relUrl: "cours/sql.html", only4si: false },
+      { match: "cours/php.html", id: "php", name: "Cours PHP & MySQL", icon: "🐘", relUrl: "cours/php.html", only4si: true },
+      { match: "cours/coursphp.html", id: "php", name: "Cours PHP & MySQL", icon: "🐘", relUrl: "cours/php.html", only4si: true },
+      { match: "exercices/resume-fonctions-standards.html", id: "fn_std", name: "Fonctions Standards", icon: "🧩", relUrl: "exercices/resume-fonctions-standards.html", only4si: false },
+      { match: "exercices/series-exercices.html", id: "series", name: "Séries d'exercices", icon: "✏️", relUrl: "exercices/series-exercices.html", only4si: false }
+    ];
+
+    var infoCours = null;
+    for (var i = 0; i < mapCours.length; i++) {
+      if (p.indexOf(mapCours[i].match) !== -1) {
+        infoCours = mapCours[i];
+        break;
+      }
+    }
+    if (!infoCours) return;
+
+    function lireBookmarks() {
+      try { return JSON.parse(localStorage.getItem(CLE_BM) || "{}") || {}; } catch (e) { return {}; }
+    }
+
+    function extraireTitreSection(el) {
+      if (!el) return "";
+      var h = el.matches("h1,h2,h3,h4") ? el : el.querySelector("h1,h2,h3,h4");
+      var raw = (h ? h.textContent : el.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim();
+      return raw.slice(0, 68);
+    }
+
+    function collecterSections() {
+      var candidats = Array.prototype.slice.call(
+        document.querySelectorAll("section[id], article[id], div.card[id], div.sub-card[id], h2[id], h3[id]")
+      );
+      var ignores = { top: 1, "main-content": 1, "nav-links": 1, now: 1, scrim: 1, levelBar: 1, "win-body": 1, pdfModal: 1 };
+      return candidats.filter(function (el) {
+        var id = el.id || "";
+        if (!id || ignores[id] || /^(modal|tpl-|dl-|anim|recap|sqlContraintes|to-top|m-|s-)/.test(id)) return false;
+        return Boolean(extraireTitreSection(el));
+      });
+    }
+
+    /* Si un marque-page existe déjà pour ce cours et que l'élève arrive sans #hash précis, proposer de reprendre */
+    function proposerRepriseInitiale() {
+      if (location.hash && location.hash.length > 1) return;
+      var bms = lireBookmarks();
+      var saved = bms[infoCours.id];
+      if (!saved || !saved.pct || saved.pct < 6 || saved.pct > 97) return;
+
+      var toast = document.createElement("div");
+      toast.id = "sti-resume-toast";
+      toast.className = "sti-no-print";
+      toast.style.cssText = "position:fixed;left:14px;bottom:14px;z-index:2147483644;background:#fffdf7;color:#23201a;border:2.5px solid #23201a;border-radius:16px;padding:10px 13px;box-shadow:5px 5px 0 #f4511e,0 12px 28px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;max-width:min(430px,calc(100vw - 90px));font:700 12.5px/1.35 system-ui,'Segoe UI',sans-serif;color-scheme:light;";
+      var labelChap = saved.sectionTitle ? saved.sectionTitle : ("Progression " + saved.pct + " %");
+      toast.innerHTML =
+        "<span style='font-size:18px;flex-shrink:0'>📍</span>" +
+        "<div style='min-width:0;flex:1'>" +
+        "<div style='font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#7a6f5d;font-weight:900'>Reprendre votre lecture (" + saved.pct + " %)</div>" +
+        "<div style='font-weight:800;color:#23201a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>" + esc(labelChap) + "</div>" +
+        "</div>" +
+        "<button type='button' id='sti-resume-go' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:6px 12px;font-weight:900;font-size:11.5px;cursor:pointer;flex-shrink:0;box-shadow:2px 2px 0 #23201a'>Reprendre ➔</button>" +
+        "<button type='button' id='sti-resume-close' title='Fermer' style='border:1.5px solid #23201a;background:#fff;color:#23201a;border-radius:999px;width:24px;height:24px;font-weight:900;font-size:11px;cursor:pointer;flex-shrink:0'>✕</button>";
+
+      (document.body || document.documentElement).appendChild(toast);
+
+      toast.querySelector("#sti-resume-go").addEventListener("click", function () {
+        var cible = saved.sectionId ? document.getElementById(saved.sectionId) : null;
+        if (cible && cible.scrollIntoView) {
+          cible.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          var maxH = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo({ top: Math.round((saved.pct / 100) * Math.max(0, maxH)), behavior: "smooth" });
+        }
+        toast.remove();
+      });
+      toast.querySelector("#sti-resume-close").addEventListener("click", function () {
+        toast.remove();
+      });
+      setTimeout(function () {
+        if (toast && toast.parentNode) toast.remove();
+      }, 14000);
+    }
+
+    var timerSave = null;
+    function sauvegarderPositionCourante() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      if (max <= 200) return;
+      var y = window.scrollY || h.scrollTop || 0;
+      var pct = Math.max(0, Math.min(100, Math.round((y / max) * 100)));
+      if (pct < 4) return;
+
+      var sections = collecterSections();
+      var secCourante = null;
+      for (var i = 0; i < sections.length; i++) {
+        var rect = sections[i].getBoundingClientRect();
+        if (rect.top <= 200) secCourante = sections[i];
+      }
+      if (!secCourante && sections.length) secCourante = sections[0];
+
+      var secId = secCourante ? secCourante.id : "";
+      var secTitle = secCourante ? extraireTitreSection(secCourante) : infoCours.name;
+
+      var entree = {
+        courseId: infoCours.id,
+        courseName: infoCours.name,
+        icon: infoCours.icon,
+        relUrl: infoCours.relUrl,
+        only4si: Boolean(infoCours.only4si),
+        sectionId: secId,
+        sectionTitle: secTitle,
+        pct: pct,
+        ts: Date.now()
+      };
+
+      try {
+        var bms = lireBookmarks();
+        bms[infoCours.id] = entree;
+        localStorage.setItem(CLE_BM, JSON.stringify(bms));
+        localStorage.setItem(CLE_LAST, JSON.stringify(entree));
+      } catch (e) {}
+    }
+
+    window.addEventListener("scroll", function () {
+      if (timerSave) clearTimeout(timerSave);
+      timerSave = setTimeout(sauvegarderPositionCourante, 350);
+    }, { passive: true });
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", proposerRepriseInitiale);
+    } else {
+      setTimeout(proposerRepriseInitiale, 250);
+    }
+  })();
 })();

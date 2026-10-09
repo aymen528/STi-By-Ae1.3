@@ -2473,7 +2473,199 @@
         </div>
       </section>
 
-      <!-- ======================= Barre de recherche & filtre rapide ======================= -->
+      <!-- ======================= Reprise automatique de lecture & Barre de recherche ======================= -->
+      <style>
+        .resume-banner {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin: 0 0 14px;
+          padding: 13px 18px;
+          border-radius: 18px;
+          border: 1.5px solid color-mix(in srgb, var(--accent) 42%, var(--border));
+          background: linear-gradient(
+            120deg,
+            color-mix(in srgb, var(--accent) 11%, var(--surface)),
+            var(--surface)
+          );
+          box-shadow: var(--shadow-sm);
+        }
+        .resume-banner[hidden] {
+          display: none !important;
+        }
+        .resume-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+          flex: 1;
+        }
+        .resume-icon {
+          width: 42px;
+          height: 42px;
+          border-radius: 12px;
+          background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+          border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+          display: grid;
+          place-items: center;
+          font-size: 1.3rem;
+          flex-shrink: 0;
+        }
+        .resume-meta {
+          min-width: 0;
+          flex: 1;
+        }
+        .resume-kicker {
+          font-size: 0.72rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--accent);
+        }
+        .resume-title {
+          font-size: 0.94rem;
+          font-weight: 800;
+          color: var(--ink);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .resume-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .resume-go-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 15px;
+          border-radius: 999px;
+          background: linear-gradient(120deg, var(--accent), var(--accent-2));
+          color: #fff;
+          font-weight: 800;
+          font-size: 0.84rem;
+          text-decoration: none;
+          box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 60%, transparent);
+          transition: transform 0.16s ease;
+        }
+        .resume-go-btn:hover {
+          transform: translateY(-1px);
+        }
+        .resume-close-btn {
+          width: 30px;
+          height: 30px;
+          border-radius: 999px;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          color: var(--muted);
+          font-weight: 800;
+          cursor: pointer;
+        }
+        .course-bookmark-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          margin-top: 6px;
+          padding: 3px 9px;
+          border-radius: 999px;
+          font-size: 0.72rem;
+          font-weight: 700;
+          background: color-mix(in srgb, var(--accent) 13%, var(--bg));
+          color: var(--accent);
+          border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .deep-search-box {
+          margin: -6px 0 18px;
+          padding: 14px 16px;
+          border-radius: 18px;
+          background: var(--surface);
+          border: 1.5px solid var(--border-strong);
+          box-shadow: var(--shadow-md);
+        }
+        .deep-search-box[hidden] {
+          display: none !important;
+        }
+        .deep-search-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          margin-bottom: 10px;
+          font-size: 0.8rem;
+          font-weight: 800;
+          color: var(--muted);
+        }
+        .deep-search-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 9px;
+        }
+        .deep-search-item {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+          padding: 10px 12px;
+          border-radius: 12px;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          color: var(--ink);
+          text-decoration: none;
+          transition: transform 0.14s ease, border-color 0.14s ease;
+        }
+        .deep-search-item:hover {
+          transform: translateY(-2px);
+          border-color: var(--accent);
+        }
+        .deep-search-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 6px;
+        }
+        .deep-search-badge {
+          font-size: 0.68rem;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 999px;
+          background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+          color: var(--accent);
+        }
+        .deep-search-title {
+          font-size: 0.86rem;
+          font-weight: 800;
+          color: var(--ink);
+        }
+        .deep-search-sub {
+          font-size: 0.75rem;
+          color: var(--muted);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      </style>
+
+      <div id="resumeBanner" class="resume-banner" hidden>
+        <div class="resume-left">
+          <div class="resume-icon" id="resumeIcon">📍</div>
+          <div class="resume-meta">
+            <div class="resume-kicker" id="resumeKicker">Reprendre ma dernière lecture</div>
+            <div class="resume-title" id="resumeTitle">—</div>
+          </div>
+        </div>
+        <div class="resume-actions">
+          <a href="#" class="resume-go-btn" id="resumeGoBtn">Reprendre le chapitre ➔</a>
+          <button type="button" class="resume-close-btn" id="resumeCloseBtn" title="Masquer">✕</button>
+        </div>
+      </div>
+
       <div
         class="quick-filter-bar reveal"
         aria-label="Recherche et filtrage rapide"
@@ -2494,10 +2686,16 @@
           <input
             type="search"
             id="moduleSearch"
-            placeholder="Rechercher un cours ou un sujet (ex : DOM, jointures, formulaires, Flexbox)…"
-            aria-label="Rechercher un cours ou un quiz"
+            placeholder="Rechercher un cours, une balise, une fonction ou une clause SQL (ex : CASCADE, CHECK, datalist, Flexbox, substring)…"
+            aria-label="Rechercher un cours, un chapitre ou un quiz"
           />
-          <span class="search-kbd" aria-hidden="true">Ctrl+K</span>
+          <button
+            type="button"
+            class="search-kbd"
+            id="openGlobalSearchBtn"
+            title="Ouvrir la palette de recherche globale (Ctrl+K)"
+            style="cursor:pointer"
+          >Ctrl+K</button>
         </div>
         <div
           class="filter-chips"
@@ -2520,6 +2718,14 @@
             PHP
           </button>
         </div>
+      </div>
+
+      <div id="deepSearchResults" class="deep-search-box" hidden aria-live="polite">
+        <div class="deep-search-head">
+          <span id="deepSearchCount">🔎 Chapitres, balises &amp; fonctions trouvés</span>
+          <button type="button" id="deepSearchClear" style="border:none;background:none;color:var(--accent);font-weight:800;font-size:0.78rem;cursor:pointer">Effacer ✕</button>
+        </div>
+        <div class="deep-search-grid" id="deepSearchGrid"></div>
       </div>
 
       <!-- ======================= Cours & annexes ======================= -->
@@ -3197,7 +3403,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=67"
+              src="assets/images/qr-code-site.png?v=68"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3537,6 +3743,38 @@
           var visibleCourses = 0;
           var visibleQuizzes = 0;
 
+          /* Recherche profonde dans les chapitres, balises et fonctions */
+          var deepMatches = [];
+          var matchedTechs = {};
+          if (q && q.length >= 2 && typeof window.rechercherChapitresSTI === "function") {
+            deepMatches = window.rechercherChapitresSTI(q, activeFilter);
+            deepMatches.forEach(function (it) {
+              if (it.tech) matchedTechs[it.tech] = true;
+            });
+          }
+
+          var deepBox = document.getElementById("deepSearchResults");
+          var deepGrid = document.getElementById("deepSearchGrid");
+          var deepCount = document.getElementById("deepSearchCount");
+          if (deepBox && deepGrid) {
+            if (q && q.length >= 2 && deepMatches.length > 0) {
+              deepBox.hidden = false;
+              if (deepCount) {
+                deepCount.textContent = "🔎 " + deepMatches.length + " chapitre(s) ou fiche(s) correspondant à « " + (searchInput ? searchInput.value.trim() : q) + " » :";
+              }
+              deepGrid.innerHTML = deepMatches.slice(0, 9).map(function (it) {
+                return '<a href="' + it.url + '" class="deep-search-item">' +
+                  '<div class="deep-search-top"><span class="deep-search-badge">' + it.badge + '</span><span style="color:var(--accent);font-weight:800;font-size:0.8rem">Ouvrir ➔</span></div>' +
+                  '<div class="deep-search-title">' + it.title + '</div>' +
+                  '<div class="deep-search-sub">' + it.sub + '</div>' +
+                  '</a>';
+              }).join("");
+            } else {
+              deepBox.hidden = true;
+              deepGrid.innerHTML = "";
+            }
+          }
+
           courseCards.forEach(function (card) {
             var tech = card.getAttribute("data-tech") || "";
             if (tech === "php" && !autorise4SI) {
@@ -3545,7 +3783,7 @@
             }
             var text = normalizeBot(card.textContent || "");
             var matchTech = activeFilter === "all" || tech === activeFilter;
-            var matchText = !q || text.indexOf(q) !== -1;
+            var matchText = !q || text.indexOf(q) !== -1 || Boolean(matchedTechs[tech]);
             var show = matchTech && matchText;
             card.classList.toggle("filter-hidden", !show);
             if (show) visibleCourses++;
@@ -3559,29 +3797,99 @@
             }
             var text = normalizeBot(card.textContent || "");
             var matchTech = activeFilter === "all" || tech === activeFilter;
-            var matchText = !q || text.indexOf(q) !== -1;
+            var matchText = !q || text.indexOf(q) !== -1 || Boolean(matchedTechs[tech]);
             var show = matchTech && matchText;
             card.classList.toggle("filter-hidden", !show);
             if (show) visibleQuizzes++;
           });
 
           if (coursEmpty) {
-            coursEmpty.style.display = visibleCourses === 0 ? "block" : "none";
+            coursEmpty.style.display = (visibleCourses === 0 && deepMatches.length === 0) ? "block" : "none";
           }
           if (quizEmpty) {
             quizEmpty.style.display = visibleQuizzes === 0 ? "block" : "none";
           }
         }
 
-        if (searchInput) {
-          searchInput.addEventListener("input", applyFilters);
-          document.addEventListener("keydown", function (e) {
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-              e.preventDefault();
+        var clearDeepBtn = document.getElementById("deepSearchClear");
+        if (clearDeepBtn && searchInput) {
+          clearDeepBtn.addEventListener("click", function () {
+            searchInput.value = "";
+            applyFilters();
+            searchInput.focus();
+          });
+        }
+
+        var openGlobalBtn = document.getElementById("openGlobalSearchBtn");
+        if (openGlobalBtn) {
+          openGlobalBtn.addEventListener("click", function () {
+            if (typeof window.ouvrirRechercheGlobaleSTI === "function") {
+              window.ouvrirRechercheGlobaleSTI(searchInput ? searchInput.value : "");
+            } else if (searchInput) {
               searchInput.focus();
             }
           });
         }
+
+        if (searchInput) {
+          searchInput.addEventListener("input", applyFilters);
+        }
+
+        /* ================================
+           Reprise automatique de lecture & Badges de chapitres sur les cartes
+           ================================ */
+        function updateResumeAndBookmarksUI() {
+          var autorise4SI = document.documentElement.classList.contains("sti-4si-autorise");
+          var banner = document.getElementById("resumeBanner");
+          var bms = {};
+          var last = null;
+          try { bms = JSON.parse(localStorage.getItem("sti-reading-bookmarks") || "{}") || {}; } catch (e) {}
+          try { last = JSON.parse(localStorage.getItem("sti-last-reading") || "null"); } catch (e) {}
+
+          if (banner) {
+            if (last && last.relUrl && (!last.only4si || autorise4SI) && sessionStorage.getItem("sti-hide-resume") !== "1") {
+              banner.hidden = false;
+              var ic = document.getElementById("resumeIcon");
+              var ki = document.getElementById("resumeKicker");
+              var ti = document.getElementById("resumeTitle");
+              var go = document.getElementById("resumeGoBtn");
+              if (ic) ic.textContent = last.icon || "📍";
+              if (ki) ki.textContent = "📍 Reprendre ma dernière lecture · " + (last.courseName || "") + " (" + (last.pct || 0) + " %)";
+              if (ti) ti.textContent = last.sectionTitle || last.courseName || "";
+              if (go) go.href = last.relUrl + (last.sectionId ? "#" + last.sectionId : "");
+            } else {
+              banner.hidden = true;
+            }
+          }
+
+          /* Badges de chapitre sur chaque carte de cours */
+          document.querySelectorAll(".annexe-card[data-course-id]").forEach(function (card) {
+            var cid = card.getAttribute("data-course-id");
+            var existing = card.querySelector(".course-bookmark-pill");
+            if (existing) existing.remove();
+            var bm = bms[cid];
+            if (!bm || !bm.pct || (cid === "php" && !autorise4SI)) return;
+            var pill = document.createElement("div");
+            pill.className = "course-bookmark-pill";
+            pill.title = "Dernier chapitre lu : " + (bm.sectionTitle || "") + " (" + bm.pct + " %)";
+            pill.textContent = "📍 " + bm.pct + " % · " + (bm.sectionTitle || "En cours");
+            var pEl = card.querySelector("p");
+            if (pEl && pEl.parentNode) {
+              pEl.insertAdjacentElement("afterend", pill);
+            }
+          });
+        }
+
+        var closeResumeBtn = document.getElementById("resumeCloseBtn");
+        if (closeResumeBtn) {
+          closeResumeBtn.addEventListener("click", function () {
+            try { sessionStorage.setItem("sti-hide-resume", "1"); } catch (e) {}
+            var banner = document.getElementById("resumeBanner");
+            if (banner) banner.hidden = true;
+          });
+        }
+        window.addEventListener("storage", updateResumeAndBookmarksUI);
+        setTimeout(updateResumeAndBookmarksUI, 150);
 
         filterChips.forEach(function (chip) {
           chip.addEventListener("click", function () {
@@ -3637,6 +3945,7 @@
             return !it.only4si || document.documentElement.classList.contains("sti-4si-autorise");
           });
           updateRevisionUI();
+          updateResumeAndBookmarksUI();
           applyFilters();
         };
 
@@ -3772,8 +4081,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-67") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-67", "1");
+                if (sessionStorage.getItem("sti-sw-reload-68") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-68", "1");
               } catch (e) {}
               location.reload();
             }
