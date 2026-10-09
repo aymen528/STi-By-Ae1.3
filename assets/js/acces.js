@@ -14,6 +14,24 @@
   var currentUid = null;
   var currentClasse = "";
 
+  /* S'assurer que protection.css et protection.js sont chargés sur 100 % des pages (code source verrouillé pour tous les abonnés) */
+  (function assurerProtectionActive() {
+    try {
+      if (!document.querySelector('link[href*="protection.css"]') && document.head) {
+        var lnk = document.createElement("link");
+        lnk.rel = "stylesheet";
+        lnk.href = cfg.RACINE + "assets/css/protection.css";
+        document.head.appendChild(lnk);
+      }
+      if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
+        var scr = document.createElement("script");
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=64";
+        scr.defer = true;
+        (document.head || document.documentElement).appendChild(scr);
+      }
+    } catch (e) {}
+  })();
+
   /* Enregistrement du Service Worker et pré-chargement automatique en arrière-plan pour le mode 100 % Hors-ligne (PC Windows & Mobile) */
   try {
     if ("serviceWorker" in navigator) {
@@ -30,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-57") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-57", "1");
+          if (sessionStorage.getItem("sti-sw-reload-64") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-64", "1");
         } catch (e) {}
         location.reload();
       });

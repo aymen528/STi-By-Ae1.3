@@ -1,11 +1,13 @@
 /* ══════════════════════════════════════════════════════════
-   🔒 Protection du contenu — Plateforme STI par A. Essouyah
-   Dissuasion copie / captures + filigrane + blocage impression.
-   👑 Exception Compte GOLD (html.sti-gold / body.sti-gold) :
-   capture d'écran, impression et sélection/copie déverrouillées.
+   🔒 Protection du contenu & du code source — Plateforme STI par A. Essouyah
+   - Code source (Ctrl+U, F12, Inspecteur, clic droit, Ctrl+S)
+     verrouillé pour 100 % des abonnés (y compris 👑 Gold et elevelabo3).
+   - 👑 Exception Compte GOLD (html.sti-gold / body.sti-gold) :
+     seules la sélection/copie de texte, la capture d'écran et l'impression
+     du cours sont autorisées (jamais le code source ni l'inspecteur).
    ══════════════════════════════════════════════════════════ */
 
-/* ── Sélection de texte désactivée (sauf Compte GOLD et champs de formulaire) ── */
+/* ── Sélection de texte désactivée (sauf Compte GOLD et champs de saisie) ── */
 html:not(.sti-gold) body:not(.sti-gold),
 html:not(.sti-gold) body:not(.sti-gold) * {
   -webkit-user-select: none;
@@ -25,8 +27,8 @@ select,
   user-select: text;
 }
 
-/* ── Images non « glissables » (sauf Compte GOLD) ── */
-html:not(.sti-gold) body:not(.sti-gold) img {
+/* ── Images non « glissables » ── */
+html:not(.sti-admin-strict) body img {
   -webkit-user-drag: none;
   user-drag: none;
 }
@@ -82,7 +84,7 @@ body.sti-gold #sti-watermark {
     max-width: 520px;
   }
 
-  /* 👑 Compte GOLD : impression complète autorisée (sans filigrane ni badges flottants) */
+  /* 👑 Compte GOLD : impression autorisée */
   html.sti-gold #sti-print-msg,
   body.sti-gold #sti-print-msg,
   html.sti-gold #sti-watermark,
@@ -97,7 +99,7 @@ body.sti-gold #sti-watermark {
   }
 }
 
-/* ── Avertissement « outils de développement » ── */
+/* ── Bouclier Anti-Inspecteur / Code source (actif pour TOUS les abonnés, même Gold) ── */
 #sti-devtools-overlay {
   position: fixed;
   inset: 0;
@@ -106,23 +108,27 @@ body.sti-gold #sti-watermark {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(16, 23, 40, 0.96);
-  backdrop-filter: blur(6px);
+  background: rgba(16, 23, 40, 0.98);
+  backdrop-filter: blur(10px);
 }
 #sti-devtools-overlay.visible {
-  display: flex;
+  display: flex !important;
 }
-html.sti-gold #sti-devtools-overlay,
-body.sti-gold #sti-devtools-overlay {
+html.sti-admin-strict #sti-devtools-overlay {
   display: none !important;
+}
+html.sti-devtools-open:not(.sti-admin-strict) body > *:not(#sti-devtools-overlay):not(#sti-toast) {
+  filter: blur(18px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
 }
 #sti-devtools-overlay .sti-dev-box {
   max-width: 460px;
   padding: 34px 30px;
   border-radius: 20px;
   background: #fffdf5;
-  border: 1px solid rgba(244, 81, 30, 0.35);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  border: 2px solid #f4511e;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
   text-align: center;
   font-family: system-ui, "Segoe UI", sans-serif;
   color: #101728;
@@ -143,16 +149,17 @@ body.sti-gold #sti-devtools-overlay {
 #sti-devtools-overlay .sti-dev-btn {
   margin-top: 18px;
   padding: 11px 26px;
-  border: none;
+  border: 2px solid #101728;
   border-radius: 999px;
   cursor: pointer;
   background: linear-gradient(120deg, #f4511e, #ff8a50);
   color: #fff;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 3px 3px 0 #101728;
 }
 
-/* ── Toast « contenu protégé » ── */
+/* ── Toast « contenu / code source protégé » ── */
 #sti-toast {
   position: fixed;
   left: 50%;
@@ -162,11 +169,12 @@ body.sti-gold #sti-devtools-overlay {
   max-width: min(92vw, 480px);
   padding: 12px 20px;
   border-radius: 999px;
-  background: rgba(16, 23, 40, 0.95);
+  background: rgba(16, 23, 40, 0.96);
   color: #f9f1e3;
-  font: 600 13.5px/1.4 system-ui, "Segoe UI", sans-serif;
+  border: 1.5px solid rgba(244, 81, 30, 0.65);
+  font: 700 13.5px/1.4 system-ui, "Segoe UI", sans-serif;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease, transform 0.25s ease;
