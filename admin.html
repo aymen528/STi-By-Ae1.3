@@ -381,7 +381,7 @@
     .sous { display: none; }
 
     .barre-util {
-      display: grid; grid-template-columns: repeat(5, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 5px; width: 100%;
     }
     .lbl-pc { display: none; }
@@ -606,7 +606,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v73</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v74</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v66)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -615,6 +615,7 @@
     <div class="barre-util">
       <a class="btn-util" href="index.html">🏠 <span class="lbl-pc">Accueil du site</span><span class="lbl-mob">Site</span></a>
       <a class="btn-util" href="carte-visite.html" title="Ouvrir et partager la carte de visite électronique avec QR code">🪪 <span class="lbl-pc">Carte visite</span><span class="lbl-mob">Carte</span></a>
+      <button class="btn-util" id="btn-readme-admin" type="button" title="Consulter la documentation complète de la plateforme (README)">📖 <span class="lbl-pc">README</span><span class="lbl-mob">README</span></button>
       <button class="btn-util" id="btn-notif" type="button">🔔 <span class="lbl-pc">Notifications</span><span class="lbl-mob">Alertes</span></button>
       <button class="btn-util" id="btn-refresh" type="button">🔄 <span class="lbl-pc">Actualiser</span><span class="lbl-mob">Maj</span></button>
       <button class="btn-util logout" id="btn-logout" type="button">🚪 <span class="lbl-pc">Déconnexion</span><span class="lbl-mob">Sortir</span></button>
@@ -1126,12 +1127,100 @@
     </div>
   </div>
 
+  <div class="modal-fond" id="modal-readme" role="dialog" aria-modal="true" aria-labelledby="titre-modal-readme">
+    <div class="modal-boite" style="max-width:860px;width:96vw;max-height:88vh;display:flex;flex-direction:column;padding:18px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:2px solid #23201a;padding-bottom:10px;margin-bottom:12px">
+        <h3 id="titre-modal-readme" style="margin:0;font-size:17px">📖 Documentation du projet — README.md (STI By A'e V2.0)</h3>
+        <button type="button" id="btn-fermer-readme-x" style="border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;width:30px;height:30px;font-weight:900;cursor:pointer">✕</button>
+      </div>
+      <div id="contenu-readme-admin" style="overflow-y:auto;flex:1;padding-right:6px;font-size:13.2px;line-height:1.55;color:#23201a">
+        <div style="background:#f9f1e3;border:2px solid #23201a;border-radius:14px;padding:12px 15px;margin-bottom:12px">
+          <div style="font-size:15px;font-weight:900;color:#d84315">📚 STI By A'e — Le Web de A à Z (Version 2.0 · v74)</div>
+          <div style="font-size:12.5px;color:#5a5244;margin-top:4px">Plateforme éducative interactive dédiée aux <b>Sciences et Technologies de l'Informatique (STI)</b> : cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en <b>HTML5, CSS3, JavaScript, SQL et PHP / MySQLi</b>.</div>
+        </div>
+
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🔐 1. Portail d'accès &amp; Gestion des profils (<code>portail.html</code>)</h4>
+        <ul style="margin:0 0 10px 18px;padding:0">
+          <li><b>Identité visuelle unifiée</b> : thème sombre de l'accueil (<code>#0d1526</code> + halo orange + grille de points) avec animation dactylo <b>STI</b>.</li>
+          <li><b>Double mode d'inscription et de connexion</b> : par <b>e-mail</b> ou par <b>téléphone (<code>+216</code>)</b> avec Nom, Prénom et validation par code WhatsApp à 6 chiffres (6 cases OTP).</li>
+          <li><b>Session permanente « Labo » (<code>elevelabo3</code>)</b> : maintien automatique de la session sur les PC du laboratoire sans redemander de connexion.</li>
+          <li><b>Restriction automatique par niveau (<code>3ème SI</code> vs <code>4ème SI</code>)</b> : masquage et verrouillage dès 0 ms de tout le contenu PHP / MySQLi, de l'Atelier Bac Pratique et du Projet STI 0 hors <code>4SI1..4SI5</code>, <code>elevelabo3</code> et Admin.</li>
+        </ul>
+
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🎓 2. Outils d'étude &amp; Confort Élève (<code>index.html</code> &amp; <code>acces.js</code>)</h4>
+        <ul style="margin:0 0 10px 18px;padding:0">
+          <li><b>🃏 Mode « Flashcards Bac STI » en 3D réaliste</b> : 30+ cartes Recto/Verso (HTML5, CSS3, JS, SQL, PHP) avec moteur physique 3D à 60 FPS (<code>requestAnimationFrame</code>, décollage, perspective trapézoïdale, tranche bristol épaisse, reflet lumineux et ombre portée au sol).</li>
+          <li><b>💻 Mini « Bac à sable » de code en direct (<code>HTML / CSS / JS</code>)</b> : éditeur 100 % hors-ligne avec modèles Type Bac préchargés, aperçu instantané et mini-console JS intégrée.</li>
+          <li><b>🔍 Recherche profonde globale (<code>Ctrl + K</code> ou <code>/</code>)</b> : recherche instantanée dans tous les chapitres, balises HTML5, propriétés CSS3, fonctions JS/PHP et commandes SQL.</li>
+          <li><b>📍 Reprise automatique de lecture &amp; 📝 Carnet de notes (<code>Alt + N</code>)</b> : sauvegarde automatique du chapitre en cours et carnet de notes exportable en <code>.txt</code>.</li>
+        </ul>
+
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">📖 3. Cours interactifs, Animations &amp; Projets Bac</h4>
+        <ul style="margin:0 0 10px 18px;padding:0">
+          <li><b>🐘 Cours PHP (<code>cours/php.html</code>)</b> : bouton magique permanent <b>🪄 PHP-recap ✨</b> (modale <code>PHP-recap.html</code>), bouton <b>🎬</b> (animation du guichet Client/Serveur) et boîte interactive <code>php-mysqli.html</code>.</li>
+          <li><b>🗄️ Cours SQL (<code>cours/sql.html</code>)</b> : bouton <b>⚡ Voir l'animation : Effet des contraintes</b> ouvrant le simulateur néo-brutaliste <code>sql-contraintes.html</code> (<code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>, <code>ON DELETE CASCADE</code>, <code>CHECK</code>…).</li>
+          <li><b>🧪 Atelier Bac Pratique &amp; Projet STI 0</b> : épreuves notées sur 20 et téléchargement 100 % hors-ligne du sujet PDF et de l'archive <code>ressources-projet-sti0.zip</code>.</li>
+        </ul>
+
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">📊 4. Tableau de bord Administrateur temps réel (<code>admin.html</code>)</h4>
+        <ul style="margin:0 0 10px 18px;padding:0">
+          <li><b>Verrou anti-flash 0 ms, Version &amp; Jauge Supabase</b> : affichage en direct du % et des Mo restants sur le quota Supabase de 500 Mo.</li>
+          <li><b>Gestion des classes, lycées et abonnés</b> : ajout/renommage/suppression, compteur d'effectif et d'élèves <code>🟢 En ligne</code>, vue <b>📋 Liste détaillée</b> ou <b>🔵 Nœuds</b>, statut <b>👑 Gold</b> et éjection en direct (<code>&lt; 1 s</code>).</li>
+          <li><b>📋 Fiche récapitulative par élève &amp; 📥 Exports Excel (CSV)</b> : bilan individuel complet (temps d'étude, moyenne et historique Quiz, messages lus) et exports CSV par classe.</li>
+          <li><b>Affichage compact (5 premiers + « ➕ Voir plus ») &amp; Purges ciblées</b> : suppression par mois (connexions / quiz) ou par message (suivi de lecture).</li>
+        </ul>
+
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🛡️ 5. Sécurité, Compte 👑 Gold &amp; Mode 100 % Hors-ligne</h4>
+        <ul style="margin:0 0 10px 18px;padding:0">
+          <li><b>Verrouillage strict du code source</b> : clic droit, <code>F12</code>, <code>Ctrl+U</code>, <code>Ctrl+Shift+I/J/C/K</code>, <code>Ctrl+S</code> et bouclier Anti-DevTools actifs pour 100 % des abonnés (même 👑 Gold et <code>elevelabo3</code>).</li>
+          <li><b>Service Worker <code>sw.js</code> (432 fichiers, 0 lien mort)</b> : fonctionnement intégral hors-ligne avec synchronisation différée automatique.</li>
+        </ul>
+      </div>
+      <div class="modal-actions" style="flex-wrap:wrap;gap:8px;margin-top:12px;border-top:1.5px solid #e7dcc8;padding-top:10px">
+        <a href="README.md" target="_blank" rel="noopener" style="border:2px solid #23201a;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:800;background:#f3ead9;color:#23201a;text-decoration:none">📄 Fichier README.md brut</a>
+        <button type="button" id="btn-imprimer-readme">🖨️ Imprimer</button>
+        <button type="button" class="btn-valider" id="btn-fermer-readme">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v73)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v74)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button>
   </footer>
 
+<script>
+  (function () {
+    var mod = document.getElementById("modal-readme");
+    function ouvrirReadme() {
+      if (mod) mod.classList.add("visible");
+    }
+    function fermerReadme() {
+      if (mod) mod.classList.remove("visible");
+    }
+    var b1 = document.getElementById("btn-readme-admin");
+    var b2 = document.getElementById("pied-readme-admin");
+    var bf1 = document.getElementById("btn-fermer-readme");
+    var bf2 = document.getElementById("btn-fermer-readme-x");
+    var bp = document.getElementById("btn-imprimer-readme");
+    if (b1) b1.addEventListener("click", ouvrirReadme);
+    if (b2) b2.addEventListener("click", ouvrirReadme);
+    if (bf1) bf1.addEventListener("click", fermerReadme);
+    if (bf2) bf2.addEventListener("click", fermerReadme);
+    if (mod) {
+      mod.addEventListener("click", function (e) {
+        if (e.target === mod) fermerReadme();
+      });
+    }
+    if (bp) {
+      bp.addEventListener("click", function () {
+        window.print();
+      });
+    }
+  })();
+</script>
+
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=73"></script>
-<script src="assets/js/admin.js?v=73"></script>
+<script src="assets/js/config.js?v=74"></script>
+<script src="assets/js/admin.js?v=74"></script>
 </body>
 </html>
