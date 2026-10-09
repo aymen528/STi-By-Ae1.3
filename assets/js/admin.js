@@ -15,7 +15,7 @@
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
-    var versionDefaut = "v53";
+    var versionDefaut = "v54";
     try {
       var scripts = document.querySelectorAll('script[src*="admin.js"]');
       if (scripts.length) {
@@ -1415,24 +1415,59 @@
     });
   }
 
+  var toutVoirAcces = false;
+  var toutVoirSuivi = false;
+  var wrapVoirPlusAcces = document.getElementById("wrap-voir-plus-acces");
+  var btnVoirPlusAcces = document.getElementById("btn-voir-plus-acces");
+  var wrapVoirPlusSuivi = document.getElementById("wrap-voir-plus-suivi");
+  var btnVoirPlusSuivi = document.getElementById("btn-voir-plus-suivi");
+
+  if (btnVoirPlusAcces) {
+    btnVoirPlusAcces.addEventListener("click", function () {
+      toutVoirAcces = !toutVoirAcces;
+      rendAcces();
+    });
+  }
+  if (btnVoirPlusSuivi) {
+    btnVoirPlusSuivi.addEventListener("click", function () {
+      toutVoirSuivi = !toutVoirSuivi;
+      afficherTableauSuivi();
+    });
+  }
+
   function rendAcces() {
     var emails = {};
     profils.forEach(function (p) { emails[p.id] = contact(p); });
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
-    acces.slice(0, 50).forEach(function (a) {
+    var totalA = acces.length;
+    var limiteA = toutVoirAcces ? totalA : 5;
+    acces.slice(0, limiteA).forEach(function (a) {
       var tr = document.createElement("tr");
       [emails[a.user_id] || a.user_id, fmtDate(a.debut), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
         var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
       });
       ta.appendChild(tr);
     });
+    if (wrapVoirPlusAcces && btnVoirPlusAcces) {
+      if (totalA > 5) {
+        wrapVoirPlusAcces.style.display = "block";
+        btnVoirPlusAcces.textContent = toutVoirAcces
+          ? "➖ Voir moins (afficher les 5 premiers)"
+          : ("➕ Voir plus (" + (totalA - 5) + " autre(s) connexion(s))");
+      } else {
+        wrapVoirPlusAcces.style.display = "none";
+      }
+    }
   }
 
   /* ---------- Point 8 : Tableau de suivi de lecture des messages + réponses & questions libres des élèves ---------- */
   var selSuiviMsg = document.getElementById("sel-suivi-msg");
   if (selSuiviMsg) {
-    selSuiviMsg.addEventListener("change", afficherTableauSuivi);
+    selSuiviMsg.addEventListener("change", function () {
+      toutVoirSuivi = false;
+      afficherTableauSuivi();
+    });
   }
 
   function rendSuiviMessages() {
@@ -1468,6 +1503,7 @@
     var apEl = document.getElementById("apercu-suivi-msg");
     if (!tb) return;
     tb.innerHTML = "";
+    if (wrapVoirPlusSuivi) wrapVoirPlusSuivi.style.display = "none";
     var mid = selSuiviMsg ? selSuiviMsg.value : "";
 
     if (mid === "__libre") {
@@ -1488,7 +1524,8 @@
         tb.appendChild(trQ0);
         return;
       }
-      questionsLibres.forEach(function (q) {
+      var limQ = toutVoirSuivi ? questionsLibres.length : 5;
+      questionsLibres.slice(0, limQ).forEach(function (q) {
         var p = mapP[q.uid];
         var tr = document.createElement("tr");
         var tdNom = document.createElement("td"); tdNom.style.fontWeight = "700"; tdNom.textContent = p ? contact(p) : q.uid;
@@ -1500,6 +1537,12 @@
         tr.append(tdNom, tdCl, tdEt, tdRep, tdDt);
         tb.appendChild(tr);
       });
+      if (wrapVoirPlusSuivi && btnVoirPlusSuivi && questionsLibres.length > 5) {
+        wrapVoirPlusSuivi.style.display = "block";
+        btnVoirPlusSuivi.textContent = toutVoirSuivi
+          ? "➖ Voir moins (afficher les 5 premiers)"
+          : ("➕ Voir plus (" + (questionsLibres.length - 5) + " autre(s))");
+      }
       return;
     }
 
@@ -1539,9 +1582,13 @@
     }
 
     cibles.forEach(function (p) {
+      if (mapLu[p.id]) nbLu++; else nbNonLu++;
+    });
+
+    var limCibles = toutVoirSuivi ? cibles.length : 5;
+    cibles.slice(0, limCibles).forEach(function (p) {
       var dateLu = mapLu[p.id];
       var repEleve = mapRep[p.id] || "";
-      if (dateLu) nbLu++; else nbNonLu++;
 
       var tr = document.createElement("tr");
       var tdNom = document.createElement("td");
@@ -1571,6 +1618,13 @@
       tr.append(tdNom, tdCl, tdEtat, tdRep, tdDate);
       tb.appendChild(tr);
     });
+
+    if (wrapVoirPlusSuivi && btnVoirPlusSuivi && cibles.length > 5) {
+      wrapVoirPlusSuivi.style.display = "block";
+      btnVoirPlusSuivi.textContent = toutVoirSuivi
+        ? "➖ Voir moins (afficher les 5 premiers)"
+        : ("➕ Voir plus (" + (cibles.length - 5) + " autre(s) élève(s))");
+    }
 
     if (resEl) {
       resEl.textContent = "(✅ " + nbLu + " lu · ⏳ " + nbNonLu + " non lu)";
