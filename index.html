@@ -2717,6 +2717,24 @@
           <button type="button" class="filter-chip sti-4si-only" data-filter="php">
             PHP
           </button>
+          <button
+            type="button"
+            class="filter-chip"
+            id="btnHomeFlashcards"
+            title="Réviser avec les cartes Recto/Verso (HTML5, CSS3, JS, SQL, PHP)"
+            style="border-color:color-mix(in srgb,var(--accent) 55%,var(--border));font-weight:800"
+          >
+            🃏 Flashcards Bac <span id="flashcardsBadgeCount" style="font-size:0.75em;opacity:0.85"></span>
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            id="btnHomeSandbox"
+            title="Tester du code HTML, CSS et JavaScript en direct hors-ligne"
+            style="border-color:color-mix(in srgb,var(--accent) 55%,var(--border));font-weight:800"
+          >
+            💻 Bac à sable Code
+          </button>
         </div>
       </div>
 
@@ -3403,7 +3421,7 @@
         >
           <span class="qr-frame">
             <img
-              src="assets/images/qr-code-site.png?v=69"
+              src="assets/images/qr-code-site.png?v=70"
               alt="QR code du site STI by AE"
               width="118"
               height="118"
@@ -3892,15 +3910,45 @@
         setTimeout(updateResumeAndBookmarksUI, 150);
 
         filterChips.forEach(function (chip) {
+          if (!chip.hasAttribute("data-filter")) return;
           chip.addEventListener("click", function () {
             filterChips.forEach(function (c) {
-              c.classList.remove("active");
+              if (c.hasAttribute("data-filter")) c.classList.remove("active");
             });
             chip.classList.add("active");
             activeFilter = chip.getAttribute("data-filter") || "all";
             applyFilters();
           });
         });
+
+        var btnHomeFc = document.getElementById("btnHomeFlashcards");
+        if (btnHomeFc) {
+          btnHomeFc.addEventListener("click", function () {
+            if (typeof window.ouvrirFlashcardsSTI === "function") {
+              var mapF = { all: "all", htmlcss: "html5", js: "js", sql: "sql", php: "php" };
+              window.ouvrirFlashcardsSTI(mapF[activeFilter] || "all");
+            }
+          });
+        }
+        var btnHomeSb = document.getElementById("btnHomeSandbox");
+        if (btnHomeSb) {
+          btnHomeSb.addEventListener("click", function () {
+            if (typeof window.ouvrirSandboxSTI === "function") {
+              window.ouvrirSandboxSTI();
+            }
+          });
+        }
+
+        window.__stiMajBadgeFlashcards = function () {
+          var el = document.getElementById("flashcardsBadgeCount");
+          if (!el) return;
+          try {
+            var m = JSON.parse(localStorage.getItem("sti-flashcards-mastered") || "{}") || {};
+            var nb = Object.keys(m).filter(function (k) { return Boolean(m[k]); }).length;
+            el.textContent = nb > 0 ? "(" + nb + " ✔)" : "";
+          } catch (e) {}
+        };
+        window.__stiMajBadgeFlashcards();
 
         /* ================================
            Suivi de révision des cours (localStorage)
@@ -4081,8 +4129,8 @@
             "controllerchange",
             function () {
               try {
-                if (sessionStorage.getItem("sti-sw-reload-69") === "1") return;
-                sessionStorage.setItem("sti-sw-reload-69", "1");
+                if (sessionStorage.getItem("sti-sw-reload-70") === "1") return;
+                sessionStorage.setItem("sti-sw-reload-70", "1");
               } catch (e) {}
               location.reload();
             }

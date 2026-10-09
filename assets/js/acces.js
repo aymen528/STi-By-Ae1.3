@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=69";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=70";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-69") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-69", "1");
+          if (sessionStorage.getItem("sti-sw-reload-70") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-70", "1");
         } catch (e) {}
         location.reload();
       });
@@ -1074,6 +1074,30 @@
       if (window.ouvrirCarnetNotesSTI) window.ouvrirCarnetNotesSTI();
     });
     pan.appendChild(btnNotesPan);
+
+    var btnFlashPan = document.createElement("button");
+    btnFlashPan.type = "button";
+    btnFlashPan.textContent = "🃏 Flashcards Bac (Recto/Verso)";
+    btnFlashPan.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #23201a;background:#fff;color:#23201a;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    btnFlashPan.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+      if (window.ouvrirFlashcardsSTI) window.ouvrirFlashcardsSTI("all");
+    });
+    pan.appendChild(btnFlashPan);
+
+    var btnSandboxPan = document.createElement("button");
+    btnSandboxPan.type = "button";
+    btnSandboxPan.textContent = "💻 Tester du code (Bac à sable)";
+    btnSandboxPan.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #23201a;background:#fff;color:#23201a;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    btnSandboxPan.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+      if (window.ouvrirSandboxSTI) window.ouvrirSandboxSTI();
+    });
+    pan.appendChild(btnSandboxPan);
 
     var btnBac = document.createElement("a");
     btnBac.id = "sti-btn-bac-pan";
@@ -2123,4 +2147,458 @@
       setTimeout(proposerRepriseInitiale, 250);
     }
   })();
+
+  /* =====================================================================
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v70)
+     ===================================================================== */
+  var STI_FLASHCARDS = [
+    /* --- HTML5 --- */
+    { id: "h1", tech: "html5", badge: "🌐 HTML5", q: "Comment relier un champ <input> à une liste de suggestions <datalist> ?", a: "On place l'attribut list=\"id_liste\" sur la balise <input> et l'attribut id=\"id_liste\" (identique) sur la balise <datalist>.", code: "<input type=\"text\" list=\"villes\">\n<datalist id=\"villes\">\n  <option value=\"Tunis\">\n  <option value=\"Sousse\">\n</datalist>" },
+    { id: "h2", tech: "html5", badge: "🌐 HTML5", q: "Quelle est la différence entre <select> et <datalist> ?", a: "<select> impose un choix fermé parmi les <option> proposées, tandis que <datalist> suggère une liste tout en autorisant l'utilisateur à saisir une autre valeur libre.", code: "<!-- Choix obligatoire : <select> | Suggestion libre : <datalist> -->" },
+    { id: "h3", tech: "html5", badge: "🌐 HTML5", q: "Quels attributs HTML5 permettent de contrôler une note numérique entre 0 et 20 par pas de 0.25 ?", a: "On utilise type=\"number\" avec min=\"0\", max=\"20\", step=\"0.25\" et required.", code: "<input type=\"number\" name=\"note\" min=\"0\" max=\"20\" step=\"0.25\" required>" },
+    { id: "h4", tech: "html5", badge: "🌐 HTML5", q: "Comment encadrer un groupe de champs de formulaire avec un titre sur la bordure ?", a: "On entoure les champs avec <fieldset> et on place le titre dans <legend> juste après l'ouverture de <fieldset>.", code: "<fieldset>\n  <legend>Informations personnelles</legend>\n  ...\n</fieldset>" },
+    { id: "h5", tech: "html5", badge: "🌐 HTML5", q: "Comment rendre mutuellement exclusifs plusieurs boutons <input type=\"radio\"> ?", a: "Tous les boutons radio d'un même groupe doivent partager exactement la même valeur d'attribut name=\"...\".", code: "<input type=\"radio\" name=\"genre\" value=\"M\" checked> M\n<input type=\"radio\" name=\"genre\" value=\"F\"> F" },
+    { id: "h6", tech: "html5", badge: "🌐 HTML5", q: "Quelle est la différence entre rowspan=\"2\" et colspan=\"3\" dans un tableau HTML ?", a: "rowspan=\"2\" fusionne verticalement 2 cellules (sur 2 lignes) ; colspan=\"3\" fusionne horizontalement 3 cellules (sur 3 colonnes).", code: "<td rowspan=\"2\">2 lignes</td>\n<td colspan=\"3\">3 colonnes</td>" },
+    { id: "h7", tech: "html5", badge: "🌐 HTML5", q: "Comment appeler une fonction JS verif() qui bloque l'envoi du formulaire si elle renvoie false ?", a: "On place onsubmit=\"return verif()\" dans la balise <form> (ne jamais oublier le mot-clé return).", code: "<form action=\"ajout.php\" method=\"post\" onsubmit=\"return verif()\">" },
+    { id: "h8", tech: "html5", badge: "🌐 HTML5", q: "Comment afficher la page cible d'un lien <a> à l'intérieur d'une <iframe> de la page ?", a: "On donne un attribut name=\"mon_cadre\" à l'<iframe> et on met target=\"mon_cadre\" sur le lien <a>.", code: "<a href=\"cours.html\" target=\"mon_cadre\">Ouvrir</a>\n<iframe name=\"mon_cadre\" src=\"accueil.html\"></iframe>" },
+
+    /* --- CSS3 --- */
+    { id: "c1", tech: "css3", badge: "🎨 CSS3", q: "Quelle est la différence entre les sélecteurs CSS .box, #box et nav a:hover ?", a: ".box cible class=\"box\" ; #box cible id=\"box\" ; nav a:hover cible les liens <a> situés dans <nav> au survol de la souris.", code: ".box { ... }\n#box { ... }\nnav a:hover { color: orange; }" },
+    { id: "c2", tech: "css3", badge: "🎨 CSS3", q: "Comment aligner des éléments côte à côte, espacés et centrés verticalement avec Flexbox ?", a: "Sur le conteneur parent : display: flex; justify-content: space-between; align-items: center;", code: ".parent {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}" },
+    { id: "c3", tech: "css3", badge: "🎨 CSS3", q: "Quelle est la différence entre display: none et visibility: hidden ?", a: "display: none supprime totalement l'élément de l'affichage (0 place occupée) ; visibility: hidden rend l'élément invisible mais conserve son espace vide.", code: ".cache-total { display: none; }\n.invisible-garde-place { visibility: hidden; }" },
+    { id: "c4", tech: "css3", badge: "🎨 CSS3", q: "Comment déclarer et appliquer une animation CSS3 continue ?", a: "On définit les étapes avec @keyframes nom { ... } puis on l'appelle avec animation: nom durée infinite;", code: "@keyframes tourner {\n  from { transform: rotate(0deg); }\n  to   { transform: rotate(360deg); }\n}\n.icone { animation: tourner 2s linear infinite; }" },
+    { id: "c5", tech: "css3", badge: "🎨 CSS3", q: "Que signifient les 4 valeurs de box-shadow: 4px 6px 12px rgba(0,0,0,0.3) ?", a: "1) Décalage horizontal X (4px), 2) Décalage vertical Y (6px), 3) Rayon de flou (12px), 4) Couleur de l'ombre.", code: "box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.3);" },
+    { id: "c6", tech: "css3", badge: "🎨 CSS3", q: "Comment fusionner les bordures doubles d'un tableau <table> en CSS ?", a: "On applique border-collapse: collapse; sur le sélecteur table.", code: "table {\n  border-collapse: collapse;\n  width: 100%;\n}" },
+
+    /* --- JavaScript --- */
+    { id: "j1", tech: "js", badge: "📜 JavaScript", q: "Que renvoie ch.indexOf(\"@\") si le caractère \"@\" ne figure pas dans la chaîne ch ?", a: "Il renvoie -1. (S'il est présent, il renvoie sa première position à partir de l'indice 0).", code: "if (email.indexOf(\"@\") === -1) {\n  alert(\"Email invalide !\");\n  return false;\n}" },
+    { id: "j2", tech: "js", badge: "📜 JavaScript", q: "Quelle est la différence entre ch.substring(d, f) et ch.substr(d, n) ?", a: "substring(d, f) extrait de l'indice d jusqu'à l'indice f exclu ; substr(d, n) extrait n caractères à partir de l'indice d.", code: "\"Tunisie\".substring(0, 5); // \"Tunis\"\n\"Tunisie\".substr(2, 3);    // \"nis\"" },
+    { id: "j3", tech: "js", badge: "📜 JavaScript", q: "Comment vérifier en JS qu'une valeur ch est composée uniquement de chiffres (ou est numérique) ?", a: "On vérifie que ch n'est pas vide et que !isNaN(ch) est vrai (isNaN renvoie true si ce n'est PAS un nombre).", code: "if (ch === \"\" || isNaN(ch)) {\n  alert(\"Veuillez saisir un nombre !\");\n  return false;\n}" },
+    { id: "j4", tech: "js", badge: "📜 JavaScript", q: "Comment écrire une fonction alpha(ch) qui vérifie qu'une chaîne ne contient que des lettres A-Z ?", a: "On met en majuscules avec toUpperCase() et on vérifie que chaque caractère est compris entre 'A' et 'Z'.", code: "function alpha(ch) {\n  ch = ch.toUpperCase();\n  if (ch.length === 0) return false;\n  for (var i = 0; i < ch.length; i++) {\n    if (ch.charAt(i) < 'A' || ch.charAt(i) > 'Z') return false;\n  }\n  return true;\n}" },
+    { id: "j5", tech: "js", badge: "📜 JavaScript", q: "Comment vérifier en JS qu'une liste déroulante <select id=\"ville\"> a bien été choisie (pas la 1re option) ?", a: "On teste si selectedIndex === 0 (ou si value === \"\").", code: "if (document.getElementById(\"ville\").selectedIndex === 0) {\n  alert(\"Choisissez une ville !\");\n  return false;\n}" },
+    { id: "j6", tech: "js", badge: "📜 JavaScript", q: "Comment tester si aucun des deux boutons radio id=\"r1\" et id=\"r2\" n'est coché ?", a: "On utilise la propriété booléenne .checked sur chaque bouton radio.", code: "var r1 = document.getElementById(\"r1\").checked;\nvar r2 = document.getElementById(\"r2\").checked;\nif (!r1 && !r2) {\n  alert(\"Faites un choix !\");\n  return false;\n}" },
+    { id: "j7", tech: "js", badge: "📜 JavaScript", q: "Comment récupérer l'année sur 4 chiffres et le mois (1 à 12) de la date système en JS ?", a: "Avec new Date() : getFullYear() donne l'année, et getMonth() + 1 donne le mois (car getMonth() va de 0 à 11).", code: "var d = new Date();\nvar annee = d.getFullYear();\nvar mois  = d.getMonth() + 1;\nvar jour  = d.getDate();" },
+
+    /* --- SQL --- */
+    { id: "s1", tech: "sql", badge: "🗄️ SQL", q: "Quelle est la différence entre CHAR(10) et VARCHAR(10) lorsqu'on stocke 'Ali' ?", a: "CHAR(10) est de longueur fixe (occupe toujours 10 octets, complétés par des espaces) ; VARCHAR(10) est de longueur variable (occupe 3 + 1 = 4 octets).", code: "cin   CHAR(8) PRIMARY KEY,     -- Toujours 8 caractères\nnom   VARCHAR(30) NOT NULL     -- Longueur variable jusqu'à 30" },
+    { id: "s2", tech: "sql", badge: "🗄️ SQL", q: "Comment déclarer une clé étrangère id_cl avec suppression en cascade dans CREATE TABLE ?", a: "On utilise FOREIGN KEY (id_cl) REFERENCES classe(id_cl) ON DELETE CASCADE.", code: "FOREIGN KEY (id_cl) REFERENCES classe(id_cl)\n  ON DELETE CASCADE\n  ON UPDATE CASCADE" },
+    { id: "s3", tech: "sql", badge: "🗄️ SQL", q: "Que se passe-t-il lors d'un DELETE sur la table parente sans ON DELETE CASCADE si des lignes enfants existent ?", a: "Le SGBD bloque la suppression (erreur 1451 — comportement RESTRICT par défaut) pour protéger l'intégrité référentielle.", code: "-- Sans ON DELETE CASCADE : suppression refusée si la clé est référencée" },
+    { id: "s4", tech: "sql", badge: "🗄️ SQL", q: "Quelle est la différence entre WHERE et HAVING dans une requête SELECT ?", a: "WHERE filtre les lignes individuelles AVANT GROUP BY (sans fonction d'agrégation) ; HAVING filtre les groupes APRÈS GROUP BY (avec COUNT, SUM, AVG…).", code: "SELECT id_cl, COUNT(*) AS effectif\nFROM eleve\nWHERE age >= 17\nGROUP BY id_cl\nHAVING COUNT(*) >= 20;" },
+    { id: "s5", tech: "sql", badge: "🗄️ SQL", q: "Comment ajouter une contrainte CHECK imposant que la note soit entre 0 et 20 avec ALTER TABLE ?", a: "ALTER TABLE eleve ADD CONSTRAINT chk_note CHECK (note BETWEEN 0 AND 20);", code: "ALTER TABLE eleve\nADD CONSTRAINT chk_note CHECK (note BETWEEN 0 AND 20);" },
+    { id: "s6", tech: "sql", badge: "🗄️ SQL", q: "Quelle est la différence entre DELETE FROM table et DROP TABLE table ?", a: "DELETE FROM (LMD) supprime les enregistrements mais conserve la table ; DROP TABLE (LDD) détruit complètement la table et sa structure.", code: "DELETE FROM client WHERE ville = 'Sfax'; -- LMD\nDROP TABLE client;                       -- LDD" },
+    { id: "s7", tech: "sql", badge: "🗄️ SQL", q: "Comment écrire une jointure entre Client(cin, nom) et Location(id, cin, date_loc) ?", a: "Avec INNER JOIN ... ON ou dans le WHERE en égalisant la clé primaire et la clé étrangère.", code: "SELECT C.nom, L.date_loc\nFROM Client C\nINNER JOIN Location L ON C.cin = L.cin;" },
+
+    /* --- PHP & MySQLi (réservé 4SI / elevelabo3 / Admin) --- */
+    { id: "p1", tech: "php", only4si: true, badge: "🐘 PHP", q: "Comment récupérer proprement un champ 'cin' envoyé en POST par un formulaire HTML ?", a: "On utilise le tableau superglobal $_POST['cin'] après avoir vérifié son existence avec isset().", code: "<?php\n$cin = $_POST['cin'];\n?>" },
+    { id: "p2", tech: "php", only4si: true, badge: "🐘 MySQLi", q: "Quelles sont les 3 étapes pour se connecter à MySQL, exécuter une requête et fermer la connexion en PHP ?", a: "1) mysqli_connect('localhost','root','','bd')  2) mysqli_query($con, $req)  3) mysqli_close($con).", code: "$con = mysqli_connect(\"localhost\", \"root\", \"\", \"bd_bac\");\n$res = mysqli_query($con, $req);\nmysqli_close($con);" },
+    { id: "p3", tech: "php", only4si: true, badge: "🐘 MySQLi", q: "Quelle est la différence entre mysqli_num_rows($res) et mysqli_affected_rows($con) ?", a: "mysqli_num_rows($res) compte les lignes retournées par un SELECT ; mysqli_affected_rows($con) compte les lignes modifiées par INSERT, UPDATE ou DELETE.", code: "// Après SELECT :\nif (mysqli_num_rows($res) == 0) echo \"Aucun résultat\";\n// Après INSERT / UPDATE / DELETE :\nif (mysqli_affected_rows($con) > 0) echo \"Succès\";" },
+    { id: "p4", tech: "php", only4si: true, badge: "🐘 MySQLi", q: "Comment parcourir toutes les lignes d'un résultat SELECT avec mysqli_fetch_array() ?", a: "Avec une boucle while ($ligne = mysqli_fetch_array($res)) qui lit chaque enregistrement sous forme de tableau.", code: "while ($t = mysqli_fetch_array($res)) {\n  echo \"<tr><td>\" . $t['nom'] . \"</td></tr>\";\n}" }
+  ];
+
+  window.ouvrirFlashcardsSTI = function (filtreInit) {
+    var exist = document.getElementById("sti-flashcards-modal");
+    if (exist) exist.remove();
+
+    var CLE_FC = "sti-flashcards-mastered";
+    var mastered = {};
+    try { mastered = JSON.parse(localStorage.getItem(CLE_FC) || "{}") || {}; } catch (e) {}
+
+    var ok4 = est4SIAutoriseActuel();
+    var filtreTech = filtreInit || "all";
+    var seulementARevoir = false;
+    var indexCourant = 0;
+    var retourne = false;
+    var cartesActives = [];
+
+    function filtrerCartes() {
+      cartesActives = STI_FLASHCARDS.filter(function (c) {
+        if (c.only4si && !ok4) return false;
+        if (filtreTech !== "all" && c.tech !== filtreTech) return false;
+        if (seulementARevoir && mastered[c.id]) return false;
+        return true;
+      });
+      if (indexCourant >= cartesActives.length) indexCourant = 0;
+      retourne = false;
+    }
+
+    var fond = document.createElement("div");
+    fond.id = "sti-flashcards-modal";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.76);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:14px;font:600 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:18px 20px;max-width:620px;width:100%;box-shadow:7px 7px 0 #f4511e,0 20px 55px rgba(0,0,0,.45);color-scheme:light;";
+
+    boite.innerHTML =
+      "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px'>" +
+        "<div>" +
+          "<h3 style='margin:0;font-size:17px;font-weight:900;color:#23201a'>🃏 Flashcards Bac STI <span style='font-size:12px;color:#f4511e'>(Recto / Verso)</span></h3>" +
+          "<div id='sti-fc-stat' style='font-size:11.5px;color:#177245;font-weight:800;margin-top:2px'>Progression : 0 maîtrisée(s)</div>" +
+        "</div>" +
+        "<button type='button' id='sti-fc-close' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 11px;font-weight:900;font-size:12px;cursor:pointer'>✕ Fermer</button>" +
+      "</div>" +
+      "<div id='sti-fc-filters' style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px'>" +
+        "<button type='button' data-t='all' style='border:2px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>Tout</button>" +
+        "<button type='button' data-t='html5' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🌐 HTML5</button>" +
+        "<button type='button' data-t='css3' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🎨 CSS3</button>" +
+        "<button type='button' data-t='js' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>📜 JS</button>" +
+        "<button type='button' data-t='sql' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🗄️ SQL</button>" +
+        (ok4 ? "<button type='button' data-t='php' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🐘 PHP</button>" : "") +
+        "<button type='button' id='sti-fc-todo-only' style='margin-left:auto;border:1.8px dashed #23201a;background:#fff;color:#23201a;border-radius:999px;padding:4px 10px;font-weight:800;font-size:11px;cursor:pointer'>🔁 À revoir uniquement</button>" +
+      "</div>" +
+      "<div id='sti-fc-card' tabindex='0' style='min-height:225px;border:2.5px solid #23201a;border-radius:18px;padding:18px;background:#ffffff;box-shadow:4px 4px 0 #23201a;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:transform .16s ease,background .16s ease;user-select:none'></div>" +
+      "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:13px'>" +
+        "<div style='display:flex;gap:6px'>" +
+          "<button type='button' id='sti-fc-prev' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 13px;font-weight:900;font-size:12px;cursor:pointer'>◀ Préc.</button>" +
+          "<button type='button' id='sti-fc-flip' style='border:2px solid #23201a;background:#ffd54f;color:#23201a;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>🔄 Retourner</button>" +
+          "<button type='button' id='sti-fc-next' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 13px;font-weight:900;font-size:12px;cursor:pointer'>Suiv. ▶</button>" +
+          "<button type='button' id='sti-fc-shuf' title='Mélanger les cartes' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:7px 11px;font-weight:900;font-size:12px;cursor:pointer'>🔀</button>" +
+        "</div>" +
+        "<button type='button' id='sti-fc-master' style='border:2px solid #23201a;background:#e3f6e8;color:#177245;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ Je maîtrise</button>" +
+      "</div>";
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var cardEl = boite.querySelector("#sti-fc-card");
+    var statEl = boite.querySelector("#sti-fc-stat");
+    var btnMaster = boite.querySelector("#sti-fc-master");
+    var btnTodoOnly = boite.querySelector("#sti-fc-todo-only");
+
+    function majCompteurGlobal() {
+      var totDispo = STI_FLASHCARDS.filter(function (c) { return !c.only4si || ok4; });
+      var nbOk = totDispo.filter(function (c) { return Boolean(mastered[c.id]); }).length;
+      statEl.textContent = "✅ " + nbOk + " / " + totDispo.length + " cartes maîtrisées (sauvegardé hors-ligne)";
+      if (typeof window.__stiMajBadgeFlashcards === "function") {
+        window.__stiMajBadgeFlashcards();
+      }
+    }
+
+    function afficherCarte() {
+      majCompteurGlobal();
+      if (!cartesActives.length) {
+        cardEl.style.background = "#f9f1e3";
+        cardEl.innerHTML = "<div style='margin:auto;text-align:center;padding:24px'><div style='font-size:28px;margin-bottom:6px'>🎉</div><b>Toutes les cartes de ce filtre sont maîtrisées !</b><br><span style='font-size:12px;color:#5a5244'>Désactivez le filtre « À revoir uniquement » ou changez de module.</span></div>";
+        btnMaster.style.display = "none";
+        return;
+      }
+      btnMaster.style.display = "inline-block";
+      var c = cartesActives[indexCourant];
+      var estOk = Boolean(mastered[c.id]);
+      btnMaster.textContent = estOk ? "✓ Maîtrisée (cliquer pour revoir)" : "✅ Je maîtrise cette carte";
+      btnMaster.style.background = estOk ? "#f3ead9" : "#e3f6e8";
+      btnMaster.style.color = estOk ? "#5a5244" : "#177245";
+
+      if (!retourne) {
+        cardEl.style.background = "#ffffff";
+        cardEl.innerHTML =
+          "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+            "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #23201a;background:#f3ead9;font-size:11px;font-weight:900'>" + esc(c.badge) + " · RECTO (Question)</span>" +
+            "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + (estOk ? " · ✅" : "") + "</span>" +
+          "</div>" +
+          "<div style='font-size:16px;font-weight:900;color:#23201a;margin:18px 0;line-height:1.45'>" + esc(c.q) + "</div>" +
+          "<div style='font-size:11.5px;color:#f4511e;font-weight:800;text-align:center'>👆 Cliquez sur la carte (ou appuyez sur Espace) pour voir la réponse au verso</div>";
+      } else {
+        cardEl.style.background = "#fff8ec";
+        cardEl.innerHTML =
+          "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+            "<span style='display:inline-block;padding:2px 10px;border-radius:999px;border:1.8px solid #177245;background:#e3f6e8;color:#177245;font-size:11px;font-weight:900'>💡 VERSO (Réponse &amp; Syntaxe Bac)</span>" +
+            "<span style='font-size:11.5px;font-weight:900;color:#7a6f5d'>Carte " + (indexCourant + 1) + " / " + cartesActives.length + "</span>" +
+          "</div>" +
+          "<div style='font-size:14px;font-weight:800;color:#23201a;margin:12px 0 10px;line-height:1.45'>" + esc(c.a) + "</div>" +
+          (c.code ? "<pre style='margin:0;padding:10px 12px;border-radius:11px;background:#17172e;color:#f5f3ff;font:700 12px/1.45 ui-monospace,Consolas,monospace;overflow-x:auto;border:2px solid #23201a'>" + esc(c.code) + "</pre>" : "") +
+          "<div style='font-size:11px;color:#7a6f5d;font-weight:800;text-align:right;margin-top:8px'>Cliquez pour revenir à la question</div>";
+      }
+    }
+
+    cardEl.addEventListener("click", function () {
+      if (!cartesActives.length) return;
+      retourne = !retourne;
+      afficherCarte();
+    });
+    boite.querySelector("#sti-fc-flip").addEventListener("click", function () {
+      if (!cartesActives.length) return;
+      retourne = !retourne;
+      afficherCarte();
+    });
+    boite.querySelector("#sti-fc-prev").addEventListener("click", function () {
+      if (!cartesActives.length) return;
+      indexCourant = (indexCourant - 1 + cartesActives.length) % cartesActives.length;
+      retourne = false;
+      afficherCarte();
+    });
+    boite.querySelector("#sti-fc-next").addEventListener("click", function () {
+      if (!cartesActives.length) return;
+      indexCourant = (indexCourant + 1) % cartesActives.length;
+      retourne = false;
+      afficherCarte();
+    });
+    boite.querySelector("#sti-fc-shuf").addEventListener("click", function () {
+      for (var i = cartesActives.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cartesActives[i];
+        cartesActives[i] = cartesActives[j];
+        cartesActives[j] = tmp;
+      }
+      indexCourant = 0;
+      retourne = false;
+      afficherCarte();
+    });
+    btnMaster.addEventListener("click", function () {
+      if (!cartesActives.length) return;
+      var c = cartesActives[indexCourant];
+      mastered[c.id] = !mastered[c.id];
+      try { localStorage.setItem(CLE_FC, JSON.stringify(mastered)); } catch (e) {}
+      if (seulementARevoir && mastered[c.id]) {
+        filtrerCartes();
+      }
+      afficherCarte();
+    });
+    btnTodoOnly.addEventListener("click", function () {
+      seulementARevoir = !seulementARevoir;
+      btnTodoOnly.style.background = seulementARevoir ? "#ffd54f" : "#fff";
+      filtrerCartes();
+      afficherCarte();
+    });
+
+    boite.querySelectorAll("#sti-fc-filters button[data-t]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        filtreTech = b.getAttribute("data-t") || "all";
+        boite.querySelectorAll("#sti-fc-filters button[data-t]").forEach(function (x) {
+          var on = x === b;
+          x.style.background = on ? "#f4511e" : "#f3ead9";
+          x.style.color = on ? "#fff" : "#23201a";
+        });
+        filtrerCartes();
+        afficherCarte();
+      });
+    });
+
+    boite.querySelector("#sti-fc-close").addEventListener("click", function () { fond.remove(); });
+    fond.addEventListener("click", function (e) { if (e.target === fond) fond.remove(); });
+
+    filtrerCartes();
+    afficherCarte();
+    cardEl.focus();
+  };
+
+  /* ---------- 3. Mini « Bac à sable » de code en direct (HTML / CSS / JS — 100 % hors-ligne) ---------- */
+  var STI_SANDBOX_TEMPLATES = {
+    form_bac: {
+      label: "📋 Formulaire HTML5 + Contrôle JS verif() (Type Bac)",
+      html: "<fieldset>\n  <legend>Inscription Club Robotique STI</legend>\n  <form onsubmit=\"return verif()\">\n    <label>Nom (lettres uniquement) :</label>\n    <input type=\"text\" id=\"nom\" value=\"Ali\">\n\n    <label>Âge (entre 14 et 22) :</label>\n    <input type=\"number\" id=\"age\" value=\"18\">\n\n    <label>Ville (<datalist>) :</label>\n    <input type=\"text\" id=\"ville\" list=\"lst_villes\" placeholder=\"Choisir ou saisir…\">\n    <datalist id=\"lst_villes\">\n      <option value=\"Sousse\">\n      <option value=\"Tunis\">\n      <option value=\"Sfax\">\n    </datalist>\n\n    <button type=\"submit\">✅ Valider l'inscription</button>\n  </form>\n  <p id=\"msg\"></p>\n</fieldset>",
+      css: "body { font-family: system-ui, sans-serif; background: #fffdf7; padding: 14px; color: #1a1a2e; }\nfieldset { border: 2.5px solid #1a1a2e; border-radius: 14px; padding: 14px 18px; background: #fff; box-shadow: 4px 4px 0 #1a1a2e; max-width: 380px; }\nlegend { font-weight: 900; background: #ffd23f; border: 2px solid #1a1a2e; padding: 3px 10px; border-radius: 999px; }\nlabel { display: block; margin-top: 9px; font-weight: 700; font-size: 13px; }\ninput { width: 100%; padding: 7px 10px; margin-top: 3px; border: 2px solid #1a1a2e; border-radius: 8px; box-sizing: border-box; }\nbutton { margin-top: 12px; width: 100%; padding: 9px; border: 2px solid #1a1a2e; border-radius: 10px; background: #2ecc9e; font-weight: 900; cursor: pointer; box-shadow: 3px 3px 0 #1a1a2e; }\n#msg { font-weight: 800; margin-top: 10px; }",
+      js: "function alpha(ch) {\n  ch = ch.toUpperCase();\n  if (ch.length === 0) return false;\n  for (var i = 0; i < ch.length; i++) {\n    if (ch.charAt(i) < 'A' || ch.charAt(i) > 'Z') return false;\n  }\n  return true;\n}\n\nfunction verif() {\n  var nom = document.getElementById('nom').value.trim();\n  var age = document.getElementById('age').value;\n  var msg = document.getElementById('msg');\n\n  if (!alpha(nom)) {\n    msg.style.color = '#c0392b';\n    msg.textContent = '❌ Le nom doit contenir uniquement des lettres !';\n    console.log('Erreur : nom invalide (' + nom + ')');\n    return false;\n  }\n  if (age === '' || isNaN(age) || Number(age) < 14 || Number(age) > 22) {\n    msg.style.color = '#c0392b';\n    msg.textContent = '❌ Âge invalide (doit être entre 14 et 22) !';\n    return false;\n  }\n  msg.style.color = '#177245';\n  msg.textContent = '🎉 Bravo ' + nom + ' (' + age + ' ans), formulaire valide !';\n  console.log('Formulaire validé pour :', nom, age);\n  return false; // empêche le rechargement dans l'aperçu\n}"
+    },
+    css_flex: {
+      label: "🎨 Flexbox & Animation CSS3 (@keyframes)",
+      html: "<div class=\"galerie\">\n  <div class=\"carte\">🌐 HTML5</div>\n  <div class=\"carte\">🎨 CSS3</div>\n  <div class=\"carte\">📜 JS</div>\n</div>",
+      css: ".galerie {\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  gap: 12px;\n  padding: 24px;\n}\n.carte {\n  padding: 18px 22px;\n  border: 3px solid #1a1a2e;\n  border-radius: 16px;\n  background: #ffd23f;\n  font: 900 16px system-ui, sans-serif;\n  box-shadow: 4px 4px 0 #1a1a2e;\n  transition: transform 0.25s;\n  animation: flotter 2.2s ease-in-out infinite;\n}\n.carte:hover {\n  transform: scale(1.12) rotate(-3deg);\n  background: #4cc9f0;\n}\n@keyframes flotter {\n  0%, 100% { transform: translateY(0); }\n  50%      { transform: translateY(-8px); }\n}",
+      js: "console.log('Survolez les cartes Flexbox pour tester :hover !');"
+    },
+    js_chaines: {
+      label: "📜 Chaînes & Fonctions JavaScript (indexOf, substring, Date)",
+      html: "<div style=\"font-family:system-ui;padding:12px\">\n  <h3>🔬 Testeur de chaînes JavaScript</h3>\n  <input id=\"ch\" value=\"Baccalaureat_STI_2026\" style=\"padding:7px;width:240px;border:2px solid #23201a;border-radius:8px\">\n  <button onclick=\"analyser()\" style=\"padding:7px 14px;border:2px solid #23201a;border-radius:8px;background:#ffd23f;font-weight:800;cursor:pointer\">Analyser</button>\n  <pre id=\"out\" style=\"background:#17172e;color:#8aff80;padding:12px;border-radius:10px;margin-top:10px\"></pre>\n</div>",
+      css: "",
+      js: "function analyser() {\n  var s = document.getElementById('ch').value;\n  var d = new Date();\n  var res = [\n    'Chaîne        : ' + s,\n    'Longueur      : ' + s.length,\n    'Majuscules    : ' + s.toUpperCase(),\n    'substring(0,3): ' + s.substring(0, 3),\n    'indexOf(\"STI\"): ' + s.indexOf('STI'),\n    'Année système : ' + d.getFullYear()\n  ].join('\\n');\n  document.getElementById('out').textContent = res;\n  console.log('Analyse effectuée pour :', s);\n}\nanalyser();"
+    },
+    vierge: {
+      label: "📄 Page vierge (HTML + CSS + JS)",
+      html: "<h2>Bonjour STI !</h2>\n<p id=\"demo\">Modifiez le code à gauche pour tester.</p>",
+      css: "body {\n  font-family: system-ui, sans-serif;\n  padding: 16px;\n}\nh2 { color: #f4511e; }",
+      js: "console.log('Bac à sable prêt !');"
+    }
+  };
+
+  window.ouvrirSandboxSTI = function () {
+    var exist = document.getElementById("sti-sandbox-modal");
+    if (exist) exist.remove();
+
+    var CLE_SB = "sti-sandbox-code-v1";
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(CLE_SB) || "null"); } catch (e) {}
+    var initTpl = STI_SANDBOX_TEMPLATES.form_bac;
+    var codeState = saved && typeof saved.html === "string" ? saved : {
+      tpl: "form_bac",
+      html: initTpl.html,
+      css: initTpl.css,
+      js: initTpl.js
+    };
+
+    var fond = document.createElement("div");
+    fond.id = "sti-sandbox-modal";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.78);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:12px;font:600 13px/1.4 system-ui,'Segoe UI',sans-serif;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:20px;width:min(1040px,97vw);height:min(88vh,740px);display:flex;flex-direction:column;box-shadow:7px 7px 0 #f4511e,0 24px 60px rgba(0,0,0,.5);overflow:hidden;color-scheme:light;";
+
+    boite.innerHTML =
+      "<div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#f9f1e3;border-bottom:2px solid #23201a'>" +
+        "<div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap'>" +
+          "<strong style='font-size:15px;font-weight:900;color:#23201a'>💻 Bac à sable HTML / CSS / JS</strong>" +
+          "<select id='sti-sb-tpl' style='border:2px solid #23201a;border-radius:999px;padding:4px 10px;background:#fff;color:#23201a;font-weight:800;font-size:11.5px'>" +
+            "<option value='form_bac'>📋 Modèle : Formulaire HTML5 + verif() JS</option>" +
+            "<option value='css_flex'>🎨 Modèle : Flexbox &amp; Animation CSS3</option>" +
+            "<option value='js_chaines'>📜 Modèle : Chaînes &amp; Date JavaScript</option>" +
+            "<option value='vierge'>📄 Modèle : Page vierge</option>" +
+          "</select>" +
+        "</div>" +
+        "<div style='display:flex;align-items:center;gap:6px;flex-wrap:wrap'>" +
+          "<button type='button' id='sti-sb-run' style='border:2px solid #23201a;background:#2ecc9e;color:#1a1a2e;border-radius:999px;padding:5px 13px;font-weight:900;font-size:12px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>▶ Exécuter</button>" +
+          "<button type='button' id='sti-sb-reset' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 10px;font-weight:800;font-size:11.5px;cursor:pointer'>↺ Modèle</button>" +
+          "<button type='button' id='sti-sb-full' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 10px;font-weight:800;font-size:11.5px;cursor:pointer'>⛶ Plein écran</button>" +
+          "<button type='button' id='sti-sb-close' style='border:2px solid #23201a;background:#ff5d8f;color:#fff;border-radius:999px;padding:5px 11px;font-weight:900;font-size:12px;cursor:pointer'>✕ Fermer</button>" +
+        "</div>" +
+      "</div>" +
+      "<div style='flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));min-height:0;overflow:hidden'>" +
+        "<div style='display:flex;flex-direction:column;border-right:2px solid #23201a;min-height:0;background:#17172e;color:#f5f3ff'>" +
+          "<div id='sti-sb-tabs' style='display:flex;gap:4px;padding:7px 10px;background:#0f0f23;border-bottom:1px solid rgba(255,255,255,.15)'>" +
+            "<button type='button' data-lang='html' style='border:2px solid #ffd23f;background:#ffd23f;color:#1a1a2e;border-radius:8px;padding:4px 12px;font-weight:900;font-size:11.5px;cursor:pointer'>🌐 HTML</button>" +
+            "<button type='button' data-lang='css' style='border:2px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:8px;padding:4px 12px;font-weight:800;font-size:11.5px;cursor:pointer'>🎨 CSS</button>" +
+            "<button type='button' data-lang='js' style='border:2px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:8px;padding:4px 12px;font-weight:800;font-size:11.5px;cursor:pointer'>📜 JavaScript</button>" +
+          "</div>" +
+          "<textarea id='sti-sb-editor' spellcheck='false' style='flex:1;width:100%;border:0;padding:12px;background:#17172e;color:#f5f3ff;font:600 12.5px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;resize:none;outline:none'></textarea>" +
+        "</div>" +
+        "<div style='display:flex;flex-direction:column;min-height:0;background:#ffffff'>" +
+          "<div style='padding:6px 12px;background:#f3ead9;border-bottom:1.5px solid #23201a;font-size:11.5px;font-weight:900;color:#23201a;display:flex;justify-content:space-between'>" +
+            "<span>👁️ Rendu en direct</span>" +
+            "<span style='color:#177245'>100 % Hors-ligne</span>" +
+          "</div>" +
+          "<iframe id='sti-sb-frame' sandbox='allow-scripts allow-modals' style='flex:1;width:100%;border:0;background:#fff'></iframe>" +
+          "<div style='height:105px;border-top:2px solid #23201a;background:#0f0f23;color:#e8e8f5;display:flex;flex-direction:column'>" +
+            "<div style='padding:4px 10px;background:#17172e;border-bottom:1px solid rgba(255,255,255,.12);font-size:10.5px;font-weight:800;color:#ffd23f;display:flex;justify-content:space-between'>" +
+              "<span>🖥️ Console JavaScript (console.log / alert / erreurs)</span>" +
+              "<button type='button' id='sti-sb-clear-log' style='border:0;background:transparent;color:#a9a9c7;font-size:10.5px;font-weight:800;cursor:pointer'>Effacer</button>" +
+            "</div>" +
+            "<div id='sti-sb-console' style='flex:1;padding:6px 10px;overflow-y:auto;font:600 11.5px/1.45 ui-monospace,Consolas,monospace'></div>" +
+          "</div>" +
+        "</div>" +
+      "</div>";
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var langActif = "html";
+    var editor = boite.querySelector("#sti-sb-editor");
+    var frame = boite.querySelector("#sti-sb-frame");
+    var consEl = boite.querySelector("#sti-sb-console");
+    var selTpl = boite.querySelector("#sti-sb-tpl");
+    if (codeState.tpl && STI_SANDBOX_TEMPLATES[codeState.tpl]) {
+      selTpl.value = codeState.tpl;
+    }
+
+    function sauverEtat() {
+      codeState[langActif] = editor.value;
+      try { localStorage.setItem(CLE_SB, JSON.stringify(codeState)); } catch (e) {}
+    }
+
+    function ajouterLog(type, txt) {
+      var div = document.createElement("div");
+      div.style.cssText = "padding:2px 0;border-bottom:1px dashed rgba(255,255,255,.08);color:" +
+        (type === "err" ? "#ff5d8f" : (type === "alert" ? "#ffd23f" : "#8aff80"));
+      div.textContent = (type === "err" ? "❌ " : (type === "alert" ? "🔔 [alert] " : "› ")) + txt;
+      consEl.appendChild(div);
+      consEl.scrollTop = consEl.scrollHeight;
+    }
+
+    function onMsgSandbox(e) {
+      if (!e.data || e.data.source !== "sti-sandbox") return;
+      ajouterLog(e.data.kind || "log", e.data.msg || "");
+    }
+    window.addEventListener("message", onMsgSandbox);
+
+    function executerCode() {
+      sauverEtat();
+      consEl.innerHTML = "";
+      var pontConsole =
+        "<script>" +
+        "(function(){" +
+          "function send(k,a){try{parent.postMessage({source:'sti-sandbox',kind:k,msg:[].slice.call(a).map(function(x){return typeof x==='object'?JSON.stringify(x):String(x)}).join(' ')},'*')}catch(e){}}" +
+          "var oLog=console.log;console.log=function(){send('log',arguments);if(oLog)oLog.apply(console,arguments)};" +
+          "var oErr=console.error;console.error=function(){send('err',arguments);if(oErr)oErr.apply(console,arguments)};" +
+          "window.alert=function(m){send('alert',[m]);};" +
+          "window.onerror=function(msg,u,line){send('err',[msg+' (ligne '+line+')']);};" +
+        "})();" +
+        "<\/script>";
+      var doc = "<!DOCTYPE html><html><head><meta charset='utf-8'><style>" +
+        (codeState.css || "") +
+        "</style>" + pontConsole + "</head><body>" +
+        (codeState.html || "") +
+        "<script>\ntry {\n" + (codeState.js || "") + "\n} catch(err) { console.error(err.message); }\n<\/script></body></html>";
+      frame.srcdoc = doc;
+    }
+
+    function basculerLang(nvLang) {
+      codeState[langActif] = editor.value;
+      langActif = nvLang;
+      editor.value = codeState[langActif] || "";
+      boite.querySelectorAll("#sti-sb-tabs button[data-lang]").forEach(function (b) {
+        var on = b.getAttribute("data-lang") === nvLang;
+        b.style.background = on ? "#ffd23f" : "transparent";
+        b.style.color = on ? "#1a1a2e" : "#fff";
+        b.style.borderColor = on ? "#ffd23f" : "rgba(255,255,255,.25)";
+      });
+      editor.focus();
+    }
+
+    boite.querySelectorAll("#sti-sb-tabs button[data-lang]").forEach(function (b) {
+      b.addEventListener("click", function () { basculerLang(b.getAttribute("data-lang")); });
+    });
+
+    var timerRun = null;
+    editor.addEventListener("input", function () {
+      sauverEtat();
+      if (timerRun) clearTimeout(timerRun);
+      timerRun = setTimeout(executerCode, 450);
+    });
+
+    selTpl.addEventListener("change", function () {
+      var t = STI_SANDBOX_TEMPLATES[selTpl.value];
+      if (!t) return;
+      codeState.tpl = selTpl.value;
+      codeState.html = t.html;
+      codeState.css = t.css;
+      codeState.js = t.js;
+      editor.value = codeState[langActif] || "";
+      executerCode();
+    });
+
+    boite.querySelector("#sti-sb-run").addEventListener("click", executerCode);
+    boite.querySelector("#sti-sb-reset").addEventListener("click", function () {
+      var t = STI_SANDBOX_TEMPLATES[selTpl.value] || STI_SANDBOX_TEMPLATES.form_bac;
+      codeState.html = t.html;
+      codeState.css = t.css;
+      codeState.js = t.js;
+      editor.value = codeState[langActif] || "";
+      executerCode();
+    });
+    boite.querySelector("#sti-sb-clear-log").addEventListener("click", function () { consEl.innerHTML = ""; });
+
+    var estFull = false;
+    boite.querySelector("#sti-sb-full").addEventListener("click", function () {
+      estFull = !estFull;
+      if (estFull) {
+        fond.style.padding = "0";
+        boite.style.width = "100vw";
+        boite.style.height = "100vh";
+        boite.style.borderRadius = "0";
+      } else {
+        fond.style.padding = "12px";
+        boite.style.width = "min(1040px,97vw)";
+        boite.style.height = "min(88vh,740px)";
+        boite.style.borderRadius = "20px";
+      }
+    });
+
+    function fermerSb() {
+      window.removeEventListener("message", onMsgSandbox);
+      fond.remove();
+    }
+    boite.querySelector("#sti-sb-close").addEventListener("click", fermerSb);
+    fond.addEventListener("click", function (e) { if (e.target === fond) fermerSb(); });
+
+    editor.value = codeState[langActif] || "";
+    executerCode();
+  };
 })();

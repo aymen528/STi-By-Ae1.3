@@ -3,7 +3,7 @@
    - Pré-chargement automatique en arrière-plan des 426 fichiers du site
    - Réponse 0 ms hors-ligne et secours rapide (2,2 s) sur PC Windows même si une carte réseau virtuelle garde navigator.onLine = true */
 
-var CACHE = "sti-atelier-v69";
+var CACHE = "sti-atelier-v70";
 var SHELL = [
   "./",
   "./index.html",
@@ -67,9 +67,7 @@ var OFFLINE_LIST = [
   "./Positionnement-animee/style.css",
   "./Positionnement-animee/uploads/Annexe CSS3 By A.E.pdf",
   "./Positionnement-animee/uploads/Annexe HTML5 By A.E.pdf",
-  "./acces.js",
   "./admin.html",
-  "./admin.js",
   "./assets/assets/css/tailwind.css",
   "./assets/assets/fontawesome/LICENSE.txt",
   "./assets/assets/fontawesome/css/all.min.css",
@@ -106,9 +104,7 @@ var OFFLINE_LIST = [
   "./assets/images/carte-visite-sti-v2.png",
   "./assets/images/lycee_logo.png",
   "./assets/images/qr-code-site.png",
-  "./assets/images/qr-sti.png",
   "./assets/images/qr-stiv2.png",
-  "./assets/images/qr-v2.png",
   "./assets/js/acces.js",
   "./assets/js/admin.js",
   "./assets/js/config.js",
@@ -387,7 +383,6 @@ var OFFLINE_LIST = [
   "./index.html",
   "./manifest.webmanifest",
   "./portail.html",
-  "./portail.js",
   "./projets/carte-bancaire/cb.html",
   "./projets/carte-bancaire/controle.js",
   "./projets/carte-bancaire/enonce-tp-carte-bancaire.html",
