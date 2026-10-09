@@ -1146,6 +1146,54 @@
   }
 
   /* Point 3 : Export Excel (CSV UTF-8 avec BOM) */
+  /* ---------- Extraction d'une note sur 20, statistiques par élève & Fiche récapitulative ---------- */
+  function extraireNoteSur20(txt) {
+    var s = String(txt || "");
+    var m20 = s.match(/(\d+(?:[.,]\d+)?)\s*\/\s*20/);
+    if (m20) return parseFloat(m20[1].replace(",", "."));
+    var mFrac = s.match(/(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)/);
+    if (mFrac) {
+      var den = parseFloat(mFrac[2].replace(",", "."));
+      if (den > 0) return (parseFloat(mFrac[1].replace(",", ".")) / den) * 20;
+    }
+    var mPct = s.match(/(\d+(?:[.,]\d+)?)\s*%/);
+    if (mPct) return (parseFloat(mPct[1].replace(",", ".")) / 100) * 20;
+    return null;
+  }
+
+  function statsQuizPourUser(uid) {
+    var items = listeResultatsQuiz.filter(function (q) { return q.uid === uid; });
+    var notes20 = [];
+    items.forEach(function (q) {
+      var n = extraireNoteSur20(q.note);
+      if (n != null && !isNaN(n)) notes20.push(n);
+    });
+    var moy = notes20.length
+      ? (Math.round((notes20.reduce(function (a, b) { return a + b; }, 0) / notes20.length) * 10) / 10)
+      : null;
+    return {
+      nb: items.length,
+      moyenne20: moy,
+      items: items
+    };
+  }
+
+  function modulesConsultesPourUser(uid) {
+    var vus = {};
+    acces.forEach(function (a) {
+      if (a.user_id !== uid) return;
+      var pg = String(a.page || "").toLowerCase();
+      if (pg.indexOf("html5") !== -1 || pg.indexOf("datalist") !== -1) vus["HTML5"] = true;
+      if (pg.indexOf("css") !== -1 || pg.indexOf("positionnement") !== -1) vus["CSS3"] = true;
+      if (pg.indexOf("javascript") !== -1) vus["JS"] = true;
+      if (pg.indexOf("sql") !== -1) vus["SQL"] = true;
+      if (pg.indexOf("php") !== -1) vus["PHP"] = true;
+      if (pg.indexOf("exercice") !== -1 || pg.indexOf("fonctions-standards") !== -1) vus["Exercices"] = true;
+      if (pg.indexOf("bac-pratique") !== -1 || pg.indexOf("sti0") !== -1) vus["Bac/Projet"] = true;
+    });
+    return Object.keys(vus);
+  }
+
   if (btnExportCsv) {
     btnExportCsv.addEventListener("click", function () {
       var liste = obtenirListeFiltree();
@@ -1162,7 +1210,10 @@
         "Nb Connexions",
         "Duree periode",
         "Duree cumulee",
+        "Moyenne Quiz (/20)",
+        "Nb Quiz passes",
         "Scores Quiz / Bac",
+        "Modules consultes",
         "Inscrit le"
       ];
       var lignes = [entetes.join(";")];
@@ -1171,6 +1222,8 @@
         var ctc = tel || p.email || "—";
         var scMap = scoresParUser[p.id] || {};
         var scTxt = Object.keys(scMap).map(function (k) { return k + ": " + scMap[k]; }).join(" | ") || "—";
+        var stQ = statsQuizPourUser(p.id);
+        var mods = modulesConsultesPourUser(p.id).join(", ") || "—";
         var cols = [
           (p.nom || "—").trim(),
           (p.prenom || "—").trim(),
@@ -1183,7 +1236,10 @@
           counts[p.id] || 0,
           fmtDureeCumul(dureePourAbonne(p.id)),
           fmtDureeCumul(dureesTotales[p.id] || 0),
+          stQ.moyenne20 != null ? (String(stQ.moyenne20).replace(".", ",") + "/20") : "—",
+          stQ.nb,
           scTxt,
+          mods,
           fmtDate(p.cree_le)
         ].map(function (v) {
           return '"' + String(v).replace(/"/g, '""') + '"';
@@ -1274,8 +1330,8 @@
         var isG = estGold(p);
         var estNdGold = isG && p.statut === "actif";
         nd.className = "noeud-abonne " + (estNdGold ? "nd-gold" : ("nd-" + (p.statut || "en_attente")));
-        nd.title = "Cliquer pour voir les connexions de cet abonné";
-        nd.addEventListener("click", function () { detail(p); });
+        nd.title = "Cliquer pour ouvrir la fiche récapitulative complète de cet élève";
+        nd.addEventListener("click", function () { ouvrirFicheEleve(p); });
 
         var haut = document.createElement("div");
         haut.className = "noeud-haut";
@@ -1350,6 +1406,7 @@
           b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
           barreAct.appendChild(b);
         }
+        btnNd("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche bilan complète de l'élève");
         if (p.statut !== "actif") {
           btnNd("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         }
@@ -1373,21 +1430,21 @@
       tr.title = "Cliquer pour voir toutes ses connexions et durées par semaine";
       tr.addEventListener("click", function () { detail(p); });
 
-      /* Colonne 1 : Nom & Prénom + en ligne + scores quiz */
+      /* Colonne 1 : Nom & Prénom (cliquable pour ouvrir la Fiche Élève) + en ligne + scores quiz */
       var tdNom = document.createElement("td");
       tdNom.style.fontWeight = "800";
       var ligneIdentite = document.createElement("div");
       var npTxt = nomPrenomTexte(p);
-      if (npTxt) {
-        var spNom = document.createElement("span");
-        spNom.textContent = "👤 " + npTxt;
-        ligneIdentite.appendChild(spNom);
-      } else {
-        var spVide = document.createElement("span");
-        spVide.style.cssText = "color:#7a6f5d;font-weight:700;font-size:12px;";
-        spVide.textContent = "👤 Non renseigné";
-        ligneIdentite.appendChild(spVide);
-      }
+      var spNom = document.createElement("span");
+      spNom.className = "nom-cliquable-fiche";
+      spNom.title = "Cliquer pour ouvrir la fiche récapitulative complète de cet élève";
+      spNom.textContent = npTxt ? ("👤 " + npTxt) : "👤 Non renseigné";
+      if (!npTxt) spNom.style.cssText = "color:#7a6f5d;font-weight:700;font-size:12px;";
+      spNom.addEventListener("click", function (e) {
+        e.stopPropagation();
+        ouvrirFicheEleve(p);
+      });
+      ligneIdentite.appendChild(spNom);
       var btnEditNom = document.createElement("button");
       btnEditNom.type = "button";
       btnEditNom.className = "btn-edit-inline";
@@ -1543,6 +1600,7 @@
           b.addEventListener("click", function (e) { e.stopPropagation(); fn(); });
           tdAct.appendChild(b);
         }
+        bouton("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche récapitulative complète de l'élève");
         bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         bouton(
           "👑",
@@ -1581,37 +1639,116 @@
     window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
   }
 
-  /* ---------- Point 5 : Tableau des résultats Quiz & Atelier Bac Pratique (5 premiers + Voir plus + Effacer par mois) ---------- */
+  /* ---------- Point 5 : Tableau des résultats Quiz & Atelier Bac Pratique (Filtre classe + Export CSV + 5 premiers + Voir plus + Effacer par mois) ---------- */
   var toutVoirQuiz = false;
   var wrapVoirPlusQuiz = document.getElementById("wrap-voir-plus-quiz");
   var btnVoirPlusQuiz = document.getElementById("btn-voir-plus-quiz");
+  var selFiltreQuizClasse = document.getElementById("filtre-quiz-classe");
+  var btnExportQuizCsv = document.getElementById("btn-export-quiz-csv");
+
   if (btnVoirPlusQuiz) {
     btnVoirPlusQuiz.addEventListener("click", function () {
       toutVoirQuiz = !toutVoirQuiz;
       rendQuiz();
     });
   }
+  if (selFiltreQuizClasse) {
+    selFiltreQuizClasse.addEventListener("change", function () {
+      toutVoirQuiz = false;
+      rendQuiz();
+    });
+  }
+
+  function obtenirQuizFiltres() {
+    var mapProf = {};
+    profils.forEach(function (p) { mapProf[p.id] = p; });
+    var clFiltre = selFiltreQuizClasse ? selFiltreQuizClasse.value : "*";
+    if (!clFiltre || clFiltre === "*") return listeResultatsQuiz.slice();
+    return listeResultatsQuiz.filter(function (q) {
+      var p = mapProf[q.uid];
+      return p && (p.classe || "—") === clFiltre;
+    });
+  }
+
+  function majOptionsFiltreQuizClasse() {
+    if (!selFiltreQuizClasse) return;
+    var valAct = selFiltreQuizClasse.value || "*";
+    var classes = obtenirClassesActives();
+    selFiltreQuizClasse.innerHTML = '<option value="*">🏫 Toutes les classes</option>';
+    classes.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = "🏫 " + c;
+      if (c === valAct) opt.selected = true;
+      selFiltreQuizClasse.appendChild(opt);
+    });
+  }
+
+  if (btnExportQuizCsv) {
+    btnExportQuizCsv.addEventListener("click", function () {
+      var items = obtenirQuizFiltres();
+      if (!items.length) {
+        msg("⚠️ Aucun résultat de Quiz / Bac à exporter pour cette sélection.", "err");
+        return;
+      }
+      var mapProf = {};
+      profils.forEach(function (p) { mapProf[p.id] = p; });
+      var entetes = ["Date", "Nom", "Prenom", "Contact", "Lycee", "Classe", "Epreuve / Quiz", "Score / Note", "Note sur 20"];
+      var lignes = [entetes.join(";")];
+      items.forEach(function (q) {
+        var p = mapProf[q.uid];
+        var n20 = extraireNoteSur20(q.note);
+        var cols = [
+          fmtDate(q.ts),
+          p ? (p.nom || "—").trim() : "—",
+          p ? (p.prenom || "—").trim() : "—",
+          p ? (telDeProfil(p) || p.email || "—") : q.uid,
+          p ? lyceePropre(p) : "—",
+          p ? (p.classe || "—") : "—",
+          q.quiz || q.nomQ || "Quiz",
+          q.note || "—",
+          n20 != null ? String(Math.round(n20 * 10) / 10).replace(".", ",") : "—"
+        ].map(function (v) {
+          return '"' + String(v).replace(/"/g, '""') + '"';
+        });
+        lignes.push(cols.join(";"));
+      });
+      var blob = new Blob(["\uFEFF" + lignes.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var clNom = (selFiltreQuizClasse && selFiltreQuizClasse.value !== "*") ? selFiltreQuizClasse.value.replace(/\s+/g, "_") : "toutes_classes";
+      a.href = url;
+      a.download = "STI_V2_notes_quiz_" + clNom + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("📥 Notes exportées en Excel (CSV) : " + items.length + " résultat(s).", "ok");
+    });
+  }
 
   function rendQuiz() {
     var tb = document.getElementById("tb-quiz");
     if (!tb) return;
+    majOptionsFiltreQuizClasse();
     tb.innerHTML = "";
     var mapProf = {};
     profils.forEach(function (p) { mapProf[p.id] = p; });
-    var totalQ = listeResultatsQuiz.length;
+    var filtresQ = obtenirQuizFiltres();
+    var totalQ = filtresQ.length;
     if (!totalQ) {
       if (wrapVoirPlusQuiz) wrapVoirPlusQuiz.style.display = "none";
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
       td0.colSpan = 5;
       td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
-      td0.textContent = "Aucun score de quiz ou d'atelier Bac Pratique enregistré pour le moment.";
+      td0.textContent = "Aucun score de quiz ou d'atelier Bac Pratique enregistré pour cette sélection.";
       tr0.appendChild(td0);
       tb.appendChild(tr0);
       return;
     }
     var limQ = toutVoirQuiz ? totalQ : 5;
-    listeResultatsQuiz.slice(0, limQ).forEach(function (q) {
+    filtresQ.slice(0, limQ).forEach(function (q) {
       var p = mapProf[q.uid];
       var tr = document.createElement("tr");
       var nomEl = p ? contact(p) : q.uid;
@@ -1620,6 +1757,11 @@
         var td = document.createElement("td");
         if (idx === 0 || idx === 3) td.style.fontWeight = "800";
         if (idx === 3) td.style.color = "#177245";
+        if (idx === 0 && p) {
+          td.className = "nom-cliquable-fiche";
+          td.title = "Cliquer pour ouvrir la fiche récapitulative de cet élève";
+          td.addEventListener("click", function () { ouvrirFicheEleve(p); });
+        }
         td.textContent = v;
         tr.appendChild(td);
       });
@@ -1635,6 +1777,218 @@
         wrapVoirPlusQuiz.style.display = "none";
       }
     }
+  }
+
+  /* ---------- Fiche récapitulative complète par élève (#modal-fiche-eleve) ---------- */
+  var modalFicheEleve = document.getElementById("modal-fiche-eleve");
+  var contenuFicheEleve = document.getElementById("contenu-fiche-eleve");
+  var btnFermerFiche = document.getElementById("btn-fermer-fiche");
+  var btnFermerFicheX = document.getElementById("btn-fermer-fiche-x");
+  var btnModifierDepuisFiche = document.getElementById("btn-modifier-depuis-fiche");
+  var btnImprimerFiche = document.getElementById("btn-imprimer-fiche");
+  var btnExportFicheCsv = document.getElementById("btn-export-fiche-csv");
+  var eleveFicheActif = null;
+
+  function echHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function collecterMessagesEleve(uid) {
+    var res = [];
+    messagesDiffuses.forEach(function (m) {
+      var luTs = lecturesParMsg[m.id] && lecturesParMsg[m.id][uid];
+      var rep = reponsesParMsg[m.id] && reponsesParMsg[m.id][uid];
+      if (luTs || rep) {
+        res.push({
+          type: "Message diffusé",
+          sujet: (m.texte || "").slice(0, 70),
+          reponse: rep || "✓ Lu sans réponse écrite",
+          ts: luTs || m.ts
+        });
+      }
+    });
+    questionsLibres.forEach(function (ql) {
+      if (ql.uid === uid) {
+        res.push({
+          type: "Question spontanée",
+          sujet: "Message envoyé au professeur",
+          reponse: ql.reponse || "—",
+          ts: ql.ts
+        });
+      }
+    });
+    return res;
+  }
+
+  function ouvrirFicheEleve(p) {
+    if (!p || !modalFicheEleve || !contenuFicheEleve) return;
+    eleveFicheActif = p;
+    var ini = (
+      ((p.prenom || "").trim().charAt(0) || "") +
+      ((p.nom || "").trim().charAt(0) || "")
+    ).toUpperCase() || "ST";
+    var np = nomPrenomTexte(p) || contact(p);
+    var tel = telDeProfil(p);
+    var ctc = tel ? ("📱 " + tel + " (Code WhatsApp : " + codeWa(tel) + ")") : ("✉️ " + (p.email || "—"));
+    var isG = estGold(p);
+    var onL = estEnLigne(p.id);
+    var secSem = dureePourAbonne(p.id);
+    var secTot = dureesTotales[p.id] || 0;
+    var nbCon = counts[p.id] || 0;
+    var stQ = statsQuizPourUser(p.id);
+    var mods = modulesConsultesPourUser(p.id);
+    var msgsEl = collecterMessagesEleve(p.id);
+    var sesAcces = acces.filter(function (a) { return a.user_id === p.id; });
+
+    var badgeStatut = isG && p.statut === "actif"
+      ? "<span class='st gold'>👑 Compte Gold</span>"
+      : ("<span class='st " + echHtml(p.statut || "en_attente") + "'>" + echHtml(LIB[p.statut] || p.statut) + "</span>");
+    var badgeOnline = onL
+      ? "<span class='badge-online'>🟢 En ligne (" + echHtml((enLigneMap[p.id] && enLigneMap[p.id].page) || "site") + ")</span>"
+      : "<span style='font-size:11px;color:#7a6f5d;font-weight:800'>⚪ Hors ligne</span>";
+
+    var htmlMods = mods.length
+      ? mods.map(function (m) {
+          return "<span style='display:inline-block;padding:2px 7px;margin:2px;border-radius:999px;border:1.5px solid #23201a;background:#e3f6e8;color:#177245;font-size:10.5px;font-weight:900'>" + echHtml(m) + " ✔</span>";
+        }).join("")
+      : "<span style='color:#7a6f5d;font-size:11px'>Aucun cours consulté</span>";
+
+    /* Tableau des Quiz */
+    var htmlQuiz = "";
+    if (!stQ.items.length) {
+      htmlQuiz = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucun quiz ou atelier Bac Pratique enregistré pour cet élève.</div>";
+    } else {
+      htmlQuiz = "<table class='fiche-mini-table'><thead><tr><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead><tbody>" +
+        stQ.items.slice(0, 12).map(function (q) {
+          return "<tr><td><b>🏆 " + echHtml(q.quiz || q.nomQ) + "</b></td><td style='color:#177245;font-weight:900'>" + echHtml(q.note) + "</td><td>" + echHtml(fmtDate(q.ts)) + "</td></tr>";
+        }).join("") +
+        "</tbody></table>";
+    }
+
+    /* Tableau des 10 dernières connexions / pages */
+    var htmlAcces = "";
+    if (!sesAcces.length) {
+      htmlAcces = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucune connexion enregistrée.</div>";
+    } else {
+      htmlAcces = "<table class='fiche-mini-table'><thead><tr><th>Date &amp; Heure</th><th>Durée</th><th>Page consultée</th><th>Lieu</th></tr></thead><tbody>" +
+        sesAcces.slice(0, 10).map(function (a) {
+          return "<tr><td>" + echHtml(fmtDate(a.debut)) + "</td><td><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
+        }).join("") +
+        "</tbody></table>";
+    }
+
+    /* Tableau des messages lus & réponses */
+    var htmlMsgs = "";
+    if (!msgsEl.length) {
+      htmlMsgs = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucun message lu ni question envoyée pour le moment.</div>";
+    } else {
+      htmlMsgs = "<table class='fiche-mini-table'><thead><tr><th>Type</th><th>Message</th><th>Réponse / État</th><th>Date</th></tr></thead><tbody>" +
+        msgsEl.slice(0, 8).map(function (m) {
+          return "<tr><td><b>" + echHtml(m.type) + "</b></td><td>" + echHtml(m.sujet) + "</td><td style='color:#177245;font-weight:800'>" + echHtml(m.reponse) + "</td><td>" + echHtml(fmtDate(m.ts)) + "</td></tr>";
+        }).join("") +
+        "</tbody></table>";
+    }
+
+    contenuFicheEleve.innerHTML =
+      "<div class='fiche-entete'>" +
+        "<div style='display:flex;align-items:center;gap:12px;min-width:0'>" +
+          "<div class='fiche-avatar'>" + echHtml(ini) + "</div>" +
+          "<div style='min-width:0'>" +
+            "<div style='font-size:16px;font-weight:900;color:#23201a'>" + echHtml(np) + "</div>" +
+            "<div style='font-size:12px;color:#5a5244;font-weight:800'>🏛️ " + echHtml(lyceePropre(p)) + " · 🏫 <b>" + echHtml(p.classe || "—") + "</b></div>" +
+            "<div style='font-size:11.5px;color:#7a6f5d;font-weight:700;margin-top:2px'>" + echHtml(ctc) + " · Inscrit le " + echHtml(fmtDate(p.cree_le)) + "</div>" +
+          "</div>" +
+        "</div>" +
+        "<div style='display:flex;flex-direction:column;align-items:flex-end;gap:5px'>" +
+          badgeStatut +
+          badgeOnline +
+        "</div>" +
+      "</div>" +
+      "<div class='fiche-kpis'>" +
+        "<div class='fiche-kpi'><small>⏱️ Temps (période)</small><b style='color:#d84315'>" + echHtml(fmtDureeCumul(secSem)) + "</b><span>Cumul total : " + echHtml(fmtDureeCumul(secTot)) + " (" + nbCon + " sess.)</span></div>" +
+        "<div class='fiche-kpi'><small>🏆 Moyenne Quiz / Bac</small><b style='color:#177245'>" + (stQ.moyenne20 != null ? (stQ.moyenne20 + " / 20") : "—") + "</b><span>" + stQ.nb + " épreuve(s) passée(s)</span></div>" +
+        "<div class='fiche-kpi'><small>📚 Modules consultés</small><b>" + mods.length + " module(s)</b><div style='margin-top:3px'>" + htmlMods + "</div></div>" +
+        "<div class='fiche-kpi'><small>💬 Suivi messages</small><b>" + msgsEl.length + " interaction(s)</b><span>Lectures &amp; réponses au prof</span></div>" +
+      "</div>" +
+      "<div class='fiche-sec-titre'>🏆 Notes des Quiz &amp; Atelier Bac Pratique (" + stQ.nb + ")</div>" +
+      htmlQuiz +
+      "<div class='fiche-sec-titre'>🕒 10 dernières connexions &amp; pages consultées (sur " + nbCon + ")</div>" +
+      htmlAcces +
+      "<div class='fiche-sec-titre'>💬 Messages lus &amp; questions de l'élève (" + msgsEl.length + ")</div>" +
+      htmlMsgs;
+
+    modalFicheEleve.classList.add("visible");
+  }
+
+  function fermerFicheEleve() {
+    if (modalFicheEleve) modalFicheEleve.classList.remove("visible");
+  }
+  if (btnFermerFiche) btnFermerFiche.addEventListener("click", fermerFicheEleve);
+  if (btnFermerFicheX) btnFermerFicheX.addEventListener("click", fermerFicheEleve);
+  if (modalFicheEleve) {
+    modalFicheEleve.addEventListener("click", function (e) {
+      if (e.target === modalFicheEleve) fermerFicheEleve();
+    });
+  }
+  if (btnModifierDepuisFiche) {
+    btnModifierDepuisFiche.addEventListener("click", function () {
+      if (!eleveFicheActif) return;
+      fermerFicheEleve();
+      ouvrirAffectation(eleveFicheActif);
+    });
+  }
+  if (btnImprimerFiche) {
+    btnImprimerFiche.addEventListener("click", function () {
+      window.print();
+    });
+  }
+  if (btnExportFicheCsv) {
+    btnExportFicheCsv.addEventListener("click", function () {
+      var p = eleveFicheActif;
+      if (!p) return;
+      var stQ = statsQuizPourUser(p.id);
+      var mods = modulesConsultesPourUser(p.id);
+      var sesAcces = acces.filter(function (a) { return a.user_id === p.id; });
+      var lignes = [
+        '"Champ";"Valeur"',
+        '"Nom";"' + String(p.nom || "—").replace(/"/g, '""') + '"',
+        '"Prenom";"' + String(p.prenom || "—").replace(/"/g, '""') + '"',
+        '"Contact";"' + String(telDeProfil(p) || p.email || "—").replace(/"/g, '""') + '"',
+        '"Lycee";"' + String(lyceePropre(p)).replace(/"/g, '""') + '"',
+        '"Classe";"' + String(p.classe || "—").replace(/"/g, '""') + '"',
+        '"Statut";"' + String(LIB[p.statut] || p.statut).replace(/"/g, '""') + '"',
+        '"Compte Gold";"' + (estGold(p) ? "OUI" : "NON") + '"',
+        '"Duree periode";"' + fmtDureeCumul(dureePourAbonne(p.id)) + '"',
+        '"Duree cumulee";"' + fmtDureeCumul(dureesTotales[p.id] || 0) + '"',
+        '"Moyenne Quiz (/20)";"' + (stQ.moyenne20 != null ? String(stQ.moyenne20).replace(".", ",") : "—") + '"',
+        '"Modules consultes";"' + mods.join(", ") + '"',
+        "",
+        '"=== NOTES QUIZ & BAC PRATIQUE ===";"Score";"Date"'
+      ];
+      stQ.items.forEach(function (q) {
+        lignes.push('"' + String(q.quiz || q.nomQ).replace(/"/g, '""') + '";"' + String(q.note).replace(/"/g, '""') + '";"' + fmtDate(q.ts) + '"');
+      });
+      lignes.push("");
+      lignes.push('"=== CONNEXIONS & PAGES CONSULTEES ===";"Duree";"Page";"Lieu"');
+      sesAcces.slice(0, 50).forEach(function (a) {
+        lignes.push('"' + fmtDate(a.debut) + '";"' + fmtDuree(dureeLigne(a)) + '";"' + String(a.page || "—").replace(/"/g, '""') + '";"' + String(a.lieu || "—").replace(/"/g, '""') + '"');
+      });
+      var blob = new Blob(["\uFEFF" + lignes.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var slug = (nomPrenomTexte(p) || contact(p)).replace(/[^a-zA-Z0-9_-]+/g, "_");
+      a.href = url;
+      a.download = "Fiche_Eleve_" + slug + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("📥 Bilan individuel exporté en Excel (CSV).", "ok");
+    });
   }
 
   /* ---------- Suppression des résultats Quiz & Bac Pratique par mois cible ---------- */

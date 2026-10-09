@@ -606,7 +606,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v68</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v69</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v66)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -736,7 +736,13 @@
 
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:22px 0 10px">
     <h2 style="margin:0">🏆 Résultats des Quiz &amp; Atelier Bac Pratique</h2>
-    <button type="button" class="btn-outil" id="btn-ouvrir-purge-quiz" style="background:#fde2e6;color:#c0392b;border-color:#c0392b;box-shadow:2px 2px 0 #c0392b" title="Effacer les résultats de Quiz et Bac Pratique en choisissant le mois cible">🗑️ Effacer par mois…</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <select id="filtre-quiz-classe" style="border:2px solid #23201a;border-radius:999px;padding:6px 12px;background:#fffdf7;color:#23201a;font-weight:800;font-size:12px" title="Filtrer les résultats de Quiz par classe">
+        <option value="*">🏫 Toutes les classes</option>
+      </select>
+      <button type="button" class="btn-outil" id="btn-export-quiz-csv" title="Exporter les notes et résultats de Quiz au format Excel (CSV)">📥 Exporter Notes (CSV)</button>
+      <button type="button" class="btn-outil" id="btn-ouvrir-purge-quiz" style="background:#fde2e6;color:#c0392b;border-color:#c0392b;box-shadow:2px 2px 0 #c0392b" title="Effacer les résultats de Quiz et Bac Pratique en choisissant le mois cible">🗑️ Effacer par mois…</button>
+    </div>
   </div>
   <div class="table-wrap">
     <table>
@@ -994,12 +1000,138 @@
     </div>
   </div>
 
+  <!-- Boîte Fiche récapitulative complète d'un élève -->
+  <style>
+    .fiche-eleve-boite {
+      max-width: 760px !important;
+      width: min(760px, 96vw) !important;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .fiche-entete {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 2px solid #23201a;
+      background: #f9f1e3;
+      margin-bottom: 12px;
+    }
+    .fiche-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #23201a;
+      background: linear-gradient(135deg, #f4511e, #ff8a50);
+      color: #fff;
+      font-weight: 900;
+      font-size: 17px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: 2px 2px 0 #23201a;
+    }
+    .fiche-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .fiche-kpi {
+      background: #ffffff;
+      border: 2px solid #23201a;
+      border-radius: 13px;
+      padding: 9px 11px;
+      box-shadow: 2px 2px 0 #23201a;
+    }
+    .fiche-kpi small {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #7a6f5d;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .fiche-kpi b {
+      display: block;
+      font-size: 16px;
+      font-weight: 900;
+      color: #23201a;
+      margin-top: 2px;
+    }
+    .fiche-kpi span {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #5a5244;
+      margin-top: 2px;
+    }
+    .fiche-sec-titre {
+      font-size: 13px;
+      font-weight: 900;
+      color: #23201a;
+      margin: 12px 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fiche-mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      border: 1.5px solid #23201a;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .fiche-mini-table th,
+    .fiche-mini-table td {
+      padding: 6px 9px;
+      border-bottom: 1px solid #e7dcc8;
+      text-align: left;
+    }
+    .fiche-mini-table th {
+      background: #f3ead9;
+      font-weight: 900;
+      color: #23201a;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .nom-cliquable-fiche {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+    }
+    .nom-cliquable-fiche:hover {
+      color: #f4511e;
+    }
+  </style>
+  <div class="modal-fond" id="modal-fiche-eleve" role="dialog" aria-modal="true">
+    <div class="modal-boite fiche-eleve-boite" id="boite-fiche-eleve">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
+        <h3 style="margin:0">📊 Fiche récapitulative de l'élève</h3>
+        <button type="button" id="btn-fermer-fiche-x" style="border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;width:30px;height:30px;font-weight:900;cursor:pointer">✕</button>
+      </div>
+      <div id="contenu-fiche-eleve"></div>
+      <div class="modal-actions" style="flex-wrap:wrap;gap:8px;margin-top:14px">
+        <button type="button" id="btn-fermer-fiche">Fermer</button>
+        <button type="button" id="btn-modifier-depuis-fiche">✏️ Modifier</button>
+        <button type="button" id="btn-imprimer-fiche">🖨️ Imprimer</button>
+        <button type="button" class="btn-valider" id="btn-export-fiche-csv">📥 Exporter Bilan (CSV)</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v66)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v69)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span>
   </footer>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=68"></script>
-<script src="assets/js/admin.js?v=68"></script>
+<script src="assets/js/config.js?v=69"></script>
+<script src="assets/js/admin.js?v=69"></script>
 </body>
 </html>
