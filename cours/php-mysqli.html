@@ -135,6 +135,33 @@ html:fullscreen body{font-size:18px;overflow:auto}
 </head>
 <body>
 <main>
+<div class="topbar-guichet" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:14px;background:var(--card);border:2px solid var(--ink);border-radius:14px;box-shadow:3.5px 3.5px 0 var(--ink);">
+  <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:.98rem">
+    <span>🎬</span>
+    <span>Cours PHP — Animation interactive du guichet (JS ↔ PHP ↔ MySQL)</span>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a id="btn-retour-cours-php" href="php.html" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:linear-gradient(120deg,#f4511e,#b4552d);color:#fff;font-weight:800;font-size:.9rem;text-decoration:none;border:2px solid var(--ink);box-shadow:2.5px 2.5px 0 var(--ink);">🐘 ← Retour au cours PHP</a>
+    <a href="../index.html#cours" target="_top" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--card);color:var(--ink);font-weight:700;font-size:.9rem;text-decoration:none;border:1.5px solid var(--ink);">🏠 Accueil</a>
+  </div>
+</div>
+<script>
+(function () {
+  var b = document.getElementById("btn-retour-cours-php");
+  if (!b) return;
+  b.addEventListener("click", function (e) {
+    if (window.self !== window.top) {
+      e.preventDefault();
+      try { window.parent.postMessage({ type: "STI_FERMER_MODALE_PHP" }, "*"); } catch (err) {}
+      try {
+        var pDoc = window.parent.document;
+        var ac = pDoc.getElementById("animClose");
+        if (ac) ac.click();
+      } catch (err2) {}
+    }
+  });
+})();
+</script>
 <h1>Du formulaire aux archives : l'histoire du guichet</h1>
 <p class="sub">Suivez le voyage d'une feuille, du formulaire jusqu'aux archives.</p>
 <div class="legend"><span style="--c:var(--ink)">Directeur : donne les ordres</span><span style="--c:var(--mut)">Client : remplit la feuille</span><span style="--c:var(--js)">Guichetière = JavaScript (navigateur)</span><span style="--c:var(--php)">Coursier = PHP (serveur Web Apache)</span><span style="--c:var(--db)">Administration = SGBD (serveur MySQL)</span></div>

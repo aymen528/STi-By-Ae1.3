@@ -1120,10 +1120,18 @@ echo (date("Y-d-m H:i:s",$e)." = ".$e." secondes&lt;br&gt;") ;
           <div class="anim-box" id="animBox">
             <div class="anim-head">
               <span id="animTitle"
-                >Animation — Du formulaire aux archives : l'histoire du
+                >🎬 Animation — Du formulaire aux archives : l'histoire du
                 guichet</span
               >
               <span class="anim-tools">
+                <button
+                  type="button"
+                  id="animRetourCours"
+                  title="Retourner au cours PHP"
+                  style="background:linear-gradient(120deg,#f4511e,#b4552d);color:#fff;border-color:#101728;font-weight:800"
+                >
+                  🐘 ← Retour au cours PHP
+                </button>
                 <button
                   type="button"
                   id="animFull"
@@ -1540,6 +1548,14 @@ mysqli_close($connexion);
         <div class="anim-head">
           <span id="recapTitle">🪄 Animation — PHP : voir l'effet, étape par étape (PHP-recap)</span>
           <span class="anim-tools">
+            <button
+              type="button"
+              id="recapRetourCours"
+              title="Retourner au cours PHP"
+              style="background:linear-gradient(120deg,#f4511e,#b4552d);color:#fff;border-color:#101728;font-weight:800"
+            >
+              🐘 ← Retour au cours PHP
+            </button>
             <button type="button" id="recapFull" title="Agrandir sur toute la page">
               ⛶ Plein écran
             </button>
@@ -1599,6 +1615,9 @@ mysqli_close($connexion);
         document.getElementById("animOpen").onclick = open;
         if (btnTopGuichet) btnTopGuichet.onclick = open;
         document.getElementById("animClose").onclick = close;
+        if (document.getElementById("animRetourCours")) {
+          document.getElementById("animRetourCours").onclick = close;
+        }
         document.getElementById("animFull").onclick = toggleFull;
         M.addEventListener("click", function (e) {
           if (e.target === M) close();
@@ -1639,12 +1658,21 @@ mysqli_close($connexion);
         }
         if (btnMag) btnMag.onclick = openRecap;
         document.getElementById("recapClose").onclick = closeRecap;
+        if (document.getElementById("recapRetourCours")) {
+          document.getElementById("recapRetourCours").onclick = closeRecap;
+        }
         document.getElementById("recapFull").onclick = toggleFullRecap;
         MR.addEventListener("click", function (e) {
           if (e.target === MR) closeRecap();
         });
         document.addEventListener("keydown", function (e) {
           if (e.key == "Escape" && !MR.hidden) closeRecap();
+        });
+        window.addEventListener("message", function (ev) {
+          if (ev && ev.data && ev.data.type === "STI_FERMER_MODALE_PHP") {
+            if (!M.hidden) close();
+            if (!MR.hidden) closeRecap();
+          }
         });
 
         document.addEventListener("fullscreenchange", function () {
