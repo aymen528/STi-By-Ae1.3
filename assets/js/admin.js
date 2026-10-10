@@ -1539,7 +1539,7 @@
         if (p.statut !== "exclu") {
           btnNd("⛔", function () { changeStatut(p, "exclu"); }, "", "Exclure");
         }
-        btnNd("🗑️", function () { supprime(p); }, "del", "Supprimer");
+        btnNd("🗑️", function () { supprimer(p); }, "del", "Supprimer");
 
         nd.append(haut, meta, barreAct);
         grilleNoeuds.appendChild(nd);
@@ -1950,14 +1950,23 @@
     return res;
   }
 
-  function ouvrirFicheEleve(p) {
+  var toutVoirAccesFiche = false;
+
+  function ouvrirFicheEleve(p, opts) {
     if (!p || !modalFicheEleve || !contenuFicheEleve) return;
+    if (eleveFicheActif && eleveFicheActif.id !== p.id) {
+      toutVoirAccesFiche = false;
+    }
     eleveFicheActif = p;
     var ini = (
       ((p.prenom || "").trim().charAt(0) || "") +
       ((p.nom || "").trim().charAt(0) || "")
     ).toUpperCase() || "ST";
     var np = nomPrenomTexte(p) || contact(p);
+    var elTitreFiche = document.getElementById("titre-fiche-eleve");
+    if (elTitreFiche) {
+      elTitreFiche.textContent = "📊 Détails : " + np;
+    }
     var tel = telDeProfil(p);
     var ctc = tel ? ("📱 " + tel + " (Code WhatsApp : " + codeWa(tel) + ")") : ("✉️ " + (p.email || "—"));
     var isG = estGold(p);
@@ -1983,28 +1992,63 @@
         }).join("")
       : "<span style='color:#7a6f5d;font-size:11px'>Aucun cours consulté</span>";
 
+    /* Cumul par semaine (identique à detail(p)) */
+    var htmlSemaines = "";
+    if (sesAcces.length) {
+      var parSem = {};
+      sesAcces.forEach(function (a) {
+        var sk = cleSemaine(a.debut);
+        if (!parSem[sk]) parSem[sk] = { sec: 0, nb: 0 };
+        parSem[sk].sec += dureeLigne(a);
+        parSem[sk].nb += 1;
+      });
+      var clesSem = Object.keys(parSem).sort().reverse();
+      if (clesSem.length) {
+        htmlSemaines =
+          "<div class='fiche-sec-titre'>⏱️ Durées hebdomadaires de révision (" + clesSem.length + " semaine(s))</div>" +
+          "<div style='display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px'>" +
+          clesSem.map(function (sk) {
+            return "<div style='background:#fffdf7;border:2px solid #23201a;border-radius:11px;padding:6px 11px;font-size:11.5px;font-weight:800;box-shadow:2px 2px 0 rgba(244,81,30,.4)'>" +
+              "<span style='color:#7a6f5d'>" + echHtml(libelleSemaine(sk)) + " :</span> " +
+              "<b style='color:#f4511e;font-size:12.5px'>⏱️ " + echHtml(fmtDureeCumul(parSem[sk].sec)) + "</b> " +
+              "<span style='color:#7a6f5d'>(" + parSem[sk].nb + " accès)</span>" +
+            "</div>";
+          }).join("") +
+          "</div>";
+      }
+    }
+
     /* Tableau des Quiz */
     var htmlQuiz = "";
     if (!stQ.items.length) {
       htmlQuiz = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucun quiz ou atelier Bac Pratique enregistré pour cet élève.</div>";
     } else {
-      htmlQuiz = "<table class='fiche-mini-table'><thead><tr><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead><tbody>" +
+      htmlQuiz = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead><tbody>" +
         stQ.items.slice(0, 12).map(function (q) {
           return "<tr><td><b>🏆 " + echHtml(q.quiz || q.nomQ) + "</b></td><td style='color:#177245;font-weight:900'>" + echHtml(q.note) + "</td><td>" + echHtml(fmtDate(q.ts)) + "</td></tr>";
         }).join("") +
-        "</tbody></table>";
+        "</tbody></table></div>";
     }
 
-    /* Tableau des 10 dernières connexions / pages */
+    /* Tableau des connexions / pages */
     var htmlAcces = "";
+    var limAccFiche = toutVoirAccesFiche ? sesAcces.length : 10;
     if (!sesAcces.length) {
       htmlAcces = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucune connexion enregistrée.</div>";
     } else {
-      htmlAcces = "<table class='fiche-mini-table'><thead><tr><th>Date &amp; Heure</th><th>Durée</th><th>Page consultée</th><th>Lieu</th></tr></thead><tbody>" +
-        sesAcces.slice(0, 10).map(function (a) {
-          return "<tr><td>" + echHtml(fmtDate(a.debut)) + "</td><td><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
+      htmlAcces = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Début</th><th>Fin</th><th>Durée</th><th>Page consultée</th><th>Lieu</th></tr></thead><tbody>" +
+        sesAcces.slice(0, limAccFiche).map(function (a) {
+          return "<tr><td>" + echHtml(fmtDate(a.debut)) + "</td><td>" + echHtml(fmtDate(a.fin)) + "</td><td><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
         }).join("") +
-        "</tbody></table>";
+        "</tbody></table></div>";
+      if (sesAcces.length > 10) {
+        htmlAcces +=
+          "<div style='text-align:center;margin-top:7px'>" +
+            "<button type='button' id='btn-fiche-voir-plus-acces' class='btn-outil' style='font-size:11.5px;padding:5px 12px'>" +
+              (toutVoirAccesFiche ? "➖ Voir moins (10 dernières)" : ("➕ Voir toutes les connexions (" + sesAcces.length + " au total)")) +
+            "</button>" +
+          "</div>";
+      }
     }
 
     /* Tableau des messages lus & réponses */
@@ -2012,11 +2056,11 @@
     if (!msgsEl.length) {
       htmlMsgs = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucun message lu ni question envoyée pour le moment.</div>";
     } else {
-      htmlMsgs = "<table class='fiche-mini-table'><thead><tr><th>Type</th><th>Message</th><th>Réponse / État</th><th>Date</th></tr></thead><tbody>" +
+      htmlMsgs = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Type</th><th>Message</th><th>Réponse / État</th><th>Date</th></tr></thead><tbody>" +
         msgsEl.slice(0, 8).map(function (m) {
           return "<tr><td><b>" + echHtml(m.type) + "</b></td><td>" + echHtml(m.sujet) + "</td><td style='color:#177245;font-weight:800'>" + echHtml(m.reponse) + "</td><td>" + echHtml(fmtDate(m.ts)) + "</td></tr>";
         }).join("") +
-        "</tbody></table>";
+        "</tbody></table></div>";
     }
 
     contenuFicheEleve.innerHTML =
@@ -2024,9 +2068,9 @@
         "<div style='display:flex;align-items:center;gap:12px;min-width:0'>" +
           "<div class='fiche-avatar'>" + echHtml(ini) + "</div>" +
           "<div style='min-width:0'>" +
-            "<div style='font-size:16px;font-weight:900;color:#23201a'>" + echHtml(np) + "</div>" +
+            "<div style='font-size:16px;font-weight:900;color:#23201a;word-break:break-word'>" + echHtml(np) + "</div>" +
             "<div style='font-size:12px;color:#5a5244;font-weight:800'>🏛️ " + echHtml(lyceePropre(p)) + " · 🏫 <b>" + echHtml(p.classe || "—") + "</b></div>" +
-            "<div style='font-size:11.5px;color:#7a6f5d;font-weight:700;margin-top:2px'>" + echHtml(ctc) + " · Inscrit le " + echHtml(fmtDate(p.cree_le)) + "</div>" +
+            "<div style='font-size:11.5px;color:#7a6f5d;font-weight:700;margin-top:2px;word-break:break-word'>" + echHtml(ctc) + " · Inscrit le " + echHtml(fmtDate(p.cree_le)) + "</div>" +
           "</div>" +
         "</div>" +
         "<div style='display:flex;flex-direction:column;align-items:flex-end;gap:5px'>" +
@@ -2040,14 +2084,37 @@
         "<div class='fiche-kpi'><small>📚 Modules consultés</small><b>" + mods.length + " module(s)</b><div style='margin-top:3px'>" + htmlMods + "</div></div>" +
         "<div class='fiche-kpi'><small>💬 Suivi messages</small><b>" + msgsEl.length + " interaction(s)</b><span>Lectures &amp; réponses au prof</span></div>" +
       "</div>" +
+      htmlSemaines +
       "<div class='fiche-sec-titre'>🏆 Notes des Quiz &amp; Atelier Bac Pratique (" + stQ.nb + ")</div>" +
       htmlQuiz +
-      "<div class='fiche-sec-titre'>🕒 10 dernières connexions &amp; pages consultées (sur " + nbCon + ")</div>" +
+      "<div class='fiche-sec-titre' id='sec-fiche-connexions'>🕒 Connexions &amp; pages consultées (" + (toutVoirAccesFiche ? sesAcces.length : Math.min(10, sesAcces.length)) + " / " + nbCon + ")</div>" +
       htmlAcces +
       "<div class='fiche-sec-titre'>💬 Messages lus &amp; questions de l'élève (" + msgsEl.length + ")</div>" +
       htmlMsgs;
 
+    var btnPlusAccFiche = document.getElementById("btn-fiche-voir-plus-acces");
+    if (btnPlusAccFiche) {
+      btnPlusAccFiche.addEventListener("click", function () {
+        toutVoirAccesFiche = !toutVoirAccesFiche;
+        ouvrirFicheEleve(p, { focusConnexions: true });
+      });
+    }
+
+    var etaitOuvert = modalFicheEleve.classList.contains("visible");
     modalFicheEleve.classList.add("visible");
+    if (!etaitOuvert && window.innerWidth <= 768) {
+      try { history.pushState({ stiModalFiche: true }, ""); } catch (e) {}
+    }
+    if (opts && opts.focusConnexions) {
+      setTimeout(function () {
+        var elSec = document.getElementById("sec-fiche-connexions");
+        if (elSec && contenuFicheEleve) {
+          contenuFicheEleve.scrollTop = Math.max(0, elSec.offsetTop - 60);
+        }
+      }, 30);
+    } else if (!etaitOuvert && contenuFicheEleve) {
+      contenuFicheEleve.scrollTop = 0;
+    }
   }
 
   function fermerFicheEleve() {
@@ -2060,6 +2127,18 @@
       if (e.target === modalFicheEleve) fermerFicheEleve();
     });
   }
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (modalFicheEleve && modalFicheEleve.classList.contains("visible")) {
+        fermerFicheEleve();
+      }
+    }
+  });
+  window.addEventListener("popstate", function () {
+    if (modalFicheEleve && modalFicheEleve.classList.contains("visible")) {
+      fermerFicheEleve();
+    }
+  });
   var btnMsgDepuisFiche = document.getElementById("btn-msg-depuis-fiche");
   if (btnMsgDepuisFiche) {
     btnMsgDepuisFiche.addEventListener("click", function () {
@@ -2475,9 +2554,13 @@
       var lyceeTxt = p ? lyceePropre(p) : "—";
       var classeTxt = (p && p.classe) || "—";
 
+      if (p) {
+        tr.title = "Cliquer pour ouvrir les détails de ce candidat";
+        tr.addEventListener("click", function () { ouvrirFicheEleve(p); });
+      }
       var tdCand = document.createElement("td");
       tdCand.innerHTML =
-        "<div style='font-weight:900;color:#23201a'>" + echHtml(nomContact) + "</div>" +
+        "<div class='nom-cliquable-fiche' style='font-weight:900;color:#23201a'>👤 " + echHtml(nomContact) + "</div>" +
         "<div style='margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center'>" +
           "<span style='display:inline-block;background:#fff3e0;border:1.5px solid #23201a;border-radius:999px;padding:1px 8px;font-weight:900;font-size:11px;color:#d84315'>🏫 Classe : " + echHtml(classeTxt) + "</span>" +
           "<span style='display:inline-block;background:#f3ead9;border:1.5px solid #23201a;border-radius:999px;padding:1px 8px;font-weight:800;font-size:11px;color:#23201a'>🏛️ Lycée : " + echHtml(lyceeTxt) + "</span>" +
@@ -2831,9 +2914,12 @@
       var fichEleve = mapFich[p.id] || null;
 
       var tr = document.createElement("tr");
+      tr.title = "Cliquer pour ouvrir les détails de ce candidat";
+      tr.addEventListener("click", function () { ouvrirFicheEleve(p); });
       var tdNom = document.createElement("td");
+      tdNom.className = "nom-cliquable-fiche";
       tdNom.style.fontWeight = "700";
-      tdNom.textContent = contact(p);
+      tdNom.textContent = "👤 " + contact(p);
 
       var tdCl = document.createElement("td");
       tdCl.style.color = "#7a6f5d";
@@ -2875,7 +2961,8 @@
         btnRepM.textContent = "📩 Message";
         btnRepM.title = "Envoyer un message personnel à cet élève";
       }
-      btnRepM.addEventListener("click", function () {
+      btnRepM.addEventListener("click", function (ev) {
+        ev.stopPropagation();
         ouvrirMessageCandidat(p, repEleve || "");
       });
       tdActM.appendChild(btnRepM);
@@ -2897,44 +2984,9 @@
   }
 
   function detail(p) {
-    document.getElementById("detail-email").textContent =
-      contact(p) + " · 🏫 " + (p.classe || "—") + " · 🏛️ " + lyceePropre(p);
-    var zoneSem = document.getElementById("detail-semaines");
-    var td = document.getElementById("tb-detail");
-    if (zoneSem) zoneSem.innerHTML = "";
-    td.innerHTML = "";
-    var lignes = acces.filter(function (a) { return a.user_id === p.id; });
-    if (zoneSem && lignes.length) {
-      var parSem = {};
-      lignes.forEach(function (a) {
-        var sk = cleSemaine(a.debut);
-        if (!parSem[sk]) parSem[sk] = { sec: 0, nb: 0 };
-        parSem[sk].sec += dureeLigne(a);
-        parSem[sk].nb += 1;
-      });
-      Object.keys(parSem).sort().reverse().forEach(function (sk) {
-        var carte = document.createElement("div");
-        carte.style.cssText = "background:#fffdf7;border:2px solid #23201a;border-radius:12px;padding:7px 13px;font-size:12px;font-weight:800;box-shadow:2px 2px 0 rgba(244,81,30,.45);";
-        carte.innerHTML = "<span style='color:#7a6f5d'>" + libelleSemaine(sk) + " :</span> " +
-          "<b style='color:#f4511e;font-size:13px'>⏱️ " + fmtDureeCumul(parSem[sk].sec) + "</b> " +
-          "<span style='color:#7a6f5d'>(" + parSem[sk].nb + " accès)</span>";
-        zoneSem.appendChild(carte);
-      });
-    }
-    if (!lignes.length) {
-      var tr0 = document.createElement("tr");
-      var td0 = document.createElement("td"); td0.colSpan = 5; td0.textContent = "Aucune connexion enregistrée pour cet abonné.";
-      tr0.appendChild(td0); td.appendChild(tr0);
-    }
-    lignes.forEach(function (a) {
-      var tr = document.createElement("tr");
-      [fmtDate(a.debut), fmtDate(a.fin), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
-        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
-      });
-      td.appendChild(tr);
-    });
-    document.getElementById("zone-detail").classList.add("visible");
-    document.getElementById("zone-detail").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!p) return;
+    /* Ouvrir directement la fenêtre modale complète des détails du candidat (avec bouton ✕ sur mobile et PC) */
+    ouvrirFicheEleve(p, { focusConnexions: true });
   }
 
   function diffuserSignalStatut(uid, statut, gold) {
@@ -3365,9 +3417,15 @@
   }
 
   var btnAnnulerAff = document.getElementById("btn-annuler-aff");
+  var btnFermerAffX = document.getElementById("btn-fermer-aff-x");
   var btnConfirmerAff = document.getElementById("btn-confirmer-aff");
   if (btnAnnulerAff) {
     btnAnnulerAff.addEventListener("click", function () {
+      modalAff.classList.remove("visible"); cibleAff = null;
+    });
+  }
+  if (btnFermerAffX) {
+    btnFermerAffX.addEventListener("click", function () {
       modalAff.classList.remove("visible"); cibleAff = null;
     });
   }
@@ -4883,15 +4941,21 @@
     msnSbClose.addEventListener("click", fermerMessengerAdmin);
   }
   if (msnBtnBackMob) {
-    msnBtnBackMob.addEventListener("click", function () {
+    msnBtnBackMob.addEventListener("click", function (ev) {
+      ev.stopPropagation();
       if (msnWin) msnWin.classList.remove("mode-chat");
       synchroniserViewportMessengerAdmin();
     });
   }
   var msnHeadInfoWrap = document.getElementById("msn-head-info-wrap");
   if (msnHeadInfoWrap) {
-    msnHeadInfoWrap.addEventListener("click", function () {
-      if (window.innerWidth <= 768 && msnWin) {
+    msnHeadInfoWrap.addEventListener("click", function (ev) {
+      if (ev.target && ev.target.closest && ev.target.closest("#msn-btn-back-mob")) return;
+      var p = null;
+      profils.forEach(function (x) { if (x.id === msnUidActif) p = x; });
+      if (p) {
+        ouvrirFicheEleve(p);
+      } else if (window.innerWidth <= 768 && msnWin) {
         msnWin.classList.remove("mode-chat");
         synchroniserViewportMessengerAdmin();
       }
