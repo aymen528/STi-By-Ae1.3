@@ -323,6 +323,7 @@
   if (h === "securite") msg("🛡️ Session interrompue par le bouclier de sécurité (tentatives répétées d'inspection du code source). Le professeur a été alerté.", "err");
   if (h === "partage") msg("🚫 Session fermée : ce compte a été ouvert sur un autre appareil (partage de compte interdit).", "err");
   if (h === "verrou") msg("🔒 Accès temporairement verrouillé par le professeur (Mode Examen / Contrôle en cours).", "att");
+  if (h === "inactivite") msg("⏳ Session fermée automatiquement après une période d'inactivité afin de protéger votre compte sur cet appareil.", "att");
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
   if (h === "admin") msg("🔒 Accès réservé à l'administrateur (aymenessouyah@gmail.com) : veuillez saisir vos identifiants.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");

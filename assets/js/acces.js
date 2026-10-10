@@ -2544,6 +2544,8 @@
      2) Anti-partage de compte (1 seule session simultanée par élève)
      3) Éjection automatique après 3 tentatives F12 / Ctrl+U / DevTools
      4) Anti-triche Quiz / Contrôle (détection sortie d'onglet Alt+Tab)
+     5) Identification d'appareil (PC/Mobile + OS + Navigateur + Empreinte #ID)
+     6) Auto-déconnexion après inactivité (ex. 30 min, hors Labo3 & Admin)
      ══════════════════════════════════════════════════════════ */
   var cfgSecurite = {
     verrouActif: false,
@@ -2553,6 +2555,9 @@
     ejectDevtools: true,
     antiTricheOnglet: true,
     sessionUnique: true,
+    inactiviteActif: true,
+    inactiviteMin: 30,
+    alerteMultiAppareils: true,
     ts: 0
   };
   try {
@@ -2560,20 +2565,73 @@
     if (secSauv && typeof secSauv === "object") cfgSecurite = Object.assign(cfgSecurite, secSauv);
   } catch (e) {}
 
+  function obtenirEmpreinteAppareilCourte() {
+    try {
+      var idSauv = localStorage.getItem("sti-device-id");
+      if (idSauv && /^#[0-9A-F]{4}$/i.test(idSauv)) return idSauv.toUpperCase();
+      var brut = [
+        navigator.userAgent || "",
+        navigator.platform || "",
+        (screen ? (screen.width + "x" + screen.height + "x" + (screen.colorDepth || 24)) : ""),
+        navigator.hardwareConcurrency || "",
+        Math.random().toString(36).slice(2, 7)
+      ].join("|");
+      var h = 2166136261;
+      for (var i = 0; i < brut.length; i++) {
+        h ^= brut.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      var hex = ((h >>> 0) & 0xFFFF).toString(16).toUpperCase();
+      while (hex.length < 4) hex = "0" + hex;
+      var code = "#" + hex;
+      localStorage.setItem("sti-device-id", code);
+      return code;
+    } catch (e) {
+      return "#0000";
+    }
+  }
+
+  function obtenirInfoAppareilSTI() {
+    var ua = String((navigator && navigator.userAgent) || "");
+    var os = "Appareil";
+    var ico = "💻";
+    if (/iPhone/i.test(ua)) { ico = "📱"; os = "iPhone"; }
+    else if (/iPad/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) { ico = "📱"; os = "iPad"; }
+    else if (/Android/i.test(ua)) { ico = "📱"; os = "Android"; }
+    else if (/Windows/i.test(ua)) { ico = "💻"; os = "PC Windows"; }
+    else if (/Macintosh|Mac OS X/i.test(ua)) { ico = "💻"; os = "Mac"; }
+    else if (/CrOS/i.test(ua)) { ico = "💻"; os = "Chromebook"; }
+    else if (/Linux/i.test(ua)) { ico = "💻"; os = "PC Linux"; }
+
+    var nav = "Navigateur";
+    if (/Edg\//i.test(ua)) nav = "Edge";
+    else if (/OPR\/|Opera/i.test(ua)) nav = "Opera";
+    else if (/SamsungBrowser/i.test(ua)) nav = "Samsung";
+    else if (/Firefox\/|FxiOS/i.test(ua)) nav = "Firefox";
+    else if (/CriOS|Chrome\//i.test(ua)) nav = "Chrome";
+    else if (/Safari\//i.test(ua)) nav = "Safari";
+
+    return ico + " " + os + " · " + nav + " (" + obtenirEmpreinteAppareilCourte() + ")";
+  }
+  window.obtenirInfoAppareilSTI = obtenirInfoAppareilSTI;
+
   function envoyerAlerteSecurite(typeAlerte, details) {
     if (estSessionAdminVerifiee() || window.origin === "null") return;
     var cLoc = lireCacheSessionLocal() || {};
     var uid = currentUid || cLoc.id || null;
     var cl = currentClasse || cLoc.classe || "—";
     var nomComplet = (((cLoc.user_metadata && cLoc.user_metadata.prenom) || "") + " " + ((cLoc.user_metadata && cLoc.user_metadata.nom) || "")).trim() || cLoc.email || "Abonné";
+    var appInfo = obtenirInfoAppareilSTI();
+    var detComplet = (details ? (details + " · ") : "") + appInfo;
     var payload = {
       type: "sec_alerte",
       id: "sa_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
       uid: uid,
       nom: nomComplet,
       classe: cl,
+      appareil: appInfo,
       alerte: typeAlerte,
-      details: details || "",
+      details: detComplet,
       page: chemin,
       ts: new Date().toISOString()
     };
@@ -2754,6 +2812,88 @@
       afficherToastSynchro("👀 Anti-triche STI : sortie d'onglet #" + nbSortiesOngletQuiz + " détectée et signalée en direct au professeur.");
     }
   });
+
+  /* ⏳ Surveillance d'inactivité : déconnexion automatique des sessions oubliées (hors Admin & Labo 3) */
+  (function installerSurveillanceInactivite() {
+    if (window !== window.top || window.origin === "null") return;
+    var dernierActif = Date.now();
+    var dernierWriteStorage = 0;
+    try { localStorage.setItem("sti-last-activity", String(dernierActif)); } catch (e) {}
+
+    function signalerActiviteUtilisateur() {
+      var now = Date.now();
+      dernierActif = now;
+      var banInact = document.getElementById("sti-banniere-inactivite");
+      if (banInact) banInact.remove();
+      if (now - dernierWriteStorage > 10000) {
+        dernierWriteStorage = now;
+        try { localStorage.setItem("sti-last-activity", String(now)); } catch (e) {}
+      }
+    }
+
+    ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "click"].forEach(function (evName) {
+      window.addEventListener(evName, signalerActiviteUtilisateur, { passive: true });
+    });
+
+    window.addEventListener("storage", function (e) {
+      if (e && e.key === "sti-last-activity" && e.newValue) {
+        var tExt = parseInt(e.newValue, 10) || 0;
+        if (tExt > dernierActif) {
+          dernierActif = tExt;
+          var banInact = document.getElementById("sti-banniere-inactivite");
+          if (banInact) banInact.remove();
+        }
+      }
+    });
+
+    setInterval(function () {
+      if (enSortie || estSessionAdminVerifiee()) return;
+      if (cfgSecurite.inactiviteActif === false) {
+        var bExist = document.getElementById("sti-banniere-inactivite");
+        if (bExist) bExist.remove();
+        return;
+      }
+      var cLoc = lireCacheSessionLocal() || {};
+      if (cLoc.permanent || estClasseProfLabo(currentClasse || cLoc.classe, cLoc.email)) return;
+
+      var tLoc = 0;
+      try { tLoc = parseInt(localStorage.getItem("sti-last-activity") || "0", 10) || 0; } catch (e) {}
+      if (tLoc > dernierActif) dernierActif = tLoc;
+
+      var minMax = Math.max(5, parseInt(cfgSecurite.inactiviteMin || 30, 10) || 30);
+      var limiteMs = minMax * 60 * 1000;
+      var ecouleMs = Date.now() - dernierActif;
+      var restantSec = Math.ceil((limiteMs - ecouleMs) / 1000);
+
+      if (restantSec <= 0) {
+        var bOld = document.getElementById("sti-banniere-inactivite");
+        if (bOld) bOld.remove();
+        sortirImmediatement("#inactivite");
+        return;
+      }
+
+      if (restantSec <= 60) {
+        var ban = document.getElementById("sti-banniere-inactivite");
+        if (!ban) {
+          ban = document.createElement("div");
+          ban.id = "sti-banniere-inactivite";
+          ban.className = "sti-no-print";
+          ban.style.cssText = "position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:2147483647;background:#23201a;color:#fffdf7;border:2.5px solid #ffd54f;border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px rgba(0,0,0,.45);font:800 13px/1.35 system-ui,'Segoe UI',sans-serif;max-width:94vw;";
+          (document.body || document.documentElement).appendChild(ban);
+        }
+        ban.innerHTML =
+          '<span>⏳ Session inactive : déconnexion automatique dans <b style="color:#ffd54f">' + restantSec + ' s</b></span>' +
+          '<button type="button" id="sti-btn-rester-connecte" style="border:2px solid #23201a;background:#ffd54f;color:#23201a;border-radius:999px;padding:6px 14px;font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap">Rester connecté</button>';
+        var btnStay = document.getElementById("sti-btn-rester-connecte");
+        if (btnStay) {
+          btnStay.onclick = function () { signalerActiviteUtilisateur(); };
+        }
+      } else {
+        var ban2 = document.getElementById("sti-banniere-inactivite");
+        if (ban2) ban2.remove();
+      }
+    }, 5000);
+  })();
 
   /* ---------- Bouton flottant 💬 Messenger STI présent sur 100 % des pages (Élèves & Admin) ---------- */
   function estSessionAdminVerifiee() {
@@ -3798,17 +3938,18 @@
     });
   }
 
-  /* ---------- journal : lieu + durée + présence temps réel (toutes les 30 s) + mode hors-ligne ---------- */
+  /* ---------- journal : appareil (PC/Mobile + OS + Navigateur + #Empreinte) + lieu + durée + présence temps réel ---------- */
   function journal(uid) {
     if (window !== window.top) return;
-    var lieu = "inconnu";
+    var infoAppareil = obtenirInfoAppareilSTI();
+    var lieu = infoAppareil;
     function envoyerPresence() {
       if (!navigator.onLine) return;
       try {
         sb.channel("sti-diffusion").send({
           type: "broadcast",
           event: "presence",
-          payload: { uid: uid, page: chemin, ts: Date.now() }
+          payload: { uid: uid, page: chemin, appareil: infoAppareil, ts: Date.now() }
         });
       } catch (e) {}
     }
@@ -3832,7 +3973,7 @@
             q.push({
               _sid: cleSession,
               user_id: uid,
-              lieu: "Hors-ligne",
+              lieu: infoAppareil + " · Hors-ligne",
               page: chemin,
               fin: new Date().toISOString(),
               duree_sec: duree
@@ -3883,7 +4024,8 @@
       return;
     }
     fetch("https://ipapi.co/json/").then(function (r) { return r.json(); }).then(function (j) {
-      lieu = (j.city || "") + (j.country_name ? ", " + j.country_name : "") || "inconnu";
+      var geo = ((j.city || "") + (j.country_name ? ", " + j.country_name : "")).trim();
+      lieu = geo ? (infoAppareil + " · " + geo) : infoAppareil;
       insere();
     }).catch(function () { insere(); });
   }

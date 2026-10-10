@@ -563,7 +563,11 @@
         })
         .on("broadcast", { event: "presence" }, function (p) {
           if (p && p.payload && p.payload.uid) {
-            enLigneMap[p.payload.uid] = { ts: Date.now(), page: p.payload.page || "site" };
+            enLigneMap[p.payload.uid] = {
+              ts: Date.now(),
+              page: p.payload.page || "site",
+              appareil: p.payload.appareil || ""
+            };
             majCompteurEnLigne();
             rendAbonnes();
           }
@@ -835,6 +839,9 @@
     ejectDevtools: true,
     antiTricheOnglet: true,
     sessionUnique: true,
+    inactiviteActif: true,
+    inactiviteMin: 30,
+    alerteMultiAppareils: true,
     purgeAlertesTs: 0,
     ts: 0
   };
@@ -1709,6 +1716,30 @@
         bOn.textContent = "🟢 En ligne (" + pgOn + ")";
         ligneIdentite.appendChild(bOn);
       }
+      var apInfoLigne = appareilsPourUser(p.id);
+      if (apInfoLigne.dernier) {
+        var bApp = document.createElement("span");
+        var estMultiSuspect = apInfoLigne.nb >= 3 && String(p.classe || "").toLowerCase() !== "elevelabo3";
+        bApp.style.cssText = "display:inline-block;margin-left:5px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:800;border:1px solid #23201a;background:" + (estMultiSuspect ? "#fde2e6;color:#c0392b" : "#f3ead9;color:#5a5244") + ";";
+        bApp.textContent = estMultiSuspect ? ("⚠️ " + apInfoLigne.nb + " appareils (" + apInfoLigne.dernier + ")") : apInfoLigne.dernier;
+        bApp.title = "Appareil(s) utilisé(s) : " + apInfoLigne.liste.join(" | ");
+        ligneIdentite.appendChild(bApp);
+        if (estMultiSuspect && cfgSecuriteAdmin.alerteMultiAppareils !== false) {
+          var idAlMulti = "sa_multi_" + p.id + "_" + apInfoLigne.nb;
+          if (!listeAlertesSecurite.some(function (x) { return x.id === idAlMulti; })) {
+            listeAlertesSecurite.unshift({
+              id: idAlMulti,
+              uid: p.id,
+              nom: nomPrenomTexte(p) || contact(p),
+              classe: p.classe || "—",
+              alerte: "Multi-appareils (" + apInfoLigne.nb + " appareils)",
+              details: apInfoLigne.liste.join(" | "),
+              page: "Connexions",
+              ts: new Date().toISOString()
+            });
+          }
+        }
+      }
       tdNom.appendChild(ligneIdentite);
 
       if (p.nom || p.prenom) {
@@ -2073,6 +2104,31 @@
     return res;
   }
 
+  function appareilsPourUser(uid) {
+    var mapApp = {};
+    var liste = [];
+    var dernier = "";
+    acces.forEach(function (a) {
+      if (a.user_id !== uid || !a.lieu) return;
+      var l = String(a.lieu || "").trim();
+      var m = l.match(/((?:📱|💻)\s*[^·]+·\s*[^·(]+(?:\(#[0-9A-F]{4}\))?)/i);
+      if (m && m[1]) {
+        var sig = m[1].trim();
+        var cle = (sig.match(/#[0-9A-F]{4}/i) || [sig])[0].toUpperCase();
+        if (!dernier) dernier = sig;
+        if (!mapApp[cle]) {
+          mapApp[cle] = sig;
+          liste.push(sig);
+        }
+      }
+    });
+    if (!dernier && enLigneMap[uid] && enLigneMap[uid].appareil) {
+      dernier = enLigneMap[uid].appareil;
+      if (!liste.length) liste.push(dernier);
+    }
+    return { liste: liste, nb: liste.length, dernier: dernier };
+  }
+
   var toutVoirAccesFiche = false;
 
   function ouvrirFicheEleve(p, opts) {
@@ -2114,6 +2170,14 @@
           return "<span style='display:inline-block;padding:2px 7px;margin:2px;border-radius:999px;border:1.5px solid #23201a;background:#e3f6e8;color:#177245;font-size:10.5px;font-weight:900'>" + echHtml(m) + " ✔</span>";
         }).join("")
       : "<span style='color:#7a6f5d;font-size:11px'>Aucun cours consulté</span>";
+
+    var infoApp = appareilsPourUser(p.id);
+    var htmlAppareils = infoApp.liste.length
+      ? infoApp.liste.map(function (ap) {
+          var estSuspect = infoApp.nb >= 3 && String(p.classe || "").toLowerCase() !== "elevelabo3";
+          return "<span style='display:inline-block;padding:2px 8px;margin:2px;border-radius:999px;border:1.5px solid #23201a;background:" + (estSuspect ? "#fde2e6;color:#c0392b" : "#f3ead9;color:#23201a") + ";font-size:10.5px;font-weight:900'>" + echHtml(ap) + "</span>";
+        }).join("") + (infoApp.nb >= 3 && String(p.classe || "").toLowerCase() !== "elevelabo3" ? " <span style='color:#c0392b;font-weight:900;font-size:11px'>⚠️ Multi-appareils (" + infoApp.nb + " appareils distincts)</span>" : "")
+      : "<span style='color:#7a6f5d;font-size:11px'>Appareil identifié lors de la prochaine connexion</span>";
 
     /* Cumul par semaine (identique à detail(p)) */
     var htmlSemaines = "";
@@ -2159,7 +2223,7 @@
     if (!sesAcces.length) {
       htmlAcces = "<div style='color:#7a6f5d;font-size:12px;padding:8px 0'>Aucune connexion enregistrée.</div>";
     } else {
-      htmlAcces = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Début</th><th>Fin</th><th>Durée</th><th>Page consultée</th><th>Lieu</th></tr></thead><tbody>" +
+      htmlAcces = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Début</th><th>Fin</th><th>Durée</th><th>Page consultée</th><th>Appareil &amp; Lieu</th></tr></thead><tbody>" +
         sesAcces.slice(0, limAccFiche).map(function (a) {
           return "<tr><td class='col-nowrap'>" + echHtml(fmtDate(a.debut)) + "</td><td class='col-nowrap'>" + echHtml(fmtDate(a.fin)) + "</td><td class='col-nowrap'><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
         }).join("") +
@@ -2208,6 +2272,7 @@
         "<div class='fiche-kpi'><small>💬 Suivi messages</small><b>" + msgsEl.length + " interaction(s)</b><span>Lectures &amp; réponses au prof</span></div>" +
       "</div>" +
       "<div class='fiche-modules-bar'><span>📚 Modules consultés :</span> " + htmlMods + "</div>" +
+      "<div class='fiche-modules-bar'><span>📱 Appareil(s) détecté(s) (" + infoApp.nb + ") :</span> " + htmlAppareils + "</div>" +
       htmlSemaines +
       "<div class='fiche-sec-titre'>🏆 Notes des Quiz &amp; Atelier Bac Pratique (" + stQ.nb + ")</div>" +
       htmlQuiz +
@@ -5420,6 +5485,9 @@
   var chkSessionUnique = document.getElementById("sec-chk-session-unique");
   var chkEjectDevtools = document.getElementById("sec-chk-eject-devtools");
   var chkAntiTricheOnglet = document.getElementById("sec-chk-antitriche-onglet");
+  var chkInactivite = document.getElementById("sec-chk-inactivite");
+  var selInactiviteMin = document.getElementById("sec-sel-inactivite-min");
+  var chkMultiAppareils = document.getElementById("sec-chk-multi-appareils");
   var tbAlertesSecurite = document.getElementById("tb-alertes-securite");
   var spanNbAlertes = document.getElementById("sec-nb-alertes");
   var btnSecExportCsv = document.getElementById("btn-sec-export-csv");
@@ -5450,6 +5518,9 @@
     if (chkSessionUnique) chkSessionUnique.checked = cfgSecuriteAdmin.sessionUnique !== false;
     if (chkEjectDevtools) chkEjectDevtools.checked = cfgSecuriteAdmin.ejectDevtools !== false;
     if (chkAntiTricheOnglet) chkAntiTricheOnglet.checked = cfgSecuriteAdmin.antiTricheOnglet !== false;
+    if (chkInactivite) chkInactivite.checked = cfgSecuriteAdmin.inactiviteActif !== false;
+    if (selInactiviteMin && cfgSecuriteAdmin.inactiviteMin) selInactiviteMin.value = String(cfgSecuriteAdmin.inactiviteMin);
+    if (chkMultiAppareils) chkMultiAppareils.checked = cfgSecuriteAdmin.alerteMultiAppareils !== false;
     if (badgeStatutVerrou) {
       if (cfgSecuriteAdmin.verrouActif) {
         var cTxt = cfgSecuriteAdmin.verrouCible === "*" ? "Global" : cfgSecuriteAdmin.verrouCible;
@@ -5622,13 +5693,16 @@
     });
   }
 
-  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet].forEach(function (chk) {
-    if (!chk) return;
-    chk.addEventListener("change", function () {
+  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener("change", function () {
       sauvegarderEtDiffuserConfigSecurite({
         sessionUnique: chkSessionUnique ? chkSessionUnique.checked : true,
         ejectDevtools: chkEjectDevtools ? chkEjectDevtools.checked : true,
-        antiTricheOnglet: chkAntiTricheOnglet ? chkAntiTricheOnglet.checked : true
+        antiTricheOnglet: chkAntiTricheOnglet ? chkAntiTricheOnglet.checked : true,
+        inactiviteActif: chkInactivite ? chkInactivite.checked : true,
+        inactiviteMin: selInactiviteMin ? (parseInt(selInactiviteMin.value, 10) || 30) : 30,
+        alerteMultiAppareils: chkMultiAppareils ? chkMultiAppareils.checked : true
       }, "🛡️ Réglages du Pack Sécurité Totale mis à jour en direct.");
     });
   });
