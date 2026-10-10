@@ -4,8 +4,7 @@ Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'I
 cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, chasse aux erreurs (débogage Bac STI), messagerie temps réel avec pièces jointes, questions flash en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
-> **Version** : **V2.0 · `v98`** (PWA 100 % hors-ligne, Portail sécurisé, Mode Examen, Pack Sécurité Totale, Téléportation, Appel automatique & Chasse aux erreurs Bac STI)  
-> **Accès local / en ligne** : [./index.html](./index.html)
+> **Version** : **V2.0 · `v98`** (PWA 100 % hors-ligne, Portail sécurisé, Mode Examen, Pack Sécurité Totale, Téléportation, Appel automatique & Chasse aux erreurs Bac STI)
 
 ---
 
@@ -74,7 +73,7 @@ cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D,
 
 ### 📊 4. Tableau de bord Administrateur temps réel & Pilotage de classe (`admin.html`)
 - **Sécurité d'accès exclusive, Verrou anti-flash `0 ms`, Version & Jauge Supabase** :
-  - Accès à `admin.html` **strictement réservé au seul compte administrateur (`aymenessouyah@gmail.com`)** avec protection immédiate dès `0 ms` avant le premier rendu.
+  - Accès à `admin.html` **strictement réservé au seul compte administrateur** avec protection immédiate dès `0 ms` avant le premier rendu.
   - Affichage permanent de la version (`STI V2.0 · v98`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
   - **🔒 Verrouillage rapide de l'écran Admin par code PIN (`#modal-verrou-ecran-admin`)** : permet au professeur de verrouiller l'écran du tableau de bord en 1 clic lorsqu'il circule dans les rangs.
 - **📋 Feuille d'appel & présence automatique du jour par classe (`#modal-appel-presence`)** :
@@ -119,10 +118,10 @@ cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D,
 
 ---
 
-## 🗂️ Structure du dépôt
+## 🗂️ Structure du projet
 
 ```text
-STiV2.0/
+STI-Atelier-V2.0/
 │
 ├── index.html                        # 🏠 Accueil — cours, recherche Ctrl+K, Flashcards 3D, Sandbox & Chasse aux erreurs
 ├── portail.html                      # 🔐 Portail de connexion / inscription (e-mail, WhatsApp +216 & anti-brute-force)
