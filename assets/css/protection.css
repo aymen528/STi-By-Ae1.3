@@ -21,10 +21,17 @@ body.sti-gold *,
 input,
 textarea,
 select,
-[contenteditable="true"] {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  user-select: text;
+[contenteditable="true"],
+#sti-messenger-admin input,
+#sti-messenger-admin textarea,
+#sti-messenger-eleve input,
+#sti-messenger-eleve textarea,
+#sti-messenger-admin-site input,
+#sti-messenger-admin-site textarea {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
 }
 
 /* ── Images non « glissables » ── */

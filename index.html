@@ -2735,6 +2735,15 @@
           >
             💻 Bac à sable Code
           </button>
+          <button
+            type="button"
+            class="filter-chip"
+            id="btnHomeMessenger"
+            title="Ouvrir Messenger STI (Discuter en direct et envoyer des fichiers 📎)"
+            style="border-color:color-mix(in srgb,var(--accent) 55%,var(--border));font-weight:800"
+          >
+            💬 Messenger STI
+          </button>
         </div>
       </div>
 
@@ -4219,6 +4228,17 @@
             }
           });
         }
+        var btnHomeMsn = document.getElementById("btnHomeMessenger");
+        if (btnHomeMsn) {
+          btnHomeMsn.addEventListener("click", function () {
+            if (typeof window.ouvrirMessengerSTI === "function") {
+              window.ouvrirMessengerSTI();
+            } else {
+              var bGlobal = document.getElementById("sti-btn-messenger-global");
+              if (bGlobal) bGlobal.click();
+            }
+          });
+        }
 
         window.__stiMajBadgeFlashcards = function () {
           var el = document.getElementById("flashcardsBadgeCount");
@@ -4580,11 +4600,11 @@
       })();
     </script>
 <!-- 🔒 Protection du contenu STI -->
-<link rel="stylesheet" href="assets/css/protection.css" />
-<script src="assets/js/protection.js" defer></script>
+<link rel="stylesheet" href="assets/css/protection.css?v=83" />
+<script src="assets/js/protection.js?v=83" defer></script>
 <!-- /Protection -->
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js"></script>
-<script src="assets/js/acces.js"></script>
+<script src="assets/js/config.js?v=83"></script>
+<script src="assets/js/acces.js?v=83"></script>
 </body>
 </html>

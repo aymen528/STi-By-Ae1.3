@@ -2417,16 +2417,47 @@
     return nom + " " + an;
   }
 
+  var selFiltreAccesClasse = document.getElementById("filtre-acces-classe");
+  if (selFiltreAccesClasse) {
+    selFiltreAccesClasse.addEventListener("change", function () {
+      toutVoirAcces = false;
+      rendAcces();
+    });
+  }
+
+  function majOptionsFiltreAccesClasse() {
+    if (!selFiltreAccesClasse) return;
+    var valAct = selFiltreAccesClasse.value || "*";
+    var classes = obtenirClassesActives();
+    selFiltreAccesClasse.innerHTML = '<option value="*">🏫 Toutes les classes</option>';
+    classes.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = "🏫 " + c;
+      if (c === valAct) opt.selected = true;
+      selFiltreAccesClasse.appendChild(opt);
+    });
+  }
+
   function rendAcces() {
+    majOptionsFiltreAccesClasse();
     var emails = {};
     var mapProfA = {};
     profils.forEach(function (p) {
       emails[p.id] = contact(p);
       mapProfA[p.id] = p;
     });
+    var clFiltreA = selFiltreAccesClasse ? (selFiltreAccesClasse.value || "*") : "*";
+    var accesFiltres = clFiltreA === "*"
+      ? acces
+      : acces.filter(function (a) {
+          var p = mapProfA[a.user_id];
+          return p && (p.classe || "—") === clFiltreA;
+        });
+
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
-    var totalA = acces.length;
+    var totalA = accesFiltres.length;
     if (!totalA) {
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
@@ -2437,7 +2468,7 @@
       ta.appendChild(tr0);
     }
     var limiteA = toutVoirAcces ? totalA : 5;
-    acces.slice(0, limiteA).forEach(function (a) {
+    accesFiltres.slice(0, limiteA).forEach(function (a) {
       var tr = document.createElement("tr");
       var p = mapProfA[a.user_id];
       var nomContact = emails[a.user_id] || a.user_id;
@@ -2445,8 +2476,12 @@
       var classeTxt = (p && p.classe) || "—";
 
       var tdCand = document.createElement("td");
-      tdCand.style.fontWeight = "800";
-      tdCand.textContent = nomContact;
+      tdCand.innerHTML =
+        "<div style='font-weight:900;color:#23201a'>" + echHtml(nomContact) + "</div>" +
+        "<div style='margin-top:4px;display:flex;flex-wrap:wrap;gap:5px;align-items:center'>" +
+          "<span style='display:inline-block;background:#fff3e0;border:1.5px solid #23201a;border-radius:999px;padding:1px 8px;font-weight:900;font-size:11px;color:#d84315'>🏫 Classe : " + echHtml(classeTxt) + "</span>" +
+          "<span style='display:inline-block;background:#f3ead9;border:1.5px solid #23201a;border-radius:999px;padding:1px 8px;font-weight:800;font-size:11px;color:#23201a'>🏛️ Lycée : " + echHtml(lyceeTxt) + "</span>" +
+        "</div>";
       tr.appendChild(tdCand);
 
       var tdLyceeClasse = document.createElement("td");
@@ -2862,7 +2897,8 @@
   }
 
   function detail(p) {
-    document.getElementById("detail-email").textContent = contact(p);
+    document.getElementById("detail-email").textContent =
+      contact(p) + " · 🏫 " + (p.classe || "—") + " · 🏛️ " + lyceePropre(p);
     var zoneSem = document.getElementById("detail-semaines");
     var td = document.getElementById("tb-detail");
     if (zoneSem) zoneSem.innerHTML = "";
@@ -4558,9 +4594,27 @@
     });
   }
 
+  var msnFilterClasse = document.getElementById("msn-filter-classe");
+
+  function majOptionsMsnFilterClasse() {
+    if (!msnFilterClasse) return;
+    var valAct = msnFilterClasse.value || "*";
+    var classes = obtenirClassesActives();
+    msnFilterClasse.innerHTML = '<option value="*">🏫 Toutes les classes</option>';
+    classes.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = "🏫 Classe : " + c;
+      if (c === valAct) opt.selected = true;
+      msnFilterClasse.appendChild(opt);
+    });
+  }
+
   function peindreListeUsersMessengerAdmin() {
     if (!msnUserList) return;
+    majOptionsMsnFilterClasse();
     var q = msnSearchUser ? msnSearchUser.value.trim().toLowerCase() : "";
+    var clSel = msnFilterClasse ? (msnFilterClasse.value || "*") : "*";
     var totalNonRepondus = 0;
 
     var enrichis = profils.map(function (p) {
@@ -4588,6 +4642,7 @@
     }
 
     var filtres = enrichis.filter(function (it) {
+      if (clSel !== "*" && (it.p.classe || "—") !== clSel) return false;
       if (!q) return true;
       var ch = (contact(it.p) + " " + (it.p.classe || "") + " " + lyceePropre(it.p)).toLowerCase();
       return ch.indexOf(q) !== -1;
@@ -4749,6 +4804,27 @@
     msnChatFeed.scrollTop = msnChatFeed.scrollHeight;
   }
 
+  function synchroniserViewportMessengerAdmin() {
+    if (!msnWin) return;
+    var ouvert = msnWin.classList.contains("visible");
+    var estMob = window.innerWidth <= 768;
+    document.documentElement.classList.toggle("sti-msn-mob-open", Boolean(ouvert && estMob));
+    if (ouvert && estMob && window.visualViewport) {
+      document.documentElement.style.setProperty("--sti-vvh", Math.round(window.visualViewport.height) + "px");
+      document.documentElement.style.setProperty("--sti-vvt", Math.round(window.visualViewport.offsetTop || 0) + "px");
+      if (msnChatFeed) msnChatFeed.scrollTop = msnChatFeed.scrollHeight;
+    } else {
+      document.documentElement.style.removeProperty("--sti-vvh");
+      document.documentElement.style.removeProperty("--sti-vvt");
+    }
+  }
+
+  function fermerMessengerAdmin() {
+    if (!msnWin) return;
+    msnWin.classList.remove("visible");
+    synchroniserViewportMessengerAdmin();
+  }
+
   function ouvrirMessengerAdmin(pCible, texteCitation) {
     if (!msnWin) return;
     var estMobile = window.innerWidth <= 768;
@@ -4766,9 +4842,12 @@
     }
     definirCitationMessengerAdmin(texteCitation || "");
     msnWin.classList.add("visible");
+    synchroniserViewportMessengerAdmin();
     peindreListeUsersMessengerAdmin();
     peindreConversationMessengerAdmin();
-    if (!estMobile) {
+    if (estMobile) {
+      try { history.pushState({ stiMsnAdmin: true }, ""); } catch (e) {}
+    } else {
       setTimeout(function () {
         if (msnChatInp && msnUidActif) msnChatInp.focus();
       }, 40);
@@ -4785,7 +4864,7 @@
   if (btnMsnDock) {
     btnMsnDock.addEventListener("click", function () {
       if (msnWin && msnWin.classList.contains("visible")) {
-        msnWin.classList.remove("visible");
+        fermerMessengerAdmin();
       } else {
         ouvrirMessengerAdmin(null, "");
       }
@@ -4797,43 +4876,64 @@
     });
   }
   if (msnHeadClose) {
-    msnHeadClose.addEventListener("click", function () {
-      if (msnWin) msnWin.classList.remove("visible");
-    });
+    msnHeadClose.addEventListener("click", fermerMessengerAdmin);
   }
   var msnSbClose = document.getElementById("msn-sb-close");
   if (msnSbClose) {
-    msnSbClose.addEventListener("click", function () {
-      if (msnWin) msnWin.classList.remove("visible");
-    });
+    msnSbClose.addEventListener("click", fermerMessengerAdmin);
   }
   if (msnBtnBackMob) {
     msnBtnBackMob.addEventListener("click", function () {
       if (msnWin) msnWin.classList.remove("mode-chat");
+      synchroniserViewportMessengerAdmin();
     });
   }
-  /* Adaptation automatique de la hauteur sur mobile lorsque le clavier virtuel s'ouvre */
-  if (window.visualViewport && msnWin) {
-    window.visualViewport.addEventListener("resize", function () {
-      if (window.innerWidth <= 768 && msnWin.classList.contains("visible")) {
-        msnWin.style.height = window.visualViewport.height + "px";
-        msnWin.style.maxHeight = window.visualViewport.height + "px";
-        if (msnChatFeed) msnChatFeed.scrollTop = msnChatFeed.scrollHeight;
-      } else {
-        msnWin.style.height = "";
-        msnWin.style.maxHeight = "";
+  var msnHeadInfoWrap = document.getElementById("msn-head-info-wrap");
+  if (msnHeadInfoWrap) {
+    msnHeadInfoWrap.addEventListener("click", function () {
+      if (window.innerWidth <= 768 && msnWin) {
+        msnWin.classList.remove("mode-chat");
+        synchroniserViewportMessengerAdmin();
       }
+    });
+  }
+  window.addEventListener("popstate", function () {
+    if (msnWin && msnWin.classList.contains("visible") && window.innerWidth <= 768) {
+      if (msnWin.classList.contains("mode-chat")) {
+        msnWin.classList.remove("mode-chat");
+        try { history.pushState({ stiMsnAdmin: true }, ""); } catch (e) {}
+      } else {
+        fermerMessengerAdmin();
+      }
+    }
+  });
+  /* Adaptation automatique de la hauteur sur mobile lorsque le clavier virtuel s'ouvre */
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", synchroniserViewportMessengerAdmin);
+    window.visualViewport.addEventListener("scroll", synchroniserViewportMessengerAdmin);
+  }
+  window.addEventListener("resize", synchroniserViewportMessengerAdmin);
+  if (msnChatInp) {
+    msnChatInp.addEventListener("focus", function () {
+      setTimeout(synchroniserViewportMessengerAdmin, 80);
+      setTimeout(synchroniserViewportMessengerAdmin, 280);
+    });
+    msnChatInp.addEventListener("blur", function () {
+      setTimeout(synchroniserViewportMessengerAdmin, 120);
     });
   }
   if (msnBtnBroadcast) {
     msnBtnBroadcast.addEventListener("click", function () {
-      if (msnWin) msnWin.classList.remove("visible");
+      fermerMessengerAdmin();
       var btnCl = document.getElementById("btn-msg-classe");
       if (btnCl) btnCl.click();
     });
   }
   if (msnSearchUser) {
     msnSearchUser.addEventListener("input", peindreListeUsersMessengerAdmin);
+  }
+  if (msnFilterClasse) {
+    msnFilterClasse.addEventListener("change", peindreListeUsersMessengerAdmin);
   }
 
   /* Dictée vocale directe dans Messenger STI */

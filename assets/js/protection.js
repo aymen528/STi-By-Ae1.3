@@ -162,6 +162,8 @@
     "contextmenu",
     function (e) {
       if (estAdminStrict()) return;
+      var t = e.target;
+      if (t && t.closest && t.closest("input, textarea, [contenteditable='true'], #sti-messenger-eleve, #sti-messenger-admin, #sti-messenger-admin-site")) return;
       e.preventDefault();
       e.stopPropagation();
       toast(MSG_SOURCE_BLOQUE, true);
