@@ -1,10 +1,10 @@
-# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v96`)
+# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v97`)
 
 Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'Informatique (STI)** :
-cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
+cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, chasse aux erreurs (débogage Bac STI), séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
-> **Version** : **V2.0 · `v96`** (PWA 100 % hors-ligne, portail d'accès sécurisé, Mode Examen & Pack Sécurité Totale)  
+> **Version** : **V2.0 · `v97`** (PWA 100 % hors-ligne, portail d'accès sécurisé, Mode Examen, Pack Sécurité Totale & Chasse aux erreurs Bac STI)  
 > **Accès local / en ligne** : [./index.html](./index.html)
 
 ---
@@ -31,6 +31,9 @@ cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D,
 - **💻 Mini « Bac à sable » de code en direct (`HTML / CSS / JS`)** :
   - Éditeur interactif **100 % hors-ligne** avec 3 onglets (**HTML**, **CSS**, **JavaScript**), aperçu instantané et **console JS intégrée** (`console.log` & erreurs d'exécution).
   - Modèles Type Bac préchargés : *Formulaire HTML5 + contrôle `verif()`*, *Flexbox & `@keyframes` CSS3*, *Chaînes et fonctions JavaScript (`indexOf`, `substring`, `Date`)* et *Page vierge*.
+- **🐞 Mode « Chasse aux erreurs (Débogage Bac STI) » (`v97`)** :
+  - **10 défis officiels de débogage type Bac STI** (3 erreurs classiques par défi = **30 pièges du Bac**) couvrant **HTML5** (`return verif()`, `<datalist id=...>`, `name` radio, `colspan`, `pattern`, `controls`), **CSS3** (`display: flex`, `.classe:hover`, `color`, `border-radius`, `@keyframes`, `rotate()`), **JavaScript** (`.value`, `.length`, `isNaN()`, `charAt(0)`, `.selectedIndex`, `.checked`), **SQL** (`PRIMARY KEY`, `CHECK`, `REFERENCES`, `YEAR()`, `HAVING`, `ORDER BY`) et **PHP / MySQLi** (`$_POST`, `mysqli_query($con, $req)`, `mysqli_affected_rows`, `mysqli_connect`, `mysqli_num_rows`, `mysqli_fetch_array` — réservés aux `4SI` / `elevelabo3` / Admin).
+  - Diagnostic en direct des 3 erreurs (`🐞` → `✅`), indices progressifs (`💡 Indice 1/3`), corrigé expliqué et envoi automatique de la note `/20` au professeur (`🏆 Envoyer mon score`).
 - **🔍 Recherche profonde globale (`Ctrl + K` ou `/`)** :
   - Recherche instantanée à travers tous les chapitres, balises HTML5 (`<datalist>`, `<fieldset>`…), propriétés CSS3 (`flexbox`, `@keyframes`…), fonctions JS/PHP (`isNaN`, `mysqli_fetch_array`…) et commandes SQL (`FOREIGN KEY`, `GROUP BY`, `HAVING`…) avec ouverture directe de la section exacte.
 - **📍 Reprise automatique de lecture & Marque-pages** :

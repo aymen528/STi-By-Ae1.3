@@ -1181,6 +1181,18 @@
     });
     pan.appendChild(btnSandboxPan);
 
+    var btnDebugPan = document.createElement("button");
+    btnDebugPan.type = "button";
+    btnDebugPan.textContent = "🐞 Chasse aux erreurs (Débogage)";
+    btnDebugPan.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #23201a;background:#fff5ee;color:#d84315;border-radius:9px;padding:6px 10px;font-weight:900;font-size:11.5px;cursor:pointer;";
+    btnDebugPan.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+      if (window.ouvrirChasseErreursSTI) window.ouvrirChasseErreursSTI("all");
+    });
+    pan.appendChild(btnDebugPan);
+
     var btnBac = document.createElement("a");
     btnBac.id = "sti-btn-bac-pan";
     btnBac.href = cfg.RACINE + "bac-pratique.html";
@@ -5439,6 +5451,765 @@
 
     editor.value = codeState[langActif] || "";
     executerCode();
+  };
+
+  /* =====================================================================
+     🐞 MODE « CHASSE AUX ERREURS (DÉBOGAGE BAC STI) » (v97)
+     10 défis officiels × 3 erreurs classiques du Bac = 30 pièges à corriger
+     ===================================================================== */
+  var STI_DEBUG_DEFIS = window.STI_DEBUG_DEFIS = [
+    {
+      id: "dbg_html1",
+      tech: "html5",
+      only4si: false,
+      badge: "🌐 HTML5 · Formulaire",
+      titre: "Défi 1 : Formulaire d'inscription, <datalist> & boutons radio",
+      enonce: "Ce formulaire HTML5 destiné à ajout.php contient 3 erreurs classiques au Bac STI qui empêchent le blocage JS, l'auto-complétion des villes et le choix unique du genre.",
+      codeErrone:
+        '<form action="ajout.php" method="post" onsubmit="verif()">\n' +
+        '  <label>Ville :</label>\n' +
+        '  <input type="text" id="ville" name="ville" list="les_villes">\n' +
+        '  <datalist name="les_villes">\n' +
+        '    <option value="Tunis">\n' +
+        '    <option value="Sfax">\n' +
+        '  </datalist>\n\n' +
+        '  <label>Genre :</label>\n' +
+        '  <input type="radio" id="g1" name="genre1" value="M" checked> Masculin\n' +
+        '  <input type="radio" id="g2" name="genre2" value="F"> Féminin\n' +
+        '  <input type="submit" value="Valider">\n' +
+        '</form>',
+      codeCorrige:
+        '<form action="ajout.php" method="post" onsubmit="return verif()">\n' +
+        '  <label>Ville :</label>\n' +
+        '  <input type="text" id="ville" name="ville" list="les_villes">\n' +
+        '  <datalist id="les_villes">\n' +
+        '    <option value="Tunis">\n' +
+        '    <option value="Sfax">\n' +
+        '  </datalist>\n\n' +
+        '  <label>Genre :</label>\n' +
+        '  <input type="radio" id="g1" name="genre" value="M" checked> Masculin\n' +
+        '  <input type="radio" id="g2" name="genre" value="F"> Féminin\n' +
+        '  <input type="submit" value="Valider">\n' +
+        '</form>',
+      indices: [
+        "Indice 1 (onsubmit) : Pour que verif() puisse bloquer l'envoi du formulaire quand elle renvoie false, quel mot-clé faut-il devant verif() ?",
+        "Indice 2 (<datalist>) : L'attribut list=\"les_villes\" de <input> cherche quel attribut exact sur la balise <datalist> (id ou name) ?",
+        "Indice 3 (radio) : Pour que deux boutons radio soient mutuellement exclusifs, que doivent-ils avoir en commun ?"
+      ],
+      regles: [
+        {
+          nom: "return verif() dans onsubmit",
+          test: function (c) { return /onsubmit\s*=\s*["']\s*return\s+verif\s*\(\s*\)\s*;?\s*["']/i.test(c); }
+        },
+        {
+          nom: "<datalist id=\"les_villes\">",
+          test: function (c) { return /<datalist[^>]*\bid\s*=\s*["']les_villes["']/i.test(c); }
+        },
+        {
+          nom: "Même attribut name=\"genre\" sur les 2 radios",
+          test: function (c) {
+            var m = c.match(/type\s*=\s*["']radio["'][^>]*\bname\s*=\s*["']([^"']+)["']/gi) || [];
+            if (m.length < 2) return false;
+            var n1 = (m[0].match(/name\s*=\s*["']([^"']+)["']/i) || [])[1];
+            var n2 = (m[1].match(/name\s*=\s*["']([^"']+)["']/i) || [])[1];
+            return Boolean(n1 && n1 === n2);
+          }
+        }
+      ],
+      explication: "1) Il faut toujours écrire onsubmit=\"return verif()\" sinon le formulaire s'envoie même si verif() retourne false.\n2) <datalist> est reliée à list=\"les_villes\" par son attribut id=\"les_villes\" (et non name).\n3) Les boutons radio d'un même groupe doivent partager exactement le même attribut name=\"genre\"."
+    },
+    {
+      id: "dbg_html2",
+      tech: "html5",
+      only4si: false,
+      badge: "🌐 HTML5 · Tableau & Médias",
+      titre: "Défi 2 : Fusion de colonnes, motif pattern & lecteur <audio>",
+      enonce: "Ce bloc HTML5 doit fusionner l'en-tête sur 3 colonnes, imposer un CIN obligatoire de 8 chiffres et afficher les contrôles du lecteur audio. Trouvez les 3 erreurs !",
+      codeErrone:
+        '<table border="1">\n' +
+        '  <tr>\n' +
+        '    <th rowspan="3">Liste des candidats</th>\n' +
+        '  </tr>\n' +
+        '</table>\n\n' +
+        '<input type="text" name="cin" regex="[0-9]{8}" required="false">\n' +
+        '<audio src="hymne.mp3" control></audio>',
+      codeCorrige:
+        '<table border="1">\n' +
+        '  <tr>\n' +
+        '    <th colspan="3">Liste des candidats</th>\n' +
+        '  </tr>\n' +
+        '</table>\n\n' +
+        '<input type="text" name="cin" pattern="[0-9]{8}" required>\n' +
+        '<audio src="hymne.mp3" controls></audio>',
+      indices: [
+        "Indice 1 (Tableau) : rowspan fusionne des lignes verticalement ; quel attribut fusionne 3 colonnes horizontalement ?",
+        "Indice 2 (Input) : En HTML5, l'expression régulière d'un <input> s'écrit avec quel attribut (et non regex) ?",
+        "Indice 3 (<audio>) : L'attribut affichant la barre de lecture audio prend un 's' à la fin."
+      ],
+      regles: [
+        {
+          nom: "colspan=\"3\" pour fusionner 3 colonnes",
+          test: function (c) { return /\bcolspan\s*=\s*["']?3["']?/i.test(c) && !/\browspan\s*=\s*["']?3["']?/i.test(c); }
+        },
+        {
+          nom: "Attribut pattern=\"[0-9]{8}\"",
+          test: function (c) { return /\bpattern\s*=\s*["']\[0-9\]\{8\}["']/i.test(c) && !/\bregex\s*=/i.test(c); }
+        },
+        {
+          nom: "Attribut controls sur <audio>",
+          test: function (c) { return /<audio[^>]*\bcontrols\b/i.test(c); }
+        }
+      ],
+      explication: "1) colspan=\"3\" fusionne horizontalement 3 colonnes (rowspan fusionne les lignes).\n2) L'attribut HTML5 d'expression régulière est pattern=\"[0-9]{8}\" (et non regex).\n3) Sur <audio> et <video>, l'attribut s'écrit controls (avec un s)."
+    },
+    {
+      id: "dbg_css1",
+      tech: "css3",
+      only4si: false,
+      badge: "🎨 CSS3 · Flexbox & Survol",
+      titre: "Défi 3 : Centrage Flexbox, sélecteur de classe & couleur de police",
+      enonce: "Cette feuille de style CSS3 doit centrer les éléments d'un conteneur Flexbox et colorer les cartes (class=\"carte\") au survol. Corrigez les 3 erreurs !",
+      codeErrone:
+        '.conteneur {\n' +
+        '  display: flexbox;\n' +
+        '  justify-content: center;\n' +
+        '  align-items: center;\n' +
+        '}\n\n' +
+        'carte:hover {\n' +
+        '  font-color: #f4511e;\n' +
+        '  background-color: #fff3e0;\n' +
+        '}',
+      codeCorrige:
+        '.conteneur {\n' +
+        '  display: flex;\n' +
+        '  justify-content: center;\n' +
+        '  align-items: center;\n' +
+        '}\n\n' +
+        '.carte:hover {\n' +
+        '  color: #f4511e;\n' +
+        '  background-color: #fff3e0;\n' +
+        '}',
+      indices: [
+        "Indice 1 : En CSS3, quelle est la valeur exacte de display pour activer Flexbox ?",
+        "Indice 2 : Comment commence toujours un sélecteur de classe en CSS (class=\"carte\") ?",
+        "Indice 3 : La propriété font-color n'existe pas en CSS ; comment s'appelle-t-elle ?"
+      ],
+      regles: [
+        {
+          nom: "display: flex;",
+          test: function (c) { return /display\s*:\s*flex\s*;/i.test(c); }
+        },
+        {
+          nom: "Sélecteur .carte:hover (avec le point)",
+          test: function (c) { return /\.carte\s*:\s*hover/i.test(c); }
+        },
+        {
+          nom: "Propriété color: #f4511e;",
+          test: function (c) { return /(?:^|[\s;{])color\s*:\s*#f4511e/i.test(c) && !/font-color/i.test(c); }
+        }
+      ],
+      explication: "1) Flexbox s'active avec display: flex; (et non flexbox).\n2) Une classe HTML class=\"carte\" se cible avec un point : .carte:hover.\n3) La couleur du texte se définit avec color: #f4511e; (font-color n'existe pas)."
+    },
+    {
+      id: "dbg_css2",
+      tech: "css3",
+      only4si: false,
+      badge: "🎨 CSS3 · Animation & 2D",
+      titre: "Défi 4 : @keyframes, coins arrondis & rotation 2D",
+      enonce: "Ce code CSS3 doit arrondir une boîte de 15px et lui appliquer une animation de rotation. Corrigez les 3 erreurs de syntaxe CSS3 !",
+      codeErrone:
+        '.boite {\n' +
+        '  corner-radius: 15px;\n' +
+        '  animation: tourner 2s infinite;\n' +
+        '}\n\n' +
+        '@keyframe tourner {\n' +
+        '  from { transform: rotation(0deg); }\n' +
+        '  to   { transform: rotation(360deg); }\n' +
+        '}',
+      codeCorrige:
+        '.boite {\n' +
+        '  border-radius: 15px;\n' +
+        '  animation: tourner 2s infinite;\n' +
+        '}\n\n' +
+        '@keyframes tourner {\n' +
+        '  from { transform: rotate(0deg); }\n' +
+        '  to   { transform: rotate(360deg); }\n' +
+        '}',
+      indices: [
+        "Indice 1 : Quelle propriété CSS3 permet d'arrondir les coins d'une bordure ?",
+        "Indice 2 : La règle d'animation CSS3 prend un 's' à la fin.",
+        "Indice 3 : La fonction de rotation dans transform s'écrit en anglais court : rotate(...)."
+      ],
+      regles: [
+        {
+          nom: "border-radius: 15px;",
+          test: function (c) { return /border-radius\s*:\s*15px/i.test(c) && !/corner-radius/i.test(c); }
+        },
+        {
+          nom: "@keyframes tourner (avec un s)",
+          test: function (c) { return /@keyframes\s+tourner/i.test(c); }
+        },
+        {
+          nom: "transform: rotate(...)",
+          test: function (c) { return /transform\s*:\s*rotate\s*\(/i.test(c) && !/rotation\s*\(/i.test(c); }
+        }
+      ],
+      explication: "1) Les coins arrondis se définissent avec border-radius: 15px;.\n2) La règle d'animation s'écrit @keyframes (avec un s).\n3) La fonction de transformation 2D est rotate(360deg) (et non rotation)."
+    },
+    {
+      id: "dbg_js1",
+      tech: "js",
+      only4si: false,
+      badge: "📜 JavaScript · Saisie CIN",
+      titre: "Défi 5 : Contrôle d'un numéro CIN de 8 chiffres en JavaScript",
+      enonce: "La fonction verif() doit vérifier que le champ <input id=\"cin\"> contient exactement 8 chiffres. Elle comporte 3 erreurs classiques au Bac !",
+      codeErrone:
+        'function verif() {\n' +
+        '  var cin = document.getElementById("cin").innerHTML;\n' +
+        '  if (cin.size != 8) {\n' +
+        '    alert("Le CIN doit comporter 8 caractères !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  if (!isNaN(cin)) {\n' +
+        '    alert("Le CIN doit contenir uniquement des chiffres !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  return true;\n' +
+        '}',
+      codeCorrige:
+        'function verif() {\n' +
+        '  var cin = document.getElementById("cin").value;\n' +
+        '  if (cin.length != 8) {\n' +
+        '    alert("Le CIN doit comporter 8 caractères !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  if (isNaN(cin)) {\n' +
+        '    alert("Le CIN doit contenir uniquement des chiffres !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  return true;\n' +
+        '}',
+      indices: [
+        "Indice 1 : Quelle propriété permet de lire le contenu saisi dans un champ <input> (.value ou .innerHTML) ?",
+        "Indice 2 : Quelle propriété donne la longueur d'une chaîne en JavaScript (.length ou .size) ?",
+        "Indice 3 : isNaN(cin) renvoie true quand cin N'est PAS un nombre : faut-il mettre !isNaN(cin) ou isNaN(cin) pour détecter une erreur ?"
+      ],
+      regles: [
+        {
+          nom: "document.getElementById(\"cin\").value",
+          test: function (c) { return /getElementById\s*\(\s*["']cin["']\s*\)\s*\.value\b/.test(c); }
+        },
+        {
+          nom: "cin.length != 8 (ou !== 8)",
+          test: function (c) { return /cin\.length\s*!==?\s*8/.test(c) && !/cin\.size/.test(c); }
+        },
+        {
+          nom: "if (isNaN(cin)) sans négation !",
+          test: function (c) { return /if\s*\(\s*isNaN\s*\(\s*cin\s*\)\s*\)/.test(c); }
+        }
+      ],
+      explication: "1) La valeur d'un champ de formulaire se lit avec .value (et non .innerHTML).\n2) La longueur d'une chaîne en JS est cin.length (et non .size).\n3) isNaN(cin) vaut true si cin n'est pas numérique : on écrit donc if (isNaN(cin)) pour afficher l'alerte d'erreur."
+    },
+    {
+      id: "dbg_js2",
+      tech: "js",
+      only4si: false,
+      badge: "📜 JavaScript · DOM & Choix",
+      titre: "Défi 6 : Liste déroulante <select>, boutons radio & premier caractère",
+      enonce: "Cette fonction vérifie que le 1er caractère du nom est une lettre majuscule, qu'une option de <select id=\"spec\"> est choisie et qu'un bouton radio est coché. Corrigez les 3 erreurs !",
+      codeErrone:
+        'function verifChoix() {\n' +
+        '  var nom = document.getElementById("nom").value;\n' +
+        '  if (nom.charAt(1) < "A" || nom.charAt(1) > "Z") {\n' +
+        '    alert("Le nom doit commencer par une majuscule !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  if (document.getElementById("spec").selected == 0) {\n' +
+        '    alert("Veuillez choisir une spécialité !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  var r1 = document.getElementById("r1");\n' +
+        '  var r2 = document.getElementById("r2");\n' +
+        '  if (!r1.check && !r2.check) {\n' +
+        '    alert("Cochez un régime !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  return true;\n' +
+        '}',
+      codeCorrige:
+        'function verifChoix() {\n' +
+        '  var nom = document.getElementById("nom").value;\n' +
+        '  if (nom.charAt(0) < "A" || nom.charAt(0) > "Z") {\n' +
+        '    alert("Le nom doit commencer par une majuscule !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  if (document.getElementById("spec").selectedIndex == 0) {\n' +
+        '    alert("Veuillez choisir une spécialité !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  var r1 = document.getElementById("r1");\n' +
+        '  var r2 = document.getElementById("r2");\n' +
+        '  if (!r1.checked && !r2.checked) {\n' +
+        '    alert("Cochez un régime !");\n' +
+        '    return false;\n' +
+        '  }\n' +
+        '  return true;\n' +
+        '}',
+      indices: [
+        "Indice 1 : En JavaScript, à quel indice commence le tout premier caractère d'une chaîne (0 ou 1) ?",
+        "Indice 2 : Quelle propriété de <select> renvoie l'indice de l'option sélectionnée (selectedIndex) ?",
+        "Indice 3 : Quelle propriété booléenne indique si un bouton radio est coché (.checked) ?"
+      ],
+      regles: [
+        {
+          nom: "nom.charAt(0) pour le 1er caractère",
+          test: function (c) { return /nom\.charAt\s*\(\s*0\s*\)\s*<\s*["']A["']/.test(c) && /nom\.charAt\s*\(\s*0\s*\)\s*>\s*["']Z["']/.test(c); }
+        },
+        {
+          nom: ".selectedIndex == 0 sur <select>",
+          test: function (c) { return /\.selectedIndex\s*===?\s*0/.test(c); }
+        },
+        {
+          nom: "!r1.checked && !r2.checked",
+          test: function (c) { return /!r1\.checked\s*&&\s*!r2\.checked/.test(c); }
+        }
+      ],
+      explication: "1) Les indices d'une chaîne commencent à 0 : le 1er caractère est nom.charAt(0).\n2) L'indice choisi dans une liste <select> se lit avec .selectedIndex.\n3) L'état coché d'un radio ou checkbox se lit avec .checked (et non .check)."
+    },
+    {
+      id: "dbg_sql1",
+      tech: "sql",
+      only4si: false,
+      badge: "🗄️ SQL · LDD & Contraintes",
+      titre: "Défi 7 : CREATE TABLE, clé primaire, clé étrangère & CHECK",
+      enonce: "Cette requête CREATE TABLE Commande doit définir num_cmd comme clé primaire, qte strictement positif et id_cl comme clé étrangère vers Client(id_cl). Corrigez les 3 erreurs !",
+      codeErrone:
+        'CREATE TABLE Commande (\n' +
+        '  num_cmd INT UNIQUE KEY,\n' +
+        '  qte INT WHERE (qte > 0),\n' +
+        '  id_cl CHAR(8),\n' +
+        '  FOREIGN KEY (id_cl) REFERENCE Client(id_cl) ON DELETE CASCADE\n' +
+        ');',
+      codeCorrige:
+        'CREATE TABLE Commande (\n' +
+        '  num_cmd INT PRIMARY KEY,\n' +
+        '  qte INT CHECK (qte > 0),\n' +
+        '  id_cl CHAR(8),\n' +
+        '  FOREIGN KEY (id_cl) REFERENCES Client(id_cl) ON DELETE CASCADE\n' +
+        ');',
+      indices: [
+        "Indice 1 : Comment déclare-t-on une clé primaire en SQL (PRIMARY KEY) ?",
+        "Indice 2 : Quel mot-clé SQL impose une condition sur la valeur d'une colonne dans CREATE TABLE (CHECK et non WHERE) ?",
+        "Indice 3 : Le mot-clé SQL qui pointe vers la table parente prend toujours un 'S' à la fin."
+      ],
+      regles: [
+        {
+          nom: "PRIMARY KEY sur num_cmd",
+          test: function (c) { return /\bPRIMARY\s+KEY\b/i.test(c) && !/\bUNIQUE\s+KEY\b/i.test(c); }
+        },
+        {
+          nom: "CHECK (qte > 0)",
+          test: function (c) { return /\bCHECK\s*\(\s*qte\s*>\s*0\s*\)/i.test(c) && !/\bWHERE\s*\(\s*qte/i.test(c); }
+        },
+        {
+          nom: "REFERENCES Client(id_cl) (avec un S)",
+          test: function (c) { return /\bREFERENCES\s+Client\s*\(\s*id_cl\s*\)/i.test(c); }
+        }
+      ],
+      explication: "1) La clé primaire se déclare avec PRIMARY KEY.\n2) Une contrainte de domaine dans CREATE TABLE s'écrit CHECK (qte > 0) (WHERE n'existe que dans SELECT/UPDATE/DELETE).\n3) La clé étrangère s'écrit FOREIGN KEY (id_cl) REFERENCES Client(id_cl) avec un S."
+    },
+    {
+      id: "dbg_sql2",
+      tech: "sql",
+      only4si: false,
+      badge: "🗄️ SQL · LMD & Agrégation",
+      titre: "Défi 8 : Fonction YEAR(), filtre HAVING sur GROUP BY & tri ORDER BY",
+      enonce: "Cette requête SQL doit afficher les clients ayant passé au moins 3 commandes en 2026, triés par total décroissant. Trouvez et corrigez les 3 erreurs !",
+      codeErrone:
+        'SELECT id_cl, COUNT(*) AS nb_cmd, SUM(montant) AS total\n' +
+        'FROM Commande\n' +
+        'WHERE GETYEAR(date_cmd) = 2026\n' +
+        'GROUP BY id_cl\n' +
+        'WHERE COUNT(*) >= 3\n' +
+        'SORT BY total DESC;',
+      codeCorrige:
+        'SELECT id_cl, COUNT(*) AS nb_cmd, SUM(montant) AS total\n' +
+        'FROM Commande\n' +
+        'WHERE YEAR(date_cmd) = 2026\n' +
+        'GROUP BY id_cl\n' +
+        'HAVING COUNT(*) >= 3\n' +
+        'ORDER BY total DESC;',
+      indices: [
+        "Indice 1 : Quelle fonction SQL extrait l'année d'une date (YEAR et non GETYEAR) ?",
+        "Indice 2 : Quelle clause filtre les résultats d'un GROUP BY sur une fonction d'agrégation comme COUNT(*) (HAVING) ?",
+        "Indice 3 : Quelle clause SQL permet de trier les résultats (ORDER BY et non SORT BY) ?"
+      ],
+      regles: [
+        {
+          nom: "Fonction YEAR(date_cmd) = 2026",
+          test: function (c) { return /\bYEAR\s*\(\s*date_cmd\s*\)\s*=\s*2026/i.test(c) && !/GETYEAR/i.test(c); }
+        },
+        {
+          nom: "Clause HAVING COUNT(*) >= 3",
+          test: function (c) { return /\bHAVING\s+COUNT\s*\(\s*\*\s*\)\s*>=\s*3/i.test(c); }
+        },
+        {
+          nom: "Clause ORDER BY total DESC",
+          test: function (c) { return /\bORDER\s+BY\s+total\s+DESC/i.test(c) && !/\bSORT\s+BY\b/i.test(c); }
+        }
+      ],
+      explication: "1) En SQL (MySQL), l'année d'une date s'obtient avec YEAR(date_cmd).\n2) On ne peut jamais mettre COUNT(*) dans un WHERE : après GROUP BY, on filtre avec HAVING COUNT(*) >= 3.\n3) Le tri en SQL s'écrit toujours ORDER BY ... DESC."
+    },
+    {
+      id: "dbg_php1",
+      tech: "php",
+      only4si: true,
+      badge: "🐘 PHP & MySQLi · Insertion",
+      titre: "Défi 9 : Superglobale $_POST, mysqli_query() & mysqli_affected_rows()",
+      enonce: "Ce script PHP reçoit le CIN envoyé en POST et l'insère dans la base. Il comporte les 3 erreurs les plus fréquentes aux épreuves pratiques du Bac 4e SI !",
+      codeErrone:
+        '<?php\n' +
+        '$con = mysqli_connect("localhost", "root", "", "bd_bac");\n' +
+        '$cin = $POST["cin"];\n' +
+        '$req = "INSERT INTO Client VALUES (\'$cin\')";\n' +
+        '$res = mysqli_query($req, $con);\n' +
+        'if (mysqli_num_rows($con) > 0) {\n' +
+        '  echo "Insertion réussie !";\n' +
+        '}\n' +
+        'mysqli_close($con);\n' +
+        '?>',
+      codeCorrige:
+        '<?php\n' +
+        '$con = mysqli_connect("localhost", "root", "", "bd_bac");\n' +
+        '$cin = $_POST["cin"];\n' +
+        '$req = "INSERT INTO Client VALUES (\'$cin\')";\n' +
+        '$res = mysqli_query($con, $req);\n' +
+        'if (mysqli_affected_rows($con) > 0) {\n' +
+        '  echo "Insertion réussie !";\n' +
+        '}\n' +
+        'mysqli_close($con);\n' +
+        '?>',
+      indices: [
+        "Indice 1 : Comment s'écrit exactement le tableau superglobal POST en PHP (n'oubliez pas le caractère '_') ?",
+        "Indice 2 : Dans mysqli_query(), quel paramètre passe-t-on en premier : la connexion $con ou la requête $req ?",
+        "Indice 3 : Après un INSERT, UPDATE ou DELETE, quelle fonction teste le nombre de lignes modifiées (mysqli_affected_rows) ?"
+      ],
+      regles: [
+        {
+          nom: "$_POST[\"cin\"] (avec underscore)",
+          test: function (c) { return /\$_POST\s*\[\s*["']cin["']\s*\]/.test(c); }
+        },
+        {
+          nom: "mysqli_query($con, $req) ($con en 1er)",
+          test: function (c) { return /mysqli_query\s*\(\s*\$con\s*,\s*\$req\s*\)/i.test(c); }
+        },
+        {
+          nom: "mysqli_affected_rows($con) > 0",
+          test: function (c) { return /mysqli_affected_rows\s*\(\s*\$con\s*\)\s*>\s*0/i.test(c); }
+        }
+      ],
+      explication: "1) Les superglobales PHP prennent un underscore : $_POST[\"cin\"].\n2) En MySQLi procédural, la connexion $con est TOUJOURS le 1er argument : mysqli_query($con, $req).\n3) mysqli_num_rows($res) ne sert que pour SELECT ; pour INSERT/UPDATE/DELETE on utilise mysqli_affected_rows($con)."
+    },
+    {
+      id: "dbg_php2",
+      tech: "php",
+      only4si: true,
+      badge: "🐘 PHP & MySQLi · Lecture SELECT",
+      titre: "Défi 10 : Ordre de mysqli_connect(), mysqli_num_rows() & mysqli_fetch_array()",
+      enonce: "Ce script PHP se connecte à la base 'bd_sport', vérifie si des élèves existent et affiche leur colonne 'nom'. Corrigez les 3 erreurs !",
+      codeErrone:
+        '<?php\n' +
+        '$con = mysqli_connect("localhost", "bd_sport", "root", "");\n' +
+        '$res = mysqli_query($con, "SELECT nom FROM Eleve");\n' +
+        'if (mysqli_count($res) == 0) {\n' +
+        '  echo "Aucun élève trouvé";\n' +
+        '} else {\n' +
+        '  while ($t = mysqli_fetch_row($res)) {\n' +
+        '    echo $t["nom"] . "<br>";\n' +
+        '  }\n' +
+        '}\n' +
+        '?>',
+      codeCorrige:
+        '<?php\n' +
+        '$con = mysqli_connect("localhost", "root", "", "bd_sport");\n' +
+        '$res = mysqli_query($con, "SELECT nom FROM Eleve");\n' +
+        'if (mysqli_num_rows($res) == 0) {\n' +
+        '  echo "Aucun élève trouvé";\n' +
+        '} else {\n' +
+        '  while ($t = mysqli_fetch_array($res)) {\n' +
+        '    echo $t["nom"] . "<br>";\n' +
+        '  }\n' +
+        '}\n' +
+        '?>',
+      indices: [
+        "Indice 1 : Quel est l'ordre exact des 4 paramètres de mysqli_connect(serveur, utilisateur, mot_de_passe, base) ?",
+        "Indice 2 : Quelle fonction MySQLi compte le nombre de lignes retournées par un SELECT (mysqli_num_rows) ?",
+        "Indice 3 : mysqli_fetch_row() ne permet que $t[0] ; quelle fonction permet d'accéder par nom de colonne $t[\"nom\"] ?"
+      ],
+      regles: [
+        {
+          nom: "mysqli_connect(\"localhost\", \"root\", \"\", \"bd_sport\")",
+          test: function (c) { return /mysqli_connect\s*\(\s*["']localhost["']\s*,\s*["']root["']\s*,\s*["']['"]\s*,\s*["']bd_sport["']\s*\)/i.test(c); }
+        },
+        {
+          nom: "mysqli_num_rows($res) == 0",
+          test: function (c) { return /mysqli_num_rows\s*\(\s*\$res\s*\)\s*===?\s*0/i.test(c); }
+        },
+        {
+          nom: "mysqli_fetch_array($res) ou mysqli_fetch_assoc($res)",
+          test: function (c) { return /mysqli_fetch_(?:array|assoc)\s*\(\s*\$res\s*\)/i.test(c); }
+        }
+      ],
+      explication: "1) L'ordre de mysqli_connect est : (\"localhost\", \"root\", \"\", \"bd_sport\").\n2) Le nombre de lignes d'un SELECT s'obtient avec mysqli_num_rows($res).\n3) Pour lire une colonne par son nom $t[\"nom\"], il faut utiliser mysqli_fetch_array($res) (ou mysqli_fetch_assoc($res)), car mysqli_fetch_row($res) ne retourne que des indices numériques ($t[0])."
+    }
+  ];
+
+  window.ouvrirChasseErreursSTI = function (filtreInit) {
+    var exist = document.getElementById("sti-debug-modal");
+    if (exist) exist.remove();
+
+    var CLE_DBG = "sti-debug-resolus";
+    var resolus = {};
+    try { resolus = JSON.parse(localStorage.getItem(CLE_DBG) || "{}") || {}; } catch (e) {}
+
+    var ok4 = est4SIAutoriseActuel();
+    var filtreTech = (filtreInit && filtreInit !== "htmlcss") ? filtreInit : "all";
+    var defisActifs = [];
+    var idxCourant = 0;
+    var indiceEtape = 0;
+
+    function filtrerDefis() {
+      defisActifs = STI_DEBUG_DEFIS.filter(function (d) {
+        if (d.only4si && !ok4) return false;
+        if (filtreTech !== "all" && d.tech !== filtreTech) return false;
+        return true;
+      });
+      if (!defisActifs.length) {
+        filtreTech = "all";
+        defisActifs = STI_DEBUG_DEFIS.filter(function (d) { return !d.only4si || ok4; });
+      }
+      if (idxCourant >= defisActifs.length) idxCourant = 0;
+      indiceEtape = 0;
+    }
+    filtrerDefis();
+
+    var fond = document.createElement("div");
+    fond.id = "sti-debug-modal";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,18,30,.78);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:12px;font:600 13px/1.45 system-ui,'Segoe UI',sans-serif;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:16px 18px;max-width:780px;width:100%;max-height:94dvh;overflow-y:auto;box-shadow:7px 7px 0 #f4511e,0 20px 55px rgba(0,0,0,.45);color-scheme:light;box-sizing:border-box;";
+
+    boite.innerHTML =
+      "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:2.5px solid #23201a;padding-bottom:10px;margin-bottom:10px'>" +
+        "<div>" +
+          "<h3 style='margin:0;font-size:17px;font-weight:900;color:#23201a'>🐞 Chasse aux erreurs — Débogage Bac STI</h3>" +
+          "<div id='sti-dbg-global-stat' style='font-size:11.5px;color:#177245;font-weight:800;margin-top:2px'></div>" +
+        "</div>" +
+        "<div style='display:flex;align-items:center;gap:6px'>" +
+          "<button type='button' id='sti-dbg-send-score' title='Transmettre ma note de débogage au professeur' style='border:2px solid #23201a;background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;border-radius:999px;padding:6px 12px;font-weight:900;font-size:11.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>🏆 Envoyer mon score</button>" +
+          "<button type='button' id='sti-dbg-close' style='border:2px solid #23201a;background:#c0392b;color:#fff;border-radius:10px;width:34px;height:32px;font-weight:900;font-size:15px;cursor:pointer'>✕</button>" +
+        "</div>" +
+      "</div>" +
+      "<div id='sti-dbg-tabs' style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px'>" +
+        "<button type='button' data-t='all' style='border:2px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🌟 Tous</button>" +
+        "<button type='button' data-t='html5' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🌐 HTML5</button>" +
+        "<button type='button' data-t='css3' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🎨 CSS3</button>" +
+        "<button type='button' data-t='js' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>📜 JS</button>" +
+        "<button type='button' data-t='sql' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🗄️ SQL</button>" +
+        (ok4 ? "<button type='button' data-t='php' style='border:2px solid #23201a;background:#f3ead9;color:#23201a;border-radius:999px;padding:4px 11px;font-weight:800;font-size:11.5px;cursor:pointer'>🐘 PHP &amp; MySQLi</button>" : "") +
+      "</div>" +
+      "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px'>" +
+        "<button type='button' id='sti-dbg-prev' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 12px;font-weight:900;font-size:12px;cursor:pointer'>◀ Préc.</button>" +
+        "<select id='sti-dbg-select' style='flex:1;min-width:200px;border:2px solid #23201a;border-radius:10px;padding:6px 10px;font-weight:900;font-size:12.5px;background:#fff;color:#23201a'></select>" +
+        "<button type='button' id='sti-dbg-next' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:5px 12px;font-weight:900;font-size:12px;cursor:pointer'>Suiv. ▶</button>" +
+      "</div>" +
+      "<div style='background:#f9f1e3;border:2px solid #23201a;border-radius:14px;padding:10px 13px;margin-bottom:9px'>" +
+        "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px'>" +
+          "<span id='sti-dbg-badge' style='display:inline-block;padding:2px 9px;border-radius:999px;border:1.5px solid #23201a;background:#fff;font-size:11px;font-weight:900'></span>" +
+          "<span id='sti-dbg-score-defi' style='font-size:11.5px;font-weight:900;color:#c0392b'>🐞 0 / 3 erreurs corrigées</span>" +
+        "</div>" +
+        "<div id='sti-dbg-titre' style='font-size:14.5px;font-weight:900;color:#23201a;margin-bottom:3px'></div>" +
+        "<div id='sti-dbg-enonce' style='font-size:12.5px;color:#5a5244;font-weight:700'></div>" +
+      "</div>" +
+      "<div id='sti-dbg-checks' style='display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px;margin-bottom:9px'></div>" +
+      "<label style='font-size:11.5px;font-weight:900;color:#23201a;display:block;margin-bottom:4px'>✏️ Modifiez directement le code ci-dessous pour corriger les 3 erreurs :</label>" +
+      "<textarea id='sti-dbg-editor' spellcheck='false' style='width:100%;min-height:190px;border:2.5px solid #23201a;border-radius:14px;padding:12px;background:#161922;color:#f8f8f2;font:600 12.8px/1.55 \"JetBrains Mono\",ui-monospace,Consolas,monospace;resize:vertical;outline:none;box-sizing:border-box'></textarea>" +
+      "<div id='sti-dbg-feedback' style='display:none;margin-top:9px;padding:10px 13px;border-radius:12px;border:2px solid #23201a;font-size:12.5px;font-weight:700;white-space:pre-wrap'></div>" +
+      "<div style='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:11px'>" +
+        "<div style='display:flex;gap:6px;flex-wrap:wrap'>" +
+          "<button type='button' id='sti-dbg-hint' style='border:2px solid #23201a;background:#fff8e1;color:#b45309;border-radius:999px;padding:7px 13px;font-weight:900;font-size:12px;cursor:pointer'>💡 Indice (1/3)</button>" +
+          "<button type='button' id='sti-dbg-reset' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 12px;font-weight:800;font-size:12px;cursor:pointer'>🔄 Réinitialiser</button>" +
+          "<button type='button' id='sti-dbg-sol' style='border:2px solid #23201a;background:#f3ead9;color:#5a5244;border-radius:999px;padding:7px 12px;font-weight:800;font-size:12px;cursor:pointer'>👁️ Voir le corrigé</button>" +
+        "</div>" +
+        "<button type='button' id='sti-dbg-verify' style='border:2.5px solid #23201a;background:linear-gradient(120deg,#177245,#2ecc71);color:#fff;border-radius:999px;padding:8px 18px;font-weight:900;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 #23201a'>✅ Vérifier ma correction</button>" +
+      "</div>";
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var selDefi = boite.querySelector("#sti-dbg-select");
+    var badgeEl = boite.querySelector("#sti-dbg-badge");
+    var scoreDefiEl = boite.querySelector("#sti-dbg-score-defi");
+    var titreEl = boite.querySelector("#sti-dbg-titre");
+    var enonceEl = boite.querySelector("#sti-dbg-enonce");
+    var checksEl = boite.querySelector("#sti-dbg-checks");
+    var editorEl = boite.querySelector("#sti-dbg-editor");
+    var fbEl = boite.querySelector("#sti-dbg-feedback");
+    var statGlobalEl = boite.querySelector("#sti-dbg-global-stat");
+    var btnHint = boite.querySelector("#sti-dbg-hint");
+
+    function calculerBilanGlobal() {
+      var totDispo = STI_DEBUG_DEFIS.filter(function (d) { return !d.only4si || ok4; });
+      var nbOk = totDispo.filter(function (d) { return Boolean(resolus[d.id]); }).length;
+      var sur20 = totDispo.length ? Math.round((nbOk / totDispo.length) * 20) : 0;
+      statGlobalEl.textContent = "✅ " + nbOk + " / " + totDispo.length + " défis résolus · Note actuelle : " + sur20 + " / 20";
+      if (typeof window.__stiMajBadgeDebug === "function") window.__stiMajBadgeDebug();
+      return { nbOk: nbOk, total: totDispo.length, sur20: sur20 };
+    }
+
+    function remplirSelectDefis() {
+      selDefi.innerHTML = defisActifs.map(function (d, i) {
+        var ok = Boolean(resolus[d.id]);
+        return "<option value='" + i + "'>" + (ok ? "✅ " : "🐞 ") + esc(d.titre) + "</option>";
+      }).join("");
+      selDefi.value = String(idxCourant);
+    }
+
+    function peindreChecks(codeActuel) {
+      var d = defisActifs[idxCourant];
+      if (!d) return 0;
+      var nbValides = 0;
+      checksEl.innerHTML = d.regles.map(function (r, idx) {
+        var ok = false;
+        try { ok = Boolean(r.test(codeActuel)); } catch (e) {}
+        if (ok) nbValides++;
+        return "<div style='padding:6px 10px;border-radius:10px;border:1.8px solid " + (ok ? "#177245" : "#23201a") + ";background:" + (ok ? "#e3f6e8;color:#177245" : "#fff;color:#5a5244") + ";font-size:11.5px;font-weight:800;display:flex;align-items:center;gap:6px'>" +
+          "<span>" + (ok ? "✅" : "🐞") + "</span>" +
+          "<span>" + (ok ? esc(r.nom) : ("Erreur #" + (idx + 1) + " à corriger")) + "</span>" +
+        "</div>";
+      }).join("");
+      scoreDefiEl.textContent = (nbValides === 3 ? "✅ 3 / 3 erreurs corrigées !" : ("🐞 " + nbValides + " / 3 erreurs corrigées"));
+      scoreDefiEl.style.color = nbValides === 3 ? "#177245" : "#c0392b";
+      return nbValides;
+    }
+
+    function chargerDefiCourant() {
+      var d = defisActifs[idxCourant];
+      if (!d) return;
+      indiceEtape = 0;
+      btnHint.textContent = "💡 Indice (1/3)";
+      fbEl.style.display = "none";
+      fbEl.textContent = "";
+      badgeEl.textContent = d.badge + (resolus[d.id] ? " · ✅ Résolu" : "");
+      titreEl.textContent = d.titre;
+      enonceEl.textContent = d.enonce;
+      editorEl.value = resolus[d.id] ? d.codeCorrige : d.codeErrone;
+      remplirSelectDefis();
+      peindreChecks(editorEl.value);
+      calculerBilanGlobal();
+    }
+
+    boite.querySelector("#sti-dbg-verify").addEventListener("click", function () {
+      var d = defisActifs[idxCourant];
+      if (!d) return;
+      var nb = peindreChecks(editorEl.value);
+      fbEl.style.display = "block";
+      if (nb === 3) {
+        var deja = Boolean(resolus[d.id]);
+        resolus[d.id] = true;
+        try { localStorage.setItem(CLE_DBG, JSON.stringify(resolus)); } catch (e) {}
+        var bil = calculerBilanGlobal();
+        remplirSelectDefis();
+        badgeEl.textContent = d.badge + " · ✅ Résolu";
+        fbEl.style.background = "#e3f6e8";
+        fbEl.style.color = "#177245";
+        fbEl.style.borderColor = "#177245";
+        fbEl.textContent = "🎉 Bravo ! Les 3 erreurs ont été parfaitement corrigées !\n\n📘 Rappel Bac STI :\n" + d.explication;
+        if (!deja && typeof window.enregistrerScoreQuizSTI === "function") {
+          window.enregistrerScoreQuizSTI("Chasse aux erreurs", bil.sur20 + "/20 (" + bil.nbOk + "/" + bil.total + " défis)", bil.sur20);
+        }
+      } else {
+        fbEl.style.background = "#fff3e0";
+        fbEl.style.color = "#b45309";
+        fbEl.style.borderColor = "#d97706";
+        fbEl.textContent = "🔍 Vous avez corrigé " + nb + " erreur(s) sur 3. Il reste encore " + (3 - nb) + " erreur(s) dans le code ! Cliquez sur « 💡 Indice » si vous avez besoin d'une piste.";
+      }
+    });
+
+    btnHint.addEventListener("click", function () {
+      var d = defisActifs[idxCourant];
+      if (!d || !d.indices) return;
+      var txt = d.indices[indiceEtape] || d.indices[0];
+      indiceEtape = (indiceEtape + 1) % d.indices.length;
+      btnHint.textContent = "💡 Indice (" + (indiceEtape + 1) + "/" + d.indices.length + ")";
+      fbEl.style.display = "block";
+      fbEl.style.background = "#fff8e1";
+      fbEl.style.color = "#23201a";
+      fbEl.style.borderColor = "#d97706";
+      fbEl.textContent = "💡 " + txt;
+    });
+
+    boite.querySelector("#sti-dbg-reset").addEventListener("click", function () {
+      var d = defisActifs[idxCourant];
+      if (!d) return;
+      editorEl.value = d.codeErrone;
+      fbEl.style.display = "none";
+      peindreChecks(editorEl.value);
+    });
+
+    boite.querySelector("#sti-dbg-sol").addEventListener("click", function () {
+      var d = defisActifs[idxCourant];
+      if (!d) return;
+      editorEl.value = d.codeCorrige;
+      peindreChecks(editorEl.value);
+      fbEl.style.display = "block";
+      fbEl.style.background = "#f3ead9";
+      fbEl.style.color = "#23201a";
+      fbEl.style.borderColor = "#23201a";
+      fbEl.textContent = "👁️ Corrigé officiel affiché dans l'éditeur :\n" + d.explication;
+    });
+
+    boite.querySelector("#sti-dbg-send-score").addEventListener("click", function () {
+      var bil = calculerBilanGlobal();
+      if (typeof window.enregistrerScoreQuizSTI === "function") {
+        window.enregistrerScoreQuizSTI("Chasse aux erreurs", bil.sur20 + "/20 (" + bil.nbOk + "/" + bil.total + " défis)", bil.sur20);
+      }
+      afficherToastSynchro("🏆 Score « Chasse aux erreurs : " + bil.sur20 + "/20 » transmis au professeur !");
+    });
+
+    boite.querySelector("#sti-dbg-prev").addEventListener("click", function () {
+      idxCourant = (idxCourant - 1 + defisActifs.length) % defisActifs.length;
+      chargerDefiCourant();
+    });
+    boite.querySelector("#sti-dbg-next").addEventListener("click", function () {
+      idxCourant = (idxCourant + 1) % defisActifs.length;
+      chargerDefiCourant();
+    });
+    selDefi.addEventListener("change", function () {
+      idxCourant = parseInt(selDefi.value, 10) || 0;
+      chargerDefiCourant();
+    });
+
+    boite.querySelectorAll("#sti-dbg-tabs button[data-t]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        filtreTech = b.getAttribute("data-t") || "all";
+        boite.querySelectorAll("#sti-dbg-tabs button[data-t]").forEach(function (x) {
+          var act = x === b;
+          x.style.background = act ? "#f4511e" : "#f3ead9";
+          x.style.color = act ? "#fff" : "#23201a";
+        });
+        idxCourant = 0;
+        filtrerDefis();
+        chargerDefiCourant();
+      });
+    });
+
+    boite.querySelector("#sti-dbg-close").addEventListener("click", function () { fond.remove(); });
+    fond.addEventListener("click", function (e) { if (e.target === fond) fond.remove(); });
+
+    chargerDefiCourant();
   };
 
   /* ---------- 4. Bouton universel « ⬆ Haut » sur toutes les pages qui n'en ont pas déjà un ---------- */
