@@ -2419,14 +2419,18 @@
 
   function rendAcces() {
     var emails = {};
-    profils.forEach(function (p) { emails[p.id] = contact(p); });
+    var mapProfA = {};
+    profils.forEach(function (p) {
+      emails[p.id] = contact(p);
+      mapProfA[p.id] = p;
+    });
     var ta = document.getElementById("tb-acces");
     ta.innerHTML = "";
     var totalA = acces.length;
     if (!totalA) {
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
-      td0.colSpan = 5;
+      td0.colSpan = 6;
       td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
       td0.textContent = "Aucune connexion enregistrée.";
       tr0.appendChild(td0);
@@ -2435,8 +2439,26 @@
     var limiteA = toutVoirAcces ? totalA : 5;
     acces.slice(0, limiteA).forEach(function (a) {
       var tr = document.createElement("tr");
-      [emails[a.user_id] || a.user_id, fmtDate(a.debut), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
-        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      var p = mapProfA[a.user_id];
+      var nomContact = emails[a.user_id] || a.user_id;
+      var lyceeTxt = p ? lyceePropre(p) : "—";
+      var classeTxt = (p && p.classe) || "—";
+
+      var tdCand = document.createElement("td");
+      tdCand.style.fontWeight = "800";
+      tdCand.textContent = nomContact;
+      tr.appendChild(tdCand);
+
+      var tdLyceeClasse = document.createElement("td");
+      tdLyceeClasse.innerHTML =
+        "<span style='display:inline-block;background:#f3ead9;border:1.5px solid #23201a;border-radius:999px;padding:2px 9px;font-weight:900;font-size:11.5px;color:#23201a;margin-right:4px'>🏫 " + echHtml(classeTxt) + "</span>" +
+        "<span style='font-size:12px;color:#5a5244;font-weight:700'>🏛️ " + echHtml(lyceeTxt) + "</span>";
+      tr.appendChild(tdLyceeClasse);
+
+      [fmtDate(a.debut), fmtDuree(dureeLigne(a)), a.lieu || "—", a.page || "—"].forEach(function (v) {
+        var td = document.createElement("td");
+        td.textContent = v;
+        tr.appendChild(td);
       });
       ta.appendChild(tr);
     });
@@ -4608,7 +4630,7 @@
         if (msnWin) msnWin.classList.add("mode-chat");
         peindreListeUsersMessengerAdmin();
         peindreConversationMessengerAdmin();
-        if (msnChatInp) msnChatInp.focus();
+        if (msnChatInp && window.innerWidth > 768) msnChatInp.focus();
       });
       msnUserList.appendChild(row);
     });
@@ -4729,11 +4751,15 @@
 
   function ouvrirMessengerAdmin(pCible, texteCitation) {
     if (!msnWin) return;
+    var estMobile = window.innerWidth <= 768;
     if (pCible && pCible.id) {
       msnUidActif = pCible.id;
       msnWin.classList.add("mode-chat");
+    } else if (estMobile) {
+      /* Sur mobile : afficher d'abord la liste des candidats pour choisir facilement son interlocuteur */
+      msnWin.classList.remove("mode-chat");
     } else if (!msnUidActif && profils.length) {
-      /* Choisir automatiquement le 1er élève ayant posé une question ou en ligne */
+      /* Sur PC : choisir automatiquement le 1er élève ayant posé une question ou en ligne */
       peindreListeUsersMessengerAdmin();
       var premierBtn = msnUserList ? msnUserList.querySelector(".msn-user-item") : null;
       if (premierBtn) premierBtn.click();
@@ -4742,9 +4768,11 @@
     msnWin.classList.add("visible");
     peindreListeUsersMessengerAdmin();
     peindreConversationMessengerAdmin();
-    setTimeout(function () {
-      if (msnChatInp && msnUidActif) msnChatInp.focus();
-    }, 40);
+    if (!estMobile) {
+      setTimeout(function () {
+        if (msnChatInp && msnUidActif) msnChatInp.focus();
+      }, 40);
+    }
   }
 
   function rafraichirMessengerAdmin() {
@@ -4773,9 +4801,28 @@
       if (msnWin) msnWin.classList.remove("visible");
     });
   }
+  var msnSbClose = document.getElementById("msn-sb-close");
+  if (msnSbClose) {
+    msnSbClose.addEventListener("click", function () {
+      if (msnWin) msnWin.classList.remove("visible");
+    });
+  }
   if (msnBtnBackMob) {
     msnBtnBackMob.addEventListener("click", function () {
       if (msnWin) msnWin.classList.remove("mode-chat");
+    });
+  }
+  /* Adaptation automatique de la hauteur sur mobile lorsque le clavier virtuel s'ouvre */
+  if (window.visualViewport && msnWin) {
+    window.visualViewport.addEventListener("resize", function () {
+      if (window.innerWidth <= 768 && msnWin.classList.contains("visible")) {
+        msnWin.style.height = window.visualViewport.height + "px";
+        msnWin.style.maxHeight = window.visualViewport.height + "px";
+        if (msnChatFeed) msnChatFeed.scrollTop = msnChatFeed.scrollHeight;
+      } else {
+        msnWin.style.height = "";
+        msnWin.style.maxHeight = "";
+      }
     });
   }
   if (msnBtnBroadcast) {
