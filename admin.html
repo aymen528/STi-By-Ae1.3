@@ -810,7 +810,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v77</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v78</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v66)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -1080,12 +1080,18 @@
       <div class="barre-dictee">
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <button type="button" class="btn-dicter" id="btn-dicter-msg">🎙️ Dicter</button>
+          <input type="file" id="inp-fichier-modal" style="display:none" accept="image/*,.pdf,.sql,.php,.html,.htm,.css,.js,.txt,.zip,.rar,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.json" />
+          <button type="button" class="btn-dicter" id="btn-joindre-msg-modal" title="Joindre un fichier ou une image à ce message">📎 Joindre fichier</button>
           <button type="button" class="btn-dicter" id="btn-effacer-msg" title="Effacer tout le message">🧹 Effacer</button>
         </div>
         <select id="lang-dictee" class="sel-lang-dictee" title="Langue de dictée">
           <option value="fr-FR" selected>🇫🇷 Français</option>
           <option value="ar-TN">🇹🇳 العربية</option>
         </select>
+      </div>
+      <div id="barre-fichier-modal" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:6px 11px;margin-bottom:8px;background:#fff3e0;border:1.5px solid #f4511e;border-radius:10px;font-size:12px;font-weight:800;color:#23201a">
+        <span id="nom-fichier-modal" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📎 fichier</span>
+        <button type="button" id="btn-retirer-fichier-modal" style="border:1px solid #23201a;background:#fff;color:#c0392b;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:900;cursor:pointer">✕ Retirer</button>
       </div>
       <textarea id="msg-texte" placeholder="Ex. : Rappel — devoir de synthèse mardi prochain, révisez le module PHP &amp; MySQLi."></textarea>
       <div id="zone-wa-classe" style="display:none">
@@ -1450,9 +1456,16 @@
         <button type="button" id="msn-admin-quote-clear" style="border:1px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:900;cursor:pointer">✕</button>
       </div>
 
+      <div id="msn-admin-file-bar" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;background:#fff3e0;border-top:1.5px solid #f4511e;font-size:11.5px;font-weight:800;color:#23201a">
+        <span id="msn-admin-file-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📎 fichier</span>
+        <button type="button" id="msn-admin-file-clear" style="border:1px solid #23201a;background:#fff;color:#c0392b;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:900;cursor:pointer">✕</button>
+      </div>
+
       <form class="msn-chat-form" id="msn-chat-form">
+        <input type="file" id="msn-chat-file" style="display:none" accept="image/*,.pdf,.sql,.php,.html,.htm,.css,.js,.txt,.zip,.rar,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.json" />
+        <button type="button" id="msn-btn-attach" style="border:1.5px solid #23201a;background:#fff3e0;color:#23201a;border-radius:50%;width:34px;height:34px;font-size:14px;cursor:pointer;flex-shrink:0" title="Joindre un fichier ou une image (capture, code, PDF, ZIP…)">📎</button>
         <button type="button" id="msn-btn-mic" style="border:1.5px solid #23201a;background:#fff3e0;color:#23201a;border-radius:50%;width:34px;height:34px;font-size:14px;cursor:pointer;flex-shrink:0" title="Dicter le message au micro">🎙️</button>
-        <input type="text" id="msn-chat-inp" maxlength="600" placeholder="Écrivez un message en direct… (Entrée pour envoyer)" style="flex:1;border:2px solid #23201a;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a;outline:none" />
+        <input type="text" id="msn-chat-inp" maxlength="600" placeholder="Écrivez un message ou joignez un fichier (📎)…" style="flex:1;min-width:0;border:2px solid #23201a;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a;outline:none" />
         <button type="submit" id="msn-btn-send" style="border:2px solid #23201a;background:linear-gradient(135deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a;flex-shrink:0">➤</button>
       </form>
     </div>
@@ -1467,7 +1480,7 @@
   >⬆ Haut</button>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v77)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v78)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
   </footer>
 
 <script>
@@ -1529,7 +1542,7 @@
 </script>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=77"></script>
-<script src="assets/js/admin.js?v=77"></script>
+<script src="assets/js/config.js?v=78"></script>
+<script src="assets/js/admin.js?v=78"></script>
 </body>
 </html>

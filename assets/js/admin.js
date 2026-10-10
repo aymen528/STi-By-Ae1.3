@@ -245,7 +245,7 @@
   var triParAcces = false;
   var profils = [], acces = [], counts = {};
   var dureesSemaine = {}, dureesTotales = {}, semainesDispo = [];
-  var messagesDiffuses = [], lecturesParMsg = {}, reponsesParMsg = {}, questionsLibres = [];
+  var messagesDiffuses = [], lecturesParMsg = {}, reponsesParMsg = {}, fichiersParMsg = {}, questionsLibres = [];
   var scoresParUser = {}, listeResultatsQuiz = [];
   var enLigneMap = {}; /* uid -> { ts: ms, page: str } */
   var adminUid = null;
@@ -453,18 +453,31 @@
         .on("broadcast", { event: "lu" }, function (p) {
           if (p && p.payload && p.payload.msgId && p.payload.uid) {
             var mid = p.payload.msgId;
+            var fRecu = (p.payload.fichier && p.payload.fichier.nom) ? p.payload.fichier : null;
             if (mid === "libre") {
-              questionsLibres.unshift({ uid: p.payload.uid, ts: p.payload.ts || new Date().toISOString(), reponse: p.payload.reponse || "" });
+              questionsLibres.unshift({
+                uid: p.payload.uid,
+                ts: p.payload.ts || new Date().toISOString(),
+                reponse: p.payload.reponse || (fRecu ? ("📎 Fichier : " + fRecu.nom) : ""),
+                fichier: fRecu
+              });
             } else {
               if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
               lecturesParMsg[mid][p.payload.uid] = p.payload.ts || new Date().toISOString();
-              if (p.payload.reponse) {
+              if (p.payload.reponse || fRecu) {
                 if (!reponsesParMsg[mid]) reponsesParMsg[mid] = {};
-                reponsesParMsg[mid][p.payload.uid] = p.payload.reponse;
+                reponsesParMsg[mid][p.payload.uid] = p.payload.reponse || ("📎 Fichier : " + fRecu.nom);
+              }
+              if (fRecu) {
+                if (!fichiersParMsg[mid]) fichiersParMsg[mid] = {};
+                fichiersParMsg[mid][p.payload.uid] = fRecu;
               }
             }
             afficherTableauSuivi();
             if (typeof rafraichirMessengerAdmin === "function") rafraichirMessengerAdmin();
+            if (fRecu && fRecu.depuisDb && !fRecu.dataUrl) {
+              setTimeout(function () { charge(true); }, 600);
+            }
           }
         })
         .on("broadcast", { event: "presence" }, function (p) {
@@ -776,6 +789,7 @@
     var mapMsg = {};
     lecturesParMsg = {};
     reponsesParMsg = {};
+    fichiersParMsg = {};
     questionsLibres = [];
     scoresParUser = {};
     listeResultatsQuiz = [];
@@ -800,18 +814,32 @@
           if (!idsAccesParMsg[cleCheck]) idsAccesParMsg[cleCheck] = [];
           if (a.id) idsAccesParMsg[cleCheck].push(a.id);
           var repTxt = "";
+          var fichObj = null;
           try {
             var objL = JSON.parse(a.lieu || "{}");
             if (objL && objL.reponse) repTxt = objL.reponse;
+            if (objL && objL.fichier && objL.fichier.nom) fichObj = objL.fichier;
           } catch (e) {}
           if (mid === "libre") {
-            if (repTxt) questionsLibres.push({ id: a.id, uid: a.user_id, ts: a.debut, reponse: repTxt });
+            if (repTxt || fichObj) {
+              questionsLibres.push({
+                id: a.id,
+                uid: a.user_id,
+                ts: a.debut,
+                reponse: repTxt || (fichObj ? ("📎 Fichier : " + fichObj.nom) : ""),
+                fichier: fichObj
+              });
+            }
           } else {
             if (!lecturesParMsg[mid]) lecturesParMsg[mid] = {};
             if (!lecturesParMsg[mid][a.user_id]) lecturesParMsg[mid][a.user_id] = a.debut;
-            if (repTxt) {
+            if (repTxt || fichObj) {
               if (!reponsesParMsg[mid]) reponsesParMsg[mid] = {};
-              if (!reponsesParMsg[mid][a.user_id]) reponsesParMsg[mid][a.user_id] = repTxt;
+              if (!reponsesParMsg[mid][a.user_id]) reponsesParMsg[mid][a.user_id] = repTxt || ("📎 Fichier : " + fichObj.nom);
+            }
+            if (fichObj) {
+              if (!fichiersParMsg[mid]) fichiersParMsg[mid] = {};
+              if (!fichiersParMsg[mid][a.user_id]) fichiersParMsg[mid][a.user_id] = fichObj;
             }
           }
         } else if (pg.indexOf("QUIZ:") === 0) {
@@ -2562,10 +2590,16 @@
         var divQ = document.createElement("div");
         divQ.textContent = q.reponse || "—";
         tdRep.appendChild(divQ);
+        if (q.fichier && typeof rendreBlocFichierJointAdmin === "function") {
+          var divFQ = document.createElement("div");
+          divFQ.innerHTML = rendreBlocFichierJointAdmin(q.fichier, false);
+          if (typeof brancherActionsFichiersAdmin === "function") brancherActionsFichiersAdmin(divFQ);
+          tdRep.appendChild(divFQ);
+        }
         if (repDeja) {
           var divR = document.createElement("div");
           divR.style.cssText = "font-size:11.5px;color:#177245;font-weight:800;margin-top:4px;background:#e3f6e8;padding:4px 8px;border-radius:7px;border-left:3px solid #177245;";
-          divR.textContent = "↩️ Votre réponse : « " + repDeja.texte + " »";
+          divR.textContent = "↩️ Votre réponse : « " + repDeja.texte + " »" + (repDeja.fichier ? (" (📎 " + repDeja.fichier.nom + ")") : "");
           tdRep.appendChild(divR);
         }
 
@@ -2614,12 +2648,15 @@
 
     if (apEl) {
       apEl.style.display = "block";
-      apEl.textContent = (msgObj.enReponseA ? ("↩️ En réponse à « " + msgObj.enReponseA + " » → ") : "💬 Message : ") + "« " + msgObj.texte + " »";
+      var txtAp = (msgObj.enReponseA ? ("↩️ En réponse à « " + msgObj.enReponseA + " » → ") : "💬 Message : ") + "« " + (msgObj.texte || "") + " »";
+      apEl.innerHTML = echHtml(txtAp) + (msgObj.fichier && typeof rendreBlocFichierJointAdmin === "function" ? rendreBlocFichierJointAdmin(msgObj.fichier, false) : "");
+      if (typeof brancherActionsFichiersAdmin === "function") brancherActionsFichiersAdmin(apEl);
     }
 
     var cibles = abonnesCiblesPourMsg(msgObj);
     var mapLu = lecturesParMsg[msgObj.id] || {};
     var mapRep = reponsesParMsg[msgObj.id] || {};
+    var mapFich = fichiersParMsg[msgObj.id] || {};
     var nbLu = 0, nbNonLu = 0;
 
     if (!cibles.length) {
@@ -2640,6 +2677,7 @@
     cibles.slice(0, limCibles).forEach(function (p) {
       var dateLu = mapLu[p.id];
       var repEleve = mapRep[p.id] || "";
+      var fichEleve = mapFich[p.id] || null;
 
       var tr = document.createElement("tr");
       var tdNom = document.createElement("td");
@@ -2657,9 +2695,17 @@
       tdEtat.appendChild(badge);
 
       var tdRep = document.createElement("td");
-      tdRep.textContent = repEleve ? "💬 " + repEleve : "—";
-      tdRep.style.fontWeight = repEleve ? "800" : "400";
-      tdRep.style.color = repEleve ? "#23201a" : "#7a6f5d";
+      var divRepT = document.createElement("div");
+      divRepT.textContent = repEleve ? "💬 " + repEleve : "—";
+      divRepT.style.fontWeight = repEleve ? "800" : "400";
+      divRepT.style.color = repEleve ? "#23201a" : "#7a6f5d";
+      tdRep.appendChild(divRepT);
+      if (fichEleve && typeof rendreBlocFichierJointAdmin === "function") {
+        var divFE = document.createElement("div");
+        divFE.innerHTML = rendreBlocFichierJointAdmin(fichEleve, false);
+        if (typeof brancherActionsFichiersAdmin === "function") brancherActionsFichiersAdmin(divFE);
+        tdRep.appendChild(divFE);
+      }
 
       var tdDate = document.createElement("td");
       tdDate.textContent = dateLu ? fmtDate(dateLu) : "En attente de réponse…";
@@ -3618,9 +3664,198 @@
     msg("📧 Messagerie ouverte pour " + libCl + ".", "ok");
   });
 
+  /* ---------- Gestion des pièces jointes (fichiers & images) dans Messenger et la modale ---------- */
+  function fmtTailleFichierAdmin(oct) {
+    var n = Number(oct || 0);
+    if (!n) return "";
+    if (n < 1024) return n + " o";
+    if (n < 1048576) return Math.max(1, Math.round(n / 1024)) + " Ko";
+    return (n / 1048576).toFixed(1).replace(".", ",") + " Mo";
+  }
+
+  function telechargerFichierDataUrlAdmin(nom, dataUrl) {
+    if (!dataUrl) return;
+    try {
+      var parts = String(dataUrl).split(",");
+      var meta = parts[0] || "";
+      var b64 = parts[1] || "";
+      var mimeMatch = meta.match(/data:([^;]+)/i);
+      var mime = (mimeMatch && mimeMatch[1]) || "application/octet-stream";
+      var bin = atob(b64);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      var blob = new Blob([arr], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = nom || "fichier-sti";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2500);
+    } catch (e) {
+      window.open(dataUrl, "_blank", "noopener");
+    }
+  }
+
+  function preparerFichierJointAdmin(file, cb) {
+    if (!file) return cb("Aucun fichier sélectionné.");
+    var estImg = /^image\//i.test(file.type || "");
+    var maxOctets = estImg ? 8 * 1048576 : 1572864; /* 8 Mo image (compressée auto) ou 1,5 Mo document */
+    if (file.size > maxOctets) {
+      return cb("Ce fichier est trop volumineux (max 1,5 Mo pour un document ou 8 Mo pour une image).");
+    }
+    var reader = new FileReader();
+    reader.onerror = function () { cb("Impossible de lire ce fichier."); };
+    reader.onload = function () {
+      var res = String(reader.result || "");
+      if (!estImg || file.size <= 95000 || /image\/(svg|gif)/i.test(file.type || "")) {
+        return cb(null, {
+          nom: file.name || "fichier",
+          type: file.type || "application/octet-stream",
+          taille: file.size || Math.round(res.length * 0.75),
+          dataUrl: res
+        });
+      }
+      var img = new Image();
+      img.onerror = function () {
+        cb(null, { nom: file.name || "image.jpg", type: file.type || "image/jpeg", taille: file.size, dataUrl: res });
+      };
+      img.onload = function () {
+        try {
+          var maxDim = 1100;
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) { h = Math.round(h * (maxDim / w)); w = maxDim; }
+            else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+          }
+          var cv = document.createElement("canvas");
+          cv.width = w;
+          cv.height = h;
+          var ctx = cv.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          var outUrl = cv.toDataURL("image/jpeg", 0.82);
+          var outBytes = Math.round((outUrl.length - 22) * 0.75);
+          cb(null, {
+            nom: (file.name || "image").replace(/\.[a-z0-9]+$/i, "") + ".jpg",
+            type: "image/jpeg",
+            taille: outBytes,
+            dataUrl: outUrl
+          });
+        } catch (err) {
+          cb(null, { nom: file.name || "image.jpg", type: file.type || "image/jpeg", taille: file.size, dataUrl: res });
+        }
+      };
+      img.src = res;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function rendreBlocFichierJointAdmin(f, surFondOrange) {
+    if (!f || !f.nom) return "";
+    var tStr = f.taille ? (" (" + fmtTailleFichierAdmin(f.taille) + ")") : "";
+    var bg = surFondOrange ? "rgba(0,0,0,.18)" : "#f3ead9";
+    var col = surFondOrange ? "#fff" : "#23201a";
+    var bdr = surFondOrange ? "rgba(255,255,255,.45)" : "#23201a";
+    var estImg = f.dataUrl && /^data:image\//i.test(f.dataUrl);
+    var htmlImg = estImg
+      ? ("<img src='" + echHtml(f.dataUrl) + "' alt='" + echHtml(f.nom) + "' class='msn-admin-img-zoom' style='max-width:210px;max-height:150px;border-radius:10px;border:1.5px solid " + bdr + ";display:block;margin-bottom:5px;cursor:zoom-in;object-fit:cover' />")
+      : "";
+    var btnDl = f.dataUrl
+      ? ("<button type='button' class='msn-admin-dl-btn' data-nom='" + echHtml(f.nom) + "' data-url='" + echHtml(f.dataUrl) + "' style='border:1.5px solid " + bdr + ";background:" + (surFondOrange ? "#fff" : "#f4511e") + ";color:" + (surFondOrange ? "#23201a" : "#fff") + ";border-radius:999px;padding:3px 9px;font:900 10.5px system-ui,sans-serif;cursor:pointer;flex-shrink:0'>⬇ Télécharger</button>")
+      : "<span style='font-size:10px;opacity:.8'>⏳ Chargement…</span>";
+    return (
+      "<div style='margin-top:5px;margin-bottom:2px;padding:6px 9px;border-radius:10px;background:" + bg + ";border:1.5px solid " + bdr + ";color:" + col + "'>" +
+        htmlImg +
+        "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap'>" +
+          "<span style='font-size:11.5px;font-weight:800;word-break:break-all'>📎 " + echHtml(f.nom) + echHtml(tStr) + "</span>" +
+          btnDl +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function brancherActionsFichiersAdmin(conteneur) {
+    if (!conteneur) return;
+    Array.prototype.forEach.call(conteneur.querySelectorAll(".msn-admin-dl-btn"), function (b) {
+      if (b._stiBound) return;
+      b._stiBound = true;
+      b.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        telechargerFichierDataUrlAdmin(b.getAttribute("data-nom") || "fichier", b.getAttribute("data-url") || "");
+      });
+    });
+    Array.prototype.forEach.call(conteneur.querySelectorAll(".msn-admin-img-zoom"), function (im) {
+      if (im._stiBound) return;
+      im._stiBound = true;
+      im.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var ov = document.createElement("div");
+        ov.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;";
+        ov.innerHTML =
+          "<img src='" + echHtml(im.getAttribute("src") || "") + "' style='max-width:94vw;max-height:82vh;border-radius:12px;border:3px solid #fff;box-shadow:0 16px 50px rgba(0,0,0,.5)' />" +
+          "<div style='margin-top:12px;display:flex;gap:10px'>" +
+            "<button type='button' id='msn-zoom-dl' style='border:2px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:7px 16px;font:900 12.5px system-ui,sans-serif;cursor:pointer'>⬇ Télécharger l'image</button>" +
+            "<button type='button' style='border:2px solid #fff;background:transparent;color:#fff;border-radius:999px;padding:7px 16px;font:900 12.5px system-ui,sans-serif;cursor:pointer'>✕ Fermer</button>" +
+          "</div>";
+        ov.querySelector("#msn-zoom-dl").addEventListener("click", function (e2) {
+          e2.stopPropagation();
+          telechargerFichierDataUrlAdmin(im.getAttribute("alt") || "image.jpg", im.getAttribute("src") || "");
+        });
+        ov.addEventListener("click", function () { ov.remove(); });
+        (document.body || document.documentElement).appendChild(ov);
+      });
+    });
+  }
+
+  /* Pièce jointe dans la modale « Message à une classe ou à un candidat » */
+  var fichierEnAttenteModal = null;
+  var inpFichierModal = document.getElementById("inp-fichier-modal");
+  var btnJoindreModal = document.getElementById("btn-joindre-msg-modal");
+  var barreFichierModal = document.getElementById("barre-fichier-modal");
+  var nomFichierModal = document.getElementById("nom-fichier-modal");
+  var btnRetirerFichierModal = document.getElementById("btn-retirer-fichier-modal");
+
+  function majBarreFichierModal() {
+    if (!barreFichierModal || !nomFichierModal) return;
+    if (fichierEnAttenteModal) {
+      barreFichierModal.style.display = "flex";
+      nomFichierModal.textContent = "📎 " + fichierEnAttenteModal.nom + " (" + fmtTailleFichierAdmin(fichierEnAttenteModal.taille) + ")";
+    } else {
+      barreFichierModal.style.display = "none";
+      nomFichierModal.textContent = "";
+      if (inpFichierModal) inpFichierModal.value = "";
+    }
+  }
+
+  if (btnJoindreModal && inpFichierModal) {
+    btnJoindreModal.addEventListener("click", function () {
+      inpFichierModal.click();
+    });
+    inpFichierModal.addEventListener("change", function () {
+      if (inpFichierModal.files && inpFichierModal.files[0]) {
+        preparerFichierJointAdmin(inpFichierModal.files[0], function (err, obj) {
+          if (err) { msg("⚠️ " + err, "err"); return; }
+          fichierEnAttenteModal = obj;
+          majBarreFichierModal();
+        });
+      }
+    });
+  }
+  if (btnRetirerFichierModal) {
+    btnRetirerFichierModal.addEventListener("click", function () {
+      fichierEnAttenteModal = null;
+      majBarreFichierModal();
+    });
+  }
+
   document.getElementById("btn-diffuser-classe").addEventListener("click", function () {
     var texte = txtClasse.value.trim();
-    if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
+    var fJoint = fichierEnAttenteModal;
+    if (!texte && !fJoint) { msg("❌ Saisissez un message ou joignez un fichier.", "err"); txtClasse.focus(); return; }
     var uidSel = selCibleUid ? selCibleUid.value : "";
     var pCible = null;
     if (uidSel) {
@@ -3638,7 +3873,8 @@
       uid: uidSel || undefined,
       cibleNom: pCible ? contact(pCible) : undefined,
       enReponseA: citationEnCours || undefined,
-      texte: texte
+      texte: texte || (fJoint ? ("📎 Fichier joint : " + fJoint.nom) : ""),
+      fichier: fJoint || undefined
     };
     arreterDictee();
     try {
@@ -3647,9 +3883,12 @@
     var pDb = adminUid
       ? sb.from("acces").insert({ user_id: adminUid, page: "MSG_ENVOI:" + payload.id, lieu: JSON.stringify(payload), duree_sec: 0 })
       : Promise.resolve();
+    var payloadNtfy = fJoint && JSON.stringify(fJoint).length >= 2600
+      ? Object.assign({}, payload, { fichier: { nom: fJoint.nom, type: fJoint.type, taille: fJoint.taille, depuisDb: true } })
+      : payload;
     var pNtfy = fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
       method: "POST",
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payloadNtfy)
     }).catch(function () {});
 
     Promise.all([pDb, pNtfy]).then(function () {
@@ -3660,6 +3899,8 @@
       txtClasse.value = "";
       texteBase = "";
       citationEnCours = "";
+      fichierEnAttenteModal = null;
+      majBarreFichierModal();
       if (selSuiviMsg && !etaitReponse) selSuiviMsg.value = "";
       msg((uidSel ? (etaitReponse ? "↩️ Réponse envoyée à « " : "📩 Message personnel envoyé à « ") : "📢 Message diffusé pour « ") + libCl + " ».", "ok");
       charge(true);
@@ -3686,6 +3927,11 @@
   var msnQuoteBar = document.getElementById("msn-admin-quote-bar");
   var msnQuoteTxt = document.getElementById("msn-admin-quote-txt");
   var msnQuoteClear = document.getElementById("msn-admin-quote-clear");
+  var msnFileBar = document.getElementById("msn-admin-file-bar");
+  var msnFileName = document.getElementById("msn-admin-file-name");
+  var msnFileClear = document.getElementById("msn-admin-file-clear");
+  var msnChatFile = document.getElementById("msn-chat-file");
+  var msnBtnAttach = document.getElementById("msn-btn-attach");
   var msnChatForm = document.getElementById("msn-chat-form");
   var msnChatInp = document.getElementById("msn-chat-inp");
   var msnBtnMic = document.getElementById("msn-btn-mic");
@@ -3693,6 +3939,60 @@
 
   var msnUidActif = "";
   var msnCitationActuelle = "";
+  var msnFichierActuel = null;
+
+  function majBarreFichierMsnAdmin() {
+    if (!msnFileBar || !msnFileName) return;
+    if (msnFichierActuel) {
+      msnFileBar.style.display = "flex";
+      msnFileName.textContent = "📎 " + msnFichierActuel.nom + " (" + fmtTailleFichierAdmin(msnFichierActuel.taille) + ")";
+    } else {
+      msnFileBar.style.display = "none";
+      msnFileName.textContent = "";
+      if (msnChatFile) msnChatFile.value = "";
+    }
+  }
+
+  function selectionnerFichierMsnAdmin(f) {
+    if (!f) return;
+    preparerFichierJointAdmin(f, function (err, obj) {
+      if (err) { msg("⚠️ " + err, "err"); return; }
+      msnFichierActuel = obj;
+      majBarreFichierMsnAdmin();
+      if (msnChatInp) msnChatInp.focus();
+    });
+  }
+
+  if (msnBtnAttach && msnChatFile) {
+    msnBtnAttach.addEventListener("click", function () {
+      msnChatFile.click();
+    });
+    msnChatFile.addEventListener("change", function () {
+      if (msnChatFile.files && msnChatFile.files[0]) {
+        selectionnerFichierMsnAdmin(msnChatFile.files[0]);
+      }
+    });
+  }
+  if (msnFileClear) {
+    msnFileClear.addEventListener("click", function () {
+      msnFichierActuel = null;
+      majBarreFichierMsnAdmin();
+    });
+  }
+  if (msnChatInp) {
+    msnChatInp.addEventListener("paste", function (ev) {
+      var items = (ev.clipboardData && ev.clipboardData.items) || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].kind === "file") {
+          var f = items[i].getAsFile();
+          if (f) {
+            selectionnerFichierMsnAdmin(f);
+            break;
+          }
+        }
+      }
+    });
+  }
 
   function fmtHeureCourt(iso) {
     try {
@@ -3721,10 +4021,11 @@
 
     /* 1. Questions spontanées envoyées par cet élève */
     questionsLibres.forEach(function (q) {
-      if (q.uid === uid && q.reponse) {
+      if (q.uid === uid && (q.reponse || q.fichier)) {
         fil.push({
           de: "eleve",
-          texte: q.reponse,
+          texte: q.reponse || "",
+          fichier: q.fichier || null,
           ts: q.ts || new Date().toISOString(),
           ms: new Date(q.ts || 0).getTime() || 0,
           type: "question"
@@ -3739,24 +4040,27 @@
       var estSaClasse = !uidM && (m.classe === "*" || m.classe === (p.classe || "—"));
       var luTs = (lecturesParMsg[m.id] || {})[uid] || "";
       var repTxt = (reponsesParMsg[m.id] || {})[uid] || "";
+      var repFich = (fichiersParMsg[m.id] || {})[uid] || null;
 
-      if (estPerso || (estSaClasse && (luTs || repTxt))) {
+      if (estPerso || (estSaClasse && (luTs || repTxt || repFich))) {
         fil.push({
           de: "prof",
           id: m.id,
           texte: m.texte || "",
           enReponseA: m.enReponseA || "",
+          fichier: m.fichier || null,
           perso: estPerso,
           luTs: luTs,
           ts: m.ts || new Date().toISOString(),
           ms: new Date(m.ts || 0).getTime() || 0
         });
       }
-      if (repTxt) {
+      if (repTxt || repFich) {
         var tsRep = luTs || m.ts || new Date().toISOString();
         fil.push({
           de: "eleve",
-          texte: repTxt,
+          texte: repTxt || "",
+          fichier: repFich,
           enReponseA: m.texte || "",
           ts: tsRep,
           ms: (new Date(tsRep).getTime() || 0) + 1,
@@ -3853,7 +4157,7 @@
       row.className = "msn-user-item" + (p.id === msnUidActif ? " actif" : "");
       var ini = initialesPourProfil(p);
       var subTxt = it.dernier
-        ? ((it.dernier.de === "prof" ? "Vous : " : "💬 ") + it.dernier.texte)
+        ? ((it.dernier.de === "prof" ? "Vous : " : "💬 ") + (it.dernier.texte || (it.dernier.fichier ? ("📎 " + it.dernier.fichier.nom) : "")))
         : ((p.classe || "—") + " · " + (it.online ? "🟢 En ligne" : "Hors ligne"));
 
       row.innerHTML =
@@ -3917,7 +4221,7 @@
       };
     }
     if (msnChatInp) {
-      msnChatInp.placeholder = "Écrire à " + contact(p) + "… (Entrée pour envoyer)";
+      msnChatInp.placeholder = "Écrire à " + contact(p) + " ou joindre un fichier (📎)…";
     }
 
     var fil = construireFilConversationAdmin(p);
@@ -3926,7 +4230,7 @@
         "<div style='margin:auto;text-align:center;color:#6b6152;font-size:12px;padding:18px;max-width:300px'>" +
           "<div style='font-size:28px;margin-bottom:6px'>👋</div>" +
           "<b>Démarrez la discussion avec " + echHtml(contact(p)) + "</b><br>" +
-          "<span style='color:#8a7f6d'>Votre message s'affichera instantanément dans une fenêtre Messenger sur son écran.</span>" +
+          "<span style='color:#8a7f6d'>Votre message ou votre fichier joint (📎) s'affichera instantanément dans sa fenêtre Messenger.</span>" +
         "</div>";
       return;
     }
@@ -3934,6 +4238,10 @@
     msnChatFeed.innerHTML = fil.map(function (it, idx) {
       var estProf = it.de === "prof";
       var h = fmtHeureCourt(it.ts);
+      var blocFichier = rendreBlocFichierJointAdmin(it.fichier, estProf);
+      var blocTexte = it.texte
+        ? ("<div style='white-space:pre-wrap'>" + echHtml(it.texte) + "</div>")
+        : "";
       if (estProf) {
         var citProf = it.enReponseA
           ? ("<div style='background:rgba(0,0,0,.18);border-left:3px solid #ffd54f;border-radius:7px;padding:4px 8px;margin-bottom:5px;font-size:11px;opacity:.95'>↩️ « " + echHtml(it.enReponseA) + " »</div>")
@@ -3943,7 +4251,8 @@
           "<div style='display:flex;flex-direction:column;align-items:flex-end'>" +
             "<div style='max-width:82%;background:linear-gradient(135deg,#f4511e,#ff7043);color:#fff;border:2px solid #23201a;border-radius:16px 16px 4px 16px;padding:8px 12px;font-size:12.5px;font-weight:700;box-shadow:2px 2px 0 rgba(35,32,26,.2);word-break:break-word'>" +
               citProf +
-              "<div style='white-space:pre-wrap'>" + echHtml(it.texte) + "</div>" +
+              blocTexte +
+              blocFichier +
             "</div>" +
             "<div style='font-size:10px;color:#6b6152;margin-top:2px;padding:0 4px;font-weight:800'>" + echHtml(h) + " · <span style='color:" + (it.luTs ? "#177245" : "#7a6f5d") + "'>" + echHtml(vuTxt) + "</span></div>" +
           "</div>"
@@ -3958,7 +4267,8 @@
               "<div style='background:#fff;color:#23201a;border:2px solid #23201a;border-radius:16px 16px 16px 4px;padding:8px 12px;font-size:12.5px;font-weight:700;box-shadow:2px 2px 0 rgba(35,32,26,.15);word-break:break-word'>" +
                 "<div style='font-size:10px;font-weight:900;color:#f4511e;margin-bottom:2px'>💬 " + echHtml(contact(p)) + "</div>" +
                 citEleve +
-                "<div style='white-space:pre-wrap'>" + echHtml(it.texte) + "</div>" +
+                blocTexte +
+                blocFichier +
               "</div>" +
               "<button type='button' class='msn-btn-quote-item' data-idx='" + idx + "' style='border:1.5px solid #23201a;background:#fff3e0;color:#d84315;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0' title='Citer et répondre à ce message'>↩️</button>" +
             "</div>" +
@@ -3968,11 +4278,13 @@
       }
     }).join("");
 
+    brancherActionsFichiersAdmin(msnChatFeed);
+
     Array.prototype.forEach.call(msnChatFeed.querySelectorAll(".msn-btn-quote-item"), function (b) {
       b.addEventListener("click", function () {
         var idx = parseInt(b.getAttribute("data-idx"), 10);
-        if (fil[idx] && fil[idx].texte) {
-          definirCitationMessengerAdmin(fil[idx].texte);
+        if (fil[idx] && (fil[idx].texte || fil[idx].fichier)) {
+          definirCitationMessengerAdmin(fil[idx].texte || ("📎 " + fil[idx].fichier.nom));
           if (msnChatInp) msnChatInp.focus();
         }
       });
@@ -4081,7 +4393,7 @@
     });
   }
 
-  /* Envoi instantané depuis la barre Messenger STI */
+  /* Envoi instantané (message et/ou fichier joint) depuis la barre Messenger STI */
   if (msnChatForm) {
     msnChatForm.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -4090,7 +4402,8 @@
         return;
       }
       var texte = msnChatInp ? msnChatInp.value.trim() : "";
-      if (!texte) return;
+      var fJoint = msnFichierActuel;
+      if (!texte && !fJoint) return;
       var pCible = null;
       profils.forEach(function (x) { if (x.id === msnUidActif) pCible = x; });
       var payload = {
@@ -4100,12 +4413,15 @@
         uid: msnUidActif,
         cibleNom: pCible ? contact(pCible) : msnUidActif,
         enReponseA: msnCitationActuelle || undefined,
-        texte: texte
+        texte: texte || (fJoint ? ("📎 Fichier joint : " + fJoint.nom) : ""),
+        fichier: fJoint || undefined
       };
 
       /* Mise à jour immédiate de l'interface Messenger sans attendre le réseau */
       messagesDiffuses.unshift(payload);
       if (msnChatInp) msnChatInp.value = "";
+      msnFichierActuel = null;
+      majBarreFichierMsnAdmin();
       definirCitationMessengerAdmin("");
       peindreListeUsersMessengerAdmin();
       peindreConversationMessengerAdmin();
@@ -4117,9 +4433,12 @@
       if (adminUid) {
         sb.from("acces").insert({ user_id: adminUid, page: "MSG_ENVOI:" + payload.id, lieu: JSON.stringify(payload), duree_sec: 0 }).then(function () {});
       }
+      var payloadNtfy = fJoint && JSON.stringify(fJoint).length >= 2600
+        ? Object.assign({}, payload, { fichier: { nom: fJoint.nom, type: fJoint.type, taille: fJoint.taille, depuisDb: true } })
+        : payload;
       fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payloadNtfy)
       }).catch(function () {});
     });
   }
