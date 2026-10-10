@@ -2558,6 +2558,8 @@
     inactiviteActif: true,
     inactiviteMin: 30,
     alerteMultiAppareils: true,
+    antiCollageActif: true,
+    pleinEcranExamen: true,
     ts: 0
   };
   try {
@@ -2749,6 +2751,7 @@
     cfgSecurite = Object.assign(cfgSecurite, nvCfg);
     try { localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecurite)); } catch (e) {}
     appliquerVerrouExamen();
+    if (typeof verifierPleinEcranExamen === "function") verifierPleinEcranExamen();
   }
 
   /* Charger la dernière configuration de sécurité depuis Supabase au démarrage */
@@ -2812,6 +2815,145 @@
       afficherToastSynchro("👀 Anti-triche STI : sortie d'onglet #" + nbSortiesOngletQuiz + " détectée et signalée en direct au professeur.");
     }
   });
+
+  /* 📋 Anti-collage massif externe (Anti-ChatGPT / copier-coller de code externe) */
+  (function installerAntiCollageExterne() {
+    if (window.origin === "null") return;
+    var dernierCopieInterne = "";
+
+    function majCopieInterne() {
+      try {
+        var sel = window.getSelection ? String(window.getSelection() || "").trim() : "";
+        var ae = document.activeElement;
+        if (!sel && ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT") && typeof ae.selectionStart === "number") {
+          sel = String(ae.value || "").slice(ae.selectionStart, ae.selectionEnd).trim();
+        }
+        if (sel) dernierCopieInterne = sel;
+      } catch (e) {}
+    }
+    document.addEventListener("copy", majCopieInterne, true);
+    document.addEventListener("cut", majCopieInterne, true);
+
+    document.addEventListener("paste", function (e) {
+      if (estSessionAdminVerifiee() || cfgSecurite.antiCollageActif === false) return;
+      var t = e.target;
+      if (t && t.id && (t.id === "sti-msn-el-inp" || t.id === "sti-gs-input" || t.id === "moduleSearch")) return;
+
+      var txt = "";
+      try {
+        txt = (e.clipboardData || window.clipboardData).getData("text") || "";
+      } catch (err) {}
+      var propre = String(txt || "").trim();
+      if (!propre) return;
+
+      /* Autoriser un petit mot/identifiant (< 60 car. sur 1 seule ligne) ou ce que l'élève vient lui-même de copier dans son éditeur */
+      var nbLignes = propre.split(/\r?\n/).length;
+      if (propre === dernierCopieInterne) return;
+      if (propre.length < 60 && nbLignes <= 2) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var extrait = propre.replace(/\s+/g, " ").slice(0, 90) + (propre.length > 90 ? "…" : "");
+      envoyerAlerteSecurite(
+        "Collage externe bloqué (Anti-ChatGPT · " + propre.length + " car.)",
+        "Extrait collé : « " + extrait + " »"
+      );
+      afficherToastSynchro("🚫 Anti-triche STI : collage massif externe (" + propre.length + " caractères) bloqué et signalé au professeur.");
+    }, true);
+  })();
+
+  /* 🖥️ Mode Plein Écran obligatoire pendant un Examen / Contrôle / Quiz */
+  var etaitEnPleinEcran = false;
+  var nbSortiesPleinEcran = 0;
+
+  function estEnModePleinEcranActuel() {
+    return Boolean(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+
+  function doitExigerPleinEcran() {
+    if (window !== window.top || window.origin === "null" || estSessionAdminVerifiee()) return false;
+    if (cfgSecurite.pleinEcranExamen === false) return false;
+    /* Si la page est déjà bloquée par le verrou d'examen complet, pas besoin d'empiler 2 écrans */
+    if (document.getElementById("sti-overlay-verrou-examen")) return false;
+    var p = String(location.pathname || "").toLowerCase();
+    if (p.indexOf("/quiz/") !== -1 || p.indexOf("bac-pratique.html") !== -1) return true;
+    if (document.getElementById("sti-banniere-ctrl")) return true;
+    var cLoc = lireCacheSessionLocal() || {};
+    var maCl = currentClasse || cLoc.classe || "";
+    if (cfgSecurite.verrouActif && estCibleParVerrou(cfgSecurite.verrouCible, maCl) && estPageAutoriseePendantVerrou(cfgSecurite.pageAutorisee)) {
+      return true;
+    }
+    return false;
+  }
+
+  function verifierPleinEcranExamen() {
+    var exFs = document.getElementById("sti-overlay-plein-ecran");
+    if (!doitExigerPleinEcran() || estEnModePleinEcranActuel()) {
+      if (estEnModePleinEcranActuel()) etaitEnPleinEcran = true;
+      if (exFs) exFs.remove();
+      return;
+    }
+    if (!exFs) {
+      exFs = document.createElement("div");
+      exFs.id = "sti-overlay-plein-ecran";
+      exFs.className = "sti-no-print";
+      exFs.style.cssText = "position:fixed;inset:0;z-index:2147483645;background:rgba(13,21,38,.95);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;";
+      (document.body || document.documentElement).appendChild(exFs);
+    }
+    var msgSortie = nbSortiesPleinEcran > 0
+      ? '<div style="background:#fde2e6;color:#c0392b;border:2px solid #c0392b;border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:900;margin-bottom:14px">🚨 Attention : sortie du mode Plein Écran #' + nbSortiesPleinEcran + ' transmise en direct au professeur !</div>'
+      : '';
+    exFs.innerHTML =
+      '<div style="max-width:460px;width:100%;background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:24px 22px;text-align:center;box-shadow:7px 7px 0 #f4511e">' +
+        '<div style="width:58px;height:58px;margin:0 auto 12px;border-radius:16px;border:2.5px solid #23201a;background:linear-gradient(135deg,#fff3b0,#f4511e);font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #23201a">🖥️</div>' +
+        '<h3 style="margin:0 0 8px;font-size:19px;font-weight:900;color:#23201a">Mode Plein Écran obligatoire</h3>' +
+        '<p style="font-size:13.5px;line-height:1.5;color:#5a5244;margin:0 0 14px;font-weight:700">' +
+          'Cette épreuve est protégée par le bouclier anti-triche STI. Vous devez obligatoirement rester en <b>Plein Écran</b> pendant toute la durée de l\'évaluation.' +
+        '</p>' +
+        msgSortie +
+        '<button type="button" id="sti-btn-activer-fs" style="border:2.5px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:12px 24px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:4px 4px 0 #23201a">🖥️ Activer le Plein Écran et continuer</button>' +
+      '</div>';
+    var btnFs = document.getElementById("sti-btn-activer-fs");
+    if (btnFs) {
+      btnFs.addEventListener("click", function () {
+        var docEl = document.documentElement;
+        var req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+        if (req) {
+          Promise.resolve(req.call(docEl)).then(function () {
+            etaitEnPleinEcran = true;
+            var ov = document.getElementById("sti-overlay-plein-ecran");
+            if (ov) ov.remove();
+          }).catch(function () {
+            var ov = document.getElementById("sti-overlay-plein-ecran");
+            if (ov) ov.remove();
+          });
+        } else {
+          var ov = document.getElementById("sti-overlay-plein-ecran");
+          if (ov) ov.remove();
+        }
+      });
+    }
+  }
+
+  ["fullscreenchange", "webkitfullscreenchange"].forEach(function (evFs) {
+    document.addEventListener(evFs, function () {
+      if (estSessionAdminVerifiee() || window.origin === "null") return;
+      if (!estEnModePleinEcranActuel() && etaitEnPleinEcran && doitExigerPleinEcran()) {
+        nbSortiesPleinEcran++;
+        envoyerAlerteSecurite(
+          "Sortie du Plein Écran (#" + nbSortiesPleinEcran + ")",
+          "Touche Échap ou sortie du plein écran pendant l'épreuve sur " + chemin
+        );
+      }
+      verifierPleinEcranExamen();
+    });
+  });
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", verifierPleinEcranExamen);
+  } else {
+    setTimeout(verifierPleinEcranExamen, 150);
+  }
 
   /* ⏳ Surveillance d'inactivité : déconnexion automatique des sessions oubliées (hors Admin & Labo 3) */
   (function installerSurveillanceInactivite() {

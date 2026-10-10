@@ -842,6 +842,8 @@
     inactiviteActif: true,
     inactiviteMin: 30,
     alerteMultiAppareils: true,
+    antiCollageActif: true,
+    pleinEcranExamen: true,
     purgeAlertesTs: 0,
     ts: 0
   };
@@ -5488,6 +5490,8 @@
   var chkInactivite = document.getElementById("sec-chk-inactivite");
   var selInactiviteMin = document.getElementById("sec-sel-inactivite-min");
   var chkMultiAppareils = document.getElementById("sec-chk-multi-appareils");
+  var chkAntiCollage = document.getElementById("sec-chk-anticollage");
+  var chkPleinEcran = document.getElementById("sec-chk-plein-ecran");
   var tbAlertesSecurite = document.getElementById("tb-alertes-securite");
   var spanNbAlertes = document.getElementById("sec-nb-alertes");
   var btnSecExportCsv = document.getElementById("btn-sec-export-csv");
@@ -5521,6 +5525,8 @@
     if (chkInactivite) chkInactivite.checked = cfgSecuriteAdmin.inactiviteActif !== false;
     if (selInactiviteMin && cfgSecuriteAdmin.inactiviteMin) selInactiviteMin.value = String(cfgSecuriteAdmin.inactiviteMin);
     if (chkMultiAppareils) chkMultiAppareils.checked = cfgSecuriteAdmin.alerteMultiAppareils !== false;
+    if (chkAntiCollage) chkAntiCollage.checked = cfgSecuriteAdmin.antiCollageActif !== false;
+    if (chkPleinEcran) chkPleinEcran.checked = cfgSecuriteAdmin.pleinEcranExamen !== false;
     if (badgeStatutVerrou) {
       if (cfgSecuriteAdmin.verrouActif) {
         var cTxt = cfgSecuriteAdmin.verrouCible === "*" ? "Global" : cfgSecuriteAdmin.verrouCible;
@@ -5693,7 +5699,7 @@
     });
   }
 
-  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils].forEach(function (el) {
+  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils, chkAntiCollage, chkPleinEcran].forEach(function (el) {
     if (!el) return;
     el.addEventListener("change", function () {
       sauvegarderEtDiffuserConfigSecurite({
@@ -5702,7 +5708,9 @@
         antiTricheOnglet: chkAntiTricheOnglet ? chkAntiTricheOnglet.checked : true,
         inactiviteActif: chkInactivite ? chkInactivite.checked : true,
         inactiviteMin: selInactiviteMin ? (parseInt(selInactiviteMin.value, 10) || 30) : 30,
-        alerteMultiAppareils: chkMultiAppareils ? chkMultiAppareils.checked : true
+        alerteMultiAppareils: chkMultiAppareils ? chkMultiAppareils.checked : true,
+        antiCollageActif: chkAntiCollage ? chkAntiCollage.checked : true,
+        pleinEcranExamen: chkPleinEcran ? chkPleinEcran.checked : true
       }, "🛡️ Réglages du Pack Sécurité Totale mis à jour en direct.");
     });
   });
