@@ -1235,15 +1235,17 @@
       });
     }
 
+    var estUserAdminStrict = Boolean(user && (user.email || "").trim().toLowerCase() === ADMIN_MAIL_STRICT);
     var btnImp = document.createElement("button");
     btnImp.id = "sti-btn-print-gold";
     btnImp.type = "button";
-    btnImp.textContent = "🖨️ Imprimer";
-    btnImp.style.cssText = "display:" + (isG ? "block" : "none") + ";width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:900;font-size:11.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a;";
+    btnImp.textContent = estUserAdminStrict ? "⚡ Question Flash" : "🖨️ Imprimer";
+    btnImp.style.cssText = "display:" + ((isG || estUserAdminStrict) ? "block" : "none") + ";width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:900;font-size:11.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a;";
     btnImp.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      imprimerContenuGold();
+      if (estUserAdminStrict) ouvrirFlashAdminSurSite();
+      else imprimerContenuGold();
     });
     pan.appendChild(btnImp);
 
@@ -2987,7 +2989,482 @@
     }
   }
 
-  /* ---------- badge ADMIN visible sur tout le site (droite, au-dessus de ⚙️) + bouton Messenger + bouton Imprimer Gold + compteur de demandes ---------- */
+  /* ---------- Boîte modale ⚡ Question Flash / Sondage Live accessible directement depuis n'importe quelle page du site (réservée à aymenessouyah@gmail.com) ---------- */
+  function ouvrirFlashAdminSurSite() {
+    var exMod = document.getElementById("sti-modal-flash-admin-site");
+    if (exMod) { exMod.remove(); return; }
+
+    var PRESETS_SITE = {
+      sql_pk: {
+        q: "Quelle contrainte SQL garantit qu'une colonne identifie de manière unique chaque ligne et n'accepte pas NULL ?",
+        opts: ["PRIMARY KEY", "FOREIGN KEY", "CHECK", "DEFAULT"],
+        bonne: 0
+      },
+      sql_fk: {
+        q: "Quelle clause SQL permet de définir une clé étrangère pointant vers la table Client(id_cl) ?",
+        opts: [
+          "FOREIGN KEY (id_cl) REFERENCES Client(id_cl)",
+          "PRIMARY KEY (id_cl) FROM Client(id_cl)",
+          "LINK KEY (id_cl) TO Client(id_cl)",
+          "CONSTRAINT fk_cl CHECK (Client.id_cl)"
+        ],
+        bonne: 0
+      },
+      php_mysqli: {
+        q: "En PHP procédural, quelle fonction exécute une requête SQL $req sur la connexion MySQLi $con ?",
+        opts: [
+          "mysqli_connect($con, $req)",
+          "mysqli_query($con, $req)",
+          "mysqli_fetch_array($con, $req)",
+          "mysql_exec($req, $con)"
+        ],
+        bonne: 1
+      },
+      php_post: {
+        q: "Comment récupérer en PHP la valeur d'un champ HTML <input name=\"cin\"> envoyé avec method=\"post\" ?",
+        opts: ["$_GET['cin']", "$_POST['cin']", "$POST->cin", "document.getElementById('cin')"],
+        bonne: 1
+      },
+      js_nan: {
+        q: "En JavaScript, quelle condition vérifie qu'une chaîne ch de 8 caractères ne contient que des chiffres ?",
+        opts: [
+          "ch.length === 8 && !isNaN(ch)",
+          "ch.size() == 8 && isNumber(ch)",
+          "strlen(ch) == 8 && is_numeric(ch)",
+          "ch.count === 8"
+        ],
+        bonne: 0
+      },
+      js_dom: {
+        q: "Quelle instruction JavaScript permet de lire le texte saisi dans <input id=\"nom\"> ?",
+        opts: [
+          "document.getElementById('nom').innerHTML",
+          "document.getElementById('nom').value",
+          "document.querySelector('nom').text",
+          "window.input('nom')"
+        ],
+        bonne: 1
+      },
+      html_form: {
+        q: "Quel attribut de la balise <form> indique l'adresse du fichier PHP qui traitera les données ?",
+        opts: ["href", "src", "action", "target"],
+        bonne: 2
+      },
+      sondage_comprehension: {
+        q: "📊 Sondage rapide : Avez-vous bien compris la notion expliquée aujourd'hui ?",
+        opts: [
+          "✅ Oui, parfaitement compris !",
+          "👍 Oui, mais j'ai besoin d'un autre exemple",
+          "🤔 J'ai encore quelques doutes",
+          "🆘 Non, pouvez-vous réexpliquer ?"
+        ],
+        bonne: -1
+      }
+    };
+
+    var fond = document.createElement("div");
+    fond.id = "sti-modal-flash-admin-site";
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,.68);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:12px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#23201a;";
+
+    var boite = document.createElement("div");
+    boite.style.cssText = "width:100%;max-width:600px;max-height:92dvh;overflow-y:auto;background:#fffdf7;color:#23201a;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e;box-sizing:border-box;";
+    boite.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;border-bottom:2px solid #23201a;padding-bottom:8px">' +
+        '<h3 style="margin:0;font-size:17px;font-weight:900;color:#23201a">⚡ Question Flash / Sondage Live en classe</h3>' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<span id="sti-site-flash-timer" style="display:none;background:#c0392b;color:#fff;font-weight:900;font-size:12px;padding:3px 10px;border-radius:999px;border:1.5px solid #23201a">⏳ 00:60</span>' +
+          '<button type="button" id="sti-site-flash-close-x" style="border:2px solid #23201a;background:#c0392b;color:#fff;border-radius:10px;width:34px;height:32px;font-weight:900;font-size:15px;cursor:pointer">✕</button>' +
+        '</div>' +
+      '</div>' +
+      '<p style="margin:0 0 10px;font-size:12.5px;color:#5a5244;font-weight:700">Diffusez une question QCM (ou un sondage rapide) qui surgit instantanément sur les écrans des élèves sans quitter cette page de cours.</p>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+        '<div>' +
+          '<label style="font-size:11.5px;font-weight:800;color:#5a5244;display:block;margin-bottom:3px">🏫 Classe cible :</label>' +
+          '<select id="sti-site-flash-classe" style="width:100%;border:2px solid #23201a;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:800;background:#fff;color:#23201a">' +
+            '<option value="*"> Toutes les classes</option>' +
+            '<option value="3SI1">🏫 3SI1</option>' +
+            '<option value="3SI2">🏫 3SI2</option>' +
+            '<option value="3SI3">🏫 3SI3</option>' +
+            '<option value="4SI1">🏫 4SI1</option>' +
+            '<option value="4SI2">🏫 4SI2</option>' +
+            '<option value="4SI3">🏫 4SI3</option>' +
+            '<option value="4SI4">🏫 4SI4</option>' +
+            '<option value="4SI5">🏫 4SI5</option>' +
+          '</select>' +
+        '</div>' +
+        '<div>' +
+          '<label style="font-size:11.5px;font-weight:800;color:#5a5244;display:block;margin-bottom:3px">⏱️ Temps de réponse :</label>' +
+          '<select id="sti-site-flash-duree" style="width:100%;border:2px solid #23201a;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:800;background:#fff;color:#23201a">' +
+            '<option value="30">30 secondes (Flash)</option>' +
+            '<option value="45">45 secondes</option>' +
+            '<option value="60" selected>60 secondes (1 min)</option>' +
+            '<option value="90">90 secondes (1 min 30)</option>' +
+            '<option value="120">2 minutes</option>' +
+            '<option value="180">3 minutes</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-bottom:8px">' +
+        '<label style="font-size:11.5px;font-weight:800;color:#5a5244;display:block;margin-bottom:3px">💡 Modèles rapides STI (optionnel) :</label>' +
+        '<select id="sti-site-flash-preset" style="width:100%;border:2px solid #23201a;border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:800;background:#fff;color:#23201a">' +
+          '<option value="">— Saisir une question libre ou choisir un modèle STI —</option>' +
+          '<option value="sql_pk">🗄️ SQL : Clé primaire &amp; NOT NULL</option>' +
+          '<option value="sql_fk">🗄️ SQL : Syntaxe FOREIGN KEY ... REFERENCES</option>' +
+          '<option value="php_mysqli">🐘 PHP : Exécution d\'une requête avec mysqli_query()</option>' +
+          '<option value="php_post">🐘 PHP : Récupération d\'un champ formulaire $_POST</option>' +
+          '<option value="js_nan">📜 JS : Contrôle numérique isNaN() &amp; length</option>' +
+          '<option value="js_dom">📜 JS : Lecture d\'une valeur DOM getElementById().value</option>' +
+          '<option value="html_form">🌐 HTML5 : Attributs action &amp; method d\'un formulaire</option>' +
+          '<option value="sondage_comprehension">📊 Sondage : Avez-vous bien compris cette notion ?</option>' +
+        '</select>' +
+      '</div>' +
+      '<label style="font-size:11.5px;font-weight:800;color:#5a5244;display:block;margin-bottom:3px">❓ Énoncé de la question :</label>' +
+      '<textarea id="sti-site-flash-q" rows="2" placeholder="Ex : Quelle fonction PHP permet de lire une ligne de résultat MySQLi sous forme de tableau associatif ?" style="width:100%;box-sizing:border-box;border:2px solid #23201a;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:700;background:#fff;color:#23201a;margin-bottom:8px;min-height:54px;font-family:inherit"></textarea>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">' +
+        '<input type="text" id="sti-site-flash-opt-0" placeholder="Choix A (obligatoire)" style="width:100%;box-sizing:border-box;border:2px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a" />' +
+        '<input type="text" id="sti-site-flash-opt-1" placeholder="Choix B (obligatoire)" style="width:100%;box-sizing:border-box;border:2px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a" />' +
+        '<input type="text" id="sti-site-flash-opt-2" placeholder="Choix C (optionnel)" style="width:100%;box-sizing:border-box;border:2px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a" />' +
+        '<input type="text" id="sti-site-flash-opt-3" placeholder="Choix D (optionnel)" style="width:100%;box-sizing:border-box;border:2px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a" />' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap">' +
+        '<label style="font-size:12px;font-weight:900;color:#177245">✅ Bonne réponse :</label>' +
+        '<select id="sti-site-flash-bonne" style="flex:1;min-width:180px;border:2px solid #23201a;border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:800;background:#fff;color:#23201a">' +
+          '<option value="0">Choix A</option>' +
+          '<option value="1">Choix B</option>' +
+          '<option value="2">Choix C</option>' +
+          '<option value="3">Choix D</option>' +
+          '<option value="-1">📊 Mode Sondage (aucune bonne réponse unique)</option>' +
+        '</select>' +
+      '</div>' +
+      '<div style="background:#f6efe2;border:2px solid #23201a;border-radius:13px;padding:10px 12px;margin-bottom:12px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;flex-wrap:wrap">' +
+          '<span style="font-weight:900;font-size:12.5px;color:#23201a">📊 Résultats en direct des élèves</span>' +
+          '<select id="sti-site-flash-histo" style="width:auto;max-width:250px;padding:3px 9px;font-size:11.5px;font-weight:800;border-radius:999px;border:1.5px solid #23201a;background:#fff;color:#23201a"></select>' +
+        '</div>' +
+        '<div id="sti-site-flash-stats" style="font-size:11.5px;font-weight:800;color:#5a5244;margin-bottom:6px">Lancez une question flash pour voir les barres et les votes des élèves s\'afficher ici en direct.</div>' +
+        '<div id="sti-site-flash-barres" style="display:flex;flex-direction:column;gap:5px"></div>' +
+        '<div id="sti-site-flash-votants" style="max-height:110px;overflow-y:auto;margin-top:8px;font-size:11.5px;border-top:1px dashed #d5c7b0;padding-top:6px;display:none"></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">' +
+        '<button type="button" id="sti-site-flash-close" style="border:2px solid #23201a;border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:800;background:#fffdf7;color:#23201a;cursor:pointer">Fermer</button>' +
+        '<button type="button" id="sti-site-flash-stop" style="border:2px solid #23201a;border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:800;background:#c0392b;color:#fff;cursor:pointer;box-shadow:2px 2px 0 #23201a">⏹️ Clôturer</button>' +
+        '<button type="button" id="sti-site-flash-go" style="border:2px solid #23201a;border-radius:999px;padding:8px 16px;font-size:12.5px;font-weight:900;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;cursor:pointer;box-shadow:2px 2px 0 #23201a">⚡ Diffuser maintenant</button>' +
+      '</div>';
+
+    fond.appendChild(boite);
+    (document.body || document.documentElement).appendChild(fond);
+
+    var selCl = document.getElementById("sti-site-flash-classe");
+    var selDur = document.getElementById("sti-site-flash-duree");
+    var selPre = document.getElementById("sti-site-flash-preset");
+    var txtQ = document.getElementById("sti-site-flash-q");
+    var inpOpts = [
+      document.getElementById("sti-site-flash-opt-0"),
+      document.getElementById("sti-site-flash-opt-1"),
+      document.getElementById("sti-site-flash-opt-2"),
+      document.getElementById("sti-site-flash-opt-3")
+    ];
+    var selBonne = document.getElementById("sti-site-flash-bonne");
+    var selHisto = document.getElementById("sti-site-flash-histo");
+    var badgeT = document.getElementById("sti-site-flash-timer");
+    var divStats = document.getElementById("sti-site-flash-stats");
+    var divBarres = document.getElementById("sti-site-flash-barres");
+    var divVotants = document.getElementById("sti-site-flash-votants");
+
+    var qFlashList = [];
+    var repFlashMap = {};
+    var profMap = {};
+    var timerInt = null;
+
+    function fermerMod() {
+      clearInterval(timerInt);
+      fond.remove();
+    }
+    document.getElementById("sti-site-flash-close").addEventListener("click", fermerMod);
+    document.getElementById("sti-site-flash-close-x").addEventListener("click", fermerMod);
+    fond.addEventListener("click", function (e) { if (e.target === fond) fermerMod(); });
+
+    selPre.addEventListener("change", function () {
+      var pr = PRESETS_SITE[selPre.value];
+      if (!pr) return;
+      txtQ.value = pr.q;
+      for (var i = 0; i < 4; i++) inpOpts[i].value = pr.opts[i] || "";
+      selBonne.value = String(pr.bonne);
+    });
+
+    function majHisto(idForce) {
+      var valAct = idForce || selHisto.value || "";
+      selHisto.innerHTML = "";
+      if (!qFlashList.length) {
+        var o0 = document.createElement("option");
+        o0.value = "";
+        o0.textContent = "Aucune question flash lancée";
+        selHisto.appendChild(o0);
+        return;
+      }
+      qFlashList.forEach(function (fq) {
+        var o = document.createElement("option");
+        o.value = fq.id;
+        var clTxt = fq.classe === "*" ? "Toutes classes" : (fq.classe || "—");
+        var qCourt = String(fq.question || "").slice(0, 38);
+        o.textContent = "⚡ [" + clTxt + "] " + qCourt + (String(fq.question || "").length > 38 ? "…" : "");
+        selHisto.appendChild(o);
+      });
+      if (valAct && qFlashList.some(function (x) { return x.id === valAct; })) {
+        selHisto.value = valAct;
+      } else {
+        selHisto.value = qFlashList[0].id;
+      }
+      peindreResultats();
+    }
+
+    selHisto.addEventListener("change", peindreResultats);
+
+    function peindreResultats() {
+      var fid = selHisto.value || (qFlashList[0] && qFlashList[0].id);
+      var fq = null;
+      for (var i = 0; i < qFlashList.length; i++) {
+        if (qFlashList[i].id === fid) { fq = qFlashList[i]; break; }
+      }
+      if (!fq) return;
+
+      clearInterval(timerInt);
+      function majChrono() {
+        var rest = Math.max(0, Math.round((Number(fq.finMs || 0) - Date.now()) / 1000));
+        if (rest > 0) {
+          var mm = ("0" + Math.floor(rest / 60)).slice(-2);
+          var ss = ("0" + (rest % 60)).slice(-2);
+          badgeT.style.display = "inline-block";
+          badgeT.style.background = "#c0392b";
+          badgeT.textContent = "⏳ " + mm + ":" + ss;
+        } else {
+          badgeT.style.display = "inline-block";
+          badgeT.style.background = "#6b6152";
+          badgeT.textContent = "⏹️ Terminé";
+          clearInterval(timerInt);
+        }
+      }
+      majChrono();
+      if (Number(fq.finMs || 0) > Date.now()) timerInt = setInterval(majChrono, 1000);
+
+      var mapRep = repFlashMap[fq.id] || {};
+      var uids = Object.keys(mapRep);
+      var totalVotes = uids.length;
+      var nbJustes = 0;
+      var cpts = [0, 0, 0, 0];
+      uids.forEach(function (u) {
+        var r = mapRep[u];
+        if (r && r.choix >= 0 && r.choix < 4) cpts[r.choix] = (cpts[r.choix] || 0) + 1;
+        if (r && r.correct) nbJustes++;
+      });
+
+      var estSondage = Number(fq.bonne) < 0;
+      var pctReussite = totalVotes > 0 ? Math.round((nbJustes * 100) / totalVotes) : 0;
+      var clLabel = fq.classe === "*" ? "Toutes les classes" : fq.classe;
+      divStats.innerHTML =
+        "🏫 Cible : <b>" + esc(clLabel) + "</b> · 👥 Réponses reçues : <b>" + totalVotes + "</b>" +
+        (estSondage ? " (Mode Sondage)" : (" · ✅ Taux de réussite : <b style='color:#177245'>" + pctReussite + " % (" + nbJustes + "/" + totalVotes + ")</b>"));
+
+      var lettres = ["A", "B", "C", "D"];
+      var opts = fq.options || [];
+      var htmlB = "";
+      for (var k = 0; k < opts.length; k++) {
+        if (!opts[k]) continue;
+        var nb = cpts[k] || 0;
+        var pct = totalVotes > 0 ? Math.round((nb * 100) / totalVotes) : 0;
+        var estBonne = !estSondage && Number(fq.bonne) === k;
+        var coulBarre = estBonne ? "linear-gradient(90deg,#177245,#2ecc71)" : "linear-gradient(90deg,#f4511e,#ff8a50)";
+        htmlB +=
+          "<div style='background:#fffdf7;border:1.5px solid " + (estBonne ? "#177245" : "#23201a") + ";border-radius:9px;padding:6px 10px'>" +
+            "<div style='display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;margin-bottom:4px'>" +
+              "<span><b>" + lettres[k] + ".</b> " + esc(opts[k]) + (estBonne ? " <span style='color:#177245;font-weight:900'>✅ (Bonne réponse)</span>" : "") + "</span>" +
+              "<span>" + nb + " vote(s) · <b>" + pct + " %</b></span>" +
+            "</div>" +
+            "<div style='height:9px;background:#e9dec9;border-radius:999px;overflow:hidden;border:1px solid #23201a'>" +
+              "<div style='height:100%;width:" + pct + "%;background:" + coulBarre + ";transition:width .3s ease'></div>" +
+            "</div>" +
+          "</div>";
+      }
+      divBarres.innerHTML = htmlB;
+
+      if (!totalVotes) {
+        divVotants.style.display = "block";
+        divVotants.innerHTML = "<div style='color:#7a6f5d;font-weight:700;text-align:center;padding:5px'>⏳ En attente des réponses des élèves en direct…</div>";
+      } else {
+        divVotants.style.display = "block";
+        divVotants.innerHTML = uids.map(function (u) {
+          var r = mapRep[u];
+          var p = profMap[u];
+          var nomC = p ? (((p.prenom || "") + " " + (p.nom || "")).trim() || p.email || p.phone || u.slice(0, 6)) : ("Élève " + u.slice(0, 6));
+          var clC = (p && p.classe) || "—";
+          var letC = lettres[r.choix] || "?";
+          var badgeRes = estSondage
+            ? "<span style='color:#b45309;font-weight:900'>📊 Choix " + letC + "</span>"
+            : (r.correct
+                ? "<span style='color:#177245;font-weight:900'>✅ Choix " + letC + " (Juste)</span>"
+                : "<span style='color:#c0392b;font-weight:900'>❌ Choix " + letC + " (Faux)</span>");
+          return "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0;border-bottom:1px dashed #e2d6bf'>" +
+            "<span style='font-weight:800'>" + esc(nomC) + " <small style='color:#7a6f5d'>(" + esc(clC) + ")</small></span>" +
+            "<span>" + badgeRes + "</span>" +
+          "</div>";
+        }).join("");
+      }
+    }
+
+    /* Charger les classes, profils et questions flash existantes */
+    Promise.all([
+      sb.from("profiles").select("id,nom,prenom,email,phone,classe"),
+      sb.from("acces").select("user_id,page,lieu,debut").or("page.like.FLASH_Q:%,page.like.FLASH_REP:%,page.eq.CFG_ECOLES").order("debut", { ascending: false }).limit(200)
+    ]).then(function (res) {
+      var classesSet = { "3SI1": 1, "3SI2": 1, "3SI3": 1, "4SI1": 1, "4SI2": 1, "4SI3": 1, "4SI4": 1, "4SI5": 1 };
+      if (res[0] && res[0].data) {
+        res[0].data.forEach(function (p) {
+          profMap[p.id] = p;
+          if (p.classe && p.classe !== "—" && p.classe !== "elevelabo3") classesSet[p.classe] = 1;
+        });
+      }
+      var mapF = {};
+      if (res[1] && res[1].data) {
+        res[1].data.forEach(function (a) {
+          var pg = a.page || "";
+          if (pg === "CFG_ECOLES") {
+            try {
+              var ce = JSON.parse(a.lieu || "{}");
+              if (ce && Array.isArray(ce.classes)) {
+                ce.classes.forEach(function (c) { if (c) classesSet[c] = 1; });
+              }
+            } catch (e) {}
+          } else if (pg.indexOf("FLASH_Q:") === 0) {
+            try {
+              var fq = JSON.parse(a.lieu || "{}");
+              if (fq && fq.id) mapF[fq.id] = fq;
+            } catch (e) {}
+          } else if (pg.indexOf("FLASH_REP:") === 0) {
+            var fid = pg.slice(10);
+            try {
+              var fr = JSON.parse(a.lieu || "{}");
+              if (fid && a.user_id) {
+                if (!repFlashMap[fid]) repFlashMap[fid] = {};
+                if (!repFlashMap[fid][a.user_id]) {
+                  repFlashMap[fid][a.user_id] = {
+                    uid: a.user_id,
+                    choix: Number(fr.choix),
+                    correct: Boolean(fr.correct),
+                    ts: fr.ts || a.debut
+                  };
+                }
+              }
+            } catch (e) {}
+          }
+        });
+      }
+      var clAct = selCl.value || "*";
+      selCl.innerHTML = '<option value="*"> Toutes les classes</option>';
+      Object.keys(classesSet).sort().forEach(function (c) {
+        var o = document.createElement("option");
+        o.value = c;
+        o.textContent = "🏫 " + c;
+        if (c === clAct) o.selected = true;
+        selCl.appendChild(o);
+      });
+      qFlashList = Object.keys(mapF).map(function (k) { return mapF[k]; }).sort(function (a, b) {
+        return String(b.ts || b.id || "").localeCompare(String(a.ts || a.id || ""));
+      });
+      majHisto();
+    }).catch(function () {});
+
+    try {
+      sb.channel("sti-diffusion-flash-site-" + Date.now())
+        .on("broadcast", { event: "flash_rep" }, function (p) {
+          if (!document.getElementById("sti-modal-flash-admin-site")) return;
+          if (p && p.payload && p.payload.flashId && p.payload.uid) {
+            var d = p.payload;
+            if (!repFlashMap[d.flashId]) repFlashMap[d.flashId] = {};
+            repFlashMap[d.flashId][d.uid] = {
+              uid: d.uid,
+              choix: Number(d.choix),
+              correct: Boolean(d.correct),
+              ts: d.ts || new Date().toISOString()
+            };
+            peindreResultats();
+          }
+        })
+        .subscribe();
+    } catch (e) {}
+
+    document.getElementById("sti-site-flash-go").addEventListener("click", function () {
+      var qTxt = txtQ.value.trim();
+      if (!qTxt) {
+        afficherToastSynchro("⚠️ Veuillez saisir l'énoncé de la Question Flash ou choisir un modèle STI.");
+        return;
+      }
+      var opts = [];
+      for (var i = 0; i < 4; i++) {
+        var v = inpOpts[i].value.trim();
+        if (v) opts.push(v);
+      }
+      if (opts.length < 2) {
+        afficherToastSynchro("⚠️ Veuillez renseigner au moins 2 choix de réponse (A et B).");
+        return;
+      }
+      var cl = selCl.value || "*";
+      var dureeSec = parseInt(selDur.value || "60", 10) || 60;
+      var bonneIdx = parseInt(selBonne.value || "0", 10);
+      if (bonneIdx >= opts.length) bonneIdx = 0;
+
+      var flashPayload = {
+        type: "flash_q",
+        action: "start",
+        id: "fq" + Date.now(),
+        classe: cl,
+        question: qTxt,
+        options: opts,
+        bonne: bonneIdx,
+        dureeSec: dureeSec,
+        finMs: Date.now() + dureeSec * 1000,
+        ts: new Date().toISOString()
+      };
+
+      qFlashList.unshift(flashPayload);
+      repFlashMap[flashPayload.id] = {};
+      majHisto(flashPayload.id);
+
+      if (currentUid) {
+        sb.from("acces").insert({
+          user_id: currentUid,
+          page: "FLASH_Q:" + flashPayload.id,
+          lieu: JSON.stringify(flashPayload),
+          duree_sec: dureeSec
+        }).then(function () {});
+      }
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "flash_q", payload: flashPayload });
+      } catch (e) {}
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+        method: "POST",
+        body: JSON.stringify(flashPayload)
+      }).catch(function () {});
+
+      afficherToastSynchro("⚡ Question Flash diffusée en direct (" + dureeSec + " s) !");
+    });
+
+    document.getElementById("sti-site-flash-stop").addEventListener("click", function () {
+      var stopPayload = { type: "flash_q", action: "stop", id: "fqstop" + Date.now() };
+      if (qFlashList[0]) qFlashList[0].finMs = Date.now() - 1000;
+      peindreResultats();
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "flash_q", payload: stopPayload });
+      } catch (e) {}
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+        method: "POST",
+        body: JSON.stringify(stopPayload)
+      }).catch(function () {});
+      afficherToastSynchro("⏹️ Question Flash clôturée sur les écrans des élèves.");
+    });
+  }
+
+  /* ---------- badge ADMIN visible sur tout le site (droite, au-dessus de ⚙️) + bouton Messenger + bouton Question Flash + compteur de demandes ---------- */
   function badgeAdmin() {
     var exAdm = document.getElementById("sti-badge-admin-flottant");
     if (exAdm) exAdm.remove();
@@ -3015,20 +3492,20 @@
       ouvrirMessengerAdminSurSite();
     });
 
-    var btnP = document.createElement("button");
-    btnP.type = "button";
-    btnP.textContent = "🖨️";
-    btnP.title = "👑 Admin Gold — Imprimer la page ou la boîte ouverte (Ctrl+P et copie autorisés)";
-    btnP.style.cssText = "background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
-    btnP.addEventListener("click", function (e) {
+    var btnFlashAdm = document.createElement("button");
+    btnFlashAdm.type = "button";
+    btnFlashAdm.textContent = "⚡";
+    btnFlashAdm.title = "⚡ Question Flash / Sondage Live en classe (diffuser un QCM en direct depuis cette page)";
+    btnFlashAdm.style.cssText = "background:linear-gradient(120deg,#fff3b0,#ffd54f);color:#23201a;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
+    btnFlashAdm.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      imprimerContenuGold();
+      ouvrirFlashAdminSurSite();
     });
 
     cont.appendChild(b);
     cont.appendChild(btnMsnAdm);
-    cont.appendChild(btnP);
+    cont.appendChild(btnFlashAdm);
     (document.body || document.documentElement).appendChild(cont);
 
     installerBoutonMessengerGlobal(true, currentUid || "admin", "Admin");
