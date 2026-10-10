@@ -17,6 +17,8 @@
       objPerm.gold = true;
       objPerm.statut = "actif";
       objPerm.permanent = true;
+      objPerm.isAdmin = false;
+      localStorage.removeItem("sti-admin-gold");
       localStorage.setItem("sti-gold", "1");
       localStorage.setItem("sti-offline", String(Date.now()));
       localStorage.setItem("sti-session-cache", JSON.stringify(objPerm));
@@ -277,8 +279,16 @@
   /* ---------- onglets ---------- */
   var tabs = { "tab-connexion": "f-connexion", "tab-inscription": "f-inscription", "tab-oubli": "f-oubli" };
   var telEnCours = null;
+  var modeAdminDemande = location.hash.replace("#", "") === "admin";
+
   Object.keys(tabs).forEach(function (id) {
-    document.getElementById(id).addEventListener("click", function () {
+    document.getElementById(id).addEventListener("click", function (ev) {
+      if (ev && ev.isTrusted) {
+        modeAdminDemande = false;
+        if (location.hash === "#admin") {
+          try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+        }
+      }
       document.getElementById("zone-code").hidden = true;
       Object.keys(tabs).forEach(function (t) {
         document.getElementById(tabs[t]).hidden = t !== id;
@@ -301,32 +311,37 @@
   if (h === "refuse") msg("⛔ Accès refusé ou compte suspendu. Contactez l'administrateur.", "err");
   if (h === "exclu") msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err");
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
-  if (h === "admin") msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
+  if (h === "admin") msg("🔒 Accès réservé à l'administrateur (aymenessouyah@gmail.com) : veuillez saisir vos identifiants.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
 
   /* Clic sur « 📊 Tableau de bord administrateur » depuis le portail :
-     vérifier d'abord la session admin (en ligne ou cache local hors-ligne) sans JAMAIS ouvrir admin.html si non connecté */
+     vérifier d'abord la session Supabase active (seul aymenessouyah@gmail.com est autorisé) */
   var lienAdminPortail = document.getElementById("lien-admin-portail");
   if (lienAdminPortail) {
     lienAdminPortail.addEventListener("click", function (e) {
       e.preventDefault();
       var adminMail = (cfg.ADMIN || "aymenessouyah@gmail.com").trim().toLowerCase();
-      try {
-        var cLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-        if (cLoc && cLoc.isAdmin && String(cLoc.email || "").trim().toLowerCase() === adminMail) {
-          location.href = cfg.RACINE + "admin.html";
-          return;
-        }
-      } catch (err) {}
       sb.auth.getSession().then(function (r) {
         var s = r && r.data ? r.data.session : null;
         if (s && s.user && (s.user.email || "").trim().toLowerCase() === adminMail) {
           location.href = cfg.RACINE + "admin.html";
           return;
         }
-        /* Non connecté en tant qu'admin : rester sur le formulaire de connexion et demander les identifiants */
+        if (!s && !navigator.onLine) {
+          try {
+            var cLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+            if (cLoc && cLoc.isAdmin === true && String(cLoc.email || "").trim().toLowerCase() === adminMail) {
+              location.href = cfg.RACINE + "admin.html";
+              return;
+            }
+          } catch (err) {}
+        }
+        try { localStorage.removeItem("sti-admin-gold"); } catch (err) {}
+        /* Non connecté en tant qu'admin : activer le mode connexion admin et demander les identifiants */
         document.getElementById("tab-connexion").click();
-        msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
+        modeAdminDemande = true;
+        try { history.replaceState(null, "", location.pathname + location.search + "#admin"); } catch (err) {}
+        msg("🔒 Accès réservé exclusivement à aymenessouyah@gmail.com : veuillez saisir les identifiants administrateur.", "att");
         var champEmail = document.getElementById("c-email");
         if (champEmail) {
           champEmail.focus();
@@ -334,7 +349,8 @@
         }
       }).catch(function () {
         document.getElementById("tab-connexion").click();
-        msg("🔒 Veuillez saisir vos paramètres de connexion administrateur pour accéder au tableau de bord.", "att");
+        modeAdminDemande = true;
+        msg("🔒 Accès réservé exclusivement à aymenessouyah@gmail.com : veuillez saisir les identifiants administrateur.", "att");
       });
     });
   }
@@ -419,6 +435,15 @@
       }
       emailConn = emailDeTel(telConn);
     }
+    var adminMailStrict = (cfg.ADMIN || "aymenessouyah@gmail.com").trim().toLowerCase();
+    var estSaisieAdmin = emailConn.trim().toLowerCase() === adminMailStrict;
+    if ((modeAdminDemande || location.hash.replace("#", "") === "admin") && !estSaisieAdmin) {
+      try { localStorage.removeItem("sti-admin-gold"); } catch (err) {}
+      msg("⛔ Accès refusé : seul aymenessouyah@gmail.com peut accéder au tableau de bord administrateur. Pour accéder aux cours en tant qu'élève, cliquez sur l'onglet « 🔑 Connexion ».", "err");
+      cap1.reset();
+      document.getElementById("c-captcha").value = "";
+      return;
+    }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;
     var connexionResolue = false;
     function tenterConnexionLocaleHorsLigne() {
@@ -429,8 +454,12 @@
       try { cred = JSON.parse(localStorage.getItem("sti-cred") || "null"); } catch (err) {}
       sha256(mdp).then(function (h) {
         if (cred && (cred.email === emailConn || cred.email === idConn) && cred.h === h) {
+          var okAdmOff = Boolean(cred.isAdmin && String(cred.email || "").trim().toLowerCase() === adminMailStrict);
+          if (!okAdmOff) {
+            try { localStorage.removeItem("sti-admin-gold"); } catch (err) {}
+          }
           localStorage.setItem("sti-offline", String(Date.now()));
-          location.href = cred.isAdmin ? (cfg.RACINE + "admin.html") : cfg.RACINE;
+          location.href = okAdmOff ? (cfg.RACINE + "admin.html") : cfg.RACINE;
         } else {
           msg("❌ Hors-ligne : identifiants non reconnus sur cet appareil (connectez-vous une 1re fois avec Internet).", "err");
         }
@@ -453,7 +482,7 @@
       }
       connexionResolue = true;
       /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
-      var isAdm = (r.data.user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase();
+      var isAdm = (r.data.user.email || "").trim().toLowerCase() === adminMailStrict;
       sha256(mdp).then(function (h) {
         try {
           localStorage.setItem("sti-cred", JSON.stringify({ email: emailConn, h: h, isAdmin: isAdm }));
@@ -461,6 +490,7 @@
       });
       if (isAdm) {
         try {
+          localStorage.removeItem("sti-labo3-permanent");
           localStorage.setItem("sti-gold", "1");
           localStorage.setItem("sti-admin-gold", "1");
           localStorage.setItem("sti-offline", String(Date.now()));
@@ -476,6 +506,14 @@
         location.href = cfg.RACINE + "admin.html";
         return;
       }
+      /* Compte non-admin (ex: elevelabo3@exemple.tn) : purger immédiatement tout vestige admin */
+      try {
+        localStorage.removeItem("sti-admin-gold");
+        var ancSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+        if (ancSess && ancSess.isAdmin) {
+          localStorage.removeItem("sti-session-cache");
+        }
+      } catch (err) {}
 
       /* Si compte par téléphone non encore confirmé par code WhatsApp */
       var meta = (r.data.user && r.data.user.user_metadata) || {};

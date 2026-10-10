@@ -390,28 +390,62 @@
 
   function lireCacheSessAdmin() {
     try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || "";
+        if (k.indexOf("sb-") === 0 && k.indexOf("-auth-token") !== -1) {
+          var v = (localStorage.getItem(k) || "").toLowerCase();
+          if (v && v !== "null" && (v.indexOf("@") !== -1 || v.indexOf("access_token") !== -1)) {
+            if (v.indexOf(ADMIN_EMAIL) === -1) return null;
+          }
+        }
+      }
       var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-      if (c && c.isAdmin && estAdminEmail(c.email)) return c;
+      if (c && c.isAdmin === true && estAdminEmail(c.email) && !estClasseProfLabo(c.classe)) return c;
     } catch (e) {}
     return null;
   }
 
-  /* Déverrouillage immédiat 0 ms sur PC Windows / Mobile hors-ligne si le cache admin local est valide */
-  var cacheAdminInit = lireCacheSessAdmin();
+  /* Déverrouillage immédiat 0 ms sur PC Windows / Mobile hors-ligne uniquement si le cache admin local est strictement valide */
+  var cacheAdminInit = !navigator.onLine ? lireCacheSessAdmin() : null;
   if (cacheAdminInit) {
     adminUid = cacheAdminInit.id || "admin";
     document.documentElement.classList.remove("admin-verrouille");
     window.__STI_GOLD = true;
-    if (!navigator.onLine) {
-      setTimeout(function () { chargerDepuisCacheAdmin(false, "Appareil hors-ligne."); }, 0);
-    }
+    setTimeout(function () { chargerDepuisCacheAdmin(false, "Appareil hors-ligne."); }, 0);
   }
+
+  try {
+    sb.auth.onAuthStateChange(function (_ev, sess) {
+      if (sess && sess.user && !estAdminEmail(sess.user.email)) {
+        document.documentElement.classList.add("admin-verrouille");
+        try { localStorage.removeItem("sti-admin-gold"); } catch (e) {}
+        location.replace(cfg.RACINE + "index.html");
+      }
+    });
+  } catch (e) {}
 
   sb.auth.getSession().then(function (r) {
     var s = r && r.data ? r.data.session : null;
-    if (!s || !estAdminEmail(s.user.email)) {
-      var cacheSess = lireCacheSessAdmin();
+    if (s && s.user && !estAdminEmail(s.user.email)) {
+      /* Un abonné non-administrateur (ex: elevelabo3@exemple.tn) est connecté : blocage strict */
+      document.documentElement.classList.add("admin-verrouille");
+      try {
+        localStorage.removeItem("sti-admin-gold");
+        var cAct = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+        if (cAct && estAdminEmail(cAct.email)) {
+          localStorage.removeItem("sti-session-cache");
+        } else if (cAct) {
+          cAct.isAdmin = false;
+          localStorage.setItem("sti-session-cache", JSON.stringify(cAct));
+        }
+      } catch (e) {}
+      location.replace(cfg.RACINE + "index.html");
+      return;
+    }
+    if (!s || !s.user || !estAdminEmail(s.user.email)) {
+      var cacheSess = !navigator.onLine ? lireCacheSessAdmin() : null;
       if (!cacheSess) {
+        document.documentElement.classList.add("admin-verrouille");
         try {
           localStorage.removeItem("sti-admin-gold");
           localStorage.removeItem("sti-session-cache");

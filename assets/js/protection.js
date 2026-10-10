@@ -19,25 +19,40 @@
   /* 1) Détecte si l'utilisateur connecté est strictement l'Administrateur (aymenessouyah@gmail.com) */
   function estAdminStrict() {
     try {
-      if (localStorage.getItem("sti-admin-gold") === "1") return true;
-      var cSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-      if (cSess && cSess.isAdmin === true) {
-        localStorage.setItem("sti-admin-gold", "1");
-        return true;
-      }
       var adminEmail = (
         (window.STI_AUTH && window.STI_AUTH.ADMIN) ||
         "aymenessouyah@gmail.com"
-      ).toLowerCase();
+      ).trim().toLowerCase();
+      var tokenAdmin = false;
+      var tokenNonAdmin = false;
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i) || "";
-        if (k.indexOf("sb-") === 0 || k === "sti-cred") {
+        if (k.indexOf("sb-") === 0 && k.indexOf("-auth-token") !== -1) {
           var v = (localStorage.getItem(k) || "").toLowerCase();
-          if (v.indexOf(adminEmail) !== -1) {
-            localStorage.setItem("sti-admin-gold", "1");
-            localStorage.setItem("sti-gold", "1");
-            return true;
+          if (v && v !== "null") {
+            if (v.indexOf(adminEmail) !== -1) {
+              tokenAdmin = true;
+              break;
+            } else if (v.indexOf("@") !== -1 || v.indexOf("access_token") !== -1) {
+              tokenNonAdmin = true;
+            }
           }
+        }
+      }
+      if (tokenNonAdmin) {
+        localStorage.removeItem("sti-admin-gold");
+        return false;
+      }
+      if (tokenAdmin) {
+        localStorage.setItem("sti-admin-gold", "1");
+        localStorage.setItem("sti-gold", "1");
+        return true;
+      }
+      if (!navigator.onLine) {
+        var cSess = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+        if (cSess && cSess.isAdmin === true && String(cSess.email || "").trim().toLowerCase() === adminEmail) {
+          localStorage.setItem("sti-admin-gold", "1");
+          return true;
         }
       }
     } catch (e) {}

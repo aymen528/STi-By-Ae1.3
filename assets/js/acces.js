@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=78";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=79";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-78") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-78", "1");
+          if (sessionStorage.getItem("sti-sw-reload-79") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-79", "1");
         } catch (e) {}
         location.reload();
       });
@@ -678,6 +678,7 @@
   });
 
   var sessionInitialisee = false;
+  var ADMIN_MAIL_STRICT = ((cfg && cfg.ADMIN) || "aymenessouyah@gmail.com").trim().toLowerCase();
   function lireCacheSessionLocal() {
     try {
       var perm = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
@@ -686,6 +687,8 @@
         perm.gold = true;
         perm.statut = "actif";
         perm.permanent = true;
+        perm.isAdmin = false;
+        try { localStorage.removeItem("sti-admin-gold"); } catch (e) {}
         return perm;
       }
       var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
@@ -694,7 +697,11 @@
         c.gold = true;
         c.statut = "actif";
         c.permanent = true;
-        try { localStorage.setItem("sti-labo3-permanent", JSON.stringify(c)); } catch (e) {}
+        c.isAdmin = false;
+        try {
+          localStorage.removeItem("sti-admin-gold");
+          localStorage.setItem("sti-labo3-permanent", JSON.stringify(c));
+        } catch (e) {}
         return c;
       }
       return c;
@@ -710,13 +717,15 @@
       sessionInitialisee = true;
       if (estLaboPerm) {
         try {
+          cache.isAdmin = false;
+          localStorage.removeItem("sti-admin-gold");
           localStorage.setItem("sti-gold", "1");
           localStorage.setItem("sti-offline", String(Date.now()));
           localStorage.setItem("sti-session-cache", JSON.stringify(cache));
           localStorage.setItem("sti-labo3-permanent", JSON.stringify(cache));
         } catch (e) {}
       }
-      if (cache && cache.isAdmin) {
+      if (cache && cache.isAdmin === true && !estLaboPerm && String(cache.email || "").trim().toLowerCase() === ADMIN_MAIL_STRICT) {
         currentUid = cache.id || "admin";
         appliquerModeGold(true);
         appliquerVerrou4SI("Admin", true);
@@ -724,6 +733,11 @@
         if (navigator.onLine) synchroniserFileHorsLigne(false);
         return true;
       }
+      try {
+        localStorage.removeItem("sti-admin-gold");
+        var bAncien = document.getElementById("sti-badge-admin-flottant");
+        if (bAncien) bAncien.remove();
+      } catch (e) {}
       var fakeUser = {
         id: (cache && cache.id) || "offline-user",
         email: (cache && cache.email) || (estLaboPerm ? "Poste Labo 3" : "Abonné hors-ligne"),
@@ -770,8 +784,9 @@
     var user = session.user;
     currentUid = user.id;
     synchroniserFileHorsLigne();
-    if ((user.email || "").toLowerCase() === (cfg.ADMIN || "").toLowerCase()) {
+    if ((user.email || "").trim().toLowerCase() === ADMIN_MAIL_STRICT) {
       try {
+        localStorage.removeItem("sti-labo3-permanent");
         localStorage.setItem("sti-admin-gold", "1");
         localStorage.setItem("sti-offline", String(Date.now()));
         localStorage.setItem("sti-session-cache", JSON.stringify({
@@ -789,6 +804,13 @@
       journal(user.id);
       return;
     }
+
+    /* Compte non-admin (ex: elevelabo3@exemple.tn) : supprimer immédiatement tout badge ou indicateur admin */
+    try {
+      localStorage.removeItem("sti-admin-gold");
+      var exBadgeAdm = document.getElementById("sti-badge-admin-flottant");
+      if (exBadgeAdm) exBadgeAdm.remove();
+    } catch (e) {}
 
     function appliquerStatut(rp) {
       if (!rp || rp.error) return true;
@@ -2631,7 +2653,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v78)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v79)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */
