@@ -1407,6 +1407,7 @@
           barreAct.appendChild(b);
         }
         btnNd("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche bilan complète de l'élève");
+        btnNd("📩", function () { ouvrirMessageCandidat(p, ""); }, "", "Envoyer un message personnel à ce candidat");
         if (p.statut !== "actif") {
           btnNd("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         }
@@ -1601,6 +1602,7 @@
           tdAct.appendChild(b);
         }
         bouton("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche récapitulative complète de l'élève");
+        bouton("📩", function () { ouvrirMessageCandidat(p, ""); }, "", "Envoyer un message personnel ou répondre à ce candidat");
         bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         bouton(
           "👑",
@@ -1800,13 +1802,14 @@
   function collecterMessagesEleve(uid) {
     var res = [];
     messagesDiffuses.forEach(function (m) {
+      var estPerso = (m.uid && m.uid === uid) || m.classe === ("UID:" + uid);
       var luTs = lecturesParMsg[m.id] && lecturesParMsg[m.id][uid];
       var rep = reponsesParMsg[m.id] && reponsesParMsg[m.id][uid];
-      if (luTs || rep) {
+      if (estPerso || luTs || rep) {
         res.push({
-          type: "Message diffusé",
+          type: estPerso ? (m.enReponseA ? "↩️ Réponse du prof" : "📩 Message perso") : "📢 Message diffusé",
           sujet: (m.texte || "").slice(0, 70),
-          reponse: rep || "✓ Lu sans réponse écrite",
+          reponse: rep || (luTs ? "✓ Lu" : "⏳ En attente de lecture"),
           ts: luTs || m.ts
         });
       }
@@ -1814,7 +1817,7 @@
     questionsLibres.forEach(function (ql) {
       if (ql.uid === uid) {
         res.push({
-          type: "Question spontanée",
+          type: "💬 Question spontanée",
           sujet: "Message envoyé au professeur",
           reponse: ql.reponse || "—",
           ts: ql.ts
@@ -1932,6 +1935,15 @@
   if (modalFicheEleve) {
     modalFicheEleve.addEventListener("click", function (e) {
       if (e.target === modalFicheEleve) fermerFicheEleve();
+    });
+  }
+  var btnMsgDepuisFiche = document.getElementById("btn-msg-depuis-fiche");
+  if (btnMsgDepuisFiche) {
+    btnMsgDepuisFiche.addEventListener("click", function () {
+      if (!eleveFicheActif) return;
+      var pCible = eleveFicheActif;
+      fermerFicheEleve();
+      ouvrirMessageCandidat(pCible, "");
     });
   }
   if (btnModifierDepuisFiche) {
@@ -2448,6 +2460,27 @@
     });
   }
 
+  function libelleCibleMessage(m) {
+    if (!m) return "Message";
+    var uidPerso = m.uid || (String(m.classe || "").indexOf("UID:") === 0 ? String(m.classe).slice(4) : "");
+    if (uidPerso) {
+      var pTrouve = null;
+      profils.forEach(function (p) { if (p.id === uidPerso) pTrouve = p; });
+      var nomC = pTrouve ? contact(pTrouve) : (m.cibleNom || uidPerso.slice(0, 8));
+      return (m.enReponseA ? "↩️ Réponse → " : "📩 Perso → ") + nomC;
+    }
+    return m.classe === "*" ? "Toutes les classes" : m.classe;
+  }
+
+  function abonnesCiblesPourMsg(m) {
+    if (!m) return [];
+    var uidPerso = m.uid || (String(m.classe || "").indexOf("UID:") === 0 ? String(m.classe).slice(4) : "");
+    if (uidPerso) {
+      return profils.filter(function (p) { return p.id === uidPerso; });
+    }
+    return abonnesDeClasse(m.classe);
+  }
+
   function rendSuiviMessages() {
     if (!selSuiviMsg) return;
     var valPrec = selSuiviMsg.value;
@@ -2456,7 +2489,7 @@
     messagesDiffuses.forEach(function (m) {
       var opt = document.createElement("option");
       opt.value = m.id;
-      var libCl = m.classe === "*" ? "Toutes les classes" : m.classe;
+      var libCl = libelleCibleMessage(m);
       var court = (m.texte || "").replace(/\s+/g, " ").slice(0, 42);
       opt.textContent = "[" + libCl + " · " + fmtDate(m.ts) + "] " + court + ((m.texte || "").length > 42 ? "…" : "");
       selSuiviMsg.appendChild(opt);
@@ -2488,14 +2521,14 @@
       if (resEl) resEl.textContent = "(" + questionsLibres.length + " question(s) reçue(s))";
       if (apEl) {
         apEl.style.display = "block";
-        apEl.textContent = "💬 Questions envoyées par les élèves depuis le bouton « 💬 Écrire au professeur »";
+        apEl.textContent = "💬 Questions envoyées par les élèves depuis le bouton « 💬 Écrire au professeur » — cliquez sur « ↩️ Répondre » pour répondre directement au candidat.";
       }
       var mapP = {};
       profils.forEach(function (p) { mapP[p.id] = p; });
       if (!questionsLibres.length) {
         var trQ0 = document.createElement("tr");
         var tdQ0 = document.createElement("td");
-        tdQ0.colSpan = 5;
+        tdQ0.colSpan = 6;
         tdQ0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
         tdQ0.textContent = "Aucune question spontanée reçue pour le moment.";
         trQ0.appendChild(tdQ0);
@@ -2509,10 +2542,48 @@
         var tdNom = document.createElement("td"); tdNom.style.fontWeight = "700"; tdNom.textContent = p ? contact(p) : q.uid;
         var tdCl = document.createElement("td"); tdCl.style.color = "#7a6f5d"; tdCl.textContent = p ? (lyceePropre(p) + " · " + (p.classe || "—")) : "—";
         var tdEt = document.createElement("td");
-        var b = document.createElement("span"); b.className = "st actif"; b.textContent = "💬 Question"; tdEt.appendChild(b);
-        var tdRep = document.createElement("td"); tdRep.style.fontWeight = "800"; tdRep.style.color = "#23201a"; tdRep.textContent = q.reponse || "—";
+        var repDeja = null;
+        messagesDiffuses.forEach(function (m) {
+          var uidM = m.uid || (String(m.classe || "").indexOf("UID:") === 0 ? String(m.classe).slice(4) : "");
+          if (uidM === q.uid && m.enReponseA && m.enReponseA === q.reponse && !repDeja) {
+            repDeja = m;
+          }
+        });
+        var b = document.createElement("span");
+        b.className = "st " + (repDeja ? "actif" : "en_attente");
+        b.textContent = repDeja ? "✅ Répondu" : "💬 Question";
+        tdEt.appendChild(b);
+
+        var tdRep = document.createElement("td");
+        tdRep.style.fontWeight = "800";
+        tdRep.style.color = "#23201a";
+        var divQ = document.createElement("div");
+        divQ.textContent = q.reponse || "—";
+        tdRep.appendChild(divQ);
+        if (repDeja) {
+          var divR = document.createElement("div");
+          divR.style.cssText = "font-size:11.5px;color:#177245;font-weight:800;margin-top:4px;background:#e3f6e8;padding:4px 8px;border-radius:7px;border-left:3px solid #177245;";
+          divR.textContent = "↩️ Votre réponse : « " + repDeja.texte + " »";
+          tdRep.appendChild(divR);
+        }
+
         var tdDt = document.createElement("td"); tdDt.textContent = fmtDate(q.ts);
-        tr.append(tdNom, tdCl, tdEt, tdRep, tdDt);
+        var tdActQ = document.createElement("td");
+        if (p) {
+          var btnRepQ = document.createElement("button");
+          btnRepQ.type = "button";
+          btnRepQ.className = "act";
+          btnRepQ.style.cssText = "background:#fff3e0;color:#d84315;border-color:#d84315;font-weight:900;";
+          btnRepQ.textContent = "↩️ Répondre";
+          btnRepQ.title = "Répondre directement à la question de cet élève";
+          btnRepQ.addEventListener("click", function () {
+            ouvrirMessageCandidat(p, q.reponse || "");
+          });
+          tdActQ.appendChild(btnRepQ);
+        } else {
+          tdActQ.textContent = "—";
+        }
+        tr.append(tdNom, tdCl, tdEt, tdRep, tdDt, tdActQ);
         tb.appendChild(tr);
       });
       if (wrapVoirPlusSuivi && btnVoirPlusSuivi && questionsLibres.length > 5) {
@@ -2531,9 +2602,9 @@
       if (apEl) apEl.style.display = "none";
       var tr0 = document.createElement("tr");
       var td0 = document.createElement("td");
-      td0.colSpan = 5;
+      td0.colSpan = 6;
       td0.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
-      td0.textContent = "Diffusez un message via « 📢 Message par classe » pour suivre ici qui l'a lu ou y a répondu.";
+      td0.textContent = "Diffusez un message via « 📢 Message par classe » ou « 📩 » sur un élève pour suivre ici qui l'a lu ou y a répondu.";
       tr0.appendChild(td0);
       tb.appendChild(tr0);
       return;
@@ -2541,10 +2612,10 @@
 
     if (apEl) {
       apEl.style.display = "block";
-      apEl.textContent = "💬 Message : « " + msgObj.texte + " »";
+      apEl.textContent = (msgObj.enReponseA ? ("↩️ En réponse à « " + msgObj.enReponseA + " » → ") : "💬 Message : ") + "« " + msgObj.texte + " »";
     }
 
-    var cibles = abonnesDeClasse(msgObj.classe);
+    var cibles = abonnesCiblesPourMsg(msgObj);
     var mapLu = lecturesParMsg[msgObj.id] || {};
     var mapRep = reponsesParMsg[msgObj.id] || {};
     var nbLu = 0, nbNonLu = 0;
@@ -2552,9 +2623,9 @@
     if (!cibles.length) {
       var trV = document.createElement("tr");
       var tdV = document.createElement("td");
-      tdV.colSpan = 5;
+      tdV.colSpan = 6;
       tdV.style.cssText = "text-align:center;color:#7a6f5d;padding:16px;";
-      tdV.textContent = "Aucun abonné inscrit dans cette classe.";
+      tdV.textContent = "Aucun abonné correspondant à ce message.";
       trV.appendChild(tdV);
       tb.appendChild(trV);
     }
@@ -2593,7 +2664,24 @@
       tdDate.style.color = dateLu ? "#177245" : "#b47d09";
       tdDate.style.fontWeight = "700";
 
-      tr.append(tdNom, tdCl, tdEtat, tdRep, tdDate);
+      var tdActM = document.createElement("td");
+      var btnRepM = document.createElement("button");
+      btnRepM.type = "button";
+      btnRepM.className = "act";
+      if (repEleve) {
+        btnRepM.style.cssText = "background:#fff3e0;color:#d84315;border-color:#d84315;font-weight:900;";
+        btnRepM.textContent = "↩️ Répondre";
+        btnRepM.title = "Répondre directement au message de cet élève";
+      } else {
+        btnRepM.textContent = "📩 Message";
+        btnRepM.title = "Envoyer un message personnel à cet élève";
+      }
+      btnRepM.addEventListener("click", function () {
+        ouvrirMessageCandidat(p, repEleve || "");
+      });
+      tdActM.appendChild(btnRepM);
+
+      tr.append(tdNom, tdCl, tdEtat, tdRep, tdDate, tdActM);
       tb.appendChild(tr);
     });
 
@@ -3227,27 +3315,124 @@
     msg("⏹️ Contrôle chronométré arrêté sur les écrans des élèves.", "ok");
   });
 
-  /* ---------- Boîte modale : message groupé à toute une classe ---------- */
+  /* ---------- Boîte modale : message groupé à toute une classe OU message/réponse à un candidat précis ---------- */
   var modalClasse = document.getElementById("modal-classe");
   var selClasse = document.getElementById("msg-classe");
+  var selCibleUid = document.getElementById("msg-cible-uid");
+  var zoneCitationRep = document.getElementById("zone-citation-rep");
+  var titreModalMsg = document.getElementById("titre-modal-msg");
   var txtClasse = document.getElementById("msg-texte");
   var zoneWaClasse = document.getElementById("zone-wa-classe");
   var listeWaClasse = document.getElementById("liste-wa-classe");
+  var citationEnCours = "";
 
   function abonnesDeClasse(cl) {
     if (!cl || cl === "*") return profils.slice();
     return profils.filter(function (p) { return (p.classe || "—") === cl; });
   }
 
-  function remplirClasses() {
+  function abonnesCiblesModal() {
+    var uidSel = selCibleUid ? selCibleUid.value : "";
+    if (uidSel) {
+      return profils.filter(function (p) { return p.id === uidSel; });
+    }
+    return abonnesDeClasse(selClasse ? selClasse.value : "*");
+  }
+
+  function remplirCandidatsDeClasse(uidPref) {
+    if (!selCibleUid) return;
+    var valCible = uidPref !== undefined ? uidPref : (selCibleUid.value || "");
+    var liste = abonnesDeClasse(selClasse ? selClasse.value : "*");
+    selCibleUid.innerHTML = "";
+    var optTous = document.createElement("option");
+    optTous.value = "";
+    optTous.textContent = "👥 Toute la classe sélectionnée (" + liste.length + " élève(s))";
+    selCibleUid.appendChild(optTous);
+
+    liste.forEach(function (p) {
+      var opt = document.createElement("option");
+      opt.value = p.id;
+      var stOn = estEnLigne(p.id) ? "🟢 En ligne" : "⚪ Hors ligne";
+      opt.textContent = "👤 " + contact(p) + " — " + (p.classe || "—") + " (" + stOn + ")";
+      selCibleUid.appendChild(opt);
+    });
+
+    if (valCible && liste.some(function (p) { return p.id === valCible; })) {
+      selCibleUid.value = valCible;
+    } else {
+      selCibleUid.value = "";
+    }
+  }
+
+  function majEnteteEtCitationModal() {
+    var uidSel = selCibleUid ? selCibleUid.value : "";
+    var pCible = null;
+    if (uidSel) {
+      profils.forEach(function (p) { if (p.id === uidSel) pCible = p; });
+    }
+    if (titreModalMsg) {
+      if (pCible) {
+        titreModalMsg.textContent = citationEnCours
+          ? ("↩️ Répondre à " + contact(pCible))
+          : ("📩 Message personnel à " + contact(pCible));
+      } else {
+        titreModalMsg.textContent = "📢 Message à une classe ou à un candidat";
+      }
+    }
+    if (zoneCitationRep) {
+      if (pCible && citationEnCours) {
+        zoneCitationRep.style.display = "block";
+        zoneCitationRep.textContent = "💬 En réponse à « " + citationEnCours + " »";
+      } else {
+        zoneCitationRep.style.display = "none";
+        zoneCitationRep.textContent = "";
+      }
+    }
+  }
+
+  function remplirClasses(uidPref) {
     remplirClassesSelect(selClasse);
-    majResumeClasseModal(selClasse, "resume-msg-classe");
+    remplirCandidatsDeClasse(uidPref || "");
+    majEnteteEtCitationModal();
     majListeWaClasse();
   }
 
+  function ouvrirMessageCandidat(p, texteCitation) {
+    if (!p || !modalClasse) return;
+    citationEnCours = String(texteCitation || "").trim();
+    remplirClassesSelect(selClasse);
+    var clP = p.classe || "*";
+    if (selClasse) {
+      var existeOpt = Array.prototype.some.call(selClasse.options, function (o) { return o.value === clP; });
+      selClasse.value = existeOpt ? clP : "*";
+    }
+    remplirCandidatsDeClasse(p.id);
+    majEnteteEtCitationModal();
+    majListeWaClasse();
+    txtClasse.placeholder = citationEnCours
+      ? ("Écrivez votre réponse à " + contact(p) + "…")
+      : ("Écrivez votre message personnel pour " + contact(p) + "…");
+    modalClasse.classList.add("visible");
+    setTimeout(function () { txtClasse.focus(); }, 30);
+  }
+
   function majListeWaClasse() {
-    majResumeClasseModal(selClasse, "resume-msg-classe");
-    var liste = abonnesDeClasse(selClasse.value);
+    var uidSel = selCibleUid ? selCibleUid.value : "";
+    if (uidSel) {
+      var pSel = null;
+      profils.forEach(function (p) { if (p.id === uidSel) pSel = p; });
+      var resEl = document.getElementById("resume-msg-classe");
+      if (resEl && pSel) {
+        var onL = estEnLigne(pSel.id);
+        resEl.innerHTML =
+          "<span>👤 <strong>" + echHtml(contact(pSel)) + "</strong> (" + echHtml(pSel.classe || "—") + ")</span>" +
+          "<span>" + (onL ? "<strong style='color:#177245'>🟢 En ligne maintenant</strong>" : "⚪ Hors ligne (recevra le message dès connexion)") + "</span>";
+      }
+    } else {
+      majResumeClasseModal(selClasse, "resume-msg-classe");
+    }
+
+    var liste = abonnesCiblesModal();
     var avecTel = liste.filter(function (p) { return Boolean(telDeProfil(p)); });
     listeWaClasse.innerHTML = "";
     if (!avecTel.length) {
@@ -3268,7 +3453,10 @@
         var texte = txtClasse.value.trim();
         if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
         var ch = tel.replace(/\D/g, "");
-        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(texte), "_blank", "noopener");
+        var msgWa = citationEnCours
+          ? ("En réponse à votre message (« " + citationEnCours + " ») :\n" + texte)
+          : texte;
+        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(msgWa), "_blank", "noopener");
         b.textContent = "✅ Ouvert";
         b.classList.add("envoye");
       });
@@ -3278,15 +3466,30 @@
   }
 
   document.getElementById("btn-msg-classe").addEventListener("click", function () {
-    remplirClasses();
+    citationEnCours = "";
+    txtClasse.placeholder = "Ex. : Rappel — devoir de synthèse mardi prochain, révisez le module PHP & MySQLi.";
+    remplirClasses("");
     modalClasse.classList.add("visible");
     setTimeout(function () { txtClasse.focus(); }, 30);
   });
   document.getElementById("btn-fermer-classe").addEventListener("click", function () {
     arreterDictee();
+    citationEnCours = "";
     modalClasse.classList.remove("visible");
   });
-  selClasse.addEventListener("change", majListeWaClasse);
+  selClasse.addEventListener("change", function () {
+    citationEnCours = "";
+    remplirCandidatsDeClasse("");
+    majEnteteEtCitationModal();
+    majListeWaClasse();
+  });
+  if (selCibleUid) {
+    selCibleUid.addEventListener("change", function () {
+      if (!selCibleUid.value) citationEnCours = "";
+      majEnteteEtCitationModal();
+      majListeWaClasse();
+    });
+  }
   document.getElementById("btn-effacer-msg").addEventListener("click", function () {
     arreterDictee();
     txtClasse.value = "";
@@ -3385,34 +3588,49 @@
   document.getElementById("btn-mail-classe").addEventListener("click", function () {
     var texte = txtClasse.value.trim();
     if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
+    var cibles = abonnesCiblesModal();
+    var uidSel = selCibleUid ? selCibleUid.value : "";
     var cl = selClasse.value;
-    var libCl = cl === "*" ? "Toutes les classes" : cl;
-    var mails = abonnesDeClasse(cl)
+    var libCl = uidSel && cibles[0] ? contact(cibles[0]) : (cl === "*" ? "Toutes les classes" : cl);
+    var mails = cibles
       .map(function (p) { return p.email || ""; })
       .filter(function (em) { return em && !/@tel\.sti\.tn$/i.test(em); });
     if (!mails.length) {
-      msg("⚠️ Aucun abonné avec adresse e-mail dans « " + libCl + " ».", "err");
+      msg("⚠️ Aucune adresse e-mail disponible pour « " + libCl + " ».", "err");
       return;
     }
-    var sujet = "[STI V2.0 — " + libCl + "] Message de M. Essouyah";
-    location.href = "mailto:?bcc=" + encodeURIComponent(mails.join(",")) +
-      "&subject=" + encodeURIComponent(sujet) +
-      "&body=" + encodeURIComponent(texte);
-    msg("📧 Messagerie ouverte pour " + mails.length + " élève(s) de « " + libCl + " ».", "ok");
+    var sujet = citationEnCours
+      ? "[STI V2.0] Réponse de M. Essouyah à votre message"
+      : ("[STI V2.0 — " + libCl + "] Message de M. Essouyah");
+    var corpsMail = citationEnCours
+      ? ("En réponse à votre message (« " + citationEnCours + " ») :\n\n" + texte)
+      : texte;
+    location.href = (mails.length === 1 ? ("mailto:" + encodeURIComponent(mails[0]) + "?") : ("mailto:?bcc=" + encodeURIComponent(mails.join(",")) + "&")) +
+      "subject=" + encodeURIComponent(sujet) +
+      "&body=" + encodeURIComponent(corpsMail);
+    msg("📧 Messagerie ouverte pour " + libCl + ".", "ok");
   });
 
   document.getElementById("btn-diffuser-classe").addEventListener("click", function () {
     var texte = txtClasse.value.trim();
-    if (!texte) { msg("❌ Saisissez d'abord le message à diffuser.", "err"); txtClasse.focus(); return; }
-    var cl = selClasse.value;
-    var libCl = cl === "*" ? "Toutes les classes" : cl;
+    if (!texte) { msg("❌ Saisissez d'abord le message à envoyer.", "err"); txtClasse.focus(); return; }
+    var uidSel = selCibleUid ? selCibleUid.value : "";
+    var pCible = null;
+    if (uidSel) {
+      profils.forEach(function (p) { if (p.id === uidSel) pCible = p; });
+    }
+    var cl = uidSel ? ("UID:" + uidSel) : selClasse.value;
+    var libCl = pCible ? contact(pCible) : (selClasse.value === "*" ? "Toutes les classes" : selClasse.value);
     var btn = document.getElementById("btn-diffuser-classe");
     btn.disabled = true;
-    btn.textContent = "⏳ Diffusion…";
+    btn.textContent = "⏳ Envoi…";
     var payload = {
       id: "m" + Date.now(),
       ts: new Date().toISOString(),
       classe: cl,
+      uid: uidSel || undefined,
+      cibleNom: pCible ? contact(pCible) : undefined,
+      enReponseA: citationEnCours || undefined,
       texte: texte
     };
     arreterDictee();
@@ -3429,12 +3647,14 @@
 
     Promise.all([pDb, pNtfy]).then(function () {
       btn.disabled = false;
-      btn.textContent = "🔔 Diffuser sur le site";
+      btn.textContent = "🔔 Envoyer sur le site";
+      var etaitReponse = Boolean(citationEnCours);
       modalClasse.classList.remove("visible");
       txtClasse.value = "";
       texteBase = "";
-      if (selSuiviMsg) selSuiviMsg.value = "";
-      msg("📢 Message diffusé pour « " + libCl + " » — suivi de lecture mis à jour ci-dessous.", "ok");
+      citationEnCours = "";
+      if (selSuiviMsg && !etaitReponse) selSuiviMsg.value = "";
+      msg((uidSel ? (etaitReponse ? "↩️ Réponse envoyée à « " : "📩 Message personnel envoyé à « ") : "📢 Message diffusé pour « ") + libCl + " ».", "ok");
       charge(true);
     });
   });

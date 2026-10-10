@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=75";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=76";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-75") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-75", "1");
+          if (sessionStorage.getItem("sti-sw-reload-76") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-76", "1");
         } catch (e) {}
         location.reload();
       });
@@ -1360,19 +1360,33 @@
       else if (typeof ev.gold === "boolean") appliquerModeGold(ev.gold);
     }
 
+    function estAnnoncePourMoi(a) {
+      if (!a || !a.id || !a.texte || a.type) return false;
+      var cl = String(a.classe || "");
+      if (a.uid) return a.uid === uid;
+      if (cl.indexOf("UID:") === 0) return cl.slice(4) === uid;
+      return cl === "*" || cl === maClasse;
+    }
+
     function afficherAnnonce(a) {
-      if (!a || !a.id || !a.texte) return;
-      if (a.classe !== "*" && a.classe !== maClasse) return;
+      if (!estAnnoncePourMoi(a)) return;
       try { if (localStorage.getItem("sti-msg-lu-" + a.id) === "1") return; } catch (e) {}
       if (document.getElementById("sti-annonce-" + a.id)) return;
 
+      var estPerso = Boolean(a.uid) || String(a.classe || "").indexOf("UID:") === 0;
       var boite = document.createElement("div");
       boite.id = "sti-annonce-" + a.id;
-      boite.style.cssText = "position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;max-width:440px;width:calc(100vw - 28px);background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e,0 16px 36px rgba(0,0,0,.22);font:600 13.5px/1.5 system-ui,'Segoe UI',sans-serif;";
-      var libCl = a.classe === "*" ? "Toutes les classes" : a.classe;
+      boite.style.cssText = "position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;max-width:450px;width:calc(100vw - 28px);background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e,0 16px 36px rgba(0,0,0,.22);font:600 13.5px/1.5 system-ui,'Segoe UI',sans-serif;";
+      var enteteTxt = estPerso
+        ? (a.enReponseA ? "↩️ Réponse de M. Essouyah à votre message" : "📩 Message personnel de M. Essouyah")
+        : ("📢 Message de M. Essouyah · " + (a.classe === "*" ? "Toutes les classes" : a.classe));
+      var htmlCit = a.enReponseA
+        ? ("<div style='background:#f3ead9;border-left:3.5px solid #f4511e;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#5a5244'>💬 Votre message : « " + esc(a.enReponseA) + " »</div>")
+        : "";
       boite.innerHTML =
-        "<div style='font-weight:900;font-size:15px;color:#f4511e;margin-bottom:6px'>📢 Message de M. Essouyah · " + esc(libCl) + "</div>" +
-        "<div style='white-space:pre-wrap;color:#23201a;margin-bottom:10px'>" + esc(a.texte) + "</div>" +
+        "<div style='font-weight:900;font-size:15px;color:#f4511e;margin-bottom:6px'>" + esc(enteteTxt) + "</div>" +
+        htmlCit +
+        "<div style='white-space:pre-wrap;color:#23201a;margin-bottom:10px;font-weight:700'>" + esc(a.texte) + "</div>" +
         "<input type='text' id='sti-rep-" + a.id + "' placeholder='💬 Votre réponse au professeur (facultatif)…' style='width:100%;border:1.5px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;margin-bottom:10px;background:#fff;color:#23201a' />" +
         "<div style='text-align:right'><button type='button' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 18px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ J'ai lu / Répondre</button></div>";
       boite.querySelector("button").addEventListener("click", function () {
@@ -1427,7 +1441,7 @@
                   traiterSignalStatut(a);
                 } else if (a && a.type === "controle") {
                   dernierCtrl = a;
-                } else if (a && a.id && a.texte && !a.type && (a.classe === "*" || a.classe === maClasse)) {
+                } else if (estAnnoncePourMoi(a)) {
                   derniereAnnonce = a;
                 }
               }
@@ -2140,7 +2154,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v75)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v76)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */
