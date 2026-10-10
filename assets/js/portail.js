@@ -18,13 +18,15 @@
       var permLabo = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
       var sessLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
       var clVerif = String((permLabo && permLabo.classe) || (sessLoc && sessLoc.classe) || "").trim().toLowerCase().replace(/[\s._\-]+/g, "");
-      if (clVerif === "elevelabo3" && hInit !== "admin" && hInit !== "attente") {
+      var emVerif = String((permLabo && permLabo.email) || (sessLoc && sessLoc.email) || "").trim().toLowerCase();
+      if ((clVerif === "elevelabo3" || /^elevelabo3(?:@|$)/i.test(emVerif)) && hInit !== "admin" && hInit !== "attente") {
         var objPerm = permLabo || sessLoc;
         objPerm.ts = Date.now();
         objPerm.gold = true;
         objPerm.statut = "actif";
         objPerm.permanent = true;
         objPerm.isAdmin = false;
+        if (!objPerm.classe) objPerm.classe = "elevelabo3";
         localStorage.removeItem("sti-admin-gold");
         localStorage.setItem("sti-gold", "1");
         localStorage.setItem("sti-offline", String(Date.now()));
@@ -363,11 +365,13 @@
     });
   }
 
-  function estClasseProfLabo(classe) {
+  function estClasseProfLabo(classe, email) {
     var c = String(classe || "").trim().toLowerCase();
     try { c = c.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
     c = c.replace(/[\s._\-]+/g, "");
-    return c === "elevelabo3";
+    if (c === "elevelabo3") return true;
+    var em = String(email || "").trim().toLowerCase();
+    return /^elevelabo3(?:@|$)/i.test(em);
   }
 
   function verifierStatutEtEntrer(user) {
@@ -383,8 +387,8 @@
         msg("❌ Hors-ligne : impossible de vérifier la validation de votre compte.", "err");
         return;
       }
-      var st = rp.data && rp.data.statut;
-      var isLabo = estClasseProfLabo(rp.data && rp.data.classe);
+      var isLabo = estClasseProfLabo(rp.data && rp.data.classe, user && user.email);
+      var st = (rp.data && rp.data.statut) || (isLabo ? "actif" : "");
       var isG = Boolean(isLabo || (rp.data && /\|\s*GOLD$/i.test(rp.data.lycee || "")));
       try {
         localStorage.removeItem("sti-admin-gold");
@@ -397,8 +401,8 @@
             id: user.id,
             email: user.email,
             user_metadata: user.user_metadata || {},
-            lycee: rp.data.lycee || "—",
-            classe: rp.data.classe || "—",
+            lycee: (rp.data && rp.data.lycee) || "—",
+            classe: (rp.data && rp.data.classe) || (isLabo ? "elevelabo3" : "—"),
             statut: "actif",
             gold: isG,
             permanent: isLabo,

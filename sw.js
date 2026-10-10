@@ -3,7 +3,7 @@
    - Pré-chargement automatique en arrière-plan des 426 fichiers du site
    - Réponse 0 ms hors-ligne et secours rapide (2,2 s) sur PC Windows même si une carte réseau virtuelle garde navigator.onLine = true */
 
-var CACHE = "sti-atelier-v88";
+var CACHE = "sti-atelier-v89";
 var SHELL = [
   "./",
   "./index.html",
@@ -585,7 +585,12 @@ async function chercherDansCache(req, url) {
   var m = await caches.match(req, { ignoreSearch: true });
   if (m) return m;
   if (url.origin === self.location.origin) {
-    if (url.pathname.slice(-1) === "/" || /\/index\.html$/i.test(url.pathname)) {
+    if (url.pathname.slice(-1) === "/") {
+      var mSubIdx = await caches.match(url.origin + url.pathname + "index.html", { ignoreSearch: true });
+      if (mSubIdx) return mSubIdx;
+    }
+    var scopePath = new URL("./", self.location.href).pathname;
+    if (url.pathname === scopePath || url.pathname === scopePath + "index.html") {
       var mIdx = await caches.match("./index.html", { ignoreSearch: true });
       if (mIdx) return mIdx;
       var mRoot = await caches.match("./", { ignoreSearch: true });
@@ -644,8 +649,11 @@ self.addEventListener("fetch", function (evt) {
                 urlNue.search = "";
                 c.put(urlNue.toString(), copieNue);
               }
-              if (url.pathname.slice(-1) === "/" || /\/STiV2\.0\/index\.html$/i.test(url.pathname)) {
+              var scopePath = new URL("./", self.location.href).pathname;
+              if (url.pathname === scopePath || url.pathname === scopePath + "index.html") {
                 c.put("./index.html", rep.clone());
+              } else if (url.pathname.slice(-1) === "/") {
+                c.put(url.origin + url.pathname + "index.html", rep.clone());
               }
             });
           }

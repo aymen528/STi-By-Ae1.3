@@ -4,7 +4,12 @@
   "use strict";
   var cfg = window.STI_AUTH;
   if (!cfg || cfg.URL.indexOf("https://") !== 0) return;
-  var chemin = location.pathname.split("/").pop() || "index.html";
+  var chemin = (function () {
+    var p = location.pathname || "";
+    var mSub = p.match(/\/(cssanimee|Positionnement-animee|projets\/[^/]+)\/(?:index\.html)?$/i);
+    if (mSub) return mSub[1] + "/index.html";
+    return p.split("/").pop() || "index.html";
+  })();
   if (chemin === "portail.html" || chemin === "admin.html") return;
 
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
@@ -25,11 +30,27 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=81";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=89";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
     } catch (e) {}
+  })();
+
+  /* S'assurer que le bouton « ⬅ Retour au cours » dans les leçons CSS pas à pas pointe toujours vers la racine exacte */
+  (function reparerLienRetourCours() {
+    function maj() {
+      try {
+        var btnRet = document.getElementById("retour-cours");
+        if (btnRet && cfg && cfg.RACINE && cfg.RACINE.indexOf("http") === 0) {
+          btnRet.href = cfg.RACINE + "cours/css3.html#css-pas-a-pas";
+        }
+      } catch (e) {}
+    }
+    maj();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", maj);
+    }
   })();
 
   /* Enregistrement du Service Worker et pré-chargement automatique en arrière-plan pour le mode 100 % Hors-ligne (PC Windows & Mobile) */
@@ -56,16 +77,18 @@
     }
   } catch (e) {}
 
-  function estClasseProfLabo(classe) {
+  function estClasseProfLabo(classe, email) {
     var c = String(classe || "").trim().toLowerCase();
     try { c = c.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
     c = c.replace(/[\s._\-]+/g, "");
-    return c === "elevelabo3";
+    if (c === "elevelabo3") return true;
+    var em = String(email || "").trim().toLowerCase();
+    return /^elevelabo3(?:@|$)/i.test(em);
   }
 
   function estGoldProfil(p) {
     if (!p) return false;
-    if (estClasseProfLabo(p.classe)) return true;
+    if (estClasseProfLabo(p.classe, p.email)) return true;
     return Boolean(p.gold === true || /\|\s*GOLD$/i.test(p.lycee || ""));
   }
   function lyceePropre(p) {
@@ -233,8 +256,9 @@
   try {
     var permInit = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
     var cacheInit = permInit || JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-    var admInit = localStorage.getItem("sti-admin-gold") === "1" || Boolean(cacheInit && (cacheInit.isAdmin || estClasseProfLabo(cacheInit.classe)));
-    appliquerVerrou4SI((cacheInit && cacheInit.classe) || "", admInit);
+    var isLaboInit = Boolean(cacheInit && estClasseProfLabo(cacheInit.classe, cacheInit.email));
+    var admInit = !isLaboInit && (localStorage.getItem("sti-admin-gold") === "1" || Boolean(cacheInit && cacheInit.isAdmin));
+    appliquerVerrou4SI(isLaboInit ? "elevelabo3" : ((cacheInit && cacheInit.classe) || ""), admInit);
   } catch (e) {
     appliquerVerrou4SI("", false);
   }
@@ -693,26 +717,29 @@
   });
 
   var sessionInitialisee = false;
+  var dejaRestaureLocal = false;
   var ADMIN_MAIL_STRICT = ((cfg && cfg.ADMIN) || "aymenessouyah@gmail.com").trim().toLowerCase();
   function lireCacheSessionLocal() {
     try {
       var perm = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
-      if (perm && estClasseProfLabo(perm.classe)) {
+      if (perm && estClasseProfLabo(perm.classe, perm.email)) {
         perm.ts = Date.now();
         perm.gold = true;
         perm.statut = "actif";
         perm.permanent = true;
         perm.isAdmin = false;
+        if (!perm.classe) perm.classe = "elevelabo3";
         try { localStorage.removeItem("sti-admin-gold"); } catch (e) {}
         return perm;
       }
       var c = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-      if (c && estClasseProfLabo(c.classe)) {
+      if (c && estClasseProfLabo(c.classe, c.email)) {
         c.ts = Date.now();
         c.gold = true;
         c.statut = "actif";
         c.permanent = true;
         c.isAdmin = false;
+        if (!c.classe) c.classe = "elevelabo3";
         try {
           localStorage.removeItem("sti-admin-gold");
           localStorage.setItem("sti-labo3-permanent", JSON.stringify(c));
@@ -725,7 +752,7 @@
 
   function restaurerDepuisCacheLocal() {
     var cache = lireCacheSessionLocal();
-    var estLaboPerm = Boolean(cache && (cache.permanent || estClasseProfLabo(cache.classe)));
+    var estLaboPerm = Boolean(cache && (cache.permanent || estClasseProfLabo(cache.classe, cache.email)));
     var tOff = parseInt(localStorage.getItem("sti-offline") || "0", 10);
     var tsValide = (cache && cache.ts) || tOff;
     if (estLaboPerm || (tsValide && Date.now() - tsValide < 30 * 86400000)) {
@@ -733,6 +760,7 @@
       if (estLaboPerm) {
         try {
           cache.isAdmin = false;
+          if (!cache.classe) cache.classe = "elevelabo3";
           localStorage.removeItem("sti-admin-gold");
           localStorage.setItem("sti-gold", "1");
           localStorage.setItem("sti-offline", String(Date.now()));
@@ -759,12 +787,15 @@
         user_metadata: (cache && cache.user_metadata) || {}
       };
       currentUid = fakeUser.id;
-      currentClasse = (cache && cache.classe) || "";
+      currentClasse = (cache && cache.classe) || (estLaboPerm ? "elevelabo3" : "");
       appliquerModeGold(Boolean(estLaboPerm || (cache && cache.gold)), cache || {});
-      appliquerVerrou4SI(currentClasse, estLaboPerm);
+      appliquerVerrou4SI(estLaboPerm ? "elevelabo3" : currentClasse, false);
       panneauCompte(fakeUser, cache || {});
-      installerSuiviQuizAuto();
-      journal(fakeUser.id);
+      if (!dejaRestaureLocal) {
+        dejaRestaureLocal = true;
+        installerSuiviQuizAuto();
+        journal(fakeUser.id);
+      }
       if (navigator.onLine) synchroniserFileHorsLigne(true);
       return true;
     }
@@ -774,7 +805,7 @@
   /* Si ce PC du labo possède une session permanente elevelabo3 (ou si hors-ligne), restaurer dès 0 ms sans jamais redemander login/mot de passe */
   (function verifImmediateLabo3OuHorsLigne() {
     var cInit = lireCacheSessionLocal();
-    if (!navigator.onLine || (cInit && (cInit.permanent || estClasseProfLabo(cInit.classe)))) {
+    if (!navigator.onLine || (cInit && (cInit.permanent || estClasseProfLabo(cInit.classe, cInit.email)))) {
       restaurerDepuisCacheLocal();
     }
   })();
@@ -830,24 +861,31 @@
 
     function appliquerStatut(rp) {
       if (!rp || rp.error) return true;
+      var estLaboEmailOuCache = estClasseProfLabo(currentClasse, user.email) || Boolean(localStorage.getItem("sti-labo3-permanent"));
       if (!rp.data) {
+        if (estLaboEmailOuCache) {
+          currentClasse = currentClasse || "elevelabo3";
+          appliquerModeGold(true);
+          appliquerVerrou4SI("elevelabo3", false);
+          return true;
+        }
         sortirImmediatement("#refuse");
         return false;
       }
       var st = rp.data.statut;
       if (st === "actif") {
         currentClasse = rp.data.classe || "";
-        var isLaboP = estClasseProfLabo(currentClasse);
-        var isG = estGoldProfil(rp.data);
+        var isLaboP = estClasseProfLabo(currentClasse, user.email);
+        var isG = Boolean(isLaboP || estGoldProfil(rp.data));
         appliquerModeGold(isG, rp.data);
-        appliquerVerrou4SI(currentClasse, isLaboP);
+        appliquerVerrou4SI(isLaboP ? "elevelabo3" : currentClasse, false);
         try {
           var objSess = {
             id: user.id,
             email: user.email,
             user_metadata: user.user_metadata || {},
             lycee: rp.data.lycee || "—",
-            classe: rp.data.classe || "—",
+            classe: rp.data.classe || (isLaboP ? "elevelabo3" : "—"),
             statut: "actif",
             gold: isG,
             permanent: isLaboP,
@@ -874,14 +912,17 @@
       var cacheFallback = lireCacheSessionLocal() || {};
       var p = (profil && (profil.classe || profil.lycee)) ? profil : cacheFallback;
       currentClasse = (p && p.classe) || "";
-      var isLaboP = estClasseProfLabo(currentClasse);
-      appliquerModeGold(estGoldProfil(p), p);
-      appliquerVerrou4SI(currentClasse, isLaboP);
+      var isLaboP = estClasseProfLabo(currentClasse, user.email);
+      appliquerModeGold(Boolean(isLaboP || estGoldProfil(p)), p);
+      appliquerVerrou4SI(isLaboP ? "elevelabo3" : currentClasse, false);
       var suiteEntree = function () {
         panneauCompte(user, p || {});
         surveillerSessionTempsReel(user.id, appliquerStatut);
-        installerSuiviQuizAuto();
-        journal(user.id);
+        if (!dejaRestaureLocal) {
+          dejaRestaureLocal = true;
+          installerSuiviQuizAuto();
+          journal(user.id);
+        }
       };
       if (isLaboP) suiteEntree();
       else verrouBio(user, suiteEntree);
