@@ -822,7 +822,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v80</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v81</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v66)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -832,6 +832,7 @@
       <a class="btn-util" href="index.html">🏠 <span class="lbl-pc">Accueil du site</span><span class="lbl-mob">Site</span></a>
       <a class="btn-util" href="carte-visite.html" title="Ouvrir et partager la carte de visite électronique avec QR code">🪪 <span class="lbl-pc">Carte visite</span><span class="lbl-mob">Carte</span></a>
       <button class="btn-util" id="btn-messenger-top" type="button" title="Ouvrir la messagerie directe Messenger STI avec les candidats" style="background:#fff3e0;border-color:#f4511e;color:#d84315">💬 <span class="lbl-pc">Messenger</span><span class="lbl-mob">Chat</span></button>
+      <button class="btn-util" id="btn-flash-top" type="button" title="Lancer une Question Flash / Sondage Live en classe" style="background:#fff8e1;border-color:#d97706;color:#b45309">⚡ <span class="lbl-pc">Question Flash</span><span class="lbl-mob">Flash</span></button>
       <button class="btn-util" id="btn-readme-admin" type="button" title="Consulter la documentation complète de la plateforme (README)">📖 <span class="lbl-pc">README</span><span class="lbl-mob">README</span></button>
       <button class="btn-util" id="btn-notif" type="button">🔔 <span class="lbl-pc">Notifications</span><span class="lbl-mob">Alertes</span></button>
       <button class="btn-util" id="btn-refresh" type="button">🔄 <span class="lbl-pc">Actualiser</span><span class="lbl-mob">Maj</span></button>
@@ -839,13 +840,21 @@
     </div>
   </header>
 
-  <!-- 2. PREMIERS BOUTONS D'ACTION PÉDAGOGIQUE (4 cartes principales) -->
+  <!-- 2. PREMIERS BOUTONS D'ACTION PÉDAGOGIQUE (cartes principales) -->
   <section class="actions-principales" aria-label="Actions principales">
     <button class="carte-action" id="btn-msg-classe" type="button">
       <span class="ca-ico orange">📢</span>
       <span class="ca-corps">
         <span class="ca-titre">Message par classe</span>
         <span class="ca-desc">Annonce écran, WhatsApp &amp; dictée vocale</span>
+      </span>
+    </button>
+
+    <button class="carte-action" id="btn-flash-quiz" type="button">
+      <span class="ca-ico or">⚡</span>
+      <span class="ca-corps">
+        <span class="ca-titre">Question Flash / Sondage</span>
+        <span class="ca-desc">QCM en direct sur les écrans &amp; résultats live</span>
       </span>
     </button>
 
@@ -1150,6 +1159,95 @@
         <button type="button" id="btn-fermer-ctrl">Fermer</button>
         <button type="button" class="btn-danger" id="btn-stop-ctrl">⏹️ Arrêter</button>
         <button type="button" class="btn-valider" id="btn-lancer-ctrl">🚀 Lancer le contrôle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boîte de lancement & suivi en direct d'une Question Flash / Sondage Live en classe -->
+  <div class="modal-fond" id="modal-flash" role="dialog" aria-modal="true">
+    <div class="modal-boite" style="max-width:600px;max-height:92vh;overflow-y:auto">
+      <h3>⚡ Question Flash / Sondage Live en classe</h3>
+      <p>Diffusez instantanément une question QCM ou un sondage sur les écrans de la classe choisie et visualisez les réponses en temps réel :</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+        <div>
+          <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">🏫 Classe cible :</label>
+          <select id="flash-classe" style="margin-bottom:4px"></select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">⏳ Durée de réponse :</label>
+          <select id="flash-duree" style="margin-bottom:4px">
+            <option value="30">30 secondes</option>
+            <option value="45">45 secondes</option>
+            <option value="60" selected>60 secondes (1 min)</option>
+            <option value="90">90 secondes</option>
+            <option value="120">120 secondes (2 min)</option>
+          </select>
+        </div>
+      </div>
+      <div class="resume-classe-modal" id="resume-flash-classe"></div>
+
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">📚 Modèle rapide STI (ou question libre) :</label>
+      <select id="flash-preset" style="margin-bottom:8px">
+        <option value="">✍️ Saisir une question personnalisée…</option>
+        <option value="sql_pk">🗄️ SQL — Contrainte de clé primaire (PRIMARY KEY)</option>
+        <option value="sql_fk">🗄️ SQL — Clé étrangère (FOREIGN KEY ... REFERENCES)</option>
+        <option value="php_mysqli">🐘 PHP / MySQLi — Exécuter une requête avec mysqli_query()</option>
+        <option value="php_post">🐘 PHP — Récupérer un champ de formulaire en POST</option>
+        <option value="js_nan">⚡ JavaScript — Vérifier si une chaîne contient uniquement des chiffres</option>
+        <option value="js_dom">⚡ JavaScript — Lire la valeur d'un champ input par son id</option>
+        <option value="html_form">🌐 HTML5 — Attribut reliant l'envoi d'un formulaire au script PHP</option>
+        <option value="sondage_comprehension">📊 Sondage classe — Niveau de compréhension de la séance</option>
+      </select>
+
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">❓ Énoncé de la question :</label>
+      <textarea id="flash-question" style="min-height:66px;margin-bottom:8px" placeholder="Ex. : Quelle fonction PHP permet d'exécuter une requête SQL sur la connexion $con ?"></textarea>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <label style="font-size:11.5px;font-weight:800;display:block;margin-bottom:3px">🅰️ Choix A :</label>
+          <input type="text" id="flash-opt-0" placeholder="Réponse A…" style="margin-bottom:0" />
+        </div>
+        <div>
+          <label style="font-size:11.5px;font-weight:800;display:block;margin-bottom:3px">🅱️ Choix B :</label>
+          <input type="text" id="flash-opt-1" placeholder="Réponse B…" style="margin-bottom:0" />
+        </div>
+        <div>
+          <label style="font-size:11.5px;font-weight:800;display:block;margin-bottom:3px">🅲 Choix C :</label>
+          <input type="text" id="flash-opt-2" placeholder="Réponse C (facultatif)…" style="margin-bottom:0" />
+        </div>
+        <div>
+          <label style="font-size:11.5px;font-weight:800;display:block;margin-bottom:3px">🅳 Choix D :</label>
+          <input type="text" id="flash-opt-3" placeholder="Réponse D (facultatif)…" style="margin-bottom:0" />
+        </div>
+      </div>
+
+      <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px">✅ Bonne réponse attendue (ou mode Sondage sans note) :</label>
+      <select id="flash-bonne" style="margin-bottom:10px">
+        <option value="0">🅰️ Choix A est la bonne réponse</option>
+        <option value="1">🅱️ Choix B est la bonne réponse</option>
+        <option value="2">🅲 Choix C est la bonne réponse</option>
+        <option value="3">🅳 Choix D est la bonne réponse</option>
+        <option value="-1">📊 Mode Sondage libre (aucune bonne/mauvaise réponse)</option>
+      </select>
+
+      <div class="modal-actions" style="flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <button type="button" id="btn-fermer-flash">Fermer</button>
+        <button type="button" class="btn-danger" id="btn-stop-flash">⏹️ Clôturer</button>
+        <button type="button" class="btn-valider" id="btn-lancer-flash">🚀 Lancer en direct</button>
+      </div>
+
+      <!-- Résultats en direct de la Question Flash active / historique -->
+      <div id="zone-resultats-flash" style="background:#f3ead9;border:2px solid #23201a;border-radius:14px;padding:12px 14px;margin-top:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="font-weight:900;font-size:13.5px;color:#23201a">📊 Résultats en direct <span id="flash-timer-badge" style="display:none;background:#c0392b;color:#fff;padding:2px 9px;border-radius:999px;font-size:11.5px;margin-left:6px">⏳ 00:60</span></div>
+          <select id="sel-histo-flash" style="border:1.5px solid #23201a;border-radius:8px;padding:4px 8px;font-size:11.5px;font-weight:800;background:#fffdf7;color:#23201a;max-width:260px;margin:0">
+            <option value="">Aucune question flash lancée</option>
+          </select>
+        </div>
+        <div id="flash-resume-stats" style="font-size:12px;font-weight:800;color:#6b6152;margin-bottom:8px">Lancez une question flash pour voir les barres et les votes des élèves s'afficher ici en direct.</div>
+        <div id="flash-barres" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+        <div id="flash-liste-votants" style="max-height:170px;overflow-y:auto;background:#fffdf7;border:1.5px solid #23201a;border-radius:10px;padding:6px 10px;font-size:12px;display:none"></div>
       </div>
     </div>
   </div>
@@ -1492,7 +1590,7 @@
   >⬆ Haut</button>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v80)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v81)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
   </footer>
 
 <script>
@@ -1554,7 +1652,7 @@
 </script>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=80"></script>
-<script src="assets/js/admin.js?v=80"></script>
+<script src="assets/js/config.js?v=81"></script>
+<script src="assets/js/admin.js?v=81"></script>
 </body>
 </html>

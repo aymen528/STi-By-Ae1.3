@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=80";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=81";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-80") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-80", "1");
+          if (sessionStorage.getItem("sti-sw-reload-81") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-81", "1");
         } catch (e) {}
         location.reload();
       });
@@ -1815,6 +1815,157 @@
     }
   } catch (e) {}
 
+  /* ---------- ⚡ Question Flash / Sondage Live en classe (côté élève) ---------- */
+  var timerFlashEleve = null;
+  function afficherQuestionFlashLive(fq, uid) {
+    if (!fq || !fq.id) return;
+    if (fq.action === "stop") {
+      var mEx = document.getElementById("sti-modal-flash-eleve");
+      if (mEx) mEx.remove();
+      clearInterval(timerFlashEleve);
+      return;
+    }
+    if (fq.classe && fq.classe !== "*" && fq.classe !== currentClasse) return;
+    var finMs = Number(fq.finMs || 0);
+    if (!finMs || Date.now() >= finMs) return;
+    try {
+      if (localStorage.getItem("sti-flash-rep-" + fq.id) !== null) return;
+    } catch (e) {}
+    if (document.getElementById("sti-modal-flash-eleve")) {
+      var curId = document.getElementById("sti-modal-flash-eleve").getAttribute("data-fid");
+      if (curId === fq.id) return;
+      document.getElementById("sti-modal-flash-eleve").remove();
+    }
+
+    var fond = document.createElement("div");
+    fond.id = "sti-modal-flash-eleve";
+    fond.setAttribute("data-fid", fq.id);
+    fond.className = "sti-no-print";
+    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(20,17,12,.68);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:14px;font:700 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
+
+    var lettres = ["A", "B", "C", "D"];
+    var opts = fq.options || [];
+    var estSondage = Number(fq.bonne) < 0;
+    var btnsHtml = opts.map(function (o, idx) {
+      if (!o) return "";
+      return "<button type='button' class='sti-btn-opt-flash' data-idx='" + idx + "' style='width:100%;text-align:left;background:#fff;color:#23201a;border:2px solid #23201a;border-radius:12px;padding:10px 13px;font-weight:800;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:2px 2px 0 #23201a;transition:transform .12s,background .12s'>" +
+        "<span style='background:#f4511e;color:#fff;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;border:1.5px solid #23201a;flex-shrink:0'>" + lettres[idx] + "</span>" +
+        "<span style='flex:1'>" + esc(o) + "</span>" +
+      "</button>";
+    }).join("");
+
+    fond.innerHTML =
+      "<div style='background:#fffdf7;color:#23201a;color-scheme:light;border:3px solid #23201a;border-radius:20px;max-width:480px;width:100%;padding:20px 22px;box-shadow:7px 7px 0 #f4511e,0 20px 44px rgba(0,0,0,.38)'>" +
+        "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px'>" +
+          "<span style='background:#fff3e0;color:#d84315;border:1.5px solid #f4511e;border-radius:999px;padding:4px 11px;font-weight:900;font-size:12px'>" + (estSondage ? "📊 SONDAGE EN DIRECT" : "⚡ QUESTION FLASH STI") + "</span>" +
+          "<span id='sti-flash-chrono-el' style='background:#c0392b;color:#fff;border:1.5px solid #23201a;border-radius:999px;padding:4px 11px;font-family:monospace;font-weight:900;font-size:13px'>⏳ --:--</span>" +
+        "</div>" +
+        "<div style='font-size:15.5px;font-weight:900;color:#23201a;margin-bottom:14px;white-space:pre-wrap'>" + esc(fq.question || "") + "</div>" +
+        "<div id='sti-flash-opts-wrap' style='display:flex;flex-direction:column;gap:9px;margin-bottom:12px'>" + btnsHtml + "</div>" +
+        "<div id='sti-flash-feedback' style='display:none;border-radius:12px;padding:10px 13px;font-weight:900;font-size:13px;margin-bottom:10px'></div>" +
+        "<div style='display:flex;justify-content:flex-end'>" +
+          "<button type='button' id='sti-flash-close-el' style='display:none;border:2px solid #23201a;background:#23201a;color:#fff;border-radius:999px;padding:7px 18px;font-weight:900;font-size:12.5px;cursor:pointer'>Fermer</button>" +
+        "</div>" +
+      "</div>";
+
+    (document.body || document.documentElement).appendChild(fond);
+
+    var elChrono = fond.querySelector("#sti-flash-chrono-el");
+    var btnClose = fond.querySelector("#sti-flash-close-el");
+    var elFb = fond.querySelector("#sti-flash-feedback");
+    if (btnClose) {
+      btnClose.addEventListener("click", function () {
+        clearInterval(timerFlashEleve);
+        fond.remove();
+      });
+    }
+
+    function majChronoEl() {
+      var rest = Math.max(0, Math.round((finMs - Date.now()) / 1000));
+      var mm = ("0" + Math.floor(rest / 60)).slice(-2);
+      var ss = ("0" + (rest % 60)).slice(-2);
+      if (elChrono) elChrono.textContent = "⏳ " + mm + ":" + ss;
+      if (rest <= 0) {
+        clearInterval(timerFlashEleve);
+        if (elChrono) elChrono.textContent = "⏹️ Temps écoulé";
+        if (btnClose) btnClose.style.display = "inline-block";
+        var bAll = fond.querySelectorAll(".sti-btn-opt-flash");
+        for (var i = 0; i < bAll.length; i++) bAll[i].disabled = true;
+      }
+    }
+    clearInterval(timerFlashEleve);
+    majChronoEl();
+    timerFlashEleve = setInterval(majChronoEl, 1000);
+
+    var btns = fond.querySelectorAll(".sti-btn-opt-flash");
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener("click", function () {
+        var idx = parseInt(this.getAttribute("data-idx"), 10);
+        clearInterval(timerFlashEleve);
+        try { localStorage.setItem("sti-flash-rep-" + fq.id, String(idx)); } catch (e) {}
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].disabled = true;
+          var jIdx = parseInt(btns[j].getAttribute("data-idx"), 10);
+          if (!estSondage && jIdx === Number(fq.bonne)) {
+            btns[j].style.background = "#e3f6e8";
+            btns[j].style.borderColor = "#177245";
+          } else if (jIdx === idx && !estSondage && idx !== Number(fq.bonne)) {
+            btns[j].style.background = "#fde2e6";
+            btns[j].style.borderColor = "#c0392b";
+          } else if (jIdx === idx && estSondage) {
+            btns[j].style.background = "#fff3e0";
+            btns[j].style.borderColor = "#f4511e";
+          }
+        }
+        var estJuste = !estSondage && idx === Number(fq.bonne);
+        if (elFb) {
+          elFb.style.display = "block";
+          if (estSondage) {
+            elFb.style.background = "#e3f6e8";
+            elFb.style.color = "#177245";
+            elFb.style.border = "1.5px solid #177245";
+            elFb.textContent = "✅ Merci ! Votre réponse (« Choix " + lettres[idx] + " ») a été transmise en direct au professeur.";
+          } else if (estJuste) {
+            elFb.style.background = "#e3f6e8";
+            elFb.style.color = "#177245";
+            elFb.style.border = "1.5px solid #177245";
+            elFb.textContent = "🎉 Bravo ! Bonne réponse (" + lettres[idx] + " : " + (opts[idx] || "") + ").";
+          } else {
+            elFb.style.background = "#fde2e6";
+            elFb.style.color = "#c0392b";
+            elFb.style.border = "1.5px solid #c0392b";
+            elFb.textContent = "❌ Réponse incorrecte. La bonne réponse était " + lettres[fq.bonne] + " : " + (opts[fq.bonne] || "");
+          }
+        }
+        if (btnClose) btnClose.style.display = "inline-block";
+
+        var repPayload = {
+          type: "flash_rep",
+          flashId: fq.id,
+          uid: uid || currentUid || "eleve",
+          choix: idx,
+          correct: estJuste,
+          ts: new Date().toISOString()
+        };
+        if (uid && uid !== "offline-user") {
+          sb.from("acces").insert({
+            user_id: uid,
+            page: "FLASH_REP:" + fq.id,
+            lieu: JSON.stringify({ choix: idx, correct: estJuste, ts: repPayload.ts }),
+            duree_sec: estJuste ? 20 : 0
+          }).then(function () {});
+        }
+        try {
+          sb.channel("sti-diffusion").send({ type: "broadcast", event: "flash_rep", payload: repPayload });
+        } catch (e) {}
+        fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+          method: "POST",
+          body: JSON.stringify(repPayload)
+        }).catch(function () {});
+      });
+    }
+  }
+
   /* ---------- réception des messages groupés + réponses élèves + signaux d'expulsion/Gold/Contrôle ---------- */
   function ecouterMessagesClasse(uid, maClasse) {
     var demarreA = Date.now();
@@ -1933,6 +2084,7 @@
           var lignes = (txt || "").trim().split("\n");
           var derniereAnnonce = null;
           var dernierCtrl = null;
+          var dernierFlash = null;
           for (var i = 0; i < lignes.length; i++) {
             if (!lignes[i]) continue;
             try {
@@ -1943,6 +2095,8 @@
                   traiterSignalStatut(a);
                 } else if (a && a.type === "controle") {
                   dernierCtrl = a;
+                } else if (a && a.type === "flash_q") {
+                  dernierFlash = a;
                 } else if (estAnnoncePourMoi(a)) {
                   derniereAnnonce = a;
                 }
@@ -1951,6 +2105,7 @@
           }
           if (derniereAnnonce) afficherAnnonce(derniereAnnonce);
           if (dernierCtrl) afficherControleChrono(dernierCtrl);
+          if (dernierFlash) afficherQuestionFlashLive(dernierFlash, uid);
         })
         .catch(function () {});
     }
@@ -1968,6 +2123,9 @@
         })
         .on("broadcast", { event: "controle" }, function (p) {
           if (p && p.payload) afficherControleChrono(p.payload);
+        })
+        .on("broadcast", { event: "flash_q" }, function (p) {
+          if (p && p.payload) afficherQuestionFlashLive(p.payload, uid);
         })
         .subscribe();
     } catch (e) {}
@@ -2656,7 +2814,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v80)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v81)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */

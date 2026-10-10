@@ -246,6 +246,7 @@
   var profils = [], acces = [], counts = {};
   var dureesSemaine = {}, dureesTotales = {}, semainesDispo = [];
   var messagesDiffuses = [], lecturesParMsg = {}, reponsesParMsg = {}, fichiersParMsg = {}, questionsLibres = [];
+  var questionsFlash = [], reponsesFlash = {};
   var scoresParUser = {}, listeResultatsQuiz = [];
   var enLigneMap = {}; /* uid -> { ts: ms, page: str } */
   var adminUid = null;
@@ -523,6 +524,19 @@
         })
         .on("broadcast", { event: "quiz" }, function () {
           charge(true);
+        })
+        .on("broadcast", { event: "flash_rep" }, function (p) {
+          if (p && p.payload && p.payload.flashId && p.payload.uid) {
+            var d = p.payload;
+            if (!reponsesFlash[d.flashId]) reponsesFlash[d.flashId] = {};
+            reponsesFlash[d.flashId][d.uid] = {
+              uid: d.uid,
+              choix: Number(d.choix),
+              correct: Boolean(d.correct),
+              ts: d.ts || new Date().toISOString()
+            };
+            if (typeof peindreResultatsFlash === "function") peindreResultatsFlash();
+          }
         })
         .subscribe();
     } catch (e) {}
@@ -825,6 +839,8 @@
     reponsesParMsg = {};
     fichiersParMsg = {};
     questionsLibres = [];
+    var mapFlash = {};
+    reponsesFlash = {};
     scoresParUser = {};
     listeResultatsQuiz = [];
     idsAccesParMsg = {};
@@ -832,6 +848,31 @@
     tousAcces.forEach(function (a) {
         var pg = a.page || "";
         if (pg === "SUPPR_ACCES") return;
+        if (pg.indexOf("FLASH_Q:") === 0) {
+          try {
+            var fq = JSON.parse(a.lieu || "{}");
+            if (fq && fq.id) mapFlash[fq.id] = fq;
+          } catch (e) {}
+          return;
+        }
+        if (pg.indexOf("FLASH_REP:") === 0) {
+          var fid = pg.slice(10);
+          try {
+            var fr = JSON.parse(a.lieu || "{}");
+            if (fid && a.user_id) {
+              if (!reponsesFlash[fid]) reponsesFlash[fid] = {};
+              if (!reponsesFlash[fid][a.user_id]) {
+                reponsesFlash[fid][a.user_id] = {
+                  uid: a.user_id,
+                  choix: Number(fr.choix),
+                  correct: Boolean(fr.correct),
+                  ts: fr.ts || a.debut
+                };
+              }
+            }
+          } catch (e) {}
+          return;
+        }
         if (pg.indexOf("MSG_ENVOI:") === 0) {
           try {
             var m = JSON.parse(a.lieu || "{}");
@@ -926,10 +967,26 @@
                   reponsesParMsg[obj.msgId][obj.uid] = obj.reponse;
                 }
               }
+            } else if (obj && obj.type === "flash_q" && obj.id && obj.action === "start") {
+              if (!mapFlash[obj.id]) mapFlash[obj.id] = obj;
+            } else if (obj && obj.type === "flash_rep" && obj.flashId && obj.uid) {
+              if (!reponsesFlash[obj.flashId]) reponsesFlash[obj.flashId] = {};
+              if (!reponsesFlash[obj.flashId][obj.uid]) {
+                reponsesFlash[obj.flashId][obj.uid] = {
+                  uid: obj.uid,
+                  choix: Number(obj.choix),
+                  correct: Boolean(obj.correct),
+                  ts: obj.ts || (ev.time ? new Date(ev.time * 1000).toISOString() : "")
+                };
+              }
             }
           } catch (e) {}
         });
       }
+
+      questionsFlash = Object.keys(mapFlash).map(function (k) { return mapFlash[k]; }).sort(function (a, b) {
+        return String(b.ts || b.id || "").localeCompare(String(a.ts || a.id || ""));
+      });
 
       messagesDiffuses = Object.keys(mapMsg).map(function (k) { return mapMsg[k]; }).sort(function (a, b) {
         return String(b.ts || "").localeCompare(String(a.ts || ""));
@@ -943,6 +1000,8 @@
           pg === "SUPPR_ACCES" ||
           pg.indexOf("MSG_ENVOI:") === 0 ||
           pg.indexOf("MSG_LU:") === 0 ||
+          pg.indexOf("FLASH_Q:") === 0 ||
+          pg.indexOf("FLASH_REP:") === 0 ||
           pg.indexOf("QUIZ:") === 0 ||
           pg.indexOf("CTRL_") === 0
         ) return false;
@@ -984,6 +1043,7 @@
       rendAbonnes();
       rendQuiz();
       rendSuiviMessages();
+      if (typeof majListeHistoFlash === "function") majListeHistoFlash();
       rendAcces();
       calculerQuotaSupabase(tous, tousAcces, window.__stiCountProfils, window.__stiCountAcces);
       if (!estHorsLigne) verifierNouvellesDemandes();
@@ -3396,6 +3456,346 @@
     modalCtrl.classList.remove("visible");
     msg("⏹️ Contrôle chronométré arrêté sur les écrans des élèves.", "ok");
   });
+
+  /* ---------- Boîte modale : ⚡ Question Flash / Sondage Live en classe ---------- */
+  var modalFlash = document.getElementById("modal-flash");
+  var selFlashClasse = document.getElementById("flash-classe");
+  var selFlashDuree = document.getElementById("flash-duree");
+  var selFlashPreset = document.getElementById("flash-preset");
+  var txtFlashQuestion = document.getElementById("flash-question");
+  var inpFlashOpts = [
+    document.getElementById("flash-opt-0"),
+    document.getElementById("flash-opt-1"),
+    document.getElementById("flash-opt-2"),
+    document.getElementById("flash-opt-3")
+  ];
+  var selFlashBonne = document.getElementById("flash-bonne");
+  var selHistoFlash = document.getElementById("sel-histo-flash");
+  var flashTimerBadge = document.getElementById("flash-timer-badge");
+  var flashResumeStats = document.getElementById("flash-resume-stats");
+  var flashBarres = document.getElementById("flash-barres");
+  var flashListeVotants = document.getElementById("flash-liste-votants");
+  var timerFlashAdmin = null;
+
+  var PRESETS_FLASH_STI = {
+    sql_pk: {
+      q: "Quelle contrainte SQL garantit qu'une colonne identifie de manière unique chaque ligne et n'accepte pas NULL ?",
+      opts: ["PRIMARY KEY", "FOREIGN KEY", "CHECK", "DEFAULT"],
+      bonne: 0
+    },
+    sql_fk: {
+      q: "Quelle clause SQL permet de définir une clé étrangère pointant vers la table Client(id_cl) ?",
+      opts: [
+        "FOREIGN KEY (id_cl) REFERENCES Client(id_cl)",
+        "PRIMARY KEY (id_cl) FROM Client(id_cl)",
+        "LINK KEY (id_cl) TO Client(id_cl)",
+        "CONSTRAINT fk_cl CHECK (Client.id_cl)"
+      ],
+      bonne: 0
+    },
+    php_mysqli: {
+      q: "En PHP procédural, quelle fonction exécute une requête SQL $req sur la connexion MySQLi $con ?",
+      opts: [
+        "mysqli_connect($con, $req)",
+        "mysqli_query($con, $req)",
+        "mysqli_fetch_array($con, $req)",
+        "mysql_exec($req, $con)"
+      ],
+      bonne: 1
+    },
+    php_post: {
+      q: "Comment récupérer en PHP la valeur d'un champ HTML <input name=\"cin\"> envoyé avec method=\"post\" ?",
+      opts: ["$_GET['cin']", "$_POST['cin']", "$POST->cin", "document.getElementById('cin')"],
+      bonne: 1
+    },
+    js_nan: {
+      q: "En JavaScript, quelle condition vérifie qu'une chaîne ch de 8 caractères ne contient que des chiffres ?",
+      opts: [
+        "ch.length === 8 && !isNaN(ch)",
+        "ch.size() == 8 && isNumber(ch)",
+        "strlen(ch) == 8 && is_numeric(ch)",
+        "ch.count === 8"
+      ],
+      bonne: 0
+    },
+    js_dom: {
+      q: "Quelle instruction JavaScript permet de lire le texte saisi dans <input id=\"nom\"> ?",
+      opts: [
+        "document.getElementById('nom').innerHTML",
+        "document.getElementById('nom').value",
+        "document.querySelector('nom').text",
+        "window.input('nom')"
+      ],
+      bonne: 1
+    },
+    html_form: {
+      q: "Quel attribut de la balise <form> indique l'adresse du fichier PHP qui traitera les données ?",
+      opts: ["href", "src", "action", "target"],
+      bonne: 2
+    },
+    sondage_comprehension: {
+      q: "📊 Sondage rapide : Avez-vous bien compris la notion expliquée aujourd'hui ?",
+      opts: [
+        "✅ Oui, parfaitement compris !",
+        "👍 Oui, mais j'ai besoin d'un autre exemple",
+        "🤔 J'ai encore quelques doutes",
+        "🆘 Non, pouvez-vous réexpliquer ?"
+      ],
+      bonne: -1
+    }
+  };
+
+  if (selFlashPreset) {
+    selFlashPreset.addEventListener("change", function () {
+      var p = PRESETS_FLASH_STI[selFlashPreset.value];
+      if (!p) return;
+      if (txtFlashQuestion) txtFlashQuestion.value = p.q;
+      for (var i = 0; i < 4; i++) {
+        if (inpFlashOpts[i]) inpFlashOpts[i].value = p.opts[i] || "";
+      }
+      if (selFlashBonne) selFlashBonne.value = String(p.bonne);
+    });
+  }
+
+  if (selFlashClasse) {
+    selFlashClasse.addEventListener("change", function () {
+      majResumeClasseModal(selFlashClasse, "resume-flash-classe");
+    });
+  }
+
+  function ouvrirModalFlash() {
+    remplirClassesSelect(selFlashClasse);
+    majResumeClasseModal(selFlashClasse, "resume-flash-classe");
+    majListeHistoFlash();
+    peindreResultatsFlash();
+    if (modalFlash) modalFlash.classList.add("visible");
+  }
+
+  var btnFlashTop = document.getElementById("btn-flash-top");
+  if (btnFlashTop) btnFlashTop.addEventListener("click", ouvrirModalFlash);
+  var btnFlashQuiz = document.getElementById("btn-flash-quiz");
+  if (btnFlashQuiz) btnFlashQuiz.addEventListener("click", ouvrirModalFlash);
+  var btnFermerFlash = document.getElementById("btn-fermer-flash");
+  if (btnFermerFlash) {
+    btnFermerFlash.addEventListener("click", function () {
+      if (modalFlash) modalFlash.classList.remove("visible");
+    });
+  }
+
+  function majListeHistoFlash(idForce) {
+    if (!selHistoFlash) return;
+    var valAct = idForce || selHistoFlash.value || "";
+    selHistoFlash.innerHTML = "";
+    if (!questionsFlash.length) {
+      var optVide = document.createElement("option");
+      optVide.value = "";
+      optVide.textContent = "Aucune question flash lancée";
+      selHistoFlash.appendChild(optVide);
+      return;
+    }
+    questionsFlash.forEach(function (fq) {
+      var o = document.createElement("option");
+      o.value = fq.id;
+      var clTxt = fq.classe === "*" ? "Toutes classes" : (fq.classe || "—");
+      var qCourt = String(fq.question || "").slice(0, 42);
+      o.textContent = "⚡ [" + clTxt + "] " + qCourt + (String(fq.question || "").length > 42 ? "…" : "");
+      selHistoFlash.appendChild(o);
+    });
+    if (valAct && questionsFlash.some(function (x) { return x.id === valAct; })) {
+      selHistoFlash.value = valAct;
+    } else {
+      selHistoFlash.value = questionsFlash[0].id;
+    }
+    peindreResultatsFlash();
+  }
+
+  if (selHistoFlash) {
+    selHistoFlash.addEventListener("change", peindreResultatsFlash);
+  }
+
+  function peindreResultatsFlash() {
+    if (!flashBarres || !flashResumeStats) return;
+    var fid = selHistoFlash ? selHistoFlash.value : (questionsFlash[0] && questionsFlash[0].id);
+    var fq = null;
+    for (var i = 0; i < questionsFlash.length; i++) {
+      if (questionsFlash[i].id === fid) { fq = questionsFlash[i]; break; }
+    }
+    if (!fq) {
+      flashResumeStats.textContent = "Lancez une question flash pour voir les barres et les votes des élèves s'afficher ici en direct.";
+      flashBarres.innerHTML = "";
+      if (flashListeVotants) flashListeVotants.style.display = "none";
+      if (flashTimerBadge) flashTimerBadge.style.display = "none";
+      return;
+    }
+
+    /* Minuteur si la question est encore en cours */
+    clearInterval(timerFlashAdmin);
+    function majChronoFlash() {
+      if (!flashTimerBadge) return;
+      var rest = Math.max(0, Math.round((Number(fq.finMs || 0) - Date.now()) / 1000));
+      if (rest > 0) {
+        var mm = ("0" + Math.floor(rest / 60)).slice(-2);
+        var ss = ("0" + (rest % 60)).slice(-2);
+        flashTimerBadge.style.display = "inline-block";
+        flashTimerBadge.style.background = "#c0392b";
+        flashTimerBadge.textContent = "⏳ En cours : " + mm + ":" + ss;
+      } else {
+        flashTimerBadge.style.display = "inline-block";
+        flashTimerBadge.style.background = "#6b6152";
+        flashTimerBadge.textContent = "⏹️ Terminé";
+        clearInterval(timerFlashAdmin);
+      }
+    }
+    majChronoFlash();
+    if (Number(fq.finMs || 0) > Date.now()) {
+      timerFlashAdmin = setInterval(majChronoFlash, 1000);
+    }
+
+    var mapRep = reponsesFlash[fq.id] || {};
+    var uids = Object.keys(mapRep);
+    var totalVotes = uids.length;
+    var nbJustes = 0;
+    var cpts = [0, 0, 0, 0];
+    uids.forEach(function (u) {
+      var r = mapRep[u];
+      if (r && r.choix >= 0 && r.choix < 4) cpts[r.choix] = (cpts[r.choix] || 0) + 1;
+      if (r && r.correct) nbJustes++;
+    });
+
+    var estSondage = Number(fq.bonne) < 0;
+    var pctReussite = totalVotes > 0 ? Math.round((nbJustes * 100) / totalVotes) : 0;
+    var clLabel = fq.classe === "*" ? "Toutes les classes" : fq.classe;
+    flashResumeStats.innerHTML =
+      "🏫 Cible : <b>" + esc(clLabel) + "</b> · 👥 Réponses reçues : <b>" + totalVotes + "</b>" +
+      (estSondage ? " (Mode Sondage)" : (" · ✅ Taux de réussite : <b style='color:#177245'>" + pctReussite + " % (" + nbJustes + "/" + totalVotes + ")</b>"));
+
+    var lettres = ["A", "B", "C", "D"];
+    var opts = fq.options || [];
+    var htmlB = "";
+    for (var k = 0; k < opts.length; k++) {
+      if (!opts[k]) continue;
+      var nb = cpts[k] || 0;
+      var pct = totalVotes > 0 ? Math.round((nb * 100) / totalVotes) : 0;
+      var estBonne = !estSondage && Number(fq.bonne) === k;
+      var coulBarre = estBonne ? "linear-gradient(90deg,#177245,#2ecc71)" : "linear-gradient(90deg,#f4511e,#ff8a50)";
+      htmlB +=
+        "<div style='background:#fffdf7;border:1.5px solid " + (estBonne ? "#177245" : "#23201a") + ";border-radius:9px;padding:6px 10px'>" +
+          "<div style='display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;margin-bottom:4px'>" +
+            "<span><b>" + lettres[k] + ".</b> " + esc(opts[k]) + (estBonne ? " <span style='color:#177245;font-weight:900'>✅ (Bonne réponse)</span>" : "") + "</span>" +
+            "<span>" + nb + " vote(s) · <b>" + pct + " %</b></span>" +
+          "</div>" +
+          "<div style='height:9px;background:#e9dec9;border-radius:999px;overflow:hidden;border:1px solid #23201a'>" +
+            "<div style='height:100%;width:" + pct + "%;background:" + coulBarre + ";transition:width .3s ease'></div>" +
+          "</div>" +
+        "</div>";
+    }
+    flashBarres.innerHTML = htmlB;
+
+    if (flashListeVotants) {
+      if (!totalVotes) {
+        flashListeVotants.style.display = "block";
+        flashListeVotants.innerHTML = "<div style='color:#7a6f5d;font-weight:700;text-align:center;padding:6px'>⏳ En attente des réponses des élèves en direct…</div>";
+      } else {
+        flashListeVotants.style.display = "block";
+        var mapProf = {};
+        profils.forEach(function (p) { mapProf[p.id] = p; });
+        var lignesV = uids.map(function (u) {
+          var r = mapRep[u];
+          var p = mapProf[u];
+          var nomC = p ? contact(p) : ("Élève " + u.slice(0, 6));
+          var clC = (p && p.classe) || "—";
+          var letC = lettres[r.choix] || "?";
+          var txtOpt = (opts[r.choix] || "").slice(0, 28);
+          var badgeRes = estSondage
+            ? "<span style='color:#b45309;font-weight:900'>📊 Choix " + letC + "</span>"
+            : (r.correct
+                ? "<span style='color:#177245;font-weight:900'>✅ Choix " + letC + " (Juste)</span>"
+                : "<span style='color:#c0392b;font-weight:900'>❌ Choix " + letC + " (Faux)</span>");
+          return "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed #e2d6bf'>" +
+            "<span style='font-weight:800'>" + esc(nomC) + " <small style='color:#7a6f5d'>(" + esc(clC) + ")</small></span>" +
+            "<span title='" + esc(txtOpt) + "'>" + badgeRes + "</span>" +
+          "</div>";
+        }).join("");
+        flashListeVotants.innerHTML = lignesV;
+      }
+    }
+  }
+
+  var btnLancerFlash = document.getElementById("btn-lancer-flash");
+  if (btnLancerFlash) {
+    btnLancerFlash.addEventListener("click", function () {
+      var qTxt = txtFlashQuestion ? txtFlashQuestion.value.trim() : "";
+      if (!qTxt) {
+        msg("⚠️ Veuillez saisir l'énoncé de la Question Flash (ou choisir un modèle STI).", "err");
+        return;
+      }
+      var opts = [];
+      for (var i = 0; i < 4; i++) {
+        var v = inpFlashOpts[i] ? inpFlashOpts[i].value.trim() : "";
+        if (v) opts.push(v);
+      }
+      if (opts.length < 2) {
+        msg("⚠️ Veuillez renseigner au moins 2 choix de réponse (A et B).", "err");
+        return;
+      }
+      var cl = selFlashClasse ? selFlashClasse.value : "*";
+      var dureeSec = parseInt(selFlashDuree ? selFlashDuree.value : "60", 10) || 60;
+      var bonneIdx = parseInt(selFlashBonne ? selFlashBonne.value : "0", 10);
+      if (bonneIdx >= opts.length) bonneIdx = 0;
+
+      var flashPayload = {
+        type: "flash_q",
+        action: "start",
+        id: "fq" + Date.now(),
+        classe: cl,
+        question: qTxt,
+        options: opts,
+        bonne: bonneIdx,
+        dureeSec: dureeSec,
+        finMs: Date.now() + dureeSec * 1000,
+        ts: new Date().toISOString()
+      };
+
+      questionsFlash.unshift(flashPayload);
+      reponsesFlash[flashPayload.id] = {};
+      majListeHistoFlash(flashPayload.id);
+
+      if (adminUid) {
+        sb.from("acces").insert({
+          user_id: adminUid,
+          page: "FLASH_Q:" + flashPayload.id,
+          lieu: JSON.stringify(flashPayload),
+          duree_sec: dureeSec
+        }).then(function () {});
+      }
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "flash_q", payload: flashPayload });
+      } catch (e) {}
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+        method: "POST",
+        body: JSON.stringify(flashPayload)
+      }).catch(function () {});
+
+      msg("⚡ Question Flash diffusée en direct (" + dureeSec + " s) ! Suivez les réponses ci-dessous.", "ok");
+    });
+  }
+
+  var btnStopFlash = document.getElementById("btn-stop-flash");
+  if (btnStopFlash) {
+    btnStopFlash.addEventListener("click", function () {
+      var stopPayload = { type: "flash_q", action: "stop", id: "fqstop" + Date.now() };
+      if (questionsFlash[0]) questionsFlash[0].finMs = Date.now() - 1000;
+      peindreResultatsFlash();
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "flash_q", payload: stopPayload });
+      } catch (e) {}
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+        method: "POST",
+        body: JSON.stringify(stopPayload)
+      }).catch(function () {});
+      msg("⏹️ Question Flash clôturée sur les écrans des élèves.", "ok");
+    });
+  }
 
   /* ---------- Boîte modale : message groupé à toute une classe OU message/réponse à un candidat précis ---------- */
   var modalClasse = document.getElementById("modal-classe");
