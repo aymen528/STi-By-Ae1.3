@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=79";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=80";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-79") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-79", "1");
+          if (sessionStorage.getItem("sti-sw-reload-80") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-80", "1");
         } catch (e) {}
         location.reload();
       });
@@ -628,6 +628,7 @@
   /* ---------- Éjection immédiate (fenêtre principale + boîtes/iframes + purge totale) ---------- */
   function purgerStockageLocal() {
     try {
+      localStorage.removeItem("sti-labo3-permanent");
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-reauth");
@@ -773,6 +774,7 @@
     if (!session) {
       /* Mode hors-ligne ou jeton expiré : restauration immédiate de la session locale */
       if (restaurerDepuisCacheLocal()) return;
+      localStorage.removeItem("sti-labo3-permanent");
       localStorage.removeItem("sti-offline");
       localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-gold");
@@ -1195,18 +1197,19 @@
       badgePerm.textContent = "🖥️ Poste Labo 3 · Session permanente";
       badgePerm.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:1.5px solid #177245;background:#e3f6e8;color:#177245;text-align:center;border-radius:9px;padding:6px 10px;font-weight:900;font-size:11px;";
       pan.appendChild(badgePerm);
-    } else {
-      var out = document.createElement("button");
-      out.type = "button";
-      out.textContent = "🚪 Déconnexion";
-      out.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:#fff;color:#c0392b;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
-      out.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        sortirImmediatement("#deconnecte");
-      });
-      pan.appendChild(out);
     }
+
+    var out = document.createElement("button");
+    out.id = "sti-out";
+    out.type = "button";
+    out.textContent = "🚪 Déconnexion";
+    out.style.cssText = "display:block;width:100%;margin:6px 0 0 auto;border:2px solid #23201a;background:#fff;color:#c0392b;color-scheme:light;border-radius:9px;padding:6px 10px;font-weight:800;font-size:11.5px;cursor:pointer;";
+    out.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      sortirImmediatement("#deconnecte");
+    });
+    pan.appendChild(out);
 
     var porte = document.createElement("div");
     porte.className = "sti-wrap";
@@ -2653,7 +2656,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v79)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v80)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */

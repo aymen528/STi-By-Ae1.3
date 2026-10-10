@@ -5,26 +5,34 @@
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
 
   /* Si la classe "elevelabo3" a déjà été connectée une fois sur ce PC du labo,
-     ne plus jamais demander login ni mot de passe (sauf si le prof ouvre explicitement #admin) */
+     ne plus jamais demander login ni mot de passe (sauf si déconnexion volontaire #deconnecte ou accès #admin) */
   try {
     var hInit = location.hash.replace("#", "");
-    var permLabo = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
-    var sessLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
-    var clVerif = String((permLabo && permLabo.classe) || (sessLoc && sessLoc.classe) || "").trim().toLowerCase().replace(/[\s._\-]+/g, "");
-    if (clVerif === "elevelabo3" && hInit !== "admin" && hInit !== "attente" && hInit !== "refuse" && hInit !== "exclu") {
-      var objPerm = permLabo || sessLoc;
-      objPerm.ts = Date.now();
-      objPerm.gold = true;
-      objPerm.statut = "actif";
-      objPerm.permanent = true;
-      objPerm.isAdmin = false;
+    if (hInit === "deconnecte" || hInit === "exclu" || hInit === "refuse") {
+      localStorage.removeItem("sti-labo3-permanent");
+      localStorage.removeItem("sti-session-cache");
+      localStorage.removeItem("sti-offline");
+      localStorage.removeItem("sti-gold");
       localStorage.removeItem("sti-admin-gold");
-      localStorage.setItem("sti-gold", "1");
-      localStorage.setItem("sti-offline", String(Date.now()));
-      localStorage.setItem("sti-session-cache", JSON.stringify(objPerm));
-      localStorage.setItem("sti-labo3-permanent", JSON.stringify(objPerm));
-      location.replace(cfg.RACINE + "index.html");
-      return;
+    } else {
+      var permLabo = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
+      var sessLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null");
+      var clVerif = String((permLabo && permLabo.classe) || (sessLoc && sessLoc.classe) || "").trim().toLowerCase().replace(/[\s._\-]+/g, "");
+      if (clVerif === "elevelabo3" && hInit !== "admin" && hInit !== "attente") {
+        var objPerm = permLabo || sessLoc;
+        objPerm.ts = Date.now();
+        objPerm.gold = true;
+        objPerm.statut = "actif";
+        objPerm.permanent = true;
+        objPerm.isAdmin = false;
+        localStorage.removeItem("sti-admin-gold");
+        localStorage.setItem("sti-gold", "1");
+        localStorage.setItem("sti-offline", String(Date.now()));
+        localStorage.setItem("sti-session-cache", JSON.stringify(objPerm));
+        localStorage.setItem("sti-labo3-permanent", JSON.stringify(objPerm));
+        location.replace(cfg.RACINE + "index.html");
+        return;
+      }
     }
   } catch (e) {}
   try {
