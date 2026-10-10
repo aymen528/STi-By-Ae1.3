@@ -1081,6 +1081,7 @@
 
   /* ---------- roue « mon compte » chic + Progression personnelle + Écrire au prof ---------- */
   function panneauCompte(user, profil) {
+    if (estDansIframeModale()) return;
     var existWrap = document.getElementById("sti-roue-wrap");
     if (existWrap) existWrap.remove();
     var isG = estGoldProfil(profil);
@@ -1581,6 +1582,67 @@
 
   var fichierEnAttenteEleve = null;
 
+  function estDansIframeModale() {
+    if (/[?&]embed=1\b/i.test(location.search || "")) return true;
+    if (window !== window.top) {
+      try {
+        if (window.top && window.top.document && window.top.document !== document) return true;
+      } catch (e) {}
+    }
+    return false;
+  }
+
+  function uneBoiteModaleEstOuverte() {
+    var sels = [
+      "#animModal:not([hidden])",
+      "#recapModal:not([hidden])",
+      "#sqlContraintesModal:not([hidden])",
+      "#win-overlay.open",
+      "#modal-overlay:not(.hidden)",
+      "#pdfModal.open",
+      "#pdfModal.active",
+      "#modalContactQr.ouvert",
+      "#modal-qr.ouvert",
+      "#modal-qr.active",
+      "#quizOverlay:not(.hidden)",
+      "#resultsOverlay:not(.hidden)",
+      "#modal:not(.hidden)",
+      "#certModal:not(.hidden)",
+      "#phpSourceModal:not(.hidden)",
+      "#levelupModal:not(.hidden)",
+      "#sti-flashcards-modal",
+      "#sti-sandbox-modal",
+      "#sti-debug-modal",
+      "#sti-notes-modal",
+      "#sti-global-search-modal",
+      "#sti-site-flash-admin-modal",
+      "#sti-flash-live-modal"
+    ];
+    for (var i = 0; i < sels.length; i++) {
+      var el = document.querySelector(sels[i]);
+      if (el) {
+        var cs = window.getComputedStyle(el);
+        if (cs.display !== "none" && cs.visibility !== "hidden" && parseFloat(cs.opacity || "1") > 0.05) {
+          return true;
+        }
+      }
+    }
+    var docBac = document.getElementById("modal-doc-bac");
+    if (docBac && window.getComputedStyle(docBac).display !== "none") return true;
+    return false;
+  }
+
+  function synchroniserVisibiliteBoutonsFlottants() {
+    var modOuverte = uneBoiteModaleEstOuverte();
+    document.documentElement.classList.toggle("sti-modal-open", Boolean(modOuverte));
+    var aBoutonBasGauche = Boolean(
+      document.getElementById("retour-cours") ||
+      document.getElementById("phpm-ctrl") ||
+      document.querySelector("#backToCourse:not(.hidden)")
+    );
+    document.documentElement.classList.toggle("sti-has-bottom-bar", aBoutonBasGauche);
+  }
+
   function synchroniserViewportMessengerSite() {
     var wEl = document.getElementById("sti-messenger-eleve");
     var wAdm = document.getElementById("sti-messenger-admin-site");
@@ -1622,9 +1684,25 @@
       "#sti-msn-bulle-attention{" +
         "animation:stiMsnCalloutBounce 1.8s infinite ease-in-out;" +
       "}" +
+      /* Masquage automatique des boutons flottants dès qu'une boîte modale est ouverte pour ne jamais gêner les boutons Retour / Fermer */
+      "html.sti-modal-open #sti-btn-messenger-global," +
+      "html.sti-modal-open #sti-msn-bulle-attention," +
+      "html.sti-modal-open #sti-badge-admin-flottant," +
+      "html.sti-modal-open #sti-roue-wrap," +
+      "html.sti-modal-open #sti-auto-to-top{" +
+        "display:none!important;pointer-events:none!important;" +
+      "}" +
+      /* Décalage automatique au-dessus des barres ou boutons « ⬅ Retour au cours » situés en bas à gauche */
+      "html.sti-has-bottom-bar #sti-btn-messenger-global{" +
+        "bottom:72px!important;" +
+      "}" +
+      "html.sti-has-bottom-bar #sti-msn-bulle-attention{" +
+        "bottom:124px!important;" +
+      "}" +
       "@media (max-width:768px){" +
         "html.sti-msn-mob-open,html.sti-msn-mob-open body{overflow:hidden!important;overscroll-behavior:none!important}" +
         "html.sti-msn-mob-open #sti-roue-wrap,html.sti-msn-mob-open #sti-badge-admin-flottant,html.sti-msn-mob-open #sti-btn-messenger-global,html.sti-msn-mob-open #sti-auto-to-top{display:none!important}" +
+        "#sti-badge-admin-flottant .sti-btn-msn-adm-side{display:none!important}" +
         "#sti-messenger-eleve,#sti-messenger-admin-site{" +
           "display:flex!important;flex-direction:column!important;" +
           "top:var(--sti-vvt,0px)!important;left:0!important;right:0!important;bottom:auto!important;" +
@@ -1653,9 +1731,24 @@
         "#sti-btn-messenger-global{" +
           "left:10px!important;bottom:10px!important;padding:9px 13px!important;font-size:12px!important;" +
         "}" +
+        "html.sti-has-bottom-bar #sti-btn-messenger-global{" +
+          "bottom:72px!important;" +
+        "}" +
         "#sti-btn-messenger-global .sti-lbl-msn-pc{display:none!important}" +
       "}";
     (document.head || document.documentElement).appendChild(st);
+    if (!window.__stiModalWatchBound) {
+      window.__stiModalWatchBound = true;
+      synchroniserVisibiliteBoutonsFlottants();
+      document.addEventListener("click", function () {
+        setTimeout(synchroniserVisibiliteBoutonsFlottants, 30);
+        setTimeout(synchroniserVisibiliteBoutonsFlottants, 220);
+      }, true);
+      document.addEventListener("keydown", function () {
+        setTimeout(synchroniserVisibiliteBoutonsFlottants, 40);
+      }, true);
+      setInterval(synchroniserVisibiliteBoutonsFlottants, 350);
+    }
     if (window.visualViewport && !window.__stiMsnVvBound) {
       window.__stiMsnVvBound = true;
       window.visualViewport.addEventListener("resize", synchroniserViewportMessengerSite);
@@ -3255,6 +3348,7 @@
   };
 
   function installerBoutonMessengerGlobal(estAdmin, uid, maClasse) {
+    if (estDansIframeModale()) return;
     installerStylesMessengerMobile();
     var ex = document.getElementById("sti-btn-messenger-global");
     if (ex) ex.remove();
@@ -4170,6 +4264,7 @@
 
   /* ---------- badge ADMIN visible sur tout le site (droite, au-dessus de ⚙️) + bouton Messenger + bouton Question Flash + compteur de demandes ---------- */
   function badgeAdmin() {
+    if (estDansIframeModale()) return;
     var exAdm = document.getElementById("sti-badge-admin-flottant");
     if (exAdm) exAdm.remove();
     var cont = document.createElement("div");
@@ -4198,6 +4293,7 @@
 
     var btnMsnAdm = document.createElement("button");
     btnMsnAdm.type = "button";
+    btnMsnAdm.className = "sti-btn-msn-adm-side";
     btnMsnAdm.textContent = "💬";
     btnMsnAdm.title = "Ouvrir Messenger STI sur cette page";
     btnMsnAdm.style.cssText = "background:linear-gradient(125deg,#23201a,#f4511e);color:#fff;border:2px solid #23201a;border-radius:999px;padding:8px 11px;font:900 15px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a;";
@@ -5467,7 +5563,7 @@
   };
 
   /* =====================================================================
-     🐞 MODE « CHASSE AUX ERREURS (DÉBOGAGE BAC STI) » (v100)
+     🐞 MODE « CHASSE AUX ERREURS (DÉBOGAGE BAC STI) » (v101)
      10 défis officiels × 3 erreurs classiques du Bac = 30 pièges à corriger
      ===================================================================== */
   var STI_DEBUG_DEFIS = window.STI_DEBUG_DEFIS = [
@@ -6228,6 +6324,7 @@
   /* ---------- 4. Bouton universel « ⬆ Haut » sur toutes les pages qui n'en ont pas déjà un ---------- */
   (function installerBoutonHautUniversel() {
     function initBtnHaut() {
+      if (estDansIframeModale()) return;
       if (document.getElementById("sti-auto-to-top")) return;
       if (document.querySelector("#backToTopBtn, #backToTop, #to-top, .to-top, #btn-admin-to-top, .back-to-top-btn")) return;
       if (!document.body) return;

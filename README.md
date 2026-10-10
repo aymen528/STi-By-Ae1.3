@@ -1,4 +1,4 @@
-# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v100`)
+# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v101`)
 
 Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'Informatique (STI)** :
 cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, chasse aux erreurs (débogage Bac STI), messagerie temps réel avec pièces jointes, questions flash en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
@@ -74,7 +74,7 @@ cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D,
 ### 📊 4. Tableau de bord Administrateur temps réel & Pilotage de classe (`admin.html`)
 - **Sécurité d'accès exclusive, Verrou anti-flash `0 ms`, Version & Jauge Supabase** :
   - Accès à `admin.html` **strictement réservé au seul compte administrateur** avec protection immédiate dès `0 ms` avant le premier rendu.
-  - Affichage permanent de la version (`STI V2.0 · v100`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
+  - Affichage permanent de la version (`STI V2.0 · v101`) accompagné du **pourcentage et de l'espace restant en direct dans Supabase** (sur le quota de 500 Mo via `public.admin_taille_base()`).
   - **🔒 Verrouillage rapide de l'écran Admin par code PIN (`#modal-verrou-ecran-admin`)** : permet au professeur de verrouiller l'écran du tableau de bord en 1 clic lorsqu'il circule dans les rangs.
 - **📋 Feuille d'appel & présence automatique du jour par classe (`#modal-appel-presence`)** :
   - Croisement automatique des abonnés de la classe choisie avec les connexions du jour : liste claire des **`🟢 Présents`** (avec heure exacte de 1re connexion et appareil) et des **`🔴 Absents`**, prête à être **imprimée (`🖨️`)** ou **exportée en CSV (`📥`)**.
@@ -128,7 +128,7 @@ STI-Atelier-V2.0/
 ├── admin.html                        # 📊 Tableau de bord Admin temps réel, Appel, Sécurité, Flash & Messenger
 ├── bac-pratique.html                 # 🧪 Atelier Épreuve Pratique Bac STI (réservé 4SI / Labo / Admin)
 ├── carte-visite.html                 # 🪪 Carte de visite numérique AE (.vcf & impression réservés Admin)
-├── sw.js                             # ⚙️ Service Worker PWA (cache 100 % hors-ligne sti-atelier-v100)
+├── sw.js                             # ⚙️ Service Worker PWA (cache 100 % hors-ligne sti-atelier-v101)
 ├── manifest.webmanifest              # 📱 Manifeste d'installation PWA
 ├── robots.txt                        # 🤖 Directives SEO & blocage des crawlers IA
 ├── sitemap.xml                       # 🗺️ Plan du site
@@ -206,7 +206,7 @@ STI-Atelier-V2.0/
 
 ---
 
-## 🚀 Architecture & Mode 100 % Hors-ligne (`sti-atelier-v100`)
+## 🚀 Architecture & Mode 100 % Hors-ligne (`sti-atelier-v101`)
 
 1. **Service Worker (`sw.js`) sans aucun lien mort** :
    - Pré-chargement automatique en tâche de fond de l'ensemble des fichiers du site (cours, animations, exercices, quiz, PDF, archives `.zip`, polices et icônes) avec résolution exacte des sous-dossiers (`/cssanimee/`, `/Positionnement-animee/`, etc.).
