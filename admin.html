@@ -593,6 +593,210 @@
     cursor: pointer; margin-left: 5px;
   }
   .btn-edit-inline:hover { border-color: #f4511e; color: #f4511e; }
+
+  /* ---------- Fenêtre de discussion style Facebook Messenger (Prof ↔ Candidats) ---------- */
+  .msn-admin-win {
+    position: fixed;
+    right: 18px;
+    bottom: 72px;
+    z-index: 9850;
+    width: 680px;
+    max-width: calc(100vw - 24px);
+    height: 510px;
+    max-height: calc(100vh - 96px);
+    background: #fffdf7;
+    color: #23201a;
+    border: 2.5px solid #23201a;
+    border-radius: 20px;
+    box-shadow: 0 18px 46px rgba(0,0,0,.28), 5px 5px 0 #23201a;
+    display: none;
+    grid-template-columns: 235px 1fr;
+    overflow: hidden;
+  }
+  .msn-admin-win.visible {
+    display: grid;
+  }
+  .msn-sidebar {
+    background: #f6efe2;
+    border-right: 2px solid #e2d5be;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .msn-sb-head {
+    padding: 10px 12px;
+    background: #23201a;
+    color: #fff;
+    font-weight: 900;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .msn-sb-search {
+    padding: 8px;
+    border-bottom: 1.5px solid #e2d5be;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .msn-sb-search input {
+    width: 100%;
+    border: 1.5px solid #23201a;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #fff;
+    color: #23201a;
+    outline: none;
+  }
+  .msn-user-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .msn-user-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    background: rgba(255,255,255,.55);
+    text-align: left;
+    transition: background .12s, border-color .12s;
+  }
+  .msn-user-item:hover {
+    background: #fff;
+    border-color: #d6c5a9;
+  }
+  .msn-user-item.actif {
+    background: #fff3e0;
+    border-color: #f4511e;
+    box-shadow: 2px 2px 0 #23201a;
+  }
+  .msn-av {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f4511e, #ff8a50);
+    color: #fff;
+    font-weight: 900;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #23201a;
+    flex-shrink: 0;
+  }
+  .msn-av-dot {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+    background: #9ca3af;
+  }
+  .msn-av-dot.online { background: #22c55e; }
+  .msn-u-meta {
+    min-width: 0;
+    flex: 1;
+  }
+  .msn-u-nom {
+    font-size: 12px;
+    font-weight: 900;
+    color: #23201a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .msn-u-sub {
+    font-size: 10.5px;
+    color: #6b6152;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .msn-u-badge {
+    background: #f4511e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid #23201a;
+    flex-shrink: 0;
+  }
+  .msn-chat-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #f3ead9;
+  }
+  .msn-chat-head {
+    background: linear-gradient(125deg, #23201a 0%, #3a342a 55%, #f4511e 100%);
+    color: #fff;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 2px solid #23201a;
+  }
+  .msn-chat-feed {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: radial-gradient(circle at 20% 20%, #fffdf7 0%, #f3ead9 100%);
+  }
+  .msn-quote-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #fff3e0;
+    border-top: 1.5px solid #f4511e;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #5a5244;
+  }
+  .msn-chat-form {
+    padding: 9px 10px;
+    background: #fffdf7;
+    border-top: 2px solid #23201a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  @media (max-width: 680px) {
+    .msn-admin-win {
+      width: calc(100vw - 16px);
+      right: 8px;
+      bottom: 66px;
+      height: 76vh;
+      grid-template-columns: 1fr;
+    }
+    .msn-admin-win.mode-chat .msn-sidebar {
+      display: none;
+    }
+    .msn-admin-win:not(.mode-chat) .msn-chat-col {
+      display: none;
+    }
+  }
 </style>
 </head>
 <body>
@@ -606,7 +810,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v76</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v77</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v66)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -615,6 +819,7 @@
     <div class="barre-util">
       <a class="btn-util" href="index.html">🏠 <span class="lbl-pc">Accueil du site</span><span class="lbl-mob">Site</span></a>
       <a class="btn-util" href="carte-visite.html" title="Ouvrir et partager la carte de visite électronique avec QR code">🪪 <span class="lbl-pc">Carte visite</span><span class="lbl-mob">Carte</span></a>
+      <button class="btn-util" id="btn-messenger-top" type="button" title="Ouvrir la messagerie directe Messenger STI avec les candidats" style="background:#fff3e0;border-color:#f4511e;color:#d84315">💬 <span class="lbl-pc">Messenger</span><span class="lbl-mob">Chat</span></button>
       <button class="btn-util" id="btn-readme-admin" type="button" title="Consulter la documentation complète de la plateforme (README)">📖 <span class="lbl-pc">README</span><span class="lbl-mob">README</span></button>
       <button class="btn-util" id="btn-notif" type="button">🔔 <span class="lbl-pc">Notifications</span><span class="lbl-mob">Alertes</span></button>
       <button class="btn-util" id="btn-refresh" type="button">🔄 <span class="lbl-pc">Actualiser</span><span class="lbl-mob">Maj</span></button>
@@ -1192,6 +1397,67 @@
     </div>
   </div>
 
+  <!-- Fenêtre de discussion style Facebook Messenger (Prof ↔ Candidats) -->
+  <button
+    type="button"
+    id="btn-messenger-dock"
+    title="Ouvrir Messenger STI (Discussions en direct avec les candidats)"
+    style="position:fixed;left:18px;bottom:18px;z-index:9500;display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;border:2.5px solid #23201a;background:linear-gradient(125deg,#23201a 0%,#f4511e 100%);color:#fff;font:900 13px/1 system-ui,'Segoe UI',sans-serif;cursor:pointer;box-shadow:3px 3px 0 #23201a,0 8px 20px rgba(0,0,0,.24)"
+  >
+    <span>💬 Messenger STI</span>
+    <span id="badge-msn-admin" style="display:none;background:#ffd54f;color:#23201a;font-size:11px;font-weight:900;padding:2px 7px;border-radius:999px;border:1.5px solid #23201a">0</span>
+  </button>
+
+  <div class="msn-admin-win" id="sti-messenger-admin" aria-label="Messenger STI">
+    <!-- Colonne gauche : liste des conversations candidats -->
+    <div class="msn-sidebar">
+      <div class="msn-sb-head">
+        <span>💬 Messenger STI</span>
+        <button type="button" id="msn-btn-broadcast" style="border:1.5px solid #ffd54f;background:rgba(255,255,255,.15);color:#ffd54f;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:900;cursor:pointer" title="Diffuser une annonce à toute une classe">📢 Classe</button>
+      </div>
+      <div class="msn-sb-search">
+        <input type="search" id="msn-search-user" placeholder="🔎 Chercher un candidat…" />
+      </div>
+      <div class="msn-user-list" id="msn-user-list"></div>
+    </div>
+
+    <!-- Colonne droite : fil de discussion en bulles -->
+    <div class="msn-chat-col">
+      <div class="msn-chat-head">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <button type="button" id="msn-btn-back-mob" style="border:1.5px solid rgba(255,255,255,.6);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Liste des candidats">⬅</button>
+          <div class="msn-av" id="msn-head-av">AE<span class="msn-av-dot" id="msn-head-dot"></span></div>
+          <div style="min-width:0">
+            <div id="msn-head-nom" style="font-weight:900;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Sélectionnez un candidat</div>
+            <div id="msn-head-sub" style="font-size:10.5px;opacity:.92;font-weight:700">Discussion instantanée STI</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+          <button type="button" id="msn-head-wa" style="display:none;border:1.5px solid rgba(255,255,255,.55);background:#25D366;color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Envoyer aussi sur WhatsApp">📱</button>
+          <button type="button" id="msn-head-fiche" style="display:none;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Ouvrir la fiche bilan de ce candidat">📊</button>
+          <button type="button" id="msn-head-close" style="border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:900;cursor:pointer" title="Réduire / Fermer Messenger">✕</button>
+        </div>
+      </div>
+
+      <div class="msn-chat-feed" id="msn-chat-feed">
+        <div style="margin:auto;text-align:center;color:#6b6152;font-size:12.5px;font-weight:700;padding:18px">
+          👈 Cliquez sur un candidat dans la colonne de gauche (ou sur <b>📩</b> / <b>↩️ Répondre</b> dans le tableau) pour discuter en direct style Messenger.
+        </div>
+      </div>
+
+      <div class="msn-quote-bar" id="msn-admin-quote-bar">
+        <span id="msn-admin-quote-txt" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">↩️ En réponse à : « … »</span>
+        <button type="button" id="msn-admin-quote-clear" style="border:1px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:900;cursor:pointer">✕</button>
+      </div>
+
+      <form class="msn-chat-form" id="msn-chat-form">
+        <button type="button" id="msn-btn-mic" style="border:1.5px solid #23201a;background:#fff3e0;color:#23201a;border-radius:50%;width:34px;height:34px;font-size:14px;cursor:pointer;flex-shrink:0" title="Dicter le message au micro">🎙️</button>
+        <input type="text" id="msn-chat-inp" maxlength="600" placeholder="Écrivez un message en direct… (Entrée pour envoyer)" style="flex:1;border:2px solid #23201a;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;background:#fff;color:#23201a;outline:none" />
+        <button type="submit" id="msn-btn-send" style="border:2px solid #23201a;background:linear-gradient(135deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 14px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a;flex-shrink:0">➤</button>
+      </form>
+    </div>
+  </div>
+
   <button
     type="button"
     id="btn-admin-to-top"
@@ -1201,7 +1467,7 @@
   >⬆ Haut</button>
 
   <footer class="pied-admin-version">
-    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v76)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
+    Plateforme STI V2.0 © Aymen Essouyah — Lycée Raféha · <span id="pied-version-admin">🏷️ Version active : STI V2.0 (v77)</span> · <span id="pied-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo / 500 Mo)</span> · <button type="button" id="pied-readme-admin" style="border:1.5px solid #23201a;background:#fffdf7;color:#23201a;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">📖 README</button> · <button type="button" id="pied-haut-admin" style="border:1.5px solid #23201a;background:#f4511e;color:#fff;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:800;cursor:pointer">⬆ Haut</button>
   </footer>
 
 <script>
@@ -1263,7 +1529,7 @@
 </script>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=76"></script>
-<script src="assets/js/admin.js?v=76"></script>
+<script src="assets/js/config.js?v=77"></script>
+<script src="assets/js/admin.js?v=77"></script>
 </body>
 </html>

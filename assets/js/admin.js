@@ -464,6 +464,7 @@
               }
             }
             afficherTableauSuivi();
+            if (typeof rafraichirMessengerAdmin === "function") rafraichirMessengerAdmin();
           }
         })
         .on("broadcast", { event: "presence" }, function (p) {
@@ -2506,6 +2507,7 @@
       selSuiviMsg.value = "__libre";
     }
     afficherTableauSuivi();
+    if (typeof rafraichirMessengerAdmin === "function") rafraichirMessengerAdmin();
   }
 
   function afficherTableauSuivi() {
@@ -3398,7 +3400,12 @@
   }
 
   function ouvrirMessageCandidat(p, texteCitation) {
-    if (!p || !modalClasse) return;
+    if (!p) return;
+    if (document.getElementById("sti-messenger-admin")) {
+      ouvrirMessengerAdmin(p, texteCitation || "");
+      return;
+    }
+    if (!modalClasse) return;
     citationEnCours = String(texteCitation || "").trim();
     remplirClassesSelect(selClasse);
     var clP = p.classe || "*";
@@ -3658,4 +3665,462 @@
       charge(true);
     });
   });
+
+  /* ---------- Fenêtre de discussion style Facebook Messenger (#sti-messenger-admin) ---------- */
+  var msnWin = document.getElementById("sti-messenger-admin");
+  var btnMsnDock = document.getElementById("btn-messenger-dock");
+  var btnMsnTop = document.getElementById("btn-messenger-top");
+  var badgeMsnAdmin = document.getElementById("badge-msn-admin");
+  var msnSearchUser = document.getElementById("msn-search-user");
+  var msnUserList = document.getElementById("msn-user-list");
+  var msnChatFeed = document.getElementById("msn-chat-feed");
+  var msnHeadAv = document.getElementById("msn-head-av");
+  var msnHeadDot = document.getElementById("msn-head-dot");
+  var msnHeadNom = document.getElementById("msn-head-nom");
+  var msnHeadSub = document.getElementById("msn-head-sub");
+  var msnHeadWa = document.getElementById("msn-head-wa");
+  var msnHeadFiche = document.getElementById("msn-head-fiche");
+  var msnHeadClose = document.getElementById("msn-head-close");
+  var msnBtnBackMob = document.getElementById("msn-btn-back-mob");
+  var msnBtnBroadcast = document.getElementById("msn-btn-broadcast");
+  var msnQuoteBar = document.getElementById("msn-admin-quote-bar");
+  var msnQuoteTxt = document.getElementById("msn-admin-quote-txt");
+  var msnQuoteClear = document.getElementById("msn-admin-quote-clear");
+  var msnChatForm = document.getElementById("msn-chat-form");
+  var msnChatInp = document.getElementById("msn-chat-inp");
+  var msnBtnMic = document.getElementById("msn-btn-mic");
+  var msnBtnSend = document.getElementById("msn-btn-send");
+
+  var msnUidActif = "";
+  var msnCitationActuelle = "";
+
+  function fmtHeureCourt(iso) {
+    try {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      var auj = new Date();
+      var hh = ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2);
+      if (d.toDateString() === auj.toDateString()) return hh;
+      return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + " " + hh;
+    } catch (e) { return ""; }
+  }
+
+  function initialesPourProfil(p) {
+    if (!p) return "👤";
+    var np = ((p.prenom || "") + " " + (p.nom || "")).trim();
+    if (!np) np = contact(p);
+    var parts = np.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return np.slice(0, 2).toUpperCase();
+  }
+
+  function construireFilConversationAdmin(p) {
+    if (!p) return [];
+    var uid = p.id;
+    var fil = [];
+
+    /* 1. Questions spontanées envoyées par cet élève */
+    questionsLibres.forEach(function (q) {
+      if (q.uid === uid && q.reponse) {
+        fil.push({
+          de: "eleve",
+          texte: q.reponse,
+          ts: q.ts || new Date().toISOString(),
+          ms: new Date(q.ts || 0).getTime() || 0,
+          type: "question"
+        });
+      }
+    });
+
+    /* 2. Messages personnels et annonces de classe + réponses de cet élève */
+    messagesDiffuses.forEach(function (m) {
+      var uidM = m.uid || (String(m.classe || "").indexOf("UID:") === 0 ? String(m.classe).slice(4) : "");
+      var estPerso = uidM === uid;
+      var estSaClasse = !uidM && (m.classe === "*" || m.classe === (p.classe || "—"));
+      var luTs = (lecturesParMsg[m.id] || {})[uid] || "";
+      var repTxt = (reponsesParMsg[m.id] || {})[uid] || "";
+
+      if (estPerso || (estSaClasse && (luTs || repTxt))) {
+        fil.push({
+          de: "prof",
+          id: m.id,
+          texte: m.texte || "",
+          enReponseA: m.enReponseA || "",
+          perso: estPerso,
+          luTs: luTs,
+          ts: m.ts || new Date().toISOString(),
+          ms: new Date(m.ts || 0).getTime() || 0
+        });
+      }
+      if (repTxt) {
+        var tsRep = luTs || m.ts || new Date().toISOString();
+        fil.push({
+          de: "eleve",
+          texte: repTxt,
+          enReponseA: m.texte || "",
+          ts: tsRep,
+          ms: (new Date(tsRep).getTime() || 0) + 1,
+          type: "reponse"
+        });
+      }
+    });
+
+    fil.sort(function (a, b) { return a.ms - b.ms; });
+    return fil;
+  }
+
+  function nbQuestionsNonReponduesCandidat(p) {
+    var fil = construireFilConversationAdmin(p);
+    if (!fil.length) return 0;
+    var nb = 0;
+    for (var i = fil.length - 1; i >= 0; i--) {
+      if (fil[i].de === "eleve") nb++;
+      else if (fil[i].de === "prof" && fil[i].perso) break;
+    }
+    return nb;
+  }
+
+  function definirCitationMessengerAdmin(texte) {
+    msnCitationActuelle = String(texte || "").trim();
+    if (!msnQuoteBar || !msnQuoteTxt) return;
+    if (msnCitationActuelle) {
+      msnQuoteBar.style.display = "flex";
+      msnQuoteTxt.textContent = "↩️ En réponse à : « " + msnCitationActuelle + " »";
+    } else {
+      msnQuoteBar.style.display = "none";
+      msnQuoteTxt.textContent = "";
+    }
+  }
+
+  if (msnQuoteClear) {
+    msnQuoteClear.addEventListener("click", function () {
+      definirCitationMessengerAdmin("");
+    });
+  }
+
+  function peindreListeUsersMessengerAdmin() {
+    if (!msnUserList) return;
+    var q = msnSearchUser ? msnSearchUser.value.trim().toLowerCase() : "";
+    var totalNonRepondus = 0;
+
+    var enrichis = profils.map(function (p) {
+      var fil = construireFilConversationAdmin(p);
+      var dernier = fil.length ? fil[fil.length - 1] : null;
+      var nonRep = nbQuestionsNonReponduesCandidat(p);
+      totalNonRepondus += nonRep;
+      return {
+        p: p,
+        fil: fil,
+        dernier: dernier,
+        dernierMs: dernier ? dernier.ms : 0,
+        nonRep: nonRep,
+        online: estEnLigne(p.id)
+      };
+    });
+
+    if (badgeMsnAdmin) {
+      if (totalNonRepondus > 0) {
+        badgeMsnAdmin.style.display = "inline-block";
+        badgeMsnAdmin.textContent = String(totalNonRepondus);
+      } else {
+        badgeMsnAdmin.style.display = "none";
+      }
+    }
+
+    var filtres = enrichis.filter(function (it) {
+      if (!q) return true;
+      var ch = (contact(it.p) + " " + (it.p.classe || "") + " " + lyceePropre(it.p)).toLowerCase();
+      return ch.indexOf(q) !== -1;
+    });
+
+    filtres.sort(function (a, b) {
+      if (b.nonRep !== a.nonRep) return b.nonRep - a.nonRep;
+      if (b.dernierMs !== a.dernierMs) return b.dernierMs - a.dernierMs;
+      if (a.online !== b.online) return a.online ? -1 : 1;
+      return contact(a.p).localeCompare(contact(b.p), "fr");
+    });
+
+    msnUserList.innerHTML = "";
+    if (!filtres.length) {
+      msnUserList.innerHTML = "<div style='padding:12px;text-align:center;color:#7a6f5d;font-size:11.5px;font-weight:700'>Aucun candidat trouvé.</div>";
+      return;
+    }
+
+    filtres.forEach(function (it) {
+      var p = it.p;
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "msn-user-item" + (p.id === msnUidActif ? " actif" : "");
+      var ini = initialesPourProfil(p);
+      var subTxt = it.dernier
+        ? ((it.dernier.de === "prof" ? "Vous : " : "💬 ") + it.dernier.texte)
+        : ((p.classe || "—") + " · " + (it.online ? "🟢 En ligne" : "Hors ligne"));
+
+      row.innerHTML =
+        "<div class='msn-av'>" + echHtml(ini) + "<span class='msn-av-dot" + (it.online ? " online" : "") + "'></span></div>" +
+        "<div class='msn-u-meta'>" +
+          "<div class='msn-u-nom'>" + echHtml(contact(p)) + "</div>" +
+          "<div class='msn-u-sub'>" + echHtml(subTxt) + "</div>" +
+        "</div>" +
+        (it.nonRep > 0 ? ("<span class='msn-u-badge' title='Nouveau message de cet élève'>" + it.nonRep + "</span>") : "");
+
+      row.addEventListener("click", function () {
+        msnUidActif = p.id;
+        definirCitationMessengerAdmin("");
+        if (msnWin) msnWin.classList.add("mode-chat");
+        peindreListeUsersMessengerAdmin();
+        peindreConversationMessengerAdmin();
+        if (msnChatInp) msnChatInp.focus();
+      });
+      msnUserList.appendChild(row);
+    });
+  }
+
+  function peindreConversationMessengerAdmin() {
+    if (!msnChatFeed) return;
+    var p = null;
+    profils.forEach(function (x) { if (x.id === msnUidActif) p = x; });
+
+    if (!p) {
+      if (msnHeadNom) msnHeadNom.textContent = "Sélectionnez un candidat";
+      if (msnHeadSub) msnHeadSub.textContent = "Discussion instantanée STI";
+      if (msnHeadWa) msnHeadWa.style.display = "none";
+      if (msnHeadFiche) msnHeadFiche.style.display = "none";
+      msnChatFeed.innerHTML =
+        "<div style='margin:auto;text-align:center;color:#6b6152;font-size:12.5px;font-weight:700;padding:18px'>" +
+          "👈 Choisissez un candidat dans la liste à gauche pour ouvrir sa conversation style Facebook Messenger." +
+        "</div>";
+      return;
+    }
+
+    var onL = estEnLigne(p.id);
+    if (msnHeadAv) {
+      msnHeadAv.innerHTML = echHtml(initialesPourProfil(p)) + "<span class='msn-av-dot" + (onL ? " online" : "") + "' id='msn-head-dot'></span>";
+    }
+    if (msnHeadNom) msnHeadNom.textContent = contact(p);
+    if (msnHeadSub) {
+      msnHeadSub.textContent = (p.classe || "—") + " · " + lyceePropre(p) + " · " + (onL ? "🟢 En ligne" : "⚪ Hors ligne");
+    }
+    var telP = telDeProfil(p);
+    if (msnHeadWa) {
+      msnHeadWa.style.display = telP ? "inline-block" : "none";
+      msnHeadWa.onclick = function () {
+        var ch = telP.replace(/\D/g, "");
+        var txt = (msnChatInp && msnChatInp.value.trim()) || "Bonjour " + contact(p) + ", ";
+        window.open("https://wa.me/" + ch + "?text=" + encodeURIComponent(txt), "_blank", "noopener");
+      };
+    }
+    if (msnHeadFiche) {
+      msnHeadFiche.style.display = "inline-block";
+      msnHeadFiche.onclick = function () {
+        ouvrirFicheEleve(p);
+      };
+    }
+    if (msnChatInp) {
+      msnChatInp.placeholder = "Écrire à " + contact(p) + "… (Entrée pour envoyer)";
+    }
+
+    var fil = construireFilConversationAdmin(p);
+    if (!fil.length) {
+      msnChatFeed.innerHTML =
+        "<div style='margin:auto;text-align:center;color:#6b6152;font-size:12px;padding:18px;max-width:300px'>" +
+          "<div style='font-size:28px;margin-bottom:6px'>👋</div>" +
+          "<b>Démarrez la discussion avec " + echHtml(contact(p)) + "</b><br>" +
+          "<span style='color:#8a7f6d'>Votre message s'affichera instantanément dans une fenêtre Messenger sur son écran.</span>" +
+        "</div>";
+      return;
+    }
+
+    msnChatFeed.innerHTML = fil.map(function (it, idx) {
+      var estProf = it.de === "prof";
+      var h = fmtHeureCourt(it.ts);
+      if (estProf) {
+        var citProf = it.enReponseA
+          ? ("<div style='background:rgba(0,0,0,.18);border-left:3px solid #ffd54f;border-radius:7px;padding:4px 8px;margin-bottom:5px;font-size:11px;opacity:.95'>↩️ « " + echHtml(it.enReponseA) + " »</div>")
+          : (!it.perso ? "<div style='font-size:10px;font-weight:900;color:#ffd54f;margin-bottom:3px'>📢 Annonce de classe</div>" : "");
+        var vuTxt = it.luTs ? ("✓✓ Lu (" + fmtHeureCourt(it.luTs) + ")") : "✓ Envoyé";
+        return (
+          "<div style='display:flex;flex-direction:column;align-items:flex-end'>" +
+            "<div style='max-width:82%;background:linear-gradient(135deg,#f4511e,#ff7043);color:#fff;border:2px solid #23201a;border-radius:16px 16px 4px 16px;padding:8px 12px;font-size:12.5px;font-weight:700;box-shadow:2px 2px 0 rgba(35,32,26,.2);word-break:break-word'>" +
+              citProf +
+              "<div style='white-space:pre-wrap'>" + echHtml(it.texte) + "</div>" +
+            "</div>" +
+            "<div style='font-size:10px;color:#6b6152;margin-top:2px;padding:0 4px;font-weight:800'>" + echHtml(h) + " · <span style='color:" + (it.luTs ? "#177245" : "#7a6f5d") + "'>" + echHtml(vuTxt) + "</span></div>" +
+          "</div>"
+        );
+      } else {
+        var citEleve = it.enReponseA
+          ? ("<div style='background:#f3ead9;border-left:3px solid #f4511e;border-radius:7px;padding:4px 8px;margin-bottom:5px;font-size:11px;color:#5a5244'>📢 En réponse à : « " + echHtml(it.enReponseA) + " »</div>")
+          : "";
+        return (
+          "<div style='display:flex;flex-direction:column;align-items:flex-start'>" +
+            "<div style='display:flex;align-items:center;gap:6px;max-width:86%'>" +
+              "<div style='background:#fff;color:#23201a;border:2px solid #23201a;border-radius:16px 16px 16px 4px;padding:8px 12px;font-size:12.5px;font-weight:700;box-shadow:2px 2px 0 rgba(35,32,26,.15);word-break:break-word'>" +
+                "<div style='font-size:10px;font-weight:900;color:#f4511e;margin-bottom:2px'>💬 " + echHtml(contact(p)) + "</div>" +
+                citEleve +
+                "<div style='white-space:pre-wrap'>" + echHtml(it.texte) + "</div>" +
+              "</div>" +
+              "<button type='button' class='msn-btn-quote-item' data-idx='" + idx + "' style='border:1.5px solid #23201a;background:#fff3e0;color:#d84315;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0' title='Citer et répondre à ce message'>↩️</button>" +
+            "</div>" +
+            "<div style='font-size:10px;color:#6b6152;margin-top:2px;padding:0 4px;font-weight:800'>" + echHtml(h) + "</div>" +
+          "</div>"
+        );
+      }
+    }).join("");
+
+    Array.prototype.forEach.call(msnChatFeed.querySelectorAll(".msn-btn-quote-item"), function (b) {
+      b.addEventListener("click", function () {
+        var idx = parseInt(b.getAttribute("data-idx"), 10);
+        if (fil[idx] && fil[idx].texte) {
+          definirCitationMessengerAdmin(fil[idx].texte);
+          if (msnChatInp) msnChatInp.focus();
+        }
+      });
+    });
+
+    msnChatFeed.scrollTop = msnChatFeed.scrollHeight;
+  }
+
+  function ouvrirMessengerAdmin(pCible, texteCitation) {
+    if (!msnWin) return;
+    if (pCible && pCible.id) {
+      msnUidActif = pCible.id;
+      msnWin.classList.add("mode-chat");
+    } else if (!msnUidActif && profils.length) {
+      /* Choisir automatiquement le 1er élève ayant posé une question ou en ligne */
+      peindreListeUsersMessengerAdmin();
+      var premierBtn = msnUserList ? msnUserList.querySelector(".msn-user-item") : null;
+      if (premierBtn) premierBtn.click();
+    }
+    definirCitationMessengerAdmin(texteCitation || "");
+    msnWin.classList.add("visible");
+    peindreListeUsersMessengerAdmin();
+    peindreConversationMessengerAdmin();
+    setTimeout(function () {
+      if (msnChatInp && msnUidActif) msnChatInp.focus();
+    }, 40);
+  }
+
+  function rafraichirMessengerAdmin() {
+    peindreListeUsersMessengerAdmin();
+    if (msnWin && msnWin.classList.contains("visible")) {
+      peindreConversationMessengerAdmin();
+    }
+  }
+
+  if (btnMsnDock) {
+    btnMsnDock.addEventListener("click", function () {
+      if (msnWin && msnWin.classList.contains("visible")) {
+        msnWin.classList.remove("visible");
+      } else {
+        ouvrirMessengerAdmin(null, "");
+      }
+    });
+  }
+  if (btnMsnTop) {
+    btnMsnTop.addEventListener("click", function () {
+      ouvrirMessengerAdmin(null, "");
+    });
+  }
+  if (msnHeadClose) {
+    msnHeadClose.addEventListener("click", function () {
+      if (msnWin) msnWin.classList.remove("visible");
+    });
+  }
+  if (msnBtnBackMob) {
+    msnBtnBackMob.addEventListener("click", function () {
+      if (msnWin) msnWin.classList.remove("mode-chat");
+    });
+  }
+  if (msnBtnBroadcast) {
+    msnBtnBroadcast.addEventListener("click", function () {
+      if (msnWin) msnWin.classList.remove("visible");
+      var btnCl = document.getElementById("btn-msg-classe");
+      if (btnCl) btnCl.click();
+    });
+  }
+  if (msnSearchUser) {
+    msnSearchUser.addEventListener("input", peindreListeUsersMessengerAdmin);
+  }
+
+  /* Dictée vocale directe dans Messenger STI */
+  if (msnBtnMic) {
+    var recoMsn = null;
+    var ecouteMsn = false;
+    msnBtnMic.addEventListener("click", function () {
+      if (!Rec) {
+        msg("⚠️ La dictée vocale nécessite Chrome, Edge ou Safari.", "err");
+        return;
+      }
+      if (ecouteMsn && recoMsn) {
+        ecouteMsn = false;
+        try { recoMsn.stop(); } catch (e) {}
+        msnBtnMic.textContent = "🎙️";
+        return;
+      }
+      recoMsn = new Rec();
+      recoMsn.lang = "fr-FR";
+      recoMsn.continuous = false;
+      recoMsn.interimResults = false;
+      recoMsn.onstart = function () {
+        ecouteMsn = true;
+        msnBtnMic.textContent = "⏹️";
+      };
+      recoMsn.onresult = function (e) {
+        var seg = (e.results[0] && e.results[0][0] && e.results[0][0].transcript) || "";
+        if (seg && msnChatInp) {
+          msnChatInp.value = (msnChatInp.value ? msnChatInp.value.trim() + " " : "") + seg.trim();
+          msnChatInp.focus();
+        }
+      };
+      recoMsn.onend = function () {
+        ecouteMsn = false;
+        msnBtnMic.textContent = "🎙️";
+      };
+      try { recoMsn.start(); } catch (e) { ecouteMsn = false; msnBtnMic.textContent = "🎙️"; }
+    });
+  }
+
+  /* Envoi instantané depuis la barre Messenger STI */
+  if (msnChatForm) {
+    msnChatForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!msnUidActif) {
+        msg("⚠️ Sélectionnez d'abord un candidat dans la colonne de gauche.", "err");
+        return;
+      }
+      var texte = msnChatInp ? msnChatInp.value.trim() : "";
+      if (!texte) return;
+      var pCible = null;
+      profils.forEach(function (x) { if (x.id === msnUidActif) pCible = x; });
+      var payload = {
+        id: "m" + Date.now(),
+        ts: new Date().toISOString(),
+        classe: "UID:" + msnUidActif,
+        uid: msnUidActif,
+        cibleNom: pCible ? contact(pCible) : msnUidActif,
+        enReponseA: msnCitationActuelle || undefined,
+        texte: texte
+      };
+
+      /* Mise à jour immédiate de l'interface Messenger sans attendre le réseau */
+      messagesDiffuses.unshift(payload);
+      if (msnChatInp) msnChatInp.value = "";
+      definirCitationMessengerAdmin("");
+      peindreListeUsersMessengerAdmin();
+      peindreConversationMessengerAdmin();
+      rendSuiviMessages();
+
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "annonce", payload: payload });
+      } catch (err) {}
+      if (adminUid) {
+        sb.from("acces").insert({ user_id: adminUid, page: "MSG_ENVOI:" + payload.id, lieu: JSON.stringify(payload), duree_sec: 0 }).then(function () {});
+      }
+      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }).catch(function () {});
+    });
+  }
 })();

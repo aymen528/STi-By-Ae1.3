@@ -25,7 +25,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=76";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=77";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }
@@ -48,8 +48,8 @@
       }).catch(function () {});
       navigator.serviceWorker.addEventListener("controllerchange", function () {
         try {
-          if (sessionStorage.getItem("sti-sw-reload-76") === "1") return;
-          sessionStorage.setItem("sti-sw-reload-76", "1");
+          if (sessionStorage.getItem("sti-sw-reload-77") === "1") return;
+          sessionStorage.setItem("sti-sw-reload-77", "1");
         } catch (e) {}
         location.reload();
       });
@@ -1233,59 +1233,242 @@
     ecouterMessagesClasse(user.id, profil.classe || "");
   }
 
-  /* ---------- Point 8 : Boîte permettant à l'élève d'écrire une question au professeur ---------- */
-  function ouvrirBoiteQuestionProf(uid, maClasse) {
-    var ex = document.getElementById("sti-modal-qprof");
-    if (ex) ex.remove();
-    var fond = document.createElement("div");
-    fond.id = "sti-modal-qprof";
-    fond.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(35,32,26,.55);display:flex;align-items:center;justify-content:center;padding:16px;font:600 13.5px/1.45 system-ui,'Segoe UI',sans-serif;";
-    fond.innerHTML =
-      "<div style='background:#fffdf7;color:#23201a;border:2.5px solid #23201a;border-radius:18px;padding:20px;max-width:410px;width:100%;box-shadow:6px 6px 0 #f4511e'>" +
-      "<h3 style='font-size:16px;font-weight:900;color:#f4511e;margin-bottom:6px'>💬 Envoyer un message à M. Essouyah</h3>" +
-      "<p style='font-size:12.5px;color:#5a5244;margin-bottom:10px'>Posez votre question sur le cours ou un exercice :</p>" +
-      "<textarea id='sti-txt-qprof' style='width:100%;min-height:85px;border:2px solid #23201a;border-radius:10px;padding:9px;font:inherit;background:#fff;color:#23201a;margin-bottom:12px' placeholder='Bonjour Monsieur, j&#39;ai une question sur…'></textarea>" +
-      "<div style='display:flex;justify-content:flex-end;gap:8px'>" +
-      "<button type='button' id='sti-qprof-ann' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:7px 14px;font-weight:800;cursor:pointer'>Annuler</button>" +
-      "<button type='button' id='sti-qprof-env' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 16px;font-weight:900;cursor:pointer;box-shadow:2px 2px 0 #23201a'>📨 Envoyer</button>" +
-      "</div></div>";
-    document.body.appendChild(fond);
-    fond.querySelector("#sti-qprof-ann").addEventListener("click", function () { fond.remove(); });
-    fond.querySelector("#sti-qprof-env").addEventListener("click", function () {
-      var txt = fond.querySelector("#sti-txt-qprof").value.trim();
-      if (!txt) return;
-      var tsNow = new Date().toISOString();
-      var info = JSON.stringify({ classe: maClasse || "*", reponse: txt, page: chemin });
-      var ligneMsg = {
-        user_id: uid,
-        page: "MSG_LU:libre",
-        lieu: info,
-        fin: tsNow,
-        duree_sec: 0
-      };
-      if (!navigator.onLine) {
-        empilerHorsLigne(ligneMsg);
-        fond.remove();
-        return;
-      }
-      sb.from("acces").insert(ligneMsg).then(function (r) {
-        if (r && r.error) empilerHorsLigne(ligneMsg);
-      }).catch(function () {
-        empilerHorsLigne(ligneMsg);
-      });
-      try {
-        sb.channel("sti-diffusion").send({
-          type: "broadcast",
-          event: "lu",
-          payload: { msgId: "libre", uid: uid, ts: tsNow, reponse: txt }
-        });
-      } catch (e) {}
-      fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
-        method: "POST",
-        body: JSON.stringify({ type: "lu", msgId: "libre", uid: uid, ts: tsNow, reponse: txt })
-      }).catch(function () {});
-      fond.remove();
+  /* ---------- Point 8 : Fenêtre « 💬 Messenger STI » Élève <-> Professeur (style Facebook Messenger) ---------- */
+  function cleFilMessengerEleve(uid) {
+    return "sti-msn-hist-" + (uid || "anon");
+  }
+
+  function lireFilMessengerEleve(uid) {
+    try {
+      var arr = JSON.parse(localStorage.getItem(cleFilMessengerEleve(uid)) || "[]");
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function enregistrerMsgFilEleve(uid, item) {
+    if (!item || !item.texte) return;
+    var fil = lireFilMessengerEleve(uid);
+    if (item.id && fil.some(function (x) { return x.id === item.id; })) return;
+    fil.push({
+      id: item.id || ("loc-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6)),
+      de: item.de || "eleve", /* "prof" | "eleve" */
+      texte: item.texte,
+      enReponseA: item.enReponseA || "",
+      perso: Boolean(item.perso),
+      ts: item.ts || new Date().toISOString()
     });
+    if (fil.length > 80) fil = fil.slice(fil.length - 80);
+    try {
+      localStorage.setItem(cleFilMessengerEleve(uid), JSON.stringify(fil));
+    } catch (e) {}
+  }
+
+  function fmtHeureMsn(ts) {
+    if (!ts) return "";
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function envoyerAccuseLectureProf(uid, a, texteRep) {
+    if (!a || !a.id) return;
+    try { localStorage.setItem("sti-msg-lu-" + a.id, "1"); } catch (e) {}
+    var tsNow = new Date().toISOString();
+    var lieuVal = texteRep ? JSON.stringify({ classe: a.classe || "*", reponse: texteRep }) : (a.classe || "*");
+    var ligneLu = {
+      user_id: uid || currentUid || "offline-user",
+      page: "MSG_LU:" + a.id,
+      lieu: lieuVal,
+      fin: tsNow,
+      duree_sec: 0
+    };
+    if (!navigator.onLine) {
+      empilerHorsLigne(ligneLu);
+      return;
+    }
+    sb.from("acces").insert(ligneLu).then(function (r) {
+      if (r && r.error) empilerHorsLigne(ligneLu);
+    }).catch(function () {
+      empilerHorsLigne(ligneLu);
+    });
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "lu", payload: { msgId: a.id, uid: uid, ts: tsNow, reponse: texteRep || "" } });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify({ type: "lu", msgId: a.id, uid: uid, ts: tsNow, reponse: texteRep || "" })
+    }).catch(function () {});
+  }
+
+  function ouvrirBoiteQuestionProf(uid, maClasse, dernierMsgProfId) {
+    var exOld = document.getElementById("sti-modal-qprof");
+    if (exOld) exOld.remove();
+    var bulleMin = document.getElementById("sti-msn-bulle-eleve");
+    if (bulleMin) bulleMin.remove();
+
+    var win = document.getElementById("sti-messenger-eleve");
+    if (!win) {
+      win = document.createElement("div");
+      win.id = "sti-messenger-eleve";
+      win.className = "sti-no-print";
+      win.style.cssText =
+        "position:fixed;right:16px;bottom:16px;z-index:2147483647;width:min(365px,calc(100vw - 24px));height:min(480px,80vh);" +
+        "background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:20px;" +
+        "box-shadow:6px 6px 0 #f4511e,0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;" +
+        "font:600 13px/1.42 system-ui,'Segoe UI',sans-serif;";
+
+      win.innerHTML =
+        "<div style='background:linear-gradient(120deg,#23201a,#3a3228);color:#fffdf7;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:2.5px solid #f4511e'>" +
+          "<div style='display:flex;align-items:center;gap:9px;min-width:0'>" +
+            "<div style='position:relative;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f4511e,#ff8a50);border:2px solid #fffdf7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0'>👨‍🏫" +
+              "<span style='position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:#2ecc71;border:2px solid #23201a'></span>" +
+            "</div>" +
+            "<div style='min-width:0'>" +
+              "<div style='font-weight:900;font-size:13.5px;color:#fffdf7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>M. Aymen Essouyah</div>" +
+              "<div style='font-size:10.5px;color:#ffb27a;font-weight:700'>🟢 Messenger STI · Discussion directe</div>" +
+            "</div>" +
+          "</div>" +
+          "<div style='display:flex;gap:5px;flex-shrink:0'>" +
+            "<button type='button' id='sti-msn-el-min' title='Réduire en bulle' style='width:27px;height:27px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;font-weight:900;cursor:pointer'>—</button>" +
+            "<button type='button' id='sti-msn-el-close' title='Fermer' style='width:27px;height:27px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;font-weight:900;cursor:pointer'>✕</button>" +
+          "</div>" +
+        "</div>" +
+        "<div id='sti-msn-el-feed' style='flex:1;overflow-y:auto;padding:12px;background:#f9f1e3;display:flex;flex-direction:column;gap:9px'></div>" +
+        "<form id='sti-msn-el-form' style='padding:9px 10px;background:#fffdf7;border-top:2px solid #23201a;display:flex;align-items:center;gap:7px;margin:0'>" +
+          "<input type='text' id='sti-msn-el-inp' placeholder='Écrire un message à M. Essouyah…' autocomplete='off' style='flex:1;border:2px solid #23201a;border-radius:999px;padding:8px 13px;font:600 12.5px system-ui,sans-serif;background:#fff;color:#23201a;outline:none' />" +
+          "<button type='submit' title='Envoyer' style='width:36px;height:36px;border-radius:50%;border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:2px 2px 0 #23201a;flex-shrink:0'>➤</button>" +
+        "</form>";
+
+      (document.body || document.documentElement).appendChild(win);
+
+      win.querySelector("#sti-msn-el-close").addEventListener("click", function () {
+        win.remove();
+      });
+      win.querySelector("#sti-msn-el-min").addEventListener("click", function () {
+        win.remove();
+        afficherBulleMinimiseeEleve(uid, maClasse, 0);
+      });
+      win.querySelector("#sti-msn-el-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var inp = win.querySelector("#sti-msn-el-inp");
+        var txt = inp ? inp.value.trim() : "";
+        if (!txt) return;
+        inp.value = "";
+        var tsNow = new Date().toISOString();
+        enregistrerMsgFilEleve(uid, { de: "eleve", texte: txt, ts: tsNow });
+        peindreFilMessengerEleve(uid);
+
+        var cibleMsgId = win.getAttribute("data-reply-msgid") || "libre";
+        win.removeAttribute("data-reply-msgid");
+        var info = JSON.stringify({ classe: maClasse || "*", reponse: txt, page: chemin });
+        var ligneMsg = {
+          user_id: uid,
+          page: "MSG_LU:" + cibleMsgId,
+          lieu: info,
+          fin: tsNow,
+          duree_sec: 0
+        };
+        if (!navigator.onLine) {
+          empilerHorsLigne(ligneMsg);
+          return;
+        }
+        sb.from("acces").insert(ligneMsg).then(function (r) {
+          if (r && r.error) empilerHorsLigne(ligneMsg);
+        }).catch(function () {
+          empilerHorsLigne(ligneMsg);
+        });
+        try {
+          sb.channel("sti-diffusion").send({
+            type: "broadcast",
+            event: "lu",
+            payload: { msgId: cibleMsgId, uid: uid, ts: tsNow, reponse: txt }
+          });
+        } catch (err) {}
+        fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+          method: "POST",
+          body: JSON.stringify({ type: "lu", msgId: cibleMsgId, uid: uid, ts: tsNow, reponse: txt })
+        }).catch(function () {});
+      });
+    }
+
+    if (dernierMsgProfId) {
+      win.setAttribute("data-reply-msgid", dernierMsgProfId);
+    }
+    peindreFilMessengerEleve(uid);
+    var inpFocus = win.querySelector("#sti-msn-el-inp");
+    if (inpFocus) setTimeout(function () { inpFocus.focus(); }, 40);
+  }
+
+  function peindreFilMessengerEleve(uid) {
+    var win = document.getElementById("sti-messenger-eleve");
+    if (!win) return;
+    var feed = win.querySelector("#sti-msn-el-feed");
+    if (!feed) return;
+    var fil = lireFilMessengerEleve(uid);
+    if (!fil.length) {
+      feed.innerHTML =
+        "<div style='margin:auto;text-align:center;padding:20px;color:#7a6f5d;font-size:12px'>" +
+          "<div style='font-size:30px;margin-bottom:6px'>💬</div>" +
+          "<b>Discussion directe avec M. Essouyah</b><br>" +
+          "Posez votre question ou répondez aux messages du professeur ici comme sur Messenger." +
+        "</div>";
+      return;
+    }
+    feed.innerHTML = fil.map(function (m) {
+      var estProf = m.de === "prof";
+      var cit = m.enReponseA
+        ? ("<div style='font-size:11px;padding:4px 8px;margin-bottom:5px;border-radius:7px;background:rgba(0,0,0,.07);border-left:3px solid #f4511e;opacity:.9'>↩️ « " + esc(m.enReponseA) + " »</div>")
+        : "";
+      var tagType = estProf
+        ? ("<div style='font-size:10px;font-weight:900;color:#d84315;margin-bottom:3px'>" + (m.perso ? "📩 M. Essouyah (Personnel)" : "📢 M. Essouyah (Classe)") + "</div>")
+        : "";
+      if (estProf) {
+        return (
+          "<div style='display:flex;align-items:flex-end;gap:7px;max-width:88%;align-self:flex-start'>" +
+            "<div style='width:26px;height:26px;border-radius:50%;background:#23201a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0'>👨‍🏫</div>" +
+            "<div style='background:#ffffff;color:#23201a;border:2px solid #23201a;border-radius:16px 16px 16px 4px;padding:8px 12px;box-shadow:2px 2px 0 rgba(35,32,26,.18)'>" +
+              tagType +
+              cit +
+              "<div style='white-space:pre-wrap;font-weight:700;font-size:12.8px'>" + esc(m.texte) + "</div>" +
+              "<div style='font-size:10px;color:#7a6f5d;text-align:right;margin-top:3px'>" + esc(fmtHeureMsn(m.ts)) + "</div>" +
+            "</div>" +
+          "</div>"
+        );
+      }
+      return (
+        "<div style='display:flex;flex-direction:column;max-width:86%;align-self:flex-end'>" +
+          "<div style='background:linear-gradient(135deg,#f4511e,#ff7043);color:#fff;border:2px solid #23201a;border-radius:16px 16px 4px 16px;padding:8px 12px;box-shadow:2px 2px 0 #23201a'>" +
+            "<div style='white-space:pre-wrap;font-weight:700;font-size:12.8px'>" + esc(m.texte) + "</div>" +
+            "<div style='font-size:10px;color:rgba(255,255,255,.88);text-align:right;margin-top:3px'>" + esc(fmtHeureMsn(m.ts)) + " · ✓✓</div>" +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+    feed.scrollTop = feed.scrollHeight;
+  }
+
+  function afficherBulleMinimiseeEleve(uid, maClasse, nbNonLus) {
+    var ex = document.getElementById("sti-msn-bulle-eleve");
+    if (ex) ex.remove();
+    var b = document.createElement("button");
+    b.type = "button";
+    b.id = "sti-msn-bulle-eleve";
+    b.className = "sti-no-print";
+    b.title = "Ouvrir la discussion Messenger avec M. Essouyah";
+    b.style.cssText =
+      "position:fixed;right:16px;bottom:68px;z-index:2147483646;width:50px;height:50px;border-radius:50%;" +
+      "border:2.5px solid #23201a;background:linear-gradient(135deg,#f4511e,#ff8a50);color:#fff;font-size:22px;" +
+      "display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:4px 4px 0 #23201a,0 10px 24px rgba(0,0,0,.28);";
+    b.innerHTML = "💬" + (nbNonLus > 0
+      ? ("<span style='position:absolute;top:-5px;right:-5px;background:#c0392b;color:#fff;border:2px solid #fff;border-radius:999px;padding:1px 6px;font:900 10.5px system-ui,sans-serif'>" + nbNonLus + "</span>")
+      : "");
+    b.addEventListener("click", function () {
+      b.remove();
+      ouvrirBoiteQuestionProf(uid, maClasse);
+    });
+    (document.body || document.documentElement).appendChild(b);
   }
 
   /* ---------- Point 6 : Bandeau de Contrôle / Test chronométré lancé par l'Admin ---------- */
@@ -1370,55 +1553,61 @@
 
     function afficherAnnonce(a) {
       if (!estAnnoncePourMoi(a)) return;
+      var estPerso = Boolean(a.uid) || String(a.classe || "").indexOf("UID:") === 0;
+      enregistrerMsgFilEleve(uid, {
+        id: a.id,
+        de: "prof",
+        texte: a.texte,
+        enReponseA: a.enReponseA || "",
+        perso: estPerso,
+        ts: a.ts
+      });
+
+      /* Si la fenêtre Messenger est déjà ouverte, ou si c'est un message personnel / une réponse directe :
+         on l'affiche directement dans la fenêtre Messenger ! */
+      var winMsn = document.getElementById("sti-messenger-eleve");
+      if (winMsn) {
+        peindreFilMessengerEleve(uid);
+        winMsn.setAttribute("data-reply-msgid", a.id);
+        envoyerAccuseLectureProf(uid, a, "");
+        return;
+      }
+
       try { if (localStorage.getItem("sti-msg-lu-" + a.id) === "1") return; } catch (e) {}
+
+      if (estPerso) {
+        ouvrirBoiteQuestionProf(uid, maClasse, a.id);
+        envoyerAccuseLectureProf(uid, a, "");
+        return;
+      }
+
       if (document.getElementById("sti-annonce-" + a.id)) return;
 
-      var estPerso = Boolean(a.uid) || String(a.classe || "").indexOf("UID:") === 0;
       var boite = document.createElement("div");
       boite.id = "sti-annonce-" + a.id;
       boite.style.cssText = "position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;max-width:450px;width:calc(100vw - 28px);background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e,0 16px 36px rgba(0,0,0,.22);font:600 13.5px/1.5 system-ui,'Segoe UI',sans-serif;";
-      var enteteTxt = estPerso
-        ? (a.enReponseA ? "↩️ Réponse de M. Essouyah à votre message" : "📩 Message personnel de M. Essouyah")
-        : ("📢 Message de M. Essouyah · " + (a.classe === "*" ? "Toutes les classes" : a.classe));
-      var htmlCit = a.enReponseA
-        ? ("<div style='background:#f3ead9;border-left:3.5px solid #f4511e;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#5a5244'>💬 Votre message : « " + esc(a.enReponseA) + " »</div>")
-        : "";
+      var enteteTxt = "📢 Message de M. Essouyah · " + (a.classe === "*" ? "Toutes les classes" : a.classe);
       boite.innerHTML =
         "<div style='font-weight:900;font-size:15px;color:#f4511e;margin-bottom:6px'>" + esc(enteteTxt) + "</div>" +
-        htmlCit +
         "<div style='white-space:pre-wrap;color:#23201a;margin-bottom:10px;font-weight:700'>" + esc(a.texte) + "</div>" +
         "<input type='text' id='sti-rep-" + a.id + "' placeholder='💬 Votre réponse au professeur (facultatif)…' style='width:100%;border:1.5px solid #23201a;border-radius:9px;padding:7px 10px;font-size:12.5px;margin-bottom:10px;background:#fff;color:#23201a' />" +
-        "<div style='text-align:right'><button type='button' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 18px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ J'ai lu / Répondre</button></div>";
-      boite.querySelector("button").addEventListener("click", function () {
+        "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap'>" +
+          "<button type='button' id='sti-open-msn-" + a.id + "' style='border:2px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:6px 13px;font-weight:800;font-size:12px;cursor:pointer'>💬 Ouvrir Messenger</button>" +
+          "<button type='button' id='sti-ok-msn-" + a.id + "' style='border:2px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:7px 18px;font-weight:900;font-size:12.5px;cursor:pointer;box-shadow:2px 2px 0 #23201a'>✅ J'ai lu / Répondre</button>" +
+        "</div>";
+      boite.querySelector("#sti-open-msn-" + a.id).addEventListener("click", function () {
+        boite.remove();
+        envoyerAccuseLectureProf(uid, a, "");
+        ouvrirBoiteQuestionProf(uid, maClasse, a.id);
+      });
+      boite.querySelector("#sti-ok-msn-" + a.id).addEventListener("click", function () {
         var inpRep = document.getElementById("sti-rep-" + a.id);
         var texteRep = inpRep ? inpRep.value.trim() : "";
-        try { localStorage.setItem("sti-msg-lu-" + a.id, "1"); } catch (e) {}
-        boite.remove();
-        var tsNow = new Date().toISOString();
-        var lieuVal = texteRep ? JSON.stringify({ classe: a.classe || "*", reponse: texteRep }) : (a.classe || "*");
-        var ligneLu = {
-          user_id: uid || currentUid || "offline-user",
-          page: "MSG_LU:" + a.id,
-          lieu: lieuVal,
-          fin: tsNow,
-          duree_sec: 0
-        };
-        if (!navigator.onLine) {
-          empilerHorsLigne(ligneLu);
-          return;
+        if (texteRep) {
+          enregistrerMsgFilEleve(uid, { de: "eleve", texte: texteRep, ts: new Date().toISOString() });
         }
-        sb.from("acces").insert(ligneLu).then(function (r) {
-          if (r && r.error) empilerHorsLigne(ligneLu);
-        }).catch(function () {
-          empilerHorsLigne(ligneLu);
-        });
-        try {
-          sb.channel("sti-diffusion").send({ type: "broadcast", event: "lu", payload: { msgId: a.id, uid: uid, ts: tsNow, reponse: texteRep } });
-        } catch (e) {}
-        fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
-          method: "POST",
-          body: JSON.stringify({ type: "lu", msgId: a.id, uid: uid, ts: tsNow, reponse: texteRep })
-        }).catch(function () {});
+        boite.remove();
+        envoyerAccuseLectureProf(uid, a, texteRep);
       });
       (document.body || document.documentElement).appendChild(boite);
     }
@@ -2154,7 +2343,7 @@
   })();
 
   /* =====================================================================
-     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v76)
+     MODE « FLASHCARDS » BAC STI (Recto / Verso) & BAC À SABLE DE CODE (v77)
      ===================================================================== */
   var STI_FLASHCARDS = window.STI_FLASHCARDS = [
     /* --- HTML5 --- */
