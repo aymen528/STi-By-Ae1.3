@@ -510,6 +510,14 @@
             }
             afficherTableauSuivi();
             if (typeof rafraichirMessengerAdmin === "function") rafraichirMessengerAdmin();
+            if (p.payload.reponse || fRecu) {
+              var pExp = null;
+              profils.forEach(function (pr) { if (pr.id === p.payload.uid) pExp = pr; });
+              var nomExp = pExp ? contact(pExp) : "Un candidat";
+              var apercu = p.payload.reponse || (fRecu ? ("📎 " + fRecu.nom) : "");
+              afficherNotifSysteme("💬 Nouveau message Messenger STI — " + nomExp, apercu);
+              msg("💬 Nouveau message de " + nomExp + " : « " + apercu.slice(0, 70) + " »", "ok");
+            }
             if (fRecu && fRecu.depuisDb && !fRecu.dataUrl) {
               setTimeout(function () { charge(true); }, 600);
             }
@@ -4623,13 +4631,32 @@
     return fil;
   }
 
+  function lireLusAdminMsn() {
+    try {
+      return JSON.parse(localStorage.getItem("sti-admin-msn-lus") || "{}") || {};
+    } catch (e) { return {}; }
+  }
+
+  function marquerLuAdminMsn(uid, tsMs) {
+    if (!uid) return;
+    var map = lireLusAdminMsn();
+    map[uid] = tsMs || Date.now() + 5000;
+    try { localStorage.setItem("sti-admin-msn-lus", JSON.stringify(map)); } catch (e) {}
+  }
+
   function nbQuestionsNonReponduesCandidat(p) {
     var fil = construireFilConversationAdmin(p);
     if (!fil.length) return 0;
+    var lusMap = lireLusAdminMsn();
+    var seuilLu = Number(lusMap[p.id] || 0);
     var nb = 0;
     for (var i = fil.length - 1; i >= 0; i--) {
-      if (fil[i].de === "eleve") nb++;
-      else if (fil[i].de === "prof" && fil[i].perso) break;
+      if (fil[i].de === "eleve") {
+        if ((fil[i].ms || 0) > seuilLu) nb++;
+        else break;
+      } else if (fil[i].de === "prof" && fil[i].perso) {
+        break;
+      }
     }
     return nb;
   }
@@ -4653,6 +4680,51 @@
   }
 
   var msnFilterClasse = document.getElementById("msn-filter-classe");
+  var msnTabNonLus = document.getElementById("msn-tab-nonlus");
+  var msnTabTous = document.getElementById("msn-tab-tous");
+  var msnHeadNonLus = document.getElementById("msn-head-nonlus");
+  var badgeMsnTop = document.getElementById("badge-msn-top");
+  var msnModeFiltre = "nonlus";
+
+  function majOngletsMsnAdmin(nbNonLus, nbTous) {
+    if (msnTabNonLus) {
+      msnTabNonLus.textContent = "🔴 Non lus (" + nbNonLus + ")";
+      msnTabNonLus.classList.toggle("actif", msnModeFiltre === "nonlus");
+    }
+    if (msnTabTous) {
+      msnTabTous.textContent = "👥 Tous (" + nbTous + ")";
+      msnTabTous.classList.toggle("actif", msnModeFiltre === "tous");
+    }
+    if (msnHeadNonLus) {
+      msnHeadNonLus.textContent = nbNonLus > 0 ? ("🔴 Non lus (" + nbNonLus + ")") : "🔴 Non lus";
+      msnHeadNonLus.style.display = (msnUidActif || nbNonLus > 0) ? "inline-block" : "none";
+    }
+  }
+
+  if (msnTabNonLus) {
+    msnTabNonLus.addEventListener("click", function () {
+      msnModeFiltre = "nonlus";
+      msnUidActif = "";
+      if (msnWin) msnWin.classList.remove("mode-chat");
+      peindreListeUsersMessengerAdmin();
+      peindreConversationMessengerAdmin();
+    });
+  }
+  if (msnTabTous) {
+    msnTabTous.addEventListener("click", function () {
+      msnModeFiltre = "tous";
+      peindreListeUsersMessengerAdmin();
+    });
+  }
+  if (msnHeadNonLus) {
+    msnHeadNonLus.addEventListener("click", function () {
+      msnModeFiltre = "nonlus";
+      msnUidActif = "";
+      if (msnWin) msnWin.classList.remove("mode-chat");
+      peindreListeUsersMessengerAdmin();
+      peindreConversationMessengerAdmin();
+    });
+  }
 
   function majOptionsMsnFilterClasse() {
     if (!msnFilterClasse) return;
@@ -4674,12 +4746,14 @@
     var q = msnSearchUser ? msnSearchUser.value.trim().toLowerCase() : "";
     var clSel = msnFilterClasse ? (msnFilterClasse.value || "*") : "*";
     var totalNonRepondus = 0;
+    var nbCandidatsNonLus = 0;
 
     var enrichis = profils.map(function (p) {
       var fil = construireFilConversationAdmin(p);
       var dernier = fil.length ? fil[fil.length - 1] : null;
       var nonRep = nbQuestionsNonReponduesCandidat(p);
       totalNonRepondus += nonRep;
+      if (nonRep > 0) nbCandidatsNonLus++;
       return {
         p: p,
         fil: fil,
@@ -4693,11 +4767,23 @@
     if (badgeMsnAdmin) {
       if (totalNonRepondus > 0) {
         badgeMsnAdmin.style.display = "inline-block";
-        badgeMsnAdmin.textContent = String(totalNonRepondus);
+        badgeMsnAdmin.textContent = "🔴 " + totalNonRepondus;
       } else {
         badgeMsnAdmin.style.display = "none";
       }
     }
+    if (badgeMsnTop) {
+      if (totalNonRepondus > 0) {
+        badgeMsnTop.style.display = "inline-block";
+        badgeMsnTop.textContent = String(totalNonRepondus);
+      } else {
+        badgeMsnTop.style.display = "none";
+      }
+    }
+    if (btnMsnDock) btnMsnDock.classList.toggle("alerte-nonlu", totalNonRepondus > 0);
+    if (btnMsnTop) btnMsnTop.classList.toggle("alerte-nonlu", totalNonRepondus > 0);
+
+    majOngletsMsnAdmin(totalNonRepondus, profils.length);
 
     var filtres = enrichis.filter(function (it) {
       if (clSel !== "*" && (it.p.classe || "—") !== clSel) return false;
@@ -4714,16 +4800,43 @@
     });
 
     msnUserList.innerHTML = "";
-    if (!filtres.length) {
-      msnUserList.innerHTML = "<div style='padding:12px;text-align:center;color:#7a6f5d;font-size:11.5px;font-weight:700'>Aucun candidat trouvé.</div>";
+    var aAfficher = filtres;
+    if (msnModeFiltre === "nonlus" && !q) {
+      var seulementNonLus = filtres.filter(function (it) { return it.nonRep > 0; });
+      if (seulementNonLus.length > 0) {
+        aAfficher = seulementNonLus;
+        var enteteNL = document.createElement("div");
+        enteteNL.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 8px;background:#fff3e0;border:1.5px solid #f4511e;border-radius:10px;font-size:11px;font-weight:900;color:#d84315;margin-bottom:3px";
+        enteteNL.innerHTML = "<span>🔴 " + totalNonRepondus + " message(s) non lu(s)</span>" +
+          "<button type='button' id='msn-btn-tout-lu' style='border:1px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;cursor:pointer'>✓ Tout lu</button>";
+        msnUserList.appendChild(enteteNL);
+        var btnToutLu = enteteNL.querySelector("#msn-btn-tout-lu");
+        if (btnToutLu) {
+          btnToutLu.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            seulementNonLus.forEach(function (it) { marquerLuAdminMsn(it.p.id); });
+            peindreListeUsersMessengerAdmin();
+            peindreConversationMessengerAdmin();
+          });
+        }
+      } else {
+        var msgAucunNL = document.createElement("div");
+        msgAucunNL.style.cssText = "padding:10px 8px;background:#e3f6e8;border:1.5px solid #177245;border-radius:10px;color:#177245;font-size:11px;font-weight:800;text-align:center;margin-bottom:4px";
+        msgAucunNL.innerHTML = "✅ Aucun message non lu · Affichage des conversations récentes";
+        msnUserList.appendChild(msgAucunNL);
+      }
+    }
+
+    if (!aAfficher.length) {
+      msnUserList.innerHTML += "<div style='padding:12px;text-align:center;color:#7a6f5d;font-size:11.5px;font-weight:700'>Aucun candidat trouvé.</div>";
       return;
     }
 
-    filtres.forEach(function (it) {
+    aAfficher.forEach(function (it) {
       var p = it.p;
       var row = document.createElement("button");
       row.type = "button";
-      row.className = "msn-user-item" + (p.id === msnUidActif ? " actif" : "");
+      row.className = "msn-user-item" + (p.id === msnUidActif ? " actif" : "") + (it.nonRep > 0 ? " non-lu" : "");
       var ini = initialesPourProfil(p);
       var subTxt = it.dernier
         ? ((it.dernier.de === "prof" ? "Vous : " : "💬 ") + (it.dernier.texte || (it.dernier.fichier ? ("📎 " + it.dernier.fichier.nom) : "")))
@@ -4733,12 +4846,13 @@
         "<div class='msn-av'>" + echHtml(ini) + "<span class='msn-av-dot" + (it.online ? " online" : "") + "'></span></div>" +
         "<div class='msn-u-meta'>" +
           "<div class='msn-u-nom'>" + echHtml(contact(p)) + "</div>" +
-          "<div class='msn-u-sub'>" + echHtml(subTxt) + "</div>" +
+          "<div class='msn-u-sub' style='color:" + (it.nonRep > 0 ? "#c0392b;font-weight:900" : "#6b6152") + "'>🏫 " + echHtml(p.classe || "—") + " · " + echHtml(subTxt) + "</div>" +
         "</div>" +
-        (it.nonRep > 0 ? ("<span class='msn-u-badge' title='Nouveau message de cet élève'>" + it.nonRep + "</span>") : "");
+        (it.nonRep > 0 ? ("<span class='msn-u-badge' title='Message(s) non lu(s) de cet élève'>🔴 " + it.nonRep + "</span>") : "");
 
       row.addEventListener("click", function () {
         msnUidActif = p.id;
+        marquerLuAdminMsn(p.id);
         definirCitationMessengerAdmin("");
         if (msnWin) msnWin.classList.add("mode-chat");
         peindreListeUsersMessengerAdmin();
@@ -4747,6 +4861,18 @@
       });
       msnUserList.appendChild(row);
     });
+
+    if (msnModeFiltre === "nonlus" && !q && nbCandidatsNonLus > 0 && filtres.length > aAfficher.length) {
+      var btnVoirTous = document.createElement("button");
+      btnVoirTous.type = "button";
+      btnVoirTous.style.cssText = "margin-top:6px;padding:8px 10px;border-radius:10px;border:1.5px dashed #23201a;background:#fff;color:#23201a;font-size:11.5px;font-weight:900;cursor:pointer;text-align:center";
+      btnVoirTous.textContent = "👥 Afficher tous les candidats (" + filtres.length + ")";
+      btnVoirTous.addEventListener("click", function () {
+        msnModeFiltre = "tous";
+        peindreListeUsersMessengerAdmin();
+      });
+      msnUserList.appendChild(btnVoirTous);
+    }
   }
 
   function peindreConversationMessengerAdmin() {
@@ -4755,13 +4881,87 @@
     profils.forEach(function (x) { if (x.id === msnUidActif) p = x; });
 
     if (!p) {
-      if (msnHeadNom) msnHeadNom.textContent = "Sélectionnez un candidat";
-      if (msnHeadSub) msnHeadSub.textContent = "Discussion instantanée STI";
+      if (msnHeadAv) msnHeadAv.innerHTML = "🔔";
+      if (msnHeadNom) msnHeadNom.textContent = "🔴 Messages non lus au départ";
+      if (msnHeadSub) msnHeadSub.textContent = "Cliquez sur un message pour répondre en direct";
       if (msnHeadWa) msnHeadWa.style.display = "none";
       if (msnHeadFiche) msnHeadFiche.style.display = "none";
+
+      /* Construire la liste des messages non lus de tous les candidats */
+      var cartesNonLus = [];
+      profils.forEach(function (cand) {
+        var nbNL = nbQuestionsNonReponduesCandidat(cand);
+        if (nbNL <= 0) return;
+        var filC = construireFilConversationAdmin(cand);
+        var msgsNL = filC.filter(function (m) { return m.de === "eleve"; }).slice(-nbNL);
+        var dern = msgsNL[msgsNL.length - 1] || filC[filC.length - 1];
+        cartesNonLus.push({
+          cand: cand,
+          nbNL: nbNL,
+          msgsNL: msgsNL,
+          dernMs: dern ? (dern.ms || 0) : 0,
+          dernTs: dern ? dern.ts : ""
+        });
+      });
+      cartesNonLus.sort(function (a, b) { return b.dernMs - a.dernMs; });
+
+      if (cartesNonLus.length > 0) {
+        msnChatFeed.innerHTML =
+          "<div style='background:linear-gradient(120deg,#fff3e0,#ffe0b2);border:2px solid #f4511e;border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;box-shadow:2px 2px 0 #23201a'>" +
+            "<div style='font-weight:900;font-size:13px;color:#c0392b'>🔴 " + cartesNonLus.length + " candidat(s) avec des messages non lus</div>" +
+            "<button type='button' id='msn-feed-tout-lu' style='border:1.5px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:4px 11px;font-size:11px;font-weight:900;cursor:pointer'>✓ Tout marquer comme lu</button>" +
+          "</div>" +
+          cartesNonLus.map(function (it) {
+            var c = it.cand;
+            var txts = it.msgsNL.map(function (m) {
+              var t = m.texte ? echHtml(m.texte) : "";
+              var f = m.fichier ? (" <span style='color:#d84315;font-weight:900'>[📎 " + echHtml(m.fichier.nom) + "]</span>") : "";
+              return "<div style='margin-top:4px;padding:6px 10px;background:#fffdf7;border-left:3px solid #f4511e;border-radius:8px;font-size:12.5px;color:#23201a;font-weight:800'>💬 " + (t || "Fichier joint") + f + "</div>";
+            }).join("");
+            return (
+              "<div class='msn-carte-nonlu' data-uid='" + echHtml(c.id) + "' style='background:#fff;border:2px solid #23201a;border-radius:14px;padding:11px 13px;box-shadow:3px 3px 0 #f4511e;cursor:pointer'>" +
+                "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap'>" +
+                  "<div style='font-weight:900;font-size:13px;color:#23201a'>👤 " + echHtml(contact(c)) + "</div>" +
+                  "<span style='background:#c0392b;color:#fff;border:1.5px solid #23201a;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:900'>🔴 " + it.nbNL + " non lu(s) · " + echHtml(fmtHeureCourt(it.dernTs)) + "</span>" +
+                "</div>" +
+                "<div style='font-size:11px;font-weight:800;color:#5a5244;margin-top:3px'>🏫 Classe : <b style='color:#d84315'>" + echHtml(c.classe || "—") + "</b> · 🏛️ " + echHtml(lyceePropre(c)) + "</div>" +
+                txts +
+                "<div style='display:flex;justify-content:flex-end;gap:8px;margin-top:8px'>" +
+                  "<button type='button' class='msn-btn-ouvrir-nl' data-uid='" + echHtml(c.id) + "' style='border:1.5px solid #23201a;background:linear-gradient(120deg,#f4511e,#ff8a50);color:#fff;border-radius:999px;padding:5px 13px;font-size:11.5px;font-weight:900;cursor:pointer;box-shadow:1.5px 1.5px 0 #23201a'>💬 Ouvrir &amp; Répondre</button>" +
+                "</div>" +
+              "</div>"
+            );
+          }).join("");
+
+        var btnAllLu = msnChatFeed.querySelector("#msn-feed-tout-lu");
+        if (btnAllLu) {
+          btnAllLu.addEventListener("click", function () {
+            cartesNonLus.forEach(function (it) { marquerLuAdminMsn(it.cand.id); });
+            peindreListeUsersMessengerAdmin();
+            peindreConversationMessengerAdmin();
+          });
+        }
+        Array.prototype.forEach.call(msnChatFeed.querySelectorAll(".msn-carte-nonlu, .msn-btn-ouvrir-nl"), function (el) {
+          el.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            var u = el.getAttribute("data-uid");
+            if (!u) return;
+            msnUidActif = u;
+            marquerLuAdminMsn(u);
+            if (msnWin) msnWin.classList.add("mode-chat");
+            peindreListeUsersMessengerAdmin();
+            peindreConversationMessengerAdmin();
+            if (msnChatInp && window.innerWidth > 768) msnChatInp.focus();
+          });
+        });
+        return;
+      }
+
       msnChatFeed.innerHTML =
         "<div style='margin:auto;text-align:center;color:#6b6152;font-size:12.5px;font-weight:700;padding:18px'>" +
-          "👈 Choisissez un candidat dans la liste à gauche pour ouvrir sa conversation style Facebook Messenger." +
+          "<div style='font-size:28px;margin-bottom:6px'>✅</div>" +
+          "<b style='color:#177245'>Aucun message non lu pour le moment.</b><br>" +
+          "👈 Choisissez un candidat dans la liste à gauche pour démarrer ou consulter une discussion." +
         "</div>";
       return;
     }
@@ -4888,15 +5088,13 @@
     var estMobile = window.innerWidth <= 768;
     if (pCible && pCible.id) {
       msnUidActif = pCible.id;
+      marquerLuAdminMsn(pCible.id);
       msnWin.classList.add("mode-chat");
-    } else if (estMobile) {
-      /* Sur mobile : afficher d'abord la liste des candidats pour choisir facilement son interlocuteur */
+    } else {
+      /* Au départ : afficher d'abord les messages non lus (sans forcer l'ouverture d'un seul candidat) */
+      msnModeFiltre = "nonlus";
+      msnUidActif = "";
       msnWin.classList.remove("mode-chat");
-    } else if (!msnUidActif && profils.length) {
-      /* Sur PC : choisir automatiquement le 1er élève ayant posé une question ou en ligne */
-      peindreListeUsersMessengerAdmin();
-      var premierBtn = msnUserList ? msnUserList.querySelector(".msn-user-item") : null;
-      if (premierBtn) premierBtn.click();
     }
     definirCitationMessengerAdmin(texteCitation || "");
     msnWin.classList.add("visible");
@@ -4905,10 +5103,8 @@
     peindreConversationMessengerAdmin();
     if (estMobile) {
       try { history.pushState({ stiMsnAdmin: true }, ""); } catch (e) {}
-    } else {
-      setTimeout(function () {
-        if (msnChatInp && msnUidActif) msnChatInp.focus();
-      }, 40);
+    } else if (msnUidActif && msnChatInp) {
+      setTimeout(function () { msnChatInp.focus(); }, 40);
     }
   }
 
@@ -5063,6 +5259,7 @@
       };
 
       /* Mise à jour immédiate de l'interface Messenger sans attendre le réseau */
+      marquerLuAdminMsn(msnUidActif);
       messagesDiffuses.unshift(payload);
       if (msnChatInp) msnChatInp.value = "";
       msnFichierActuel = null;

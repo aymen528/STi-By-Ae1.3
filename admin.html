@@ -725,6 +725,44 @@
     border-color: #f4511e;
     box-shadow: 2px 2px 0 #23201a;
   }
+  .msn-user-item.non-lu {
+    background: linear-gradient(120deg, #fff3e0 0%, #ffe0b2 100%);
+    border-color: #f4511e;
+    box-shadow: 2px 2px 0 #d84315;
+  }
+  .msn-tabs-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .msn-tab-btn {
+    border: 1.5px solid #23201a;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    background: #fff;
+    color: #23201a;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .msn-tab-btn.actif {
+    background: #f4511e;
+    color: #fff;
+    box-shadow: 1.5px 1.5px 0 #23201a;
+  }
+  @keyframes msnPulseGlow {
+    0%, 100% { box-shadow: 3px 3px 0 #23201a, 0 0 0 0 rgba(244,81,30,.75); transform: scale(1); }
+    50% { box-shadow: 3px 3px 0 #23201a, 0 0 0 11px rgba(244,81,30,0); transform: scale(1.05); }
+  }
+  #btn-messenger-dock.alerte-nonlu,
+  #btn-messenger-top.alerte-nonlu {
+    animation: msnPulseGlow 1.5s infinite ease-in-out;
+    background: linear-gradient(125deg, #c0392b 0%, #f4511e 100%) !important;
+    color: #fff !important;
+    border-color: #23201a !important;
+  }
   .msn-av {
     position: relative;
     width: 34px;
@@ -970,7 +1008,7 @@
     <div class="barre-util">
       <a class="btn-util" href="index.html">🏠 <span class="lbl-pc">Accueil du site</span><span class="lbl-mob">Site</span></a>
       <a class="btn-util" href="carte-visite.html" title="Ouvrir et partager la carte de visite électronique avec QR code">🪪 <span class="lbl-pc">Carte visite</span><span class="lbl-mob">Carte</span></a>
-      <button class="btn-util" id="btn-messenger-top" type="button" title="Ouvrir la messagerie directe Messenger STI avec les candidats" style="background:#fff3e0;border-color:#f4511e;color:#d84315">💬 <span class="lbl-pc">Messenger</span><span class="lbl-mob">Chat</span></button>
+      <button class="btn-util" id="btn-messenger-top" type="button" title="Ouvrir la messagerie directe Messenger STI avec les candidats" style="background:#fff3e0;border-color:#f4511e;color:#d84315">💬 <span class="lbl-pc">Messenger</span><span class="lbl-mob">Chat</span> <span id="badge-msn-top" style="display:none;background:#ffd54f;color:#23201a;font-size:10.5px;font-weight:900;padding:1px 6px;border-radius:999px;border:1.5px solid #23201a;margin-left:3px">0</span></button>
       <button class="btn-util" id="btn-flash-top" type="button" title="Lancer une Question Flash / Sondage Live en classe" style="background:#fff8e1;border-color:#d97706;color:#b45309">⚡ <span class="lbl-pc">Question Flash</span><span class="lbl-mob">Flash</span></button>
       <button class="btn-util" id="btn-readme-admin" type="button" title="Consulter la documentation complète de la plateforme (README)">📖 <span class="lbl-pc">README</span><span class="lbl-mob">README</span></button>
       <button class="btn-util" id="btn-notif" type="button">🔔 <span class="lbl-pc">Notifications</span><span class="lbl-mob">Alertes</span></button>
@@ -1798,6 +1836,10 @@
         </div>
       </div>
       <div class="msn-sb-search" style="display:flex;flex-direction:column;gap:6px">
+        <div class="msn-tabs-bar">
+          <button type="button" class="msn-tab-btn actif" id="msn-tab-nonlus" title="Afficher en priorité les messages non lus">🔴 Non lus (0)</button>
+          <button type="button" class="msn-tab-btn" id="msn-tab-tous" title="Afficher tous les candidats">👥 Tous</button>
+        </div>
         <input type="search" id="msn-search-user" placeholder="🔎 Chercher un candidat…" />
         <select id="msn-filter-classe" style="width:100%;border:1.5px solid #23201a;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;background:#fff;color:#23201a;outline:none" title="Filtrer les candidats par classe">
           <option value="*">🏫 Toutes les classes</option>
@@ -1818,6 +1860,7 @@
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+          <button type="button" id="msn-head-nonlus" style="border:1.5px solid #ffd54f;background:rgba(255,213,79,.2);color:#ffd54f;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Voir tous les messages non lus">🔴 Non lus</button>
           <button type="button" id="msn-head-wa" style="display:none;border:1.5px solid rgba(255,255,255,.55);background:#25D366;color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Envoyer aussi sur WhatsApp">📱</button>
           <button type="button" id="msn-head-fiche" style="display:none;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:900;cursor:pointer" title="Ouvrir la fiche bilan de ce candidat">📊</button>
           <button type="button" id="msn-head-close" style="border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:3px 8px;font-size:12px;font-weight:900;cursor:pointer" title="Réduire / Fermer Messenger">✕</button>
@@ -1921,7 +1964,7 @@
 </script>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=84"></script>
-<script src="assets/js/admin.js?v=84"></script>
+<script src="assets/js/config.js?v=85"></script>
+<script src="assets/js/admin.js?v=85"></script>
 </body>
 </html>

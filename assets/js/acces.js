@@ -1532,6 +1532,22 @@
     st.id = "sti-messenger-mob-css";
     st.textContent =
       "#sti-msn-adm-back,#sti-msn-adm-sb-close{display:none}" +
+      "@keyframes stiMsnPulseGlow{" +
+        "0%,100%{box-shadow:3px 3px 0 #23201a,0 0 0 0 rgba(244,81,30,.85);transform:scale(1)}" +
+        "50%{box-shadow:3px 3px 0 #23201a,0 0 0 12px rgba(244,81,30,0);transform:scale(1.06)}" +
+      "}" +
+      "@keyframes stiMsnCalloutBounce{" +
+        "0%,100%{transform:translateY(0)}" +
+        "50%{transform:translateY(-6px)}" +
+      "}" +
+      "#sti-btn-messenger-global.sti-msn-alerte,#btnHomeMessenger.sti-msn-alerte{" +
+        "animation:stiMsnPulseGlow 1.35s infinite ease-in-out!important;" +
+        "background:linear-gradient(125deg,#c0392b 0%,#f4511e 100%)!important;" +
+        "color:#fff!important;border-color:#23201a!important;" +
+      "}" +
+      "#sti-msn-bulle-attention{" +
+        "animation:stiMsnCalloutBounce 1.8s infinite ease-in-out;" +
+      "}" +
       "@media (max-width:768px){" +
         "html.sti-msn-mob-open,html.sti-msn-mob-open body{overflow:hidden!important;overscroll-behavior:none!important}" +
         "html.sti-msn-mob-open #sti-roue-wrap,html.sti-msn-mob-open #sti-badge-admin-flottant,html.sti-msn-mob-open #sti-btn-messenger-global,html.sti-msn-mob-open #sti-auto-to-top{display:none!important}" +
@@ -1593,14 +1609,151 @@
     }
   }
 
-  function majBadgeMessengerGlobal(nb) {
+  var timerClignoteTitreMsn = null;
+  var titreOriginalPageMsn = "";
+
+  function jouerSonMessageSTI() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      [587.33, 880, 1046.5].forEach(function (freq, idx) {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.16, ctx.currentTime + idx * 0.13);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.13 + 0.22);
+        o.connect(g);
+        g.connect(ctx.destination);
+        o.start(ctx.currentTime + idx * 0.13);
+        o.stop(ctx.currentTime + idx * 0.13 + 0.23);
+      });
+    } catch (e) {}
+  }
+
+  function clignoterTitreNouveauMsg(nb) {
+    if (!titreOriginalPageMsn) titreOriginalPageMsn = document.title || "STI V2.0";
+    if (timerClignoteTitreMsn) clearInterval(timerClignoteTitreMsn);
+    var etat = false;
+    timerClignoteTitreMsn = setInterval(function () {
+      etat = !etat;
+      document.title = etat
+        ? ("🔔 (" + (nb || 1) + ") NOUVEAU MESSAGE — Messenger STI")
+        : titreOriginalPageMsn;
+    }, 1150);
+  }
+
+  function arreterClignotementTitreMsg() {
+    if (timerClignoteTitreMsn) {
+      clearInterval(timerClignoteTitreMsn);
+      timerClignoteTitreMsn = null;
+    }
+    if (titreOriginalPageMsn) {
+      document.title = titreOriginalPageMsn;
+    }
+  }
+
+  function compterMessagesNonLusEleve(uid) {
+    var fil = lireFilMessengerEleve(uid || currentUid || "eleve");
+    var nb = 0;
+    var dernierNonLu = null;
+    fil.forEach(function (m) {
+      if (m.de === "prof" && m.id) {
+        try {
+          if (localStorage.getItem("sti-msg-lu-" + m.id) !== "1") {
+            nb++;
+            dernierNonLu = m;
+          }
+        } catch (e) {}
+      }
+    });
+    return { nb: nb, dernier: dernierNonLu };
+  }
+
+  function marquerTousMessagesFilLusEleve(uid) {
+    var fil = lireFilMessengerEleve(uid || currentUid || "eleve");
+    fil.forEach(function (m) {
+      if (m.de === "prof" && m.id) {
+        try { localStorage.setItem("sti-msg-lu-" + m.id, "1"); } catch (e) {}
+      }
+    });
+  }
+
+  function afficherBulleAttentionMessenger(msgObj, uid, maClasse, nb) {
+    installerStylesMessengerMobile();
+    var ex = document.getElementById("sti-msn-bulle-attention");
+    if (ex) ex.remove();
+    if (!nb || nb <= 0) return;
+    if (document.getElementById("sti-messenger-eleve") || document.getElementById("sti-messenger-admin-site")) return;
+
+    var apercu = "";
+    if (msgObj) {
+      apercu = msgObj.texte || (msgObj.fichier ? ("📎 Fichier joint : " + msgObj.fichier.nom) : "");
+    }
+    if (apercu.length > 85) apercu = apercu.slice(0, 85) + "…";
+
+    var bulle = document.createElement("div");
+    bulle.id = "sti-msn-bulle-attention";
+    bulle.className = "sti-no-print";
+    bulle.style.cssText =
+      "position:fixed;left:14px;bottom:64px;z-index:2147483646;max-width:min(330px,calc(100vw - 28px));" +
+      "background:linear-gradient(135deg,#fffdf7 0%,#fff3e0 100%);color:#23201a;border:2.5px solid #23201a;" +
+      "border-radius:16px;padding:11px 13px;box-shadow:4px 4px 0 #f4511e,0 14px 32px rgba(0,0,0,.28);" +
+      "font:800 12px/1.38 system-ui,'Segoe UI',sans-serif;cursor:pointer;";
+    bulle.innerHTML =
+      "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px'>" +
+        "<span style='color:#c0392b;font-weight:900;font-size:12.5px'>🔔 " + (nb > 1 ? (nb + " nouveaux messages") : "Nouveau message") + " de M. Essouyah !</span>" +
+        "<button type='button' id='sti-msn-att-close' style='border:1px solid #23201a;background:#fff;color:#23201a;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:900;cursor:pointer'>✕</button>" +
+      "</div>" +
+      (apercu ? ("<div style='color:#23201a;font-weight:700;background:#fff;border-left:3px solid #f4511e;padding:5px 8px;border-radius:7px;margin-bottom:7px;word-break:break-word'>« " + esc(apercu) + " »</div>") : "") +
+      "<div style='display:flex;align-items:center;justify-content:space-between;gap:6px'>" +
+        "<span style='font-size:11px;color:#d84315;font-weight:900'>⬇ Cliquez pour ouvrir Messenger STI</span>" +
+        "<span style='background:#f4511e;color:#fff;border:1.5px solid #23201a;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:900'>💬 Lire</span>" +
+      "</div>";
+
+    var btnCloseAtt = bulle.querySelector("#sti-msn-att-close");
+    if (btnCloseAtt) {
+      btnCloseAtt.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        bulle.remove();
+      });
+    }
+    bulle.addEventListener("click", function () {
+      bulle.remove();
+      ouvrirBoiteQuestionProf(uid || currentUid || "eleve", maClasse || currentClasse || "", msgObj && msgObj.id);
+    });
+    (document.body || document.documentElement).appendChild(bulle);
+  }
+
+  function majBadgeMessengerGlobal(nb, msgObj, uid, maClasse) {
+    var btnGlobal = document.getElementById("sti-btn-messenger-global");
+    var btnHome = document.getElementById("btnHomeMessenger");
     var b = document.getElementById("sti-badge-msn-global");
-    if (!b) return;
     if (nb > 0) {
-      b.textContent = String(nb);
-      b.style.display = "inline-block";
+      if (b) {
+        b.textContent = "🔔 " + nb;
+        b.style.display = "inline-block";
+      }
+      if (btnGlobal) btnGlobal.classList.add("sti-msn-alerte");
+      if (btnHome) {
+        btnHome.classList.add("sti-msn-alerte");
+        btnHome.innerHTML = "💬 Messenger STI <span style='background:#ffd54f;color:#23201a;padding:1px 6px;border-radius:999px;font-size:11px;font-weight:900;border:1.5px solid #23201a'>🔔 " + nb + "</span>";
+      }
+      clignoterTitreNouveauMsg(nb);
+      if (msgObj) {
+        afficherBulleAttentionMessenger(msgObj, uid, maClasse, nb);
+      }
     } else {
-      b.style.display = "none";
+      if (b) b.style.display = "none";
+      if (btnGlobal) btnGlobal.classList.remove("sti-msn-alerte");
+      if (btnHome) {
+        btnHome.classList.remove("sti-msn-alerte");
+        btnHome.textContent = "💬 Messenger STI";
+      }
+      var bulleAtt = document.getElementById("sti-msn-bulle-attention");
+      if (bulleAtt) bulleAtt.remove();
+      arreterClignotementTitreMsg();
     }
   }
 
@@ -1610,6 +1763,7 @@
     if (exOld) exOld.remove();
     var bulleMin = document.getElementById("sti-msn-bulle-eleve");
     if (bulleMin) bulleMin.remove();
+    marquerTousMessagesFilLusEleve(uid);
     majBadgeMessengerGlobal(0);
 
     var win = document.getElementById("sti-messenger-eleve");
@@ -2195,26 +2349,34 @@
          on l'affiche directement dans la fenêtre Messenger ! */
       var winMsn = document.getElementById("sti-messenger-eleve");
       if (winMsn) {
+        jouerSonMessageSTI();
         peindreFilMessengerEleve(uid);
         winMsn.setAttribute("data-reply-msgid", a.id);
         envoyerAccuseLectureProf(uid, a, "");
         return;
       }
 
-      try { if (localStorage.getItem("sti-msg-lu-" + a.id) === "1") return; } catch (e) {}
+      try {
+        if (localStorage.getItem("sti-msg-lu-" + a.id) === "1") {
+          var stNL0 = compterMessagesNonLusEleve(uid);
+          if (stNL0.nb > 0) majBadgeMessengerGlobal(stNL0.nb, stNL0.dernier, uid, maClasse);
+          return;
+        }
+      } catch (e) {}
 
-      if (estPerso) {
-        ouvrirBoiteQuestionProf(uid, maClasse, a.id);
-        envoyerAccuseLectureProf(uid, a, "");
-        return;
-      }
+      /* Nouveau message non lu : attirer immédiatement l'attention (son + bouton Messenger STI clignotant + bulle d'alerte + titre) */
+      jouerSonMessageSTI();
+      var stNL = compterMessagesNonLusEleve(uid);
+      majBadgeMessengerGlobal(Math.max(1, stNL.nb), a, uid, maClasse);
 
       if (document.getElementById("sti-annonce-" + a.id)) return;
 
       var boite = document.createElement("div");
       boite.id = "sti-annonce-" + a.id;
       boite.style.cssText = "position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;max-width:450px;width:calc(100vw - 28px);background:#fffdf7;color:#23201a;color-scheme:light;border:2.5px solid #23201a;border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 #f4511e,0 16px 36px rgba(0,0,0,.22);font:600 13.5px/1.5 system-ui,'Segoe UI',sans-serif;";
-      var enteteTxt = "📢 Message de M. Essouyah · " + (a.classe === "*" ? "Toutes les classes" : a.classe);
+      var enteteTxt = estPerso
+        ? "🔔 Nouveau message privé de M. Essouyah"
+        : ("📢 Message de M. Essouyah · " + (a.classe === "*" ? "Toutes les classes" : a.classe));
       var blocFichierAnnonce = rendreBlocFichierJointEleve(a.fichier, false);
       boite.innerHTML =
         "<div style='font-weight:900;font-size:15px;color:#f4511e;margin-bottom:6px'>" + esc(enteteTxt) + "</div>" +
@@ -2239,6 +2401,8 @@
         }
         boite.remove();
         envoyerAccuseLectureProf(uid, a, texteRep);
+        var stRestant = compterMessagesNonLusEleve(uid);
+        majBadgeMessengerGlobal(stRestant.nb, stRestant.dernier, uid, maClasse);
       });
       (document.body || document.documentElement).appendChild(boite);
     }
@@ -2350,6 +2514,13 @@
       }
     });
     (document.body || document.documentElement).appendChild(btn);
+
+    if (!estAdmin) {
+      var stInit = compterMessagesNonLusEleve(uid || currentUid || "eleve");
+      if (stInit.nb > 0) {
+        majBadgeMessengerGlobal(stInit.nb, stInit.dernier, uid || currentUid || "eleve", maClasse || currentClasse || "");
+      }
+    }
 
     if (location.hash === "#messenger") {
       try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
@@ -2557,6 +2728,31 @@
       return fil.sort(function (x, y) { return String(x.ts || "").localeCompare(String(y.ts || "")); });
     }
 
+    function lireLusAdmSite() {
+      try { return JSON.parse(localStorage.getItem("sti-admin-msn-lus") || "{}") || {}; } catch (e) { return {}; }
+    }
+    function marquerLuAdmSite(uid) {
+      if (!uid) return;
+      var m = lireLusAdmSite();
+      m[uid] = Date.now() + 5000;
+      try { localStorage.setItem("sti-admin-msn-lus", JSON.stringify(m)); } catch (e) {}
+    }
+    function nbNonLusCandSite(p) {
+      var fil = construireFilCand(p.id);
+      if (!fil.length) return 0;
+      var seuil = Number(lireLusAdmSite()[p.id] || 0);
+      var nb = 0;
+      for (var i = fil.length - 1; i >= 0; i--) {
+        if (fil[i].de === "eleve") {
+          var ms = new Date(fil[i].ts || 0).getTime() || 0;
+          if (ms > seuil) nb++; else break;
+        } else if (fil[i].de === "prof") {
+          break;
+        }
+      }
+      return nb;
+    }
+
     function peindreUsersSite() {
       var q = (elSearch.value || "").trim().toLowerCase();
       var clF = elClasse ? (elClasse.value || "").trim() : "";
@@ -2564,6 +2760,11 @@
         if (clF && (p.classe || "") !== clF) return false;
         if (!q) return true;
         return (nomContactCand(p) + " " + (p.classe || "") + " " + (p.lycee || "")).toLowerCase().indexOf(q) !== -1;
+      });
+      f.sort(function (a, b) {
+        var na = nbNonLusCandSite(a), nb = nbNonLusCandSite(b);
+        if (nb !== na) return nb - na;
+        return nomContactCand(a).localeCompare(nomContactCand(b), "fr");
       });
       if (!f.length) {
         elUsers.innerHTML = "<div style='padding:12px;text-align:center;color:#7a6f5d'>Aucun candidat.</div>";
@@ -2574,16 +2775,19 @@
         var b = document.createElement("button");
         b.type = "button";
         var act = p.id === msnSiteUidActif;
+        var nl = nbNonLusCandSite(p);
         b.style.cssText = "display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:11px;cursor:pointer;border:1.5px solid " +
-          (act ? "#f4511e" : "transparent") + ";background:" + (act ? "#fff3e0" : "rgba(255,255,255,.65)") + ";text-align:left;width:100%";
+          ((act || nl > 0) ? "#f4511e" : "transparent") + ";background:" + ((act || nl > 0) ? "#fff3e0" : "rgba(255,255,255,.65)") + ";text-align:left;width:100%";
         b.innerHTML =
           "<div style='width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f4511e,#ff8a50);color:#fff;font-weight:900;font-size:11.5px;display:flex;align-items:center;justify-content:center;border:1.5px solid #23201a;flex-shrink:0'>👤</div>" +
           "<div style='min-width:0;flex:1'>" +
             "<div style='font-size:12px;font-weight:900;color:#23201a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>" + esc(nomContactCand(p)) + "</div>" +
             "<div style='font-size:10.5px;color:#6b6152;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>🏫 " + esc(p.classe || "—") + " · " + esc((p.lycee || "—").replace(/\s*\|\s*GOLD$/i, "")) + "</div>" +
-          "</div>";
+          "</div>" +
+          (nl > 0 ? ("<span style='background:#c0392b;color:#fff;border:1px solid #23201a;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:900;flex-shrink:0'>🔴 " + nl + "</span>") : "");
         b.addEventListener("click", function () {
           msnSiteUidActif = p.id;
+          marquerLuAdmSite(p.id);
           win.classList.add("mode-chat");
           peindreUsersSite();
           peindreConvSite();
@@ -2596,7 +2800,42 @@
     function peindreConvSite() {
       var p = null;
       listeCand.forEach(function (x) { if (x.id === msnSiteUidActif) p = x; });
-      if (!p) return;
+      if (!p) {
+        elNom.textContent = "🔴 Messages non lus au départ";
+        elSub.textContent = "Cliquez sur un message pour répondre";
+        var cartesNL = [];
+        listeCand.forEach(function (c) {
+          var nl = nbNonLusCandSite(c);
+          if (nl > 0) {
+            var filC = construireFilCand(c.id);
+            cartesNL.push({ c: c, nl: nl, dern: filC[filC.length - 1] });
+          }
+        });
+        if (cartesNL.length > 0) {
+          elFeed.innerHTML = cartesNL.map(function (it) {
+            var txt = it.dern ? (it.dern.texte || (it.dern.fichier ? ("📎 " + it.dern.fichier.nom) : "")) : "";
+            return "<div class='sti-site-nl-card' data-uid='" + esc(it.c.id) + "' style='background:#fff;border:2px solid #23201a;border-radius:13px;padding:10px 12px;box-shadow:3px 3px 0 #f4511e;cursor:pointer'>" +
+              "<div style='display:flex;justify-content:space-between;align-items:center;gap:6px'><b>👤 " + esc(nomContactCand(it.c)) + "</b><span style='background:#c0392b;color:#fff;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:900'>🔴 " + it.nl + " non lu(s)</span></div>" +
+              "<div style='font-size:11px;color:#5a5244;margin-top:2px'>🏫 " + esc(it.c.classe || "—") + " · 🏛️ " + esc((it.c.lycee || "—").replace(/\s*\|\s*GOLD$/i, "")) + "</div>" +
+              "<div style='margin-top:5px;padding:5px 8px;background:#fffdf7;border-left:3px solid #f4511e;border-radius:6px;font-weight:800'>💬 " + esc(txt) + "</div>" +
+            "</div>";
+          }).join("");
+          Array.prototype.forEach.call(elFeed.querySelectorAll(".sti-site-nl-card"), function (card) {
+            card.addEventListener("click", function () {
+              var u = card.getAttribute("data-uid");
+              if (!u) return;
+              msnSiteUidActif = u;
+              marquerLuAdmSite(u);
+              win.classList.add("mode-chat");
+              peindreUsersSite();
+              peindreConvSite();
+            });
+          });
+          return;
+        }
+        elFeed.innerHTML = "<div style='margin:auto;text-align:center;color:#6b6152;padding:18px'>✅ Aucun message non lu.<br>👈 Choisissez un candidat pour ouvrir sa discussion.</div>";
+        return;
+      }
       elNom.textContent = nomContactCand(p);
       elSub.textContent = "🏫 " + (p.classe || "—") + " · 🏛️ " + (p.lycee || "—").replace(/\s*\|\s*GOLD$/i, "");
       var fil = construireFilCand(p.id);
@@ -2661,9 +2900,7 @@
           clsList.map(function (c) { return "<option value='" + esc(c) + "'>🏫 " + esc(c) + " (" + clsSet[c] + ")</option>"; }).join("");
         if (curCl && clsSet[curCl]) elClasse.value = curCl;
       }
-      if (!msnSiteUidActif && listeCand.length && window.innerWidth > 768) {
-        msnSiteUidActif = listeCand[0].id;
-      }
+      msnSiteUidActif = "";
       peindreUsersSite();
       peindreConvSite();
     }
