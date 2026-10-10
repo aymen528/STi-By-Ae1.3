@@ -65,19 +65,22 @@
       if (estAdminStrict()) return true;
       if (window.__STI_GOLD === true) return true;
       if (window.top && window.top !== window && window.top.__STI_GOLD === true) return true;
-      if (localStorage.getItem("sti-gold") === "1") return true;
       var permLab = JSON.parse(localStorage.getItem("sti-labo3-permanent") || "null");
       var cSess = permLab || JSON.parse(localStorage.getItem("sti-session-cache") || "null");
       if (cSess) {
         var clNorm = String(cSess.classe || "").trim().toLowerCase();
         try { clNorm = clNorm.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
         clNorm = clNorm.replace(/[\s._\-]+/g, "");
-        if (cSess.gold === true || cSess.isAdmin === true || clNorm === "elevelabo3") {
+        if (cSess.gold === true || cSess.isAdmin === true || clNorm === "elevelabo3" || /\|\s*GOLD$/i.test(cSess.lycee || "")) {
           localStorage.setItem("sti-gold", "1");
           window.__STI_GOLD = true;
           return true;
         }
+        /* Si une session active est présente et n'est ni Gold ni elevelabo3, nettoyer tout sti-gold résiduel */
+        localStorage.removeItem("sti-gold");
+        return false;
       }
+      if (localStorage.getItem("sti-gold") === "1") return true;
     } catch (e) {}
     return false;
   }
@@ -249,12 +252,29 @@
   );
 
   /* ─────────────────────────────────────────────
-     4) Glisser-déposer bloqué
+     4) Glisser-déposer & téléchargement PDF brut bloqués hors Gold
      ───────────────────────────────────────────── */
   document.addEventListener("dragstart", function (e) {
     if (estAdminStrict()) return;
     e.preventDefault();
   });
+
+  document.addEventListener(
+    "click",
+    function (e) {
+      if (synchroniserDomGold()) return;
+      var t = e.target;
+      if (!t || !t.closest) return;
+      var aPdf = t.closest('a[href$=".pdf"]');
+      var btnPr = t.closest('button[onclick*="print"]');
+      if (aPdf || btnPr) {
+        e.preventDefault();
+        e.stopPropagation();
+        toast(MSG_PROTECT, true);
+      }
+    },
+    true
+  );
 
   /* ─────────────────────────────────────────────
      5) Filigrane + message d'impression (uniquement comptes standards)

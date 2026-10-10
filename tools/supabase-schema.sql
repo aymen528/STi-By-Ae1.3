@@ -57,7 +57,7 @@ begin
     nullif(new.phone, ''),
     new.raw_user_meta_data->>'nom',
     new.raw_user_meta_data->>'prenom',
-    new.raw_user_meta_data->>'lycee',
+    regexp_replace(coalesce(new.raw_user_meta_data->>'lycee', ''), '\s*\|\s*GOLD', '', 'gi'),
     new.raw_user_meta_data->>'classe'
   )
   on conflict (id) do update

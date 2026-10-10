@@ -373,8 +373,14 @@
   function verifierStatutEtEntrer(user) {
     sb.from("profiles").select("statut,lycee,classe,nom,prenom,phone").eq("id", user.id).maybeSingle().then(function (rp) {
       if (rp.error && estHorsLigne(rp.error)) {
-        localStorage.setItem("sti-offline", String(Date.now()));
-        location.href = cfg.RACINE;
+        var cLoc = null;
+        try { cLoc = JSON.parse(localStorage.getItem("sti-session-cache") || "null"); } catch (e) {}
+        if (cLoc && cLoc.id === user.id && cLoc.statut === "actif") {
+          localStorage.setItem("sti-offline", String(Date.now()));
+          location.href = cfg.RACINE;
+          return;
+        }
+        msg("❌ Hors-ligne : impossible de vérifier la validation de votre compte.", "err");
         return;
       }
       var st = rp.data && rp.data.statut;
@@ -598,8 +604,8 @@
     var nom = document.getElementById("i-nom").value.trim();
     var prenom = document.getElementById("i-prenom").value.trim();
     if (!nom || !prenom) { msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
-    var lycee = valeur("i-lycee", "i-lycee-autre");
-    var classe = valeur("i-classe", "i-classe-autre");
+    var lycee = valeur("i-lycee", "i-lycee-autre").replace(/\s*\|\s*GOLD/ig, "").trim() || "—";
+    var classe = valeur("i-classe", "i-classe-autre").trim() || "—";
     if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
     if (document.getElementById("i-classe").value === "__autre" && classe === "—") { msg("❌ Indiquez votre classe.", "err"); return; }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;

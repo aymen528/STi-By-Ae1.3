@@ -34,10 +34,15 @@ select,
   -webkit-touch-callout: default !important;
 }
 
-/* ── Images non « glissables » ── */
+/* ── Images non « glissables » & boutons d'impression / PDF d'origine masqués hors Gold ── */
 html:not(.sti-admin-strict) body img {
   -webkit-user-drag: none;
   user-drag: none;
+}
+html:not(.sti-gold) .outils a[href$=".pdf"],
+html:not(.sti-gold) .outils button[onclick*="print"],
+html:not(.sti-gold) button[onclick*="window.print"] {
+  display: none !important;
 }
 
 /* ── Filigrane diagonal permanent (masqué pour Compte GOLD) ── */
