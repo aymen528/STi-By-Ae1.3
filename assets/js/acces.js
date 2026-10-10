@@ -1314,6 +1314,7 @@
 
     if (window === window.top) {
       installerBoutonMessengerGlobal(false, user.id, profil.classe || "");
+      if (typeof appliquerFiligraneNominatif === "function") appliquerFiligraneNominatif();
     }
 
     /* Calcul de la durée personnelle de la semaine en cours + récupération des scores serveur */
@@ -2560,6 +2561,7 @@
     alerteMultiAppareils: true,
     antiCollageActif: true,
     pleinEcranExamen: true,
+    filigraneActif: true,
     ts: 0
   };
   try {
@@ -2745,18 +2747,54 @@
     }
   }
 
+  function appliquerFiligraneNominatif() {
+    var exWm = document.getElementById("sti-filigrane-nominatif");
+    if (window !== window.top || window.origin === "null" || estSessionAdminVerifiee() || cfgSecurite.filigraneActif === false) {
+      if (exWm) exWm.remove();
+      return;
+    }
+    var cLoc = lireCacheSessionLocal() || {};
+    var meta = cLoc.user_metadata || {};
+    var ident = (((meta.prenom || "") + " " + (meta.nom || "")).trim()) || meta.phone || (cLoc.email || "").replace(/@tel\.sti\.tn$/i, "") || "Abonné STI";
+    var cl = currentClasse || cLoc.classe || "STI";
+    var emp = obtenirEmpreinteAppareilCourte();
+    var dNow = new Date();
+    var jj = String(dNow.getDate()).padStart(2, "0") + "/" + String(dNow.getMonth() + 1).padStart(2, "0");
+    var texteWm = (ident + " · " + cl + " · " + emp + " · " + jj).replace(/[<>&"']/g, "");
+    var svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="340" height="190">' +
+      '<text x="20" y="105" transform="rotate(-23 170 95)" fill="rgba(35,32,26,0.068)" font-family="system-ui,sans-serif" font-size="12.5" font-weight="800">' +
+      texteWm +
+      '</text></svg>';
+    var bgUrl = "url(\"data:image/svg+xml;utf8," + encodeURIComponent(svg) + "\")";
+    if (!exWm) {
+      exWm = document.createElement("div");
+      exWm.id = "sti-filigrane-nominatif";
+      exWm.className = "sti-no-print";
+      exWm.style.cssText = "position:fixed;inset:0;z-index:2147483640;pointer-events:none;user-select:none;background-repeat:repeat;";
+      (document.body || document.documentElement).appendChild(exWm);
+    }
+    exWm.style.backgroundImage = bgUrl;
+  }
+
   function appliquerConfigSecurite(nvCfg) {
     if (!nvCfg || typeof nvCfg !== "object") return;
     if (Number(nvCfg.ts || 0) < Number(cfgSecurite.ts || 0)) return;
     cfgSecurite = Object.assign(cfgSecurite, nvCfg);
     try { localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecurite)); } catch (e) {}
     appliquerVerrouExamen();
+    appliquerFiligraneNominatif();
     if (typeof verifierPleinEcranExamen === "function") verifierPleinEcranExamen();
   }
 
   /* Charger la dernière configuration de sécurité depuis Supabase au démarrage */
   (function chargerConfigSecuriteInitiale() {
     appliquerVerrouExamen();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", appliquerFiligraneNominatif);
+    } else {
+      appliquerFiligraneNominatif();
+    }
     if (!navigator.onLine) return;
     sb.from("acces").select("lieu,debut").eq("page", "SEC_CONFIG").order("debut", { ascending: false }).limit(1).then(function (r) {
       if (r && r.data && r.data[0] && r.data[0].lieu) {

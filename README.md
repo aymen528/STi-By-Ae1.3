@@ -1,10 +1,10 @@
-# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v94`)
+# 📚 STI By A'e — Le Web de A à Z (Version 2.0 · `v95`)
 
 Plateforme éducative interactive dédiée aux **Sciences et Technologies de l'Informatique (STI)** :
 cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en **HTML5, CSS3, JavaScript, SQL et PHP / MySQLi**.
 
 > **Auteur** : **Aymen Essouyah** (`By A'e`)  
-> **Version** : **V2.0 · `v94`** (PWA 100 % hors-ligne, portail d'accès sécurisé, Mode Examen & Pack Sécurité Totale)  
+> **Version** : **V2.0 · `v95`** (PWA 100 % hors-ligne, portail d'accès sécurisé, Mode Examen & Pack Sécurité Totale)  
 > **Accès local / en ligne** : [./index.html](./index.html)
 
 ---
@@ -189,7 +189,7 @@ STiV2.0/
    - Génération de `Blob` locaux (et Base64 embarqué pour `ressources-projet-sti0.zip`) permettant de télécharger les archives et sujets PDF même lorsque le PC du laboratoire est totalement déconnecté d'Internet.
 2. **Synchronisation différée automatique** :
    - Les scores de quiz, durées d'étude hebdomadaires et réponses aux messages réalisés hors-ligne sont stockés dans `sti-offline-queue` et synchronisés automatiquement vers Supabase dès le retour de la connexion.
-3. **Base de données Supabase (`tools/supabase-schema.sql`) & Pack Sécurité Totale (`v94`)** :
+3. **Base de données Supabase (`tools/supabase-schema.sql`) & Pack Sécurité Totale (`v95`)** :
    - Tables `public.profiles` et `public.acces` sécurisées par Row-Level Security (RLS) avec trigger `trg_verrou_profil_securite` interdisant à tout non-admin d'auto-modifier son `statut`, sa `classe`, son badge `|GOLD` ou d'injecter des événements d'administration (`CFG_ECOLES`, `SEC_CONFIG`, `FLASH_Q:`, `CTRL_`).
    - **🔒 Mode Examen / Verrouillage d'accès en direct** : depuis `admin.html` (`🛡️ Sécurité`), le professeur peut verrouiller instantanément l'accès aux cours pour toutes les classes, les `3e SI`, les `4e SI` ou une classe précise, avec possibilité d'autoriser une seule page d'épreuve (`bac-pratique.html` ou un quiz).
    - **🚫 Anti-partage de compte (Session unique)** : 1 seule session simultanée autorisée par élève (l'ancien appareil est immédiatement déconnecté avec le message `#partage` en cas de double connexion).

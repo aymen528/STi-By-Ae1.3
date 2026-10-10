@@ -844,6 +844,7 @@
     alerteMultiAppareils: true,
     antiCollageActif: true,
     pleinEcranExamen: true,
+    filigraneActif: true,
     purgeAlertesTs: 0,
     ts: 0
   };
@@ -5492,6 +5493,15 @@
   var chkMultiAppareils = document.getElementById("sec-chk-multi-appareils");
   var chkAntiCollage = document.getElementById("sec-chk-anticollage");
   var chkPleinEcran = document.getElementById("sec-chk-plein-ecran");
+  var chkFiligrane = document.getElementById("sec-chk-filigrane");
+  var inpPinAdmin = document.getElementById("sec-inp-pin-admin");
+  var btnVerrouEcranTop = document.getElementById("btn-verrou-ecran-admin");
+  var btnSecVerrouEcran = document.getElementById("btn-sec-verrou-ecran");
+  var btnSecBackupJson = document.getElementById("btn-sec-backup-json");
+  var modalVerrouEcran = document.getElementById("modal-verrou-ecran-admin");
+  var inpDeverrouillerPin = document.getElementById("inp-deverrouiller-pin");
+  var errDeverrouillerPin = document.getElementById("err-deverrouiller-pin");
+  var btnValiderPinAdmin = document.getElementById("btn-valider-pin-admin");
   var tbAlertesSecurite = document.getElementById("tb-alertes-securite");
   var spanNbAlertes = document.getElementById("sec-nb-alertes");
   var btnSecExportCsv = document.getElementById("btn-sec-export-csv");
@@ -5527,6 +5537,10 @@
     if (chkMultiAppareils) chkMultiAppareils.checked = cfgSecuriteAdmin.alerteMultiAppareils !== false;
     if (chkAntiCollage) chkAntiCollage.checked = cfgSecuriteAdmin.antiCollageActif !== false;
     if (chkPleinEcran) chkPleinEcran.checked = cfgSecuriteAdmin.pleinEcranExamen !== false;
+    if (chkFiligrane) chkFiligrane.checked = cfgSecuriteAdmin.filigraneActif !== false;
+    if (inpPinAdmin) {
+      try { inpPinAdmin.value = localStorage.getItem("sti-admin-pin") || "2026"; } catch (e) {}
+    }
     if (badgeStatutVerrou) {
       if (cfgSecuriteAdmin.verrouActif) {
         var cTxt = cfgSecuriteAdmin.verrouCible === "*" ? "Global" : cfgSecuriteAdmin.verrouCible;
@@ -5699,7 +5713,7 @@
     });
   }
 
-  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils, chkAntiCollage, chkPleinEcran].forEach(function (el) {
+  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils, chkAntiCollage, chkPleinEcran, chkFiligrane].forEach(function (el) {
     if (!el) return;
     el.addEventListener("change", function () {
       sauvegarderEtDiffuserConfigSecurite({
@@ -5710,10 +5724,94 @@
         inactiviteMin: selInactiviteMin ? (parseInt(selInactiviteMin.value, 10) || 30) : 30,
         alerteMultiAppareils: chkMultiAppareils ? chkMultiAppareils.checked : true,
         antiCollageActif: chkAntiCollage ? chkAntiCollage.checked : true,
-        pleinEcranExamen: chkPleinEcran ? chkPleinEcran.checked : true
+        pleinEcranExamen: chkPleinEcran ? chkPleinEcran.checked : true,
+        filigraneActif: chkFiligrane ? chkFiligrane.checked : true
       }, "🛡️ Réglages du Pack Sécurité Totale mis à jour en direct.");
     });
   });
+
+  if (inpPinAdmin) {
+    inpPinAdmin.addEventListener("change", function () {
+      var v = (inpPinAdmin.value || "").trim() || "2026";
+      try { localStorage.setItem("sti-admin-pin", v); } catch (e) {}
+      msg("🔑 Code PIN rapide de l'écran Admin mis à jour.", "ok");
+    });
+  }
+
+  function activerVerrouEcranAdmin() {
+    if (modalSecurite) modalSecurite.classList.remove("visible");
+    if (!modalVerrouEcran) return;
+    try { sessionStorage.setItem("sti-admin-locked", "1"); } catch (e) {}
+    if (inpDeverrouillerPin) inpDeverrouillerPin.value = "";
+    if (errDeverrouillerPin) errDeverrouillerPin.textContent = "";
+    modalVerrouEcran.classList.add("visible");
+    setTimeout(function () { if (inpDeverrouillerPin) inpDeverrouillerPin.focus(); }, 50);
+  }
+
+  function tenterDeverrouillerPinAdmin() {
+    var pinAttendu = "2026";
+    try { pinAttendu = localStorage.getItem("sti-admin-pin") || "2026"; } catch (e) {}
+    var saisi = inpDeverrouillerPin ? inpDeverrouillerPin.value.trim() : "";
+    if (saisi === pinAttendu) {
+      try { sessionStorage.removeItem("sti-admin-locked"); } catch (e) {}
+      if (modalVerrouEcran) modalVerrouEcran.classList.remove("visible");
+      msg("🔓 Tableau de bord déverrouillé.", "ok");
+    } else {
+      if (errDeverrouillerPin) errDeverrouillerPin.textContent = "❌ Code PIN incorrect.";
+      if (inpDeverrouillerPin) { inpDeverrouillerPin.value = ""; inpDeverrouillerPin.focus(); }
+    }
+  }
+
+  if (btnVerrouEcranTop) btnVerrouEcranTop.addEventListener("click", activerVerrouEcranAdmin);
+  if (btnSecVerrouEcran) btnSecVerrouEcran.addEventListener("click", activerVerrouEcranAdmin);
+  if (btnValiderPinAdmin) btnValiderPinAdmin.addEventListener("click", tenterDeverrouillerPinAdmin);
+  if (inpDeverrouillerPin) {
+    inpDeverrouillerPin.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); tenterDeverrouillerPinAdmin(); }
+    });
+  }
+  try {
+    if (sessionStorage.getItem("sti-admin-locked") === "1" && modalVerrouEcran) {
+      modalVerrouEcran.classList.add("visible");
+    }
+  } catch (e) {}
+
+  if (btnSecBackupJson) {
+    btnSecBackupJson.addEventListener("click", function () {
+      var dNow = new Date();
+      var dateStr = dNow.getFullYear() + "-" + String(dNow.getMonth() + 1).padStart(2, "0") + "-" + String(dNow.getDate()).padStart(2, "0");
+      var backupObj = {
+        plateforme: "STI V2.0 — Le Web de A à Z",
+        version: "v95",
+        exporte_le: dNow.toISOString(),
+        statistiques: {
+          nb_abonnes: profils.length,
+          nb_connexions: acces.length,
+          nb_quiz: listeResultatsQuiz.length,
+          nb_messages: messagesDiffuses.length,
+          nb_alertes_securite: listeAlertesSecurite.length
+        },
+        cfg_ecoles: cfgEcoles,
+        cfg_securite: cfgSecuriteAdmin,
+        profils: profils,
+        resultats_quiz: listeResultatsQuiz,
+        messages_diffuses: messagesDiffuses,
+        questions_eleves: questionsLibres,
+        alertes_securite: listeAlertesSecurite,
+        connexions: acces
+      };
+      var blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: "application/json;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "STI_V2_Backup_Complet_" + dateStr + ".json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("💾 Sauvegarde complète (Backup JSON) téléchargée avec succès.", "ok");
+    });
+  }
 
   if (btnSecPurgerAlertes) {
     btnSecPurgerAlertes.addEventListener("click", function () {

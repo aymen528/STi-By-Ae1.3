@@ -447,9 +447,18 @@
     });
   }
 
-  /* ---------- connexion ---------- */
+  /* ---------- connexion (avec bouclier Anti-brute-force : blocage 2 min après 5 échecs) ---------- */
   document.getElementById("f-connexion").addEventListener("submit", function (e) {
     e.preventDefault();
+    var lockUntil = 0;
+    try { lockUntil = parseInt(localStorage.getItem("sti-bruteforce-lock") || "0", 10) || 0; } catch (err) {}
+    if (Date.now() < lockUntil) {
+      var secRest = Math.ceil((lockUntil - Date.now()) / 1000);
+      msg("🛡️ Bouclier anti-brute-force : 5 mots de passe erronés consécutifs. Réessayez dans " + secRest + " s.", "err");
+      cap1.reset();
+      document.getElementById("c-captcha").value = "";
+      return;
+    }
     if (!cap1.ok(document.getElementById("c-captcha").value)) {
       msg("❌ Code captcha incorrect.", "err"); cap1.reset();
       document.getElementById("c-captcha").value = "";
@@ -510,9 +519,43 @@
           return;
         }
         connexionResolue = true;
-        msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? "Identifiant ou mot de passe incorrect." : r.error.message), "err"); return;
+        var nbEchecs = 1;
+        try {
+          nbEchecs = (parseInt(localStorage.getItem("sti-bruteforce-count") || "0", 10) || 0) + 1;
+          localStorage.setItem("sti-bruteforce-count", String(nbEchecs));
+        } catch (err) {}
+        cap1.reset();
+        document.getElementById("c-captcha").value = "";
+        if (nbEchecs >= 5) {
+          try {
+            localStorage.setItem("sti-bruteforce-lock", String(Date.now() + 120000));
+            localStorage.removeItem("sti-bruteforce-count");
+          } catch (err) {}
+          var alBrute = {
+            type: "sec_alerte",
+            id: "sa_bf_" + Date.now(),
+            uid: null,
+            nom: idConn || emailConn || "Portail",
+            classe: estSaisieAdmin ? "Compte Admin ciblé" : "Portail",
+            alerte: "Anti-brute-force (5 échecs mot de passe)",
+            details: "5 tentatives erronées consécutives sur « " + (idConn || emailConn) + " » — verrouillé 2 min",
+            page: "portail.html",
+            ts: new Date().toISOString()
+          };
+          try {
+            sb.channel("sti-diffusion").send({ type: "broadcast", event: "sec_alerte", payload: alBrute });
+          } catch (err) {}
+          fetch("https://ntfy.sh/" + CANAL_DIFFUSION_PORTAIL, { method: "POST", body: JSON.stringify(alBrute) }).catch(function () {});
+          msg("🛡️ Bouclier anti-brute-force activé : 5 échecs consécutifs. Connexion verrouillée pendant 2 minutes (professeur alerté).", "err");
+          return;
+        }
+        msg("❌ " + (r.error.message.indexOf("Invalid") === 0 ? ("Identifiant ou mot de passe incorrect (tentative " + nbEchecs + "/5).") : r.error.message), "err"); return;
       }
       connexionResolue = true;
+      try {
+        localStorage.removeItem("sti-bruteforce-count");
+        localStorage.removeItem("sti-bruteforce-lock");
+      } catch (err) {}
       /* login en ligne réussi : mémorise l'empreinte locale pour le mode hors-ligne */
       var isAdm = (r.data.user.email || "").trim().toLowerCase() === adminMailStrict;
       sha256(mdp).then(function (h) {
