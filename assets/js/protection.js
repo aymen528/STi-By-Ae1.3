@@ -85,24 +85,51 @@
     return false;
   }
 
+  function trouverIframePdfOuverte() {
+    try {
+      var iframes = document.querySelectorAll("iframe");
+      for (var i = 0; i < iframes.length; i++) {
+        var fr = iframes[i];
+        var src = fr.getAttribute("src") || fr.src || "";
+        if (/\.pdf(\.html)?($|[?#])/i.test(src) && fr.offsetParent !== null && fr.contentWindow) {
+          return fr;
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function estPagePdfDoc() {
+    try {
+      return /\.pdf\.html($|[?#])/i.test((location.pathname || "") + (location.href || ""));
+    } catch (e) {
+      return false;
+    }
+  }
+
   function synchroniserDomGold() {
     var okGold = estGoldActif();
     var okAdmin = estAdminStrict();
+    var okPdf = estPagePdfDoc();
     if (document.documentElement) {
       document.documentElement.classList.toggle("sti-gold", okGold);
       document.documentElement.classList.toggle("sti-admin-strict", okAdmin);
+      document.documentElement.classList.toggle("sti-pdf-doc", okPdf);
     }
     if (document.body) {
       document.body.classList.toggle("sti-gold", okGold);
       document.body.classList.toggle("sti-admin-strict", okAdmin);
+      document.body.classList.toggle("sti-pdf-doc", okPdf);
     }
 
     /* Note : protection.css reste TOUJOURS active pour maintenir le bouclier Anti-Inspecteur (#sti-devtools-overlay) et #sti-toast */
     var wm = document.getElementById("sti-watermark");
     var pm = document.getElementById("sti-print-msg");
+    if (okGold || okPdf) {
+      if (pm && pm.parentNode) pm.parentNode.removeChild(pm);
+    }
     if (okGold) {
       if (wm && wm.parentNode) wm.parentNode.removeChild(wm);
-      if (pm && pm.parentNode) pm.parentNode.removeChild(pm);
       var stOvr = document.getElementById("sti-gold-override");
       if (!stOvr && document.head) {
         stOvr = document.createElement("style");
@@ -118,7 +145,7 @@
       if (stOvrOff && stOvrOff.parentNode) stOvrOff.parentNode.removeChild(stOvrOff);
       if (document.body) {
         installWatermark();
-        installPrintBlock();
+        if (!okPdf) installPrintBlock();
       }
     }
     return okGold;
@@ -234,6 +261,19 @@
         toast("\uD83D\uDEAB Capture d'écran non autorisée \u2014 contenu protégé", true);
         bloqueStandard = true;
       } else if (mod && (k === "p" || k === "c" || k === "x" || k === "a")) {
+        if (k === "p") {
+          if (estPagePdfDoc()) {
+            /* Tous les liens et pages PDF (.pdf.html) peuvent être imprimés par tout le monde */
+            return;
+          }
+          var frPdf = trouverIframePdfOuverte();
+          if (frPdf) {
+            e.preventDefault();
+            e.stopPropagation();
+            try { frPdf.contentWindow.focus(); frPdf.contentWindow.print(); } catch (err) {}
+            return false;
+          }
+        }
         var t = e.target;
         var dansChamp = t && t.closest && t.closest("input, textarea, [contenteditable='true']");
         if (!dansChamp || k === "p") {
@@ -252,32 +292,15 @@
   );
 
   /* ─────────────────────────────────────────────
-     4) Glisser-déposer & téléchargement PDF brut bloqués hors Gold
+     4) Glisser-déposer bloqué
      ───────────────────────────────────────────── */
   document.addEventListener("dragstart", function (e) {
     if (estAdminStrict()) return;
     e.preventDefault();
   });
 
-  document.addEventListener(
-    "click",
-    function (e) {
-      if (synchroniserDomGold()) return;
-      var t = e.target;
-      if (!t || !t.closest) return;
-      var aPdf = t.closest('a[href$=".pdf"]');
-      var btnPr = t.closest('button[onclick*="print"]');
-      if (aPdf || btnPr) {
-        e.preventDefault();
-        e.stopPropagation();
-        toast(MSG_PROTECT, true);
-      }
-    },
-    true
-  );
-
   /* ─────────────────────────────────────────────
-     5) Filigrane + message d'impression (uniquement comptes standards)
+     5) Filigrane + message d'impression (uniquement comptes standards hors pages PDF)
      ───────────────────────────────────────────── */
   function installWatermark() {
     if (estGoldActif() || !document.body) return;
@@ -289,7 +312,7 @@
   }
 
   function installPrintBlock() {
-    if (estGoldActif() || !document.body) return;
+    if (estGoldActif() || estPagePdfDoc() || !document.body) return;
     if (document.getElementById("sti-print-msg")) return;
     var box = document.createElement("div");
     box.id = "sti-print-msg";

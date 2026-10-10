@@ -34,15 +34,10 @@ select,
   -webkit-touch-callout: default !important;
 }
 
-/* ── Images non « glissables » & boutons d'impression / PDF d'origine masqués hors Gold ── */
+/* ── Images non « glissables » ── */
 html:not(.sti-admin-strict) body img {
   -webkit-user-drag: none;
   user-drag: none;
-}
-html:not(.sti-gold) .outils a[href$=".pdf"],
-html:not(.sti-gold) .outils button[onclick*="print"],
-html:not(.sti-gold) button[onclick*="window.print"] {
-  display: none !important;
 }
 
 /* ── Filigrane diagonal permanent (masqué pour Compte GOLD) ── */
@@ -63,15 +58,15 @@ body.sti-gold #sti-watermark {
   display: none !important;
 }
 
-/* ── Message affiché à la place du contenu lors d'une impression (sauf Compte GOLD) ── */
+/* ── Message affiché à la place du contenu lors d'une impression (sauf Compte GOLD et pages PDF .pdf.html) ── */
 #sti-print-msg {
   display: none;
 }
 @media print {
-  html:not(.sti-gold) body:not(.sti-gold) > *:not(#sti-print-msg) {
+  html:not(.sti-gold):not(.sti-pdf-doc) body:not(.sti-gold):not(.sti-pdf-doc) > *:not(#sti-print-msg) {
     display: none !important;
   }
-  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg {
+  html:not(.sti-gold):not(.sti-pdf-doc) body:not(.sti-gold):not(.sti-pdf-doc) #sti-print-msg {
     display: flex !important;
     flex-direction: column;
     align-items: center;
@@ -83,30 +78,40 @@ body.sti-gold #sti-watermark {
     font-family: system-ui, "Segoe UI", sans-serif;
     color: #101728;
   }
-  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-ico {
+  html:not(.sti-gold):not(.sti-pdf-doc) body:not(.sti-gold):not(.sti-pdf-doc) #sti-print-msg .sti-print-ico {
     font-size: 56px;
   }
-  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-title {
+  html:not(.sti-gold):not(.sti-pdf-doc) body:not(.sti-gold):not(.sti-pdf-doc) #sti-print-msg .sti-print-title {
     font-size: 26px;
     font-weight: 800;
   }
-  html:not(.sti-gold) body:not(.sti-gold) #sti-print-msg .sti-print-txt {
+  html:not(.sti-gold):not(.sti-pdf-doc) body:not(.sti-gold):not(.sti-pdf-doc) #sti-print-msg .sti-print-txt {
     font-size: 15px;
     line-height: 1.6;
     max-width: 520px;
   }
 
-  /* 👑 Compte GOLD : impression autorisée */
+  /* 👑 Compte GOLD & tous les documents PDF (.pdf.html) : impression autorisée pour tout le monde */
   html.sti-gold #sti-print-msg,
   body.sti-gold #sti-print-msg,
+  html.sti-pdf-doc #sti-print-msg,
+  body.sti-pdf-doc #sti-print-msg,
   html.sti-gold #sti-watermark,
   body.sti-gold #sti-watermark,
+  html.sti-pdf-doc #sti-watermark,
+  body.sti-pdf-doc #sti-watermark,
   html.sti-gold #sti-devtools-overlay,
   body.sti-gold #sti-devtools-overlay,
+  html.sti-pdf-doc #sti-devtools-overlay,
+  body.sti-pdf-doc #sti-devtools-overlay,
   html.sti-gold #sti-toast,
   body.sti-gold #sti-toast,
+  html.sti-pdf-doc #sti-toast,
+  body.sti-pdf-doc #sti-toast,
   html.sti-gold .sti-no-print,
-  body.sti-gold .sti-no-print {
+  body.sti-gold .sti-no-print,
+  html.sti-pdf-doc .sti-no-print,
+  body.sti-pdf-doc .sti-no-print {
     display: none !important;
   }
 }
