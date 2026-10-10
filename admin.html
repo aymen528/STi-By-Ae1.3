@@ -999,7 +999,7 @@
           <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#23201a" stroke-width="2" fill="#fffdf7"/><path d="M7.5 16.5v-4.5M12 16.5V8M16.5 16.5V5.5" stroke="#f4511e" stroke-width="2.6" stroke-linecap="round"/></svg>
           Tableau de bord STI V2.0
           <span class="badge-admin-gold">👑 Admin Gold</span>
-          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v97</span>
+          <span class="badge-version" id="badge-version-admin" title="Cliquer pour vérifier les mises à jour de la plateforme">🏷️ Version V2.0 · v98</span>
           <span class="badge-supabase" id="badge-supabase-quota" title="Espace disponible dans la base Supabase (Quota 500 Mo) — cliquer pour voir le détail">🗄️ Supabase : <b id="sb-pct-restant">99,8 %</b> restant (<span id="sb-qte-restante">499,2 Mo / 500 Mo</span>)<span class="jauge-sb-mini" aria-hidden="true"><i id="sb-jauge-barre" style="width:99.8%"></i></span></span>
         </h1>
         <div class="sous">Pilotage en direct des classes, abonnés, durées hebdomadaires, contrôles chronométrés et quiz · <strong id="sous-version-admin" style="color:#f4511e">Version V2.0 (v96)</strong> · <strong id="sous-supabase-quota" style="color:#177245">🗄️ Supabase : 99,8 % restant (499,2 Mo libres / 500 Mo)</strong></div>
@@ -2040,24 +2040,25 @@
       </div>
       <div id="contenu-readme-admin" style="overflow-y:auto;flex:1;padding-right:6px;font-size:13.2px;line-height:1.55;color:#23201a">
         <div style="background:#f9f1e3;border:2px solid #23201a;border-radius:14px;padding:12px 15px;margin-bottom:12px">
-          <div style="font-size:15px;font-weight:900;color:#d84315">📚 STI By A'e — Le Web de A à Z (Version 2.0 · v74)</div>
-          <div style="font-size:12.5px;color:#5a5244;margin-top:4px">Plateforme éducative interactive dédiée aux <b>Sciences et Technologies de l'Informatique (STI)</b> : cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en <b>HTML5, CSS3, JavaScript, SQL et PHP / MySQLi</b>.</div>
+          <div style="font-size:15px;font-weight:900;color:#d84315">📚 STI By A'e — Le Web de A à Z (Version 2.0 · v98)</div>
+          <div style="font-size:12.5px;color:#5a5244;margin-top:4px">Plateforme éducative interactive dédiée aux <b>Sciences et Technologies de l'Informatique (STI)</b> : cours complets, leçons animées pas à pas, annexes officielles, flashcards 3D, bac à sable de code en direct, chasse aux erreurs (débogage Bac STI), messagerie temps réel avec pièces jointes, questions flash en direct, séries d'exercices, TP corrigés, quiz interactifs et épreuves pratiques en <b>HTML5, CSS3, JavaScript, SQL et PHP / MySQLi</b>.</div>
         </div>
 
         <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🔐 1. Portail d'accès &amp; Gestion des profils (<code>portail.html</code>)</h4>
         <ul style="margin:0 0 10px 18px;padding:0">
           <li><b>Identité visuelle unifiée</b> : thème sombre de l'accueil (<code>#0d1526</code> + halo orange + grille de points) avec animation dactylo <b>STI</b>.</li>
-          <li><b>Double mode d'inscription et de connexion</b> : par <b>e-mail</b> ou par <b>téléphone (<code>+216</code>)</b> avec Nom, Prénom et validation par code WhatsApp à 6 chiffres (6 cases OTP).</li>
-          <li><b>Session permanente « Labo » (<code>elevelabo3</code>)</b> : maintien automatique de la session sur les PC du laboratoire sans redemander de connexion.</li>
+          <li><b>Double mode d'inscription et de connexion</b> : par <b>e-mail</b> ou par <b>téléphone (<code>+216</code>)</b> avec Nom, Prénom, validation par code WhatsApp à 6 chiffres (6 cases OTP) et <b>protection Anti-Brute-Force</b> (blocage de 60 s après 5 échecs).</li>
+          <li><b>Session permanente « Labo » (<code>elevelabo3</code>)</b> : maintien automatique de la session sur les PC du laboratoire avec accès à tous les cours et bouton <code>🚪 Déconnexion</code>, mais <b>aucun accès à <code>admin.html</code></b>.</li>
           <li><b>Restriction automatique par niveau (<code>3ème SI</code> vs <code>4ème SI</code>)</b> : masquage et verrouillage dès 0 ms de tout le contenu PHP / MySQLi, de l'Atelier Bac Pratique et du Projet STI 0 hors <code>4SI1..4SI5</code>, <code>elevelabo3</code> et Admin.</li>
         </ul>
 
-        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🎓 2. Outils d'étude &amp; Confort Élève (<code>index.html</code> &amp; <code>acces.js</code>)</h4>
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🎓 2. Outils d'étude, Révision interactive &amp; Confort Élève (<code>index.html</code> &amp; <code>acces.js</code>)</h4>
         <ul style="margin:0 0 10px 18px;padding:0">
           <li><b>🃏 Mode « Flashcards Bac STI » en 3D réaliste</b> : 30+ cartes Recto/Verso (HTML5, CSS3, JS, SQL, PHP) avec moteur physique 3D à 60 FPS (<code>requestAnimationFrame</code>, décollage, perspective trapézoïdale, tranche bristol épaisse, reflet lumineux et ombre portée au sol).</li>
           <li><b>💻 Mini « Bac à sable » de code en direct (<code>HTML / CSS / JS</code>)</b> : éditeur 100 % hors-ligne avec modèles Type Bac préchargés, aperçu instantané et mini-console JS intégrée.</li>
-          <li><b>🔍 Recherche profonde globale (<code>Ctrl + K</code> ou <code>/</code>)</b> : recherche instantanée dans tous les chapitres, balises HTML5, propriétés CSS3, fonctions JS/PHP et commandes SQL.</li>
-          <li><b>📍 Reprise automatique de lecture &amp; 📝 Carnet de notes (<code>Alt + N</code>)</b> : sauvegarde automatique du chapitre en cours et carnet de notes exportable en <code>.txt</code>.</li>
+          <li><b>🐞 Mode « Chasse aux erreurs (Débogage Bac STI) »</b> : <b>10 défis officiels × 3 erreurs classiques = 30 pièges du Bac</b> (HTML5, CSS3, JS, SQL et PHP/MySQLi réservé aux 4SI/Labo/Admin) avec voyants temps réel <code>🐞 → ✅</code>, indices progressifs, corrigé expliqué et envoi automatique de la note <code>/20</code> au professeur.</li>
+          <li><b>💬 Messenger STI bidirectionnel avec pièces jointes (<code>📎</code>) sur 100 % des pages</b> : discussion style Facebook Messenger (PC et mobile avec clavier virtuel adaptatif), envoi d'images/documents/codes entre professeur et candidats, dictée vocale sans répétition et alerte sonore/visuelle.</li>
+          <li><b>🔍 Recherche profonde globale (<code>Ctrl + K</code>)</b>, <b>📍 Reprise automatique de lecture</b>, <b>📝 Carnet de notes (<code>Alt + N</code>)</b> et <b>bouton universel <code>⬆ Haut</code></b> sur toutes les pages.</li>
         </ul>
 
         <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">📖 3. Cours interactifs, Animations &amp; Projets Bac</h4>
@@ -2067,18 +2068,21 @@
           <li><b>🧪 Atelier Bac Pratique &amp; Projet STI 0</b> : épreuves notées sur 20 et téléchargement 100 % hors-ligne du sujet PDF et de l'archive <code>ressources-projet-sti0.zip</code>.</li>
         </ul>
 
-        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">📊 4. Tableau de bord Administrateur temps réel (<code>admin.html</code>)</h4>
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">📊 4. Tableau de bord Administrateur &amp; Pilotage de classe (<code>admin.html</code>)</h4>
         <ul style="margin:0 0 10px 18px;padding:0">
-          <li><b>Verrou anti-flash 0 ms, Version &amp; Jauge Supabase</b> : affichage en direct du % et des Mo restants sur le quota Supabase de 500 Mo.</li>
-          <li><b>Gestion des classes, lycées et abonnés</b> : ajout/renommage/suppression, compteur d'effectif et d'élèves <code>🟢 En ligne</code>, vue <b>📋 Liste détaillée</b> ou <b>🔵 Nœuds</b>, statut <b>👑 Gold</b> et éjection en direct (<code>&lt; 1 s</code>).</li>
-          <li><b>📋 Fiche récapitulative par élève &amp; 📥 Exports Excel (CSV)</b> : bilan individuel complet (temps d'étude, moyenne et historique Quiz, messages lus) et exports CSV par classe.</li>
-          <li><b>Affichage compact (5 premiers + « ➕ Voir plus ») &amp; Purges ciblées</b> : suppression par mois (connexions / quiz) ou par message (suivi de lecture).</li>
+          <li><b>Accès exclusif (<code>aymenessouyah@gmail.com</code>), Verrou 0 ms, Code PIN écran (<code>🔒 Verrouiller</code>) &amp; Jauge Supabase</b> : affichage en direct de la version et des Mo restants sur le quota Supabase de 500 Mo.</li>
+          <li><b>📋 Feuille d'appel &amp; présence automatique du jour par classe</b> : détection automatique des <code>🟢 Présents</code> (avec heure d'arrivée et appareil) et des <code>🔴 Absents</code>, imprimable et exportable en CSV en 1 clic.</li>
+          <li><b>🚀 Téléportation d'écran en direct &amp; ⏸️ Pause écran individuel (<code>⏸️</code> / <code>▶️</code>)</b> : ouverture instantanée d'une ressource sur tous les postes d'une classe et mise en pause en 1 clic de l'écran d'un élève précis.</li>
+          <li><b>⚡ Question Flash / Sondage Live en classe</b> : lancement depuis <code>admin.html</code> ou depuis le bouton <code>⚡</code> (qui remplace <code>🖨️</code> sur tout le site pour l'admin) d'une question minutée avec barres de progression en direct et révélation de la correction.</li>
+          <li><b>📋 Fiche récapitulative par élève, Vue <code>🔵 Nœuds</code>, Purges ciblées &amp; 📥 Exports CSV</b> : cumul hebdomadaire (lundi → aujourd'hui), appareils détectés (<code>#XXXX</code>), moyenne Quiz/Débogage, affichage compact (5 premiers + <code>➕ Voir plus</code>) et suppression par mois ou par message.</li>
         </ul>
 
-        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🛡️ 5. Sécurité, Compte 👑 Gold &amp; Mode 100 % Hors-ligne</h4>
+        <h4 style="margin:12px 0 6px;font-size:14px;color:#f4511e">🛡️ 5. Pack Sécurité Totale, Compte 👑 Gold, PDF &amp; Mode 100 % Hors-ligne</h4>
         <ul style="margin:0 0 10px 18px;padding:0">
-          <li><b>Verrouillage strict du code source</b> : clic droit, <code>F12</code>, <code>Ctrl+U</code>, <code>Ctrl+Shift+I/J/C/K</code>, <code>Ctrl+S</code> et bouclier Anti-DevTools actifs pour 100 % des abonnés (même 👑 Gold et <code>elevelabo3</code>).</li>
-          <li><b>Service Worker <code>sw.js</code> (432 fichiers, 0 lien mort)</b> : fonctionnement intégral hors-ligne avec synchronisation différée automatique.</li>
+          <li><b>Documents PDF accessibles à tous &amp; Compte 👑 Gold</b> : tous les documents PDF (<code>.pdf</code> et <code>.pdf.html</code>) sont téléchargeables et imprimables par tous les abonnés ; le statut <b>👑 Gold</b> débloque en plus la copie et l'impression des pages de cours.</li>
+          <li><b>Verrouillage strict du code source &amp; Éjection auto <code>3/3</code></b> : clic droit, <code>F12</code>, <code>Ctrl+U</code>, <code>Ctrl+Shift+I/J/C/K</code>, <code>Ctrl+S</code> et bouclier Anti-DevTools actifs pour 100 % des abonnés (même 👑 Gold et <code>elevelabo3</code>) avec éjection automatique à la 3e tentative.</li>
+          <li><b>Centre de Sécurité (<code>🛡️ Sécurité</code>)</b> : Mode Examen + Plein Écran <code>F11</code> obligatoire, Session unique anti-partage, Anti-triche sortie d'onglet (<code>Alt+Tab</code>), Anti-Écran partagé (<code>Split-screen &lt; 80 %</code>), Anti-Traduction auto (<code>translate="no"</code>), Anti-collage massif externe (Anti-ChatGPT), Filigrane nominatif anti-photo smartphone, Auto-déconnexion d'inactivité (15–60 min) et Sauvegarde complète Backup JSON.</li>
+          <li><b>Service Worker <code>sw.js</code> (100 % hors-ligne)</b> : fonctionnement intégral hors-ligne avec synchronisation différée automatique.</li>
         </ul>
       </div>
       <div class="modal-actions" style="flex-wrap:wrap;gap:8px;margin-top:12px;border-top:1.5px solid #e7dcc8;padding-top:10px">
@@ -2240,7 +2244,7 @@
 </script>
 
 <script src="assets/js/supabase-umd.js"></script>
-<script src="assets/js/config.js?v=97"></script>
-<script src="assets/js/admin.js?v=97"></script>
+<script src="assets/js/config.js?v=98"></script>
+<script src="assets/js/admin.js?v=98"></script>
 </body>
 </html>
