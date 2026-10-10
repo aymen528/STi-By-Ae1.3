@@ -12,6 +12,22 @@
   var sb = window.supabase.createClient(cfg.URL, cfg.CLE);
   var elMsg = document.getElementById("msg");
   function msg(t, c) { elMsg.textContent = t; elMsg.className = "msg" + (c ? " " + c : ""); }
+  function echHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+  var esc = echHtml;
+
+  function dataUrlSureAdmin(u) {
+    var s = String(u || "").trim();
+    if (!/^data:[a-z0-9.+/-]+;base64,[a-z0-9+/=\s]+$/i.test(s)) return "";
+    if (/^data:(text\/html|image\/svg\+xml|application\/javascript|text\/javascript)/i.test(s)) return "";
+    return s;
+  }
 
   /* Affichage dynamique du numéro de version du tableau de bord & du cache PWA */
   (function afficherVersionAdmin() {
@@ -736,10 +752,10 @@
     }
     bandeau.classList.add("visible");
     var titre = st.classe && st.classe !== "*"
-      ? ("🏫 Classe appelée : <strong>" + st.classe + "</strong>" + (st.lycee && st.lycee !== "*" ? " <span style='color:#7a6f5d'>(" + st.lycee + ")</span>" : ""))
-      : ("🏛️ Lycée appelé : <strong>" + st.lycee + "</strong>");
+      ? ("🏫 Classe appelée : <strong>" + echHtml(st.classe) + "</strong>" + (st.lycee && st.lycee !== "*" ? " <span style='color:#7a6f5d'>(" + echHtml(st.lycee) + ")</span>" : ""))
+      : ("🏛️ Lycée appelé : <strong>" + echHtml(st.lycee) + "</strong>");
     var detailOn = st.nomsEnLigne.length
-      ? " <span style='font-size:11.5px;color:#177245;font-weight:800'>(" + st.nomsEnLigne.join(" · ") + ")</span>"
+      ? " <span style='font-size:11.5px;color:#177245;font-weight:800'>(" + st.nomsEnLigne.map(echHtml).join(" · ") + ")</span>"
       : "";
     bandeau.innerHTML =
       "<div class='bandeau-classe-badges'>" +
@@ -1927,7 +1943,8 @@
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function collecterMessagesEleve(uid) {
@@ -2362,7 +2379,7 @@
     var nbRep = Object.keys(reponsesParMsg[val] || {}).length;
     var libCl = mTrouve ? (mTrouve.classe === "*" ? "Toutes les classes" : mTrouve.classe) : "Message";
     resumePurgeMsg.innerHTML =
-      "<span>📨 <strong>" + libCl + "</strong></span>" +
+      "<span>📨 <strong>" + echHtml(libCl) + "</strong></span>" +
       "<span style='color:#c0392b'>🗑️ Supprimer ce message (" + nbLu + " lu(s) · " + nbRep + " réponse(s))</span>";
   }
 
@@ -3501,7 +3518,7 @@
     var st = statsPourSelection(cl, "*");
     var lib = cl === "*" ? "Toutes les classes" : ("Classe " + cl);
     box.innerHTML =
-      "<span>🏫 <strong>" + lib + "</strong></span>" +
+      "<span>🏫 <strong>" + echHtml(lib) + "</strong></span>" +
       "<span>👥 Effectif : <strong>" + st.total + " élève(s)</strong> · <strong style='color:#177245'>🟢 " + st.enLigne + " en ligne</strong></span>";
   }
 
@@ -4314,16 +4331,17 @@
 
   function rendreBlocFichierJointAdmin(f, surFondOrange) {
     if (!f || !f.nom) return "";
+    var urlPropre = dataUrlSureAdmin(f.dataUrl);
     var tStr = f.taille ? (" (" + fmtTailleFichierAdmin(f.taille) + ")") : "";
     var bg = surFondOrange ? "rgba(0,0,0,.18)" : "#f3ead9";
     var col = surFondOrange ? "#fff" : "#23201a";
     var bdr = surFondOrange ? "rgba(255,255,255,.45)" : "#23201a";
-    var estImg = f.dataUrl && /^data:image\//i.test(f.dataUrl);
+    var estImg = urlPropre && /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(urlPropre);
     var htmlImg = estImg
-      ? ("<img src='" + echHtml(f.dataUrl) + "' alt='" + echHtml(f.nom) + "' class='msn-admin-img-zoom' style='max-width:210px;max-height:150px;border-radius:10px;border:1.5px solid " + bdr + ";display:block;margin-bottom:5px;cursor:zoom-in;object-fit:cover' />")
+      ? ("<img src='" + echHtml(urlPropre) + "' alt='" + echHtml(f.nom) + "' class='msn-admin-img-zoom' style='max-width:210px;max-height:150px;border-radius:10px;border:1.5px solid " + bdr + ";display:block;margin-bottom:5px;cursor:zoom-in;object-fit:cover' />")
       : "";
-    var btnDl = f.dataUrl
-      ? ("<button type='button' class='msn-admin-dl-btn' data-nom='" + echHtml(f.nom) + "' data-url='" + echHtml(f.dataUrl) + "' style='border:1.5px solid " + bdr + ";background:" + (surFondOrange ? "#fff" : "#f4511e") + ";color:" + (surFondOrange ? "#23201a" : "#fff") + ";border-radius:999px;padding:3px 9px;font:900 10.5px system-ui,sans-serif;cursor:pointer;flex-shrink:0'>⬇ Télécharger</button>")
+    var btnDl = urlPropre
+      ? ("<button type='button' class='msn-admin-dl-btn' data-nom='" + echHtml(f.nom) + "' data-url='" + echHtml(urlPropre) + "' style='border:1.5px solid " + bdr + ";background:" + (surFondOrange ? "#fff" : "#f4511e") + ";color:" + (surFondOrange ? "#23201a" : "#fff") + ";border-radius:999px;padding:3px 9px;font:900 10.5px system-ui,sans-serif;cursor:pointer;flex-shrink:0'>⬇ Télécharger</button>")
       : "<span style='font-size:10px;opacity:.8'>⏳ Chargement…</span>";
     return (
       "<div style='margin-top:5px;margin-bottom:2px;padding:6px 9px;border-radius:10px;background:" + bg + ";border:1.5px solid " + bdr + ";color:" + col + "'>" +

@@ -71,7 +71,21 @@
   function lyceePropre(p) {
     return ((p && p.lycee) || "—").replace(/\s*\|\s*GOLD$/i, "") || "—";
   }
-  function esc(t) { var d = document.createElement("i"); d.textContent = t || ""; return d.innerHTML; }
+  function esc(t) {
+    return String(t == null ? "" : t)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function dataUrlSure(u) {
+    var s = String(u || "").trim();
+    if (!/^data:[a-z0-9.+/-]+;base64,[a-z0-9+/=\s]+$/i.test(s)) return "";
+    if (/^data:(text\/html|image\/svg\+xml|application\/javascript|text\/javascript)/i.test(s)) return "";
+    return s;
+  }
 
   /* ---------- Restriction des espaces réservés exclusivement aux classes de 4e SI (4SI 1, 2, 3, 4 ou 5), à la classe elevelabo3 et au Prof (Admin) ----------
      Tout ce qui est PHP + Atelier Bac Pratique est caché par défaut et affiché uniquement pour 4SI (1 à 5), elevelabo3 et le Prof :
@@ -1367,16 +1381,17 @@
 
   function rendreBlocFichierJointEleve(f, surFondOrange) {
     if (!f || !f.nom) return "";
+    var urlPropre = dataUrlSure(f.dataUrl);
     var tStr = f.taille ? (" (" + fmtTailleFichierEleve(f.taille) + ")") : "";
     var bg = surFondOrange ? "rgba(0,0,0,.18)" : "#f3ead9";
     var col = surFondOrange ? "#fff" : "#23201a";
     var bdr = surFondOrange ? "rgba(255,255,255,.45)" : "#23201a";
-    var estImg = f.dataUrl && /^data:image\//i.test(f.dataUrl);
+    var estImg = urlPropre && /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(urlPropre);
     var htmlImg = estImg
-      ? ("<img src='" + esc(f.dataUrl) + "' alt='" + esc(f.nom) + "' class='sti-msn-img-zoom' style='max-width:220px;max-height:160px;border-radius:10px;border:1.5px solid " + bdr + ";display:block;margin-bottom:5px;cursor:zoom-in;object-fit:cover' />")
+      ? ("<img src='" + esc(urlPropre) + "' alt='" + esc(f.nom) + "' class='sti-msn-img-zoom' style='max-width:220px;max-height:160px;border-radius:10px;border:1.5px solid " + bdr + ";display:block;margin-bottom:5px;cursor:zoom-in;object-fit:cover' />")
       : "";
-    var btnDl = f.dataUrl
-      ? ("<button type='button' class='sti-msn-dl-btn' data-nom='" + esc(f.nom) + "' data-url='" + esc(f.dataUrl) + "' style='border:1.5px solid " + bdr + ";background:" + (surFondOrange ? "#fff" : "#f4511e") + ";color:" + (surFondOrange ? "#23201a" : "#fff") + ";border-radius:999px;padding:3px 9px;font:900 10.5px system-ui,sans-serif;cursor:pointer;flex-shrink:0'>⬇ Télécharger</button>")
+    var btnDl = urlPropre
+      ? ("<button type='button' class='sti-msn-dl-btn' data-nom='" + esc(f.nom) + "' data-url='" + esc(urlPropre) + "' style='border:1.5px solid " + bdr + ";background:" + (surFondOrange ? "#fff" : "#f4511e") + ";color:" + (surFondOrange ? "#23201a" : "#fff") + ";border-radius:999px;padding:3px 9px;font:900 10.5px system-ui,sans-serif;cursor:pointer;flex-shrink:0'>⬇ Télécharger</button>")
       : "<span style='font-size:10px;opacity:.8'>⏳ Chargement…</span>";
     return (
       "<div style='margin-top:5px;margin-bottom:3px;padding:6px 9px;border-radius:10px;background:" + bg + ";border:1.5px solid " + bdr + ";color:" + col + "'>" +
@@ -2107,8 +2122,9 @@
       var mm = ("0" + Math.floor(restSec / 60)).slice(-2);
       var ss = ("0" + (restSec % 60)).slice(-2);
       var btnLien = "";
-      if (ctrl.url && location.pathname.indexOf(ctrl.url) === -1) {
-        btnLien = "<a href='" + cfg.RACINE + ctrl.url + "' style='background:#f4511e;color:#fff;text-decoration:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:900;border:1.5px solid #fff'>📝 Ouvrir l'épreuve</a>";
+      var urlSafe = String(ctrl.url || "").replace(/[^a-zA-Z0-9_./\-?#]/g, "");
+      if (urlSafe && urlSafe.indexOf("//") === -1 && location.pathname.indexOf(urlSafe) === -1) {
+        btnLien = "<a href='" + esc(cfg.RACINE + urlSafe) + "' style='background:#f4511e;color:#fff;text-decoration:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:900;border:1.5px solid #fff'>📝 Ouvrir l'épreuve</a>";
       }
       barre.innerHTML =
         "<div>⏱️ <span style='color:#ffd54f'>CONTRÔLE EN COURS :</span> " + esc(ctrl.titre || "Évaluation STI") + "</div>" +
@@ -2463,12 +2479,23 @@
   }
 
   /* ---------- Bouton flottant 💬 Messenger STI présent sur 100 % des pages (Élèves & Admin) ---------- */
+  function estSessionAdminVerifiee() {
+    if (estAdminGlobal === true) return true;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i) || "";
+        if (k.indexOf("sb-") === 0 && k.indexOf("-auth-token") !== -1) {
+          var v = (localStorage.getItem(k) || "").toLowerCase();
+          if (v && v.indexOf(ADMIN_MAIL_STRICT) !== -1) return true;
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
   window.ouvrirMessengerSTI = function () {
     var c = lireCacheSessionLocal();
-    var isAdm = Boolean(
-      (c && c.isAdmin === true && String(c.email || "").trim().toLowerCase() === ADMIN_MAIL_STRICT) ||
-      localStorage.getItem("sti-admin-gold") === "1"
-    );
+    var isAdm = estSessionAdminVerifiee();
     if (isAdm) {
       var wAdm = document.getElementById("sti-messenger-admin-site");
       if (wAdm) { wAdm.remove(); synchroniserViewportMessengerSite(); return; }
@@ -2541,10 +2568,7 @@
       }
       if (document.getElementById("sti-btn-messenger-global")) return;
       var c = lireCacheSessionLocal();
-      var isAdm = Boolean(
-        (c && c.isAdmin === true && String(c.email || "").trim().toLowerCase() === ADMIN_MAIL_STRICT) ||
-        localStorage.getItem("sti-admin-gold") === "1"
-      );
+      var isAdm = estSessionAdminVerifiee();
       installerBoutonMessengerGlobal(isAdm, (c && c.id) || currentUid || "eleve", (c && c.classe) || currentClasse || "");
     }
     if (document.readyState === "loading") {
