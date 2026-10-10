@@ -513,6 +513,23 @@ async function prechargerSequentiel() {
         }
       }
     }
+    var cdns = [
+      "https://cdn.tailwindcss.com",
+      "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+      "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    ];
+    for (var cu of cdns) {
+      try {
+        var exCdn = await cache.match(cu);
+        if (!exCdn) {
+          var repCdn = await fetch(new Request(cu, { mode: "no-cors" }));
+          if (repCdn && (repCdn.ok || repCdn.type === "opaque")) {
+            await cache.put(cu, repCdn);
+          }
+        }
+      } catch (e) {}
+    }
   } catch (e) {}
   precacheEnCours = false;
 }
