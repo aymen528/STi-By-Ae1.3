@@ -211,15 +211,22 @@
     }).catch(function () {});
   }
 
-  /* Indicateur visuel En ligne (Vert) / Hors ligne (Rouge) sur le logo Tableau de bord */
+  /* Indicateur visuel En ligne (Vert) / Hors ligne (Rouge) sur le logo et le titre Tableau de bord STI V2.0 */
   function majLogoReseauAdmin() {
     var enLigne = navigator.onLine !== false;
+    var coul = enLigne ? "#177245" : "#c0392b";
+    var info = enLigne ? "🟢 En ligne (Connecté)" : "🔴 Hors ligne (Mode hors connexion)";
     var rect = document.getElementById("svg-logo-tb-rect");
     var bars = document.getElementById("svg-logo-tb-bars");
     var svg = document.getElementById("svg-logo-tb-admin");
-    if (rect) rect.setAttribute("fill", enLigne ? "#177245" : "#c0392b");
+    var titre = document.getElementById("titre-tb-admin");
+    if (rect) rect.setAttribute("fill", coul);
     if (bars) bars.setAttribute("stroke", "#ffffff");
-    if (svg) svg.setAttribute("title", enLigne ? "🟢 En ligne (Connecté)" : "🔴 Hors ligne (Mode hors connexion)");
+    if (svg) svg.setAttribute("title", info);
+    if (titre) {
+      titre.style.color = coul;
+      titre.setAttribute("title", info);
+    }
   }
   majLogoReseauAdmin();
   window.addEventListener("online", majLogoReseauAdmin);
