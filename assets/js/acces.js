@@ -30,7 +30,7 @@
       }
       if (!document.querySelector('script[src*="protection.js"]') && (document.head || document.documentElement)) {
         var scr = document.createElement("script");
-        scr.src = cfg.RACINE + "assets/js/protection.js?v=89";
+        scr.src = cfg.RACINE + "assets/js/protection.js?v=90";
         scr.defer = true;
         (document.head || document.documentElement).appendChild(scr);
       }

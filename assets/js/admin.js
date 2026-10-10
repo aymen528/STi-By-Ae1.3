@@ -2050,7 +2050,7 @@
     } else {
       htmlQuiz = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Épreuve / Quiz</th><th>Score / Note</th><th>Date</th></tr></thead><tbody>" +
         stQ.items.slice(0, 12).map(function (q) {
-          return "<tr><td><b>🏆 " + echHtml(q.quiz || q.nomQ) + "</b></td><td style='color:#177245;font-weight:900'>" + echHtml(q.note) + "</td><td>" + echHtml(fmtDate(q.ts)) + "</td></tr>";
+          return "<tr><td><b>🏆 " + echHtml(q.quiz || q.nomQ) + "</b></td><td class='col-nowrap' style='color:#177245;font-weight:900'>" + echHtml(q.note) + "</td><td class='col-nowrap'>" + echHtml(fmtDate(q.ts)) + "</td></tr>";
         }).join("") +
         "</tbody></table></div>";
     }
@@ -2063,7 +2063,7 @@
     } else {
       htmlAcces = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Début</th><th>Fin</th><th>Durée</th><th>Page consultée</th><th>Lieu</th></tr></thead><tbody>" +
         sesAcces.slice(0, limAccFiche).map(function (a) {
-          return "<tr><td>" + echHtml(fmtDate(a.debut)) + "</td><td>" + echHtml(fmtDate(a.fin)) + "</td><td><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
+          return "<tr><td class='col-nowrap'>" + echHtml(fmtDate(a.debut)) + "</td><td class='col-nowrap'>" + echHtml(fmtDate(a.fin)) + "</td><td class='col-nowrap'><b>" + echHtml(fmtDuree(dureeLigne(a))) + "</b></td><td>" + echHtml(a.page || "—") + "</td><td>" + echHtml(a.lieu || "—") + "</td></tr>";
         }).join("") +
         "</tbody></table></div>";
       if (sesAcces.length > 10) {
@@ -2083,22 +2083,22 @@
     } else {
       htmlMsgs = "<div class='fiche-table-wrap'><table class='fiche-mini-table'><thead><tr><th>Type</th><th>Message</th><th>Réponse / État</th><th>Date</th></tr></thead><tbody>" +
         msgsEl.slice(0, 8).map(function (m) {
-          return "<tr><td><b>" + echHtml(m.type) + "</b></td><td>" + echHtml(m.sujet) + "</td><td style='color:#177245;font-weight:800'>" + echHtml(m.reponse) + "</td><td>" + echHtml(fmtDate(m.ts)) + "</td></tr>";
+          return "<tr><td class='col-nowrap'><b>" + echHtml(m.type) + "</b></td><td>" + echHtml(m.sujet) + "</td><td style='color:#177245;font-weight:800'>" + echHtml(m.reponse) + "</td><td class='col-nowrap'>" + echHtml(fmtDate(m.ts)) + "</td></tr>";
         }).join("") +
         "</tbody></table></div>";
     }
 
     contenuFicheEleve.innerHTML =
       "<div class='fiche-entete'>" +
-        "<div style='display:flex;align-items:center;gap:12px;min-width:0'>" +
+        "<div style='display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 260px'>" +
           "<div class='fiche-avatar'>" + echHtml(ini) + "</div>" +
-          "<div style='min-width:0'>" +
+          "<div style='min-width:0;flex:1'>" +
             "<div style='font-size:16px;font-weight:900;color:#23201a;word-break:break-word'>" + echHtml(np) + "</div>" +
             "<div style='font-size:12px;color:#5a5244;font-weight:800'>🏛️ " + echHtml(lyceePropre(p)) + " · 🏫 <b>" + echHtml(p.classe || "—") + "</b></div>" +
             "<div style='font-size:11.5px;color:#7a6f5d;font-weight:700;margin-top:2px;word-break:break-word'>" + echHtml(ctc) + " · Inscrit le " + echHtml(fmtDate(p.cree_le)) + "</div>" +
           "</div>" +
         "</div>" +
-        "<div style='display:flex;flex-direction:column;align-items:flex-end;gap:5px'>" +
+        "<div style='display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px'>" +
           badgeStatut +
           badgeOnline +
         "</div>" +
@@ -2106,9 +2106,10 @@
       "<div class='fiche-kpis'>" +
         "<div class='fiche-kpi'><small>⏱️ Temps (période)</small><b style='color:#d84315'>" + echHtml(fmtDureeCumul(secSem)) + "</b><span>Cumul total : " + echHtml(fmtDureeCumul(secTot)) + " (" + nbCon + " sess.)</span></div>" +
         "<div class='fiche-kpi'><small>🏆 Moyenne Quiz / Bac</small><b style='color:#177245'>" + (stQ.moyenne20 != null ? (stQ.moyenne20 + " / 20") : "—") + "</b><span>" + stQ.nb + " épreuve(s) passée(s)</span></div>" +
-        "<div class='fiche-kpi'><small>📚 Modules consultés</small><b>" + mods.length + " module(s)</b><div style='margin-top:3px'>" + htmlMods + "</div></div>" +
+        "<div class='fiche-kpi'><small>📚 Modules consultés</small><b>" + mods.length + " module(s)</b><span>Cours &amp; supports étudiés</span></div>" +
         "<div class='fiche-kpi'><small>💬 Suivi messages</small><b>" + msgsEl.length + " interaction(s)</b><span>Lectures &amp; réponses au prof</span></div>" +
       "</div>" +
+      "<div class='fiche-modules-bar'><span>📚 Modules consultés :</span> " + htmlMods + "</div>" +
       htmlSemaines +
       "<div class='fiche-sec-titre'>🏆 Notes des Quiz &amp; Atelier Bac Pratique (" + stQ.nb + ")</div>" +
       htmlQuiz +
@@ -2127,14 +2128,15 @@
 
     var etaitOuvert = modalFicheEleve.classList.contains("visible");
     modalFicheEleve.classList.add("visible");
+    try { document.body.style.overflow = "hidden"; } catch (e) {}
     if (!etaitOuvert && window.innerWidth <= 768) {
       try { history.pushState({ stiModalFiche: true }, ""); } catch (e) {}
     }
-    if (opts && opts.focusConnexions) {
+    if (opts && opts.focusConnexions && etaitOuvert) {
       setTimeout(function () {
         var elSec = document.getElementById("sec-fiche-connexions");
         if (elSec && contenuFicheEleve) {
-          contenuFicheEleve.scrollTop = Math.max(0, elSec.offsetTop - 60);
+          contenuFicheEleve.scrollTop = Math.max(0, elSec.offsetTop - 16);
         }
       }, 30);
     } else if (!etaitOuvert && contenuFicheEleve) {
@@ -2144,6 +2146,7 @@
 
   function fermerFicheEleve() {
     if (modalFicheEleve) modalFicheEleve.classList.remove("visible");
+    try { document.body.style.overflow = ""; } catch (e) {}
   }
   if (btnFermerFiche) btnFermerFiche.addEventListener("click", fermerFicheEleve);
   if (btnFermerFicheX) btnFermerFicheX.addEventListener("click", fermerFicheEleve);
@@ -3011,7 +3014,7 @@
   function detail(p) {
     if (!p) return;
     /* Ouvrir directement la fenêtre modale complète des détails du candidat (avec bouton ✕ sur mobile et PC) */
-    ouvrirFicheEleve(p, { focusConnexions: true });
+    ouvrirFicheEleve(p);
   }
 
   function diffuserSignalStatut(uid, statut, gold) {
