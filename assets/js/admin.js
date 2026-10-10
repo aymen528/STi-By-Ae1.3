@@ -845,6 +845,9 @@
     antiCollageActif: true,
     pleinEcranExamen: true,
     filigraneActif: true,
+    antiSplitScreen: true,
+    pausesUids: {},
+    dernierTeleport: null,
     purgeAlertesTs: 0,
     ts: 0
   };
@@ -1650,6 +1653,14 @@
           meta.appendChild(bOnNd);
         }
 
+        var estEnPauseNd = Boolean(cfgSecuriteAdmin.pausesUids && cfgSecuriteAdmin.pausesUids[p.id]);
+        if (estEnPauseNd) {
+          var bPauseNd = document.createElement("span");
+          bPauseNd.style.cssText = "background:#fde2e6;color:#c0392b;border:1.5px solid #c0392b;border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:900;";
+          bPauseNd.textContent = "⏸️ Écran en pause";
+          meta.appendChild(bPauseNd);
+        }
+
         var barreAct = document.createElement("div");
         barreAct.className = "noeud-actions";
         function btnNd(txt, fn, cls, tit) {
@@ -1663,6 +1674,7 @@
         }
         btnNd("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche bilan complète de l'élève");
         btnNd("📩", function () { ouvrirMessageCandidat(p, ""); }, "", "Envoyer un message personnel à ce candidat");
+        btnNd(estEnPauseNd ? "▶️" : "⏸️", function () { basculerPauseEleve(p); }, estEnPauseNd ? "del" : "", estEnPauseNd ? "Reprendre l'écran de cet élève" : "Figer temporairement l'écran de cet élève (Pause écran)");
         if (p.statut !== "actif") {
           btnNd("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         }
@@ -1718,6 +1730,13 @@
         var pgOn = (enLigneMap[p.id] && enLigneMap[p.id].page) || "site";
         bOn.textContent = "🟢 En ligne (" + pgOn + ")";
         ligneIdentite.appendChild(bOn);
+      }
+      var estEnPause = Boolean(cfgSecuriteAdmin.pausesUids && cfgSecuriteAdmin.pausesUids[p.id]);
+      if (estEnPause) {
+        var bP = document.createElement("span");
+        bP.style.cssText = "display:inline-block;margin-left:5px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:900;border:1.5px solid #c0392b;background:#fde2e6;color:#c0392b;";
+        bP.textContent = "⏸️ Écran figé";
+        ligneIdentite.appendChild(bP);
       }
       var apInfoLigne = appareilsPourUser(p.id);
       if (apInfoLigne.dernier) {
@@ -1882,6 +1901,12 @@
         }
         bouton("📊", function () { ouvrirFicheEleve(p); }, "", "Ouvrir la fiche récapitulative complète de l'élève");
         bouton("📩", function () { ouvrirMessageCandidat(p, ""); }, "", "Envoyer un message personnel ou répondre à ce candidat");
+        bouton(
+          estEnPause ? "▶️" : "⏸️",
+          function () { basculerPauseEleve(p); },
+          estEnPause ? "del" : "",
+          estEnPause ? "Écran figé — cliquer pour débloquer l'écran de cet élève" : "Figer temporairement l'écran de cet élève (Pause écran)"
+        );
         bouton("✅", function () { changeStatut(p, "actif"); }, "", "Activer l'abonné");
         bouton(
           "👑",
@@ -5494,6 +5519,12 @@
   var chkAntiCollage = document.getElementById("sec-chk-anticollage");
   var chkPleinEcran = document.getElementById("sec-chk-plein-ecran");
   var chkFiligrane = document.getElementById("sec-chk-filigrane");
+  var chkSplitScreen = document.getElementById("sec-chk-splitscreen");
+  var selTeleportCible = document.getElementById("sec-teleport-cible");
+  var selTeleportPage = document.getElementById("sec-teleport-page");
+  var btnSecTeleporter = document.getElementById("btn-sec-teleporter");
+  var btnSecReprendreTous = document.getElementById("btn-sec-reprendre-tous");
+  var spanInfoPauses = document.getElementById("sec-info-pauses");
   var inpPinAdmin = document.getElementById("sec-inp-pin-admin");
   var btnVerrouEcranTop = document.getElementById("btn-verrou-ecran-admin");
   var btnSecVerrouEcran = document.getElementById("btn-sec-verrou-ecran");
@@ -5522,6 +5553,41 @@
       selVerrouCible.appendChild(opt);
     });
     selVerrouCible.value = valAct;
+
+    if (selTeleportCible) {
+      var valTp = selTeleportCible.value || "*";
+      selTeleportCible.innerHTML =
+        '<option value="*">🌐 Toutes les classes</option>' +
+        '<option value="3SI">🏫 Toutes les 3e SI</option>' +
+        '<option value="4SI">🏫 Toutes les 4e SI</option>';
+      classes.forEach(function (c) {
+        var optT = document.createElement("option");
+        optT.value = c;
+        optT.textContent = "🏫 Classe " + c + " uniquement";
+        selTeleportCible.appendChild(optT);
+      });
+      profils.forEach(function (p) {
+        var optP = document.createElement("option");
+        optP.value = "UID:" + p.id;
+        optP.textContent = "👤 " + (nomPrenomTexte(p) || contact(p)) + " (" + (p.classe || "—") + ")";
+        selTeleportCible.appendChild(optP);
+      });
+      selTeleportCible.value = valTp;
+    }
+  }
+
+  function basculerPauseEleve(p) {
+    if (!p || !p.id) return;
+    var pauses = Object.assign({}, cfgSecuriteAdmin.pausesUids || {});
+    var etaitPause = Boolean(pauses[p.id]);
+    if (etaitPause) delete pauses[p.id];
+    else pauses[p.id] = true;
+    var nomEl = nomPrenomTexte(p) || contact(p);
+    sauvegarderEtDiffuserConfigSecurite({
+      pausesUids: pauses
+    }, etaitPause ? ("▶️ Écran de " + nomEl + " débloqué.") : ("⏸️ Écran de " + nomEl + " mis en pause en direct."));
+    rendAbonnes();
+    if (typeof rendAppelPresence === "function") rendAppelPresence();
   }
 
   function majUiConfigSecurite() {
@@ -5538,6 +5604,11 @@
     if (chkAntiCollage) chkAntiCollage.checked = cfgSecuriteAdmin.antiCollageActif !== false;
     if (chkPleinEcran) chkPleinEcran.checked = cfgSecuriteAdmin.pleinEcranExamen !== false;
     if (chkFiligrane) chkFiligrane.checked = cfgSecuriteAdmin.filigraneActif !== false;
+    if (chkSplitScreen) chkSplitScreen.checked = cfgSecuriteAdmin.antiSplitScreen !== false;
+    if (spanInfoPauses) {
+      var nbP = Object.keys(cfgSecuriteAdmin.pausesUids || {}).length;
+      spanInfoPauses.textContent = "⏸️ Écrans individuels en pause : " + nbP + " (utilisez le bouton ⏸️ sur la ligne d'un élève pour figer son écran)";
+    }
     if (inpPinAdmin) {
       try { inpPinAdmin.value = localStorage.getItem("sti-admin-pin") || "2026"; } catch (e) {}
     }
@@ -5713,7 +5784,7 @@
     });
   }
 
-  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils, chkAntiCollage, chkPleinEcran, chkFiligrane].forEach(function (el) {
+  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet, chkInactivite, selInactiviteMin, chkMultiAppareils, chkAntiCollage, chkPleinEcran, chkFiligrane, chkSplitScreen].forEach(function (el) {
     if (!el) return;
     el.addEventListener("change", function () {
       sauvegarderEtDiffuserConfigSecurite({
@@ -5725,10 +5796,39 @@
         alerteMultiAppareils: chkMultiAppareils ? chkMultiAppareils.checked : true,
         antiCollageActif: chkAntiCollage ? chkAntiCollage.checked : true,
         pleinEcranExamen: chkPleinEcran ? chkPleinEcran.checked : true,
-        filigraneActif: chkFiligrane ? chkFiligrane.checked : true
+        filigraneActif: chkFiligrane ? chkFiligrane.checked : true,
+        antiSplitScreen: chkSplitScreen ? chkSplitScreen.checked : true
       }, "🛡️ Réglages du Pack Sécurité Totale mis à jour en direct.");
     });
   });
+
+  if (btnSecTeleporter) {
+    btnSecTeleporter.addEventListener("click", function () {
+      var cible = selTeleportCible ? selTeleportCible.value : "*";
+      var pg = selTeleportPage ? selTeleportPage.value : "index.html";
+      var tpObj = {
+        id: "tp_" + Date.now(),
+        cible: cible,
+        page: pg,
+        ts: Date.now()
+      };
+      try {
+        sb.channel("sti-diffusion").send({ type: "broadcast", event: "teleporter", payload: tpObj });
+      } catch (e) {}
+      sauvegarderEtDiffuserConfigSecurite({
+        dernierTeleport: tpObj
+      }, "🚀 Téléportation envoyée vers « " + pg + " » !");
+    });
+  }
+
+  if (btnSecReprendreTous) {
+    btnSecReprendreTous.addEventListener("click", function () {
+      sauvegarderEtDiffuserConfigSecurite({
+        pausesUids: {}
+      }, "▶️ Tous les écrans individuels en pause ont été débloqués.");
+      rendAbonnes();
+    });
+  }
 
   if (inpPinAdmin) {
     inpPinAdmin.addEventListener("change", function () {
@@ -5782,7 +5882,7 @@
       var dateStr = dNow.getFullYear() + "-" + String(dNow.getMonth() + 1).padStart(2, "0") + "-" + String(dNow.getDate()).padStart(2, "0");
       var backupObj = {
         plateforme: "STI V2.0 — Le Web de A à Z",
-        version: "v95",
+        version: "v96",
         exporte_le: dNow.toISOString(),
         statistiques: {
           nb_abonnes: profils.length,
@@ -5852,6 +5952,248 @@
       a.remove();
       URL.revokeObjectURL(url);
       msg("📥 Journal de sécurité exporté en Excel (CSV).", "ok");
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     📋 FEUILLE D'APPEL & PRÉSENCE AUTOMATIQUE PAR CLASSE
+     ══════════════════════════════════════════════════════════ */
+  var modalAppel = document.getElementById("modal-appel-presence");
+  var btnAppelTop = document.getElementById("btn-appel-top");
+  var btnFermerAppel = document.getElementById("btn-fermer-appel");
+  var btnFermerAppelX = document.getElementById("btn-fermer-appel-x");
+  var selAppelClasse = document.getElementById("appel-sel-classe");
+  var inpAppelDate = document.getElementById("appel-inp-date");
+  var selAppelStatut = document.getElementById("appel-sel-statut");
+  var divAppelKpis = document.getElementById("appel-resume-kpis");
+  var tbAppelPresence = document.getElementById("tb-appel-presence");
+  var btnAppelExportCsv = document.getElementById("btn-appel-export-csv");
+  var btnAppelImprimer = document.getElementById("btn-appel-imprimer");
+
+  function dateIsoJourLocale(d) {
+    var dt = d ? new Date(d) : new Date();
+    if (isNaN(dt.getTime())) dt = new Date();
+    return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+  }
+
+  function calculerAppelDuJour() {
+    var clFiltre = selAppelClasse ? selAppelClasse.value : "*";
+    var jourCible = (inpAppelDate && inpAppelDate.value) ? inpAppelDate.value : dateIsoJourLocale();
+    var stFiltre = selAppelStatut ? selAppelStatut.value : "*";
+    var estAujourdhui = (jourCible === dateIsoJourLocale());
+
+    var mapPres = {};
+    acces.forEach(function (a) {
+      if (!a.user_id || !a.debut) return;
+      var jAcc = dateIsoJourLocale(a.debut);
+      if (jAcc !== jourCible) return;
+      var tDeb = new Date(a.debut).getTime() || 0;
+      if (!mapPres[a.user_id] || tDeb > mapPres[a.user_id].ts) {
+        mapPres[a.user_id] = {
+          ts: tDeb,
+          debut: a.debut,
+          page: a.page || "index.html",
+          lieu: a.lieu || "—"
+        };
+      }
+    });
+
+    if (estAujourdhui) {
+      Object.keys(enLigneMap).forEach(function (uid) {
+        if (estEnLigne(uid) && !mapPres[uid]) {
+          mapPres[uid] = {
+            ts: enLigneMap[uid].ts,
+            debut: new Date(enLigneMap[uid].ts).toISOString(),
+            page: enLigneMap[uid].page || "site",
+            lieu: enLigneMap[uid].appareil || "En ligne"
+          };
+        }
+      });
+    }
+
+    var candidats = profils.filter(function (p) {
+      if (p.statut === "exclu") return false;
+      if (clFiltre && clFiltre !== "*" && p.classe !== clFiltre) return false;
+      return true;
+    }).sort(function (a, b) {
+      var clA = String(a.classe || "");
+      var clB = String(b.classe || "");
+      if (clA !== clB) return clA.localeCompare(clB, "fr");
+      return (nomPrenomTexte(a) || contact(a)).localeCompare(nomPrenomTexte(b) || contact(b), "fr");
+    });
+
+    var nbPresents = 0;
+    var nbAbsents = 0;
+    var lignes = [];
+
+    candidats.forEach(function (p) {
+      var pres = mapPres[p.id] || null;
+      var estPres = Boolean(pres || (estAujourdhui && estEnLigne(p.id)));
+      if (estPres) nbPresents++;
+      else nbAbsents++;
+      if (stFiltre === "present" && !estPres) return;
+      if (stFiltre === "absent" && estPres) return;
+      lignes.push({
+        profil: p,
+        present: estPres,
+        enLigne: estAujourdhui && estEnLigne(p.id),
+        info: pres,
+        appareil: (pres && pres.lieu) || appareilsPourUser(p.id).dernier || "—"
+      });
+    });
+
+    return {
+      jour: jourCible,
+      classe: clFiltre,
+      total: candidats.length,
+      presents: nbPresents,
+      absents: nbAbsents,
+      lignes: lignes
+    };
+  }
+
+  function rendAppelPresence() {
+    if (!tbAppelPresence || !divAppelKpis) return;
+    var bilan = calculerAppelDuJour();
+    var libCl = bilan.classe === "*" ? "Toutes les classes" : ("Classe " + bilan.classe);
+    divAppelKpis.innerHTML =
+      "<span>🏫 <strong>" + echHtml(libCl) + "</strong> (" + bilan.total + " inscrit(s))</span>" +
+      "<span style='color:#177245'>🟢 <strong>" + bilan.presents + " Présent(s)</strong></span>" +
+      "<span style='color:#c0392b'>🔴 <strong>" + bilan.absents + " Absent(s)</strong></span>";
+
+    tbAppelPresence.innerHTML = "";
+    if (!bilan.lignes.length) {
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 6;
+      td0.style.cssText = "text-align:center;color:#7a6f5d;padding:14px;font-weight:700;";
+      td0.textContent = "Aucun élève correspondant aux critères sélectionnés.";
+      tr0.appendChild(td0);
+      tbAppelPresence.appendChild(tr0);
+      return;
+    }
+
+    bilan.lignes.forEach(function (item) {
+      var p = item.profil;
+      var tr = document.createElement("tr");
+
+      var tdNom = document.createElement("td");
+      tdNom.innerHTML = "<b class='nom-cliquable-fiche'>👤 " + echHtml(nomPrenomTexte(p) || contact(p)) + "</b>";
+      tdNom.addEventListener("click", function () {
+        if (modalAppel) modalAppel.classList.remove("visible");
+        ouvrirFicheEleve(p);
+      });
+
+      var tdCl = document.createElement("td");
+      tdCl.className = "col-nowrap";
+      tdCl.innerHTML = "<b>🏫 " + echHtml(p.classe || "—") + "</b>";
+
+      var tdSt = document.createElement("td");
+      tdSt.className = "col-nowrap";
+      if (item.present) {
+        tdSt.innerHTML = "<span style='display:inline-block;background:#e3f6e8;color:#177245;border:1.5px solid #177245;border-radius:999px;padding:2px 9px;font-weight:900;font-size:11.5px'>" +
+          (item.enLigne ? "🟢 Présent (En ligne)" : "✅ Présent") + "</span>";
+      } else {
+        tdSt.innerHTML = "<span style='display:inline-block;background:#fde2e6;color:#c0392b;border:1.5px solid #c0392b;border-radius:999px;padding:2px 9px;font-weight:900;font-size:11.5px'>🔴 Absent</span>";
+      }
+
+      var tdHr = document.createElement("td");
+      tdHr.textContent = item.info ? (fmtDate(item.info.debut) + " · " + (item.info.page || "site")) : "—";
+
+      var tdAp = document.createElement("td");
+      tdAp.textContent = item.appareil || "—";
+
+      var tdAct = document.createElement("td");
+      tdAct.className = "col-nowrap";
+      var estP = Boolean(cfgSecuriteAdmin.pausesUids && cfgSecuriteAdmin.pausesUids[p.id]);
+      var bP = document.createElement("button");
+      bP.type = "button";
+      bP.className = "act" + (estP ? " del" : "");
+      bP.textContent = estP ? "▶️" : "⏸️";
+      bP.title = estP ? "Reprendre l'écran" : "Figer l'écran (Pause)";
+      bP.addEventListener("click", function () { basculerPauseEleve(p); });
+      var bF = document.createElement("button");
+      bF.type = "button";
+      bF.className = "act";
+      bF.textContent = "📊";
+      bF.title = "Ouvrir la fiche de l'élève";
+      bF.addEventListener("click", function () {
+        if (modalAppel) modalAppel.classList.remove("visible");
+        ouvrirFicheEleve(p);
+      });
+      tdAct.append(bP, bF);
+
+      tr.append(tdNom, tdCl, tdSt, tdHr, tdAp, tdAct);
+      tbAppelPresence.appendChild(tr);
+    });
+  }
+
+  function ouvrirModalAppel() {
+    if (selAppelClasse) {
+      var valAct = (filtreClasse && filtreClasse !== "*") ? filtreClasse : (selAppelClasse.value || "*");
+      var classes = obtenirClassesActives();
+      selAppelClasse.innerHTML = '<option value="*">🏫 Toutes les classes</option>';
+      classes.forEach(function (c) {
+        var opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = "🏫 Classe " + c;
+        selAppelClasse.appendChild(opt);
+      });
+      selAppelClasse.value = valAct;
+    }
+    if (inpAppelDate && !inpAppelDate.value) {
+      inpAppelDate.value = dateIsoJourLocale();
+    }
+    rendAppelPresence();
+    if (modalAppel) modalAppel.classList.add("visible");
+  }
+
+  function fermerModalAppel() {
+    if (modalAppel) modalAppel.classList.remove("visible");
+  }
+  if (btnAppelTop) btnAppelTop.addEventListener("click", ouvrirModalAppel);
+  if (btnFermerAppel) btnFermerAppel.addEventListener("click", fermerModalAppel);
+  if (btnFermerAppelX) btnFermerAppelX.addEventListener("click", fermerModalAppel);
+  if (modalAppel) {
+    modalAppel.addEventListener("click", function (e) {
+      if (e.target === modalAppel) fermerModalAppel();
+    });
+  }
+  [selAppelClasse, inpAppelDate, selAppelStatut].forEach(function (el) {
+    if (el) el.addEventListener("change", rendAppelPresence);
+  });
+
+  if (btnAppelImprimer) {
+    btnAppelImprimer.addEventListener("click", function () { window.print(); });
+  }
+  if (btnAppelExportCsv) {
+    btnAppelExportCsv.addEventListener("click", function () {
+      var bilan = calculerAppelDuJour();
+      var lignes = ['"Date";"Classe";"Nom";"Prenom";"Contact";"Presence";"Derniere activite";"Appareil"'];
+      bilan.lignes.forEach(function (it) {
+        var p = it.profil;
+        var cols = [
+          bilan.jour,
+          p.classe || "—",
+          p.nom || "—",
+          p.prenom || "—",
+          telDeProfil(p) || p.email || "—",
+          it.present ? "PRESENT" : "ABSENT",
+          it.info ? fmtDate(it.info.debut) : "—",
+          it.appareil || "—"
+        ].map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; });
+        lignes.push(cols.join(";"));
+      });
+      var blob = new Blob(["\uFEFF" + lignes.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "Feuille_Appel_STI_" + (bilan.classe === "*" ? "Toutes" : bilan.classe) + "_" + bilan.jour + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("📥 Feuille d'appel exportée en Excel (CSV).", "ok");
     });
   }
 })();

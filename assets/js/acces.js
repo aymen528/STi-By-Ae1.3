@@ -2535,6 +2535,9 @@
         .on("broadcast", { event: "session_unique" }, function (p) {
           if (p && p.payload) verifierSessionUnique(p.payload);
         })
+        .on("broadcast", { event: "teleporter" }, function (p) {
+          if (p && p.payload && typeof appliquerTeleportation === "function") appliquerTeleportation(p.payload);
+        })
         .subscribe();
     } catch (e) {}
   }
@@ -2562,8 +2565,23 @@
     antiCollageActif: true,
     pleinEcranExamen: true,
     filigraneActif: true,
+    antiSplitScreen: true,
+    pausesUids: {},
+    dernierTeleport: null,
     ts: 0
   };
+  try {
+    if (document.documentElement) {
+      document.documentElement.setAttribute("translate", "no");
+      document.documentElement.classList.add("notranslate");
+    }
+    if (document.head && !document.querySelector('meta[name="google"][content="notranslate"]')) {
+      var mNoTr = document.createElement("meta");
+      mNoTr.name = "google";
+      mNoTr.content = "notranslate";
+      document.head.appendChild(mNoTr);
+    }
+  } catch (e) {}
   try {
     var secSauv = JSON.parse(localStorage.getItem("sti-sec-config") || "null");
     if (secSauv && typeof secSauv === "object") cfgSecurite = Object.assign(cfgSecurite, secSauv);
@@ -2777,19 +2795,81 @@
     exWm.style.backgroundImage = bgUrl;
   }
 
+  function appliquerPauseEleve() {
+    var exPause = document.getElementById("sti-overlay-pause-eleve");
+    if (estSessionAdminVerifiee() || window.origin === "null") {
+      if (exPause) exPause.remove();
+      return;
+    }
+    var cLoc = lireCacheSessionLocal() || {};
+    var monUid = currentUid || cLoc.id || "";
+    var enPause = Boolean(monUid && cfgSecurite && cfgSecurite.pausesUids && cfgSecurite.pausesUids[monUid]);
+    if (!enPause) {
+      if (exPause) exPause.remove();
+      return;
+    }
+    if (!exPause) {
+      exPause = document.createElement("div");
+      exPause.id = "sti-overlay-pause-eleve";
+      exPause.className = "sti-no-print";
+      exPause.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(13,21,38,.96);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;";
+      exPause.innerHTML =
+        '<div style="max-width:450px;width:100%;background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:26px 24px;text-align:center;box-shadow:7px 7px 0 #f4511e">' +
+          '<div style="width:62px;height:62px;margin:0 auto 12px;border-radius:18px;border:2.5px solid #23201a;background:linear-gradient(135deg,#fff3b0,#f4511e);font-size:30px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #23201a">⏸️</div>' +
+          '<h2 style="margin:0 0 8px;font-size:20px;font-weight:900;color:#23201a">Écran mis en pause par le professeur</h2>' +
+          '<p style="font-size:14px;line-height:1.55;color:#5a5244;margin:0;font-weight:700">' +
+            'M. Essouyah a temporairement figé votre écran. Veuillez lever la tête et écouter les consignes en classe avant la reprise.' +
+          '</p>' +
+        '</div>';
+      (document.body || document.documentElement).appendChild(exPause);
+    }
+  }
+
+  function appliquerTeleportation(tp) {
+    if (!tp || !tp.page || !tp.id || estSessionAdminVerifiee() || window.origin === "null") return;
+    if (Date.now() - Number(tp.ts || 0) > 45000) return;
+    try {
+      if (sessionStorage.getItem("sti-tp-vu-" + tp.id) === "1") return;
+    } catch (e) {}
+    var cLoc = lireCacheSessionLocal() || {};
+    var monUid = currentUid || cLoc.id || "";
+    var maCl = currentClasse || cLoc.classe || "";
+    var estCible = false;
+    if (tp.cible && tp.cible.indexOf("UID:") === 0) {
+      estCible = (monUid && tp.cible.slice(4) === monUid);
+    } else {
+      estCible = estCibleParVerrou(tp.cible || "*", maCl);
+    }
+    if (!estCible) return;
+    try { sessionStorage.setItem("sti-tp-vu-" + tp.id, "1"); } catch (e) {}
+    var pDest = String(tp.page).replace(/^\.?\//, "");
+    if (estPageAutoriseePendantVerrou(pDest)) {
+      afficherToastSynchro("🚀 Vous êtes déjà sur la page demandée par le professeur.");
+      return;
+    }
+    afficherToastSynchro("🚀 Redirection par le professeur vers : " + pDest + "…");
+    setTimeout(function () {
+      redirigerTop(cfg.RACINE + pDest);
+    }, 350);
+  }
+
   function appliquerConfigSecurite(nvCfg) {
     if (!nvCfg || typeof nvCfg !== "object") return;
     if (Number(nvCfg.ts || 0) < Number(cfgSecurite.ts || 0)) return;
     cfgSecurite = Object.assign(cfgSecurite, nvCfg);
     try { localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecurite)); } catch (e) {}
     appliquerVerrouExamen();
+    appliquerPauseEleve();
     appliquerFiligraneNominatif();
+    if (cfgSecurite.dernierTeleport) appliquerTeleportation(cfgSecurite.dernierTeleport);
     if (typeof verifierPleinEcranExamen === "function") verifierPleinEcranExamen();
+    if (typeof verifierSplitScreenExamen === "function") verifierSplitScreenExamen();
   }
 
   /* Charger la dernière configuration de sécurité depuis Supabase au démarrage */
   (function chargerConfigSecuriteInitiale() {
     appliquerVerrouExamen();
+    appliquerPauseEleve();
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", appliquerFiligraneNominatif);
     } else {
@@ -2992,6 +3072,64 @@
   } else {
     setTimeout(verifierPleinEcranExamen, 150);
   }
+
+  /* 🕵️ Anti-Écran partagé (Split-screen côte à côte) pendant les épreuves sur PC */
+  var dernierSplitAlerteTs = 0;
+  function verifierSplitScreenExamen() {
+    var exSp = document.getElementById("sti-overlay-splitscreen");
+    if (window !== window.top || window.origin === "null" || estSessionAdminVerifiee() || cfgSecurite.antiSplitScreen === false) {
+      if (exSp) exSp.remove();
+      return;
+    }
+    if (!estPageQuizOuControleActif()) {
+      if (exSp) exSp.remove();
+      return;
+    }
+    var ua = String((navigator && navigator.userAgent) || "");
+    if (/Android|iPhone|iPad|Mobile/i.test(ua)) {
+      if (exSp) exSp.remove();
+      return;
+    }
+    var sw = (window.screen && (window.screen.availWidth || window.screen.width)) || 0;
+    var ww = window.outerWidth || window.innerWidth || 0;
+    if (sw < 900 || ww <= 0) {
+      if (exSp) exSp.remove();
+      return;
+    }
+    var ratio = Math.round((ww / sw) * 100);
+    if (ratio >= 80) {
+      if (exSp) exSp.remove();
+      return;
+    }
+    if (!exSp) {
+      exSp = document.createElement("div");
+      exSp.id = "sti-overlay-splitscreen";
+      exSp.className = "sti-no-print";
+      exSp.style.cssText = "position:fixed;inset:0;z-index:2147483644;background:rgba(13,21,38,.95);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;";
+      (document.body || document.documentElement).appendChild(exSp);
+    }
+    exSp.innerHTML =
+      '<div style="max-width:450px;width:100%;background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:24px 22px;text-align:center;box-shadow:7px 7px 0 #c0392b">' +
+        '<div style="width:58px;height:58px;margin:0 auto 12px;border-radius:16px;border:2.5px solid #23201a;background:#fde2e6;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #23201a">🕵️</div>' +
+        '<h3 style="margin:0 0 8px;font-size:19px;font-weight:900;color:#c0392b">Écran partagé (Split-screen) interdit</h3>' +
+        '<p style="font-size:13.5px;line-height:1.5;color:#5a5244;margin:0 0 10px;font-weight:700">' +
+          'Votre fenêtre n\'occupe actuellement que <b>' + ratio + ' %</b> de la largeur de l\'écran. L\'ouverture de deux fenêtres côte à côte est interdite pendant une épreuve.' +
+        '</p>' +
+        '<div style="background:#f3ead9;border:1.5px solid #23201a;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:900;color:#23201a">' +
+          '👉 Agrandissez cette fenêtre en plein écran (100 %) pour continuer.' +
+        '</div>' +
+      '</div>';
+    var now = Date.now();
+    if (now - dernierSplitAlerteTs > 15000) {
+      dernierSplitAlerteTs = now;
+      envoyerAlerteSecurite(
+        "Écran partagé détecté (Split-screen · " + ratio + " %)",
+        "Fenêtre réduite côte à côte (" + ww + " px / " + sw + " px) sur " + chemin
+      );
+    }
+  }
+  window.addEventListener("resize", verifierSplitScreenExamen);
+  setTimeout(verifierSplitScreenExamen, 300);
 
   /* ⏳ Surveillance d'inactivité : déconnexion automatique des sessions oubliées (hors Admin & Labo 3) */
   (function installerSurveillanceInactivite() {
