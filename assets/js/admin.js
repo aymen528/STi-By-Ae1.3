@@ -211,6 +211,20 @@
     }).catch(function () {});
   }
 
+  /* Indicateur visuel En ligne (Vert) / Hors ligne (Rouge) sur le logo Tableau de bord */
+  function majLogoReseauAdmin() {
+    var enLigne = navigator.onLine !== false;
+    var rect = document.getElementById("svg-logo-tb-rect");
+    var bars = document.getElementById("svg-logo-tb-bars");
+    var svg = document.getElementById("svg-logo-tb-admin");
+    if (rect) rect.setAttribute("fill", enLigne ? "#177245" : "#c0392b");
+    if (bars) bars.setAttribute("stroke", "#ffffff");
+    if (svg) svg.setAttribute("title", enLigne ? "🟢 En ligne (Connecté)" : "🔴 Hors ligne (Mode hors connexion)");
+  }
+  majLogoReseauAdmin();
+  window.addEventListener("online", majLogoReseauAdmin);
+  window.addEventListener("offline", majLogoReseauAdmin);
+
   var LIB = { actif: "Actif", en_attente: "En attente", suspendu: "Suspendu", exclu: "Exclu" };
   function estAdminEmail(em) {
     return (em || "").trim().toLowerCase() === (cfg.ADMIN || "").trim().toLowerCase();
