@@ -8,7 +8,7 @@
      ne plus jamais demander login ni mot de passe (sauf si déconnexion volontaire #deconnecte ou accès #admin) */
   try {
     var hInit = location.hash.replace("#", "");
-    if (hInit === "deconnecte" || hInit === "exclu" || hInit === "refuse") {
+    if (hInit === "deconnecte" || hInit === "exclu" || hInit === "refuse" || hInit === "securite" || hInit === "partage") {
       localStorage.removeItem("sti-labo3-permanent");
       localStorage.removeItem("sti-session-cache");
       localStorage.removeItem("sti-offline");
@@ -320,6 +320,9 @@
   if (h === "attente") msg("⏳ Votre compte attend la validation par l'administrateur.", "att");
   if (h === "refuse") msg("⛔ Accès refusé ou compte suspendu. Contactez l'administrateur.", "err");
   if (h === "exclu") msg("⛔ Vous êtes exclu. Contactez l'administrateur.", "err");
+  if (h === "securite") msg("🛡️ Session interrompue par le bouclier de sécurité (tentatives répétées d'inspection du code source). Le professeur a été alerté.", "err");
+  if (h === "partage") msg("🚫 Session fermée : ce compte a été ouvert sur un autre appareil (partage de compte interdit).", "err");
+  if (h === "verrou") msg("🔒 Accès temporairement verrouillé par le professeur (Mode Examen / Contrôle en cours).", "att");
   if (h === "connexion") msg("🔒 Connexion requise pour accéder à la plateforme.", "att");
   if (h === "admin") msg("🔒 Accès réservé à l'administrateur (aymenessouyah@gmail.com) : veuillez saisir vos identifiants.", "att");
   if (h === "deconnecte") msg("Vous êtes déconnecté(e). À bientôt !", "ok");
@@ -397,6 +400,7 @@
       } catch (e) {}
       if (st === "actif") {
         try {
+          var jetonSess = "st_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
           var objSessPortail = {
             id: user.id,
             email: user.email,
@@ -407,10 +411,19 @@
             gold: isG,
             permanent: isLabo,
             isAdmin: false,
+            sessionToken: jetonSess,
             ts: Date.now()
           };
+          localStorage.setItem("sti-session-token", jetonSess);
           localStorage.setItem("sti-offline", String(Date.now()));
           localStorage.setItem("sti-session-cache", JSON.stringify(objSessPortail));
+          if (!isLabo) {
+            var sigSess = { type: "session_unique", uid: user.id, token: jetonSess, ts: Date.now() };
+            try {
+              sb.channel("sti-diffusion").send({ type: "broadcast", event: "session_unique", payload: sigSess });
+            } catch (e) {}
+            fetch("https://ntfy.sh/sti_v2_diffusion_9482", { method: "POST", body: JSON.stringify(sigSess) }).catch(function () {});
+          }
           if (isLabo) {
             localStorage.setItem("sti-labo3-permanent", JSON.stringify(objSessPortail));
             location.href = cfg.RACINE;
@@ -610,6 +623,7 @@
     if (!nom || !prenom) { msg("❌ Indiquez votre nom et votre prénom.", "err"); return; }
     var lycee = valeur("i-lycee", "i-lycee-autre").replace(/\s*\|\s*GOLD/ig, "").trim() || "—";
     var classe = valeur("i-classe", "i-classe-autre").trim() || "—";
+    if (estClasseProfLabo(classe)) { msg("⛔ Nom de classe réservé au laboratoire.", "err"); return; }
     if (document.getElementById("i-lycee").value === "__autre" && lycee === "—") { msg("❌ Indiquez le nom de votre lycée.", "err"); return; }
     if (document.getElementById("i-classe").value === "__autre" && classe === "—") { msg("❌ Indiquez votre classe.", "err"); return; }
     var btn = e.target.querySelector(".btn"); btn.disabled = true;

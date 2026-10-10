@@ -47,6 +47,7 @@ create table public.acces (
 );
 
 -- 3) Chaque inscription (e-mail OU téléphone) crée automatiquement son profil
+--    Sécurité : interdiction d'injecter '|GOLD' ou la classe 'elevelabo3' à l'inscription
 create function public.nouveau_profil() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -58,7 +59,7 @@ begin
     new.raw_user_meta_data->>'nom',
     new.raw_user_meta_data->>'prenom',
     regexp_replace(coalesce(new.raw_user_meta_data->>'lycee', ''), '\s*\|\s*GOLD', '', 'gi'),
-    new.raw_user_meta_data->>'classe'
+    regexp_replace(coalesce(new.raw_user_meta_data->>'classe', ''), 'eleve\s*labo\s*3', '3SI1', 'gi')
   )
   on conflict (id) do update
     set email = excluded.email, phone = excluded.phone;
@@ -67,6 +68,22 @@ end $$;
 
 create trigger trg_nouveau_profil after insert on auth.users
 for each row execute function public.nouveau_profil();
+
+-- Trigger anti-auto-promotion : seul l'administrateur peut modifier statut, classe ou lycee (|GOLD)
+drop trigger if exists trg_verrou_profil_securite on public.profiles;
+drop function if exists public.verrou_profil_securite() cascade;
+create function public.verrou_profil_securite() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if current_user not in ('postgres', 'supabase_admin', 'supabase_auth_admin') and not public.est_admin() then
+    new.statut := old.statut;
+    new.classe := old.classe;
+    new.lycee  := old.lycee;
+  end if;
+  return new;
+end $$;
+create trigger trg_verrou_profil_securite before update on public.profiles
+for each row execute function public.verrou_profil_securite();
 
 -- 4) Récupération des comptes existants (auth.users déjà créés)
 insert into public.profiles (id, email, phone, nom, prenom, lycee, classe, statut)
@@ -94,7 +111,13 @@ create policy prof_upd_admin on public.profiles for update to authenticated
   using (public.est_admin()) with check (public.est_admin());
 
 create policy acces_ins_self on public.acces for insert to authenticated
-  with check (user_id = auth.uid());
+  with check (
+    user_id = auth.uid()
+    and (
+      public.est_admin()
+      or coalesce(page, '') !~ '^(CFG_ECOLES|SEC_CONFIG|FLASH_Q:|CTRL_|SUPPR_ACCES)'
+    )
+  );
 
 create policy acces_sel on public.acces for select to authenticated
   using (user_id = auth.uid() or public.est_admin());

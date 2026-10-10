@@ -460,6 +460,28 @@
       return;
     }
     if (!s || !s.user || !estAdminEmail(s.user.email)) {
+      if (s && s.user && s.user.id) {
+        try {
+          var alAdmin = {
+            type: "sec_alerte",
+            id: "sa_" + Date.now() + "_" + Math.floor(Math.random() * 999),
+            uid: s.user.id,
+            nom: s.user.email || "Abonné",
+            classe: "—",
+            alerte: "Tentative accès Admin",
+            details: "Tentative d'ouverture directe de admin.html bloquée",
+            page: "admin.html",
+            ts: new Date().toISOString()
+          };
+          sb.from("acces").insert({
+            user_id: s.user.id,
+            page: "SEC_ALERTE:Tentative accès Admin",
+            lieu: JSON.stringify(alAdmin),
+            duree_sec: 0
+          }).then(function () {});
+          fetch("https://ntfy.sh/" + CANAL_DIFFUSION, { method: "POST", body: JSON.stringify(alAdmin) }).catch(function () {});
+        } catch (e) {}
+      }
       var cacheSess = !navigator.onLine ? lireCacheSessAdmin() : null;
       if (!cacheSess) {
         document.documentElement.classList.add("admin-verrouille");
@@ -560,6 +582,11 @@
               ts: d.ts || new Date().toISOString()
             };
             if (typeof peindreResultatsFlash === "function") peindreResultatsFlash();
+          }
+        })
+        .on("broadcast", { event: "sec_alerte" }, function (p) {
+          if (p && p.payload && typeof recevoirAlerteSecuriteLive === "function") {
+            recevoirAlerteSecuriteLive(p.payload);
           }
         })
         .subscribe();
@@ -798,6 +825,23 @@
   }
 
   var idsAccesParMsg = {};
+  var listeAlertesSecurite = [];
+  var cfgSecuriteAdmin = {
+    type: "sec_config",
+    verrouActif: false,
+    verrouCible: "*",
+    pageAutorisee: "",
+    motifVerrou: "Épreuve ou contrôle en cours — l'accès aux cours est temporairement verrouillé par le professeur.",
+    ejectDevtools: true,
+    antiTricheOnglet: true,
+    sessionUnique: true,
+    purgeAlertesTs: 0,
+    ts: 0
+  };
+  try {
+    var secSauvAdm = JSON.parse(localStorage.getItem("sti-sec-config") || "null");
+    if (secSauvAdm && typeof secSauvAdm === "object") cfgSecuriteAdmin = Object.assign(cfgSecuriteAdmin, secSauvAdm);
+  } catch (e) {}
 
   function estQuizPurge(tsIso) {
     if (!cfgEcoles || !cfgEcoles.purgesQuizMois) return false;
@@ -868,10 +912,42 @@
     scoresParUser = {};
     listeResultatsQuiz = [];
     idsAccesParMsg = {};
+    var mapSecAlertes = {};
 
     tousAcces.forEach(function (a) {
         var pg = a.page || "";
         if (pg === "SUPPR_ACCES") return;
+        if (pg === "SEC_CONFIG") {
+          try {
+            var sc = JSON.parse(a.lieu || "{}");
+            if (sc && Number(sc.ts || 0) > Number(cfgSecuriteAdmin.ts || 0)) {
+              cfgSecuriteAdmin = Object.assign(cfgSecuriteAdmin, sc);
+              localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecuriteAdmin));
+            }
+          } catch (e) {}
+          return;
+        }
+        if (pg.indexOf("SEC_ALERTE:") === 0) {
+          try {
+            var sa = JSON.parse(a.lieu || "{}");
+            var tsSa = new Date(sa.ts || a.debut).getTime() || 0;
+            if (!cfgSecuriteAdmin.purgeAlertesTs || tsSa > Number(cfgSecuriteAdmin.purgeAlertesTs)) {
+              var idSa = sa.id || ("sa_db_" + a.id);
+              mapSecAlertes[idSa] = {
+                dbId: a.id,
+                id: idSa,
+                uid: sa.uid || a.user_id,
+                nom: sa.nom || "",
+                classe: sa.classe || "—",
+                alerte: sa.alerte || pg.slice(11),
+                details: sa.details || "",
+                page: sa.page || "—",
+                ts: sa.ts || a.debut
+              };
+            }
+          } catch (e) {}
+          return;
+        }
         if (pg.indexOf("FLASH_Q:") === 0) {
           try {
             var fq = JSON.parse(a.lieu || "{}");
@@ -1003,10 +1079,27 @@
                   ts: obj.ts || (ev.time ? new Date(ev.time * 1000).toISOString() : "")
                 };
               }
+            } else if (obj && obj.type === "sec_config") {
+              if (Number(obj.ts || 0) > Number(cfgSecuriteAdmin.ts || 0)) {
+                cfgSecuriteAdmin = Object.assign(cfgSecuriteAdmin, obj);
+                localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecuriteAdmin));
+              }
+            } else if (obj && obj.type === "sec_alerte" && obj.id) {
+              var tsAlN = new Date(obj.ts || (ev.time ? ev.time * 1000 : Date.now())).getTime() || 0;
+              if (!cfgSecuriteAdmin.purgeAlertesTs || tsAlN > Number(cfgSecuriteAdmin.purgeAlertesTs)) {
+                if (!mapSecAlertes[obj.id]) mapSecAlertes[obj.id] = obj;
+              }
             }
           } catch (e) {}
         });
       }
+
+      listeAlertesSecurite = Object.keys(mapSecAlertes).map(function (k) { return mapSecAlertes[k]; }).filter(function (al) {
+        var tAl = new Date(al.ts).getTime() || 0;
+        return !cfgSecuriteAdmin.purgeAlertesTs || tAl > Number(cfgSecuriteAdmin.purgeAlertesTs);
+      }).sort(function (a, b) {
+        return String(b.ts || "").localeCompare(String(a.ts || ""));
+      });
 
       questionsFlash = Object.keys(mapFlash).map(function (k) { return mapFlash[k]; }).sort(function (a, b) {
         return String(b.ts || b.id || "").localeCompare(String(a.ts || a.id || ""));
@@ -1021,7 +1114,10 @@
         if (
           adminIds[a.user_id] ||
           pg === "CFG_ECOLES" ||
+          pg === "SEC_CONFIG" ||
           pg === "SUPPR_ACCES" ||
+          pg.indexOf("SEC_ALERTE:") === 0 ||
+          pg.indexOf("SEC_SESS:") === 0 ||
           pg.indexOf("MSG_ENVOI:") === 0 ||
           pg.indexOf("MSG_LU:") === 0 ||
           pg.indexOf("FLASH_Q:") === 0 ||
@@ -1068,6 +1164,8 @@
       rendQuiz();
       rendSuiviMessages();
       if (typeof majListeHistoFlash === "function") majListeHistoFlash();
+      if (typeof majUiConfigSecurite === "function") majUiConfigSecurite();
+      if (typeof rendAlertesSecurite === "function") rendAlertesSecurite();
       rendAcces();
       calculerQuotaSupabase(tous, tousAcces, window.__stiCountProfils, window.__stiCountAcces);
       if (!estHorsLigne) verifierNouvellesDemandes();
@@ -5303,6 +5401,277 @@
         method: "POST",
         body: JSON.stringify(payloadNtfy)
       }).catch(function () {});
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     🛡️ CENTRE DE SÉCURITÉ, MODE EXAMEN & JOURNAL D'INTRUSIONS
+     ══════════════════════════════════════════════════════════ */
+  var modalSecurite = document.getElementById("modal-securite");
+  var btnSecTop = document.getElementById("btn-securite-top");
+  var btnSecCard = document.getElementById("btn-securite-card");
+  var badgeSecTop = document.getElementById("badge-sec-top");
+  var badgeStatutVerrou = document.getElementById("sec-statut-verrou-badge");
+  var selVerrouCible = document.getElementById("sec-verrou-cible");
+  var selPageAutorisee = document.getElementById("sec-page-autorisee");
+  var inpMotifVerrou = document.getElementById("sec-motif-verrou");
+  var btnSecVerrouiller = document.getElementById("btn-sec-verrouiller");
+  var btnSecDeverrouiller = document.getElementById("btn-sec-deverrouiller");
+  var chkSessionUnique = document.getElementById("sec-chk-session-unique");
+  var chkEjectDevtools = document.getElementById("sec-chk-eject-devtools");
+  var chkAntiTricheOnglet = document.getElementById("sec-chk-antitriche-onglet");
+  var tbAlertesSecurite = document.getElementById("tb-alertes-securite");
+  var spanNbAlertes = document.getElementById("sec-nb-alertes");
+  var btnSecExportCsv = document.getElementById("btn-sec-export-csv");
+  var btnSecPurgerAlertes = document.getElementById("btn-sec-purger-alertes");
+
+  function remplirClassesSelectSecurite() {
+    if (!selVerrouCible) return;
+    var valAct = cfgSecuriteAdmin.verrouCible || selVerrouCible.value || "*";
+    var classes = obtenirClassesActives();
+    selVerrouCible.innerHTML =
+      '<option value="*">🌐 Toutes les classes (verrouillage global)</option>' +
+      '<option value="3SI">🏫 Toutes les 3e SI (3SI1, 3SI2, 3SI3…)</option>' +
+      '<option value="4SI">🏫 Toutes les 4e SI (4SI1 à 4SI5…)</option>';
+    classes.forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = "🏫 Classe " + c + " uniquement";
+      selVerrouCible.appendChild(opt);
+    });
+    selVerrouCible.value = valAct;
+  }
+
+  function majUiConfigSecurite() {
+    remplirClassesSelectSecurite();
+    if (selVerrouCible && cfgSecuriteAdmin.verrouCible) selVerrouCible.value = cfgSecuriteAdmin.verrouCible;
+    if (selPageAutorisee && cfgSecuriteAdmin.pageAutorisee !== undefined) selPageAutorisee.value = cfgSecuriteAdmin.pageAutorisee;
+    if (inpMotifVerrou && cfgSecuriteAdmin.motifVerrou) inpMotifVerrou.value = cfgSecuriteAdmin.motifVerrou;
+    if (chkSessionUnique) chkSessionUnique.checked = cfgSecuriteAdmin.sessionUnique !== false;
+    if (chkEjectDevtools) chkEjectDevtools.checked = cfgSecuriteAdmin.ejectDevtools !== false;
+    if (chkAntiTricheOnglet) chkAntiTricheOnglet.checked = cfgSecuriteAdmin.antiTricheOnglet !== false;
+    if (badgeStatutVerrou) {
+      if (cfgSecuriteAdmin.verrouActif) {
+        var cTxt = cfgSecuriteAdmin.verrouCible === "*" ? "Global" : cfgSecuriteAdmin.verrouCible;
+        badgeStatutVerrou.style.background = "#fde2e6";
+        badgeStatutVerrou.style.color = "#c0392b";
+        badgeStatutVerrou.style.borderColor = "#c0392b";
+        badgeStatutVerrou.textContent = "🔒 Verrouillé (" + cTxt + ")";
+      } else {
+        badgeStatutVerrou.style.background = "#e3f6e8";
+        badgeStatutVerrou.style.color = "#177245";
+        badgeStatutVerrou.style.borderColor = "#177245";
+        badgeStatutVerrou.textContent = "🟢 Accès ouvert";
+      }
+    }
+    if (btnSecCard) {
+      btnSecCard.classList.toggle("on", Boolean(cfgSecuriteAdmin.verrouActif));
+    }
+  }
+
+  function sauvegarderEtDiffuserConfigSecurite(nvPartiel, messageToast) {
+    cfgSecuriteAdmin = Object.assign({}, cfgSecuriteAdmin, nvPartiel || {}, {
+      type: "sec_config",
+      ts: Date.now()
+    });
+    try { localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecuriteAdmin)); } catch (e) {}
+    majUiConfigSecurite();
+    if (adminUid) {
+      sb.from("acces").insert({
+        user_id: adminUid,
+        page: "SEC_CONFIG",
+        lieu: JSON.stringify(cfgSecuriteAdmin),
+        duree_sec: 0
+      }).then(function () {});
+    }
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "sec_config", payload: cfgSecuriteAdmin });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify(cfgSecuriteAdmin)
+    }).catch(function () {});
+    if (messageToast) msg(messageToast, "ok");
+  }
+
+  function rendAlertesSecurite() {
+    var totalAl = listeAlertesSecurite.length;
+    if (spanNbAlertes) spanNbAlertes.textContent = String(totalAl);
+    if (badgeSecTop) {
+      badgeSecTop.style.display = totalAl > 0 ? "inline-block" : "none";
+      badgeSecTop.textContent = String(totalAl);
+    }
+    if (!tbAlertesSecurite) return;
+    tbAlertesSecurite.innerHTML = "";
+    if (!totalAl) {
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 5;
+      td0.style.cssText = "text-align:center;color:#7a6f5d;padding:14px;font-weight:700;";
+      td0.textContent = "✅ Aucune alerte de sécurité ni tentative de triche détectée.";
+      tr0.appendChild(td0);
+      tbAlertesSecurite.appendChild(tr0);
+      return;
+    }
+    var mapProf = {};
+    profils.forEach(function (p) { mapProf[p.id] = p; });
+
+    listeAlertesSecurite.slice(0, 60).forEach(function (al) {
+      var p = al.uid ? mapProf[al.uid] : null;
+      var nomCand = p ? (nomPrenomTexte(p) || contact(p)) : (al.nom || al.uid || "Inconnu");
+      var clCand = (p && p.classe) || al.classe || "—";
+      var tr = document.createElement("tr");
+
+      var tdDate = document.createElement("td");
+      tdDate.className = "col-nowrap";
+      tdDate.textContent = fmtDate(al.ts);
+
+      var tdCand = document.createElement("td");
+      tdCand.innerHTML =
+        "<b class='nom-cliquable-fiche'>👤 " + echHtml(nomCand) + "</b><br>" +
+        "<span style='font-size:11px;color:#5a5244;font-weight:800'>🏫 " + echHtml(clCand) + "</span>";
+      if (p) {
+        tdCand.addEventListener("click", function () {
+          if (modalSecurite) modalSecurite.classList.remove("visible");
+          ouvrirFicheEleve(p);
+        });
+      }
+
+      var tdAl = document.createElement("td");
+      tdAl.innerHTML = "<span style='display:inline-block;background:#fde2e6;color:#c0392b;border:1.5px solid #c0392b;border-radius:8px;padding:2px 8px;font-weight:900;font-size:11.5px'>🚨 " + echHtml(al.alerte || "Alerte") + "</span>";
+
+      var tdDet = document.createElement("td");
+      tdDet.innerHTML =
+        "<div style='font-weight:700;color:#23201a'>" + echHtml(al.details || "—") + "</div>" +
+        "<small style='color:#7a6f5d;font-weight:800'>📄 Page : " + echHtml(al.page || "—") + "</small>";
+
+      var tdAct = document.createElement("td");
+      tdAct.className = "col-nowrap";
+      if (p) {
+        var bEx = document.createElement("button");
+        bEx.type = "button";
+        bEx.className = "act del";
+        bEx.textContent = "⛔ Exclure";
+        bEx.title = "Exclure immédiatement cet abonné";
+        bEx.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          changeStatut(p, "exclu");
+        });
+        tdAct.appendChild(bEx);
+      } else {
+        tdAct.textContent = "—";
+      }
+
+      tr.append(tdDate, tdCand, tdAl, tdDet, tdAct);
+      tbAlertesSecurite.appendChild(tr);
+    });
+  }
+
+  function recevoirAlerteSecuriteLive(al) {
+    if (!al || !al.id) return;
+    if (listeAlertesSecurite.some(function (x) { return x.id === al.id; })) return;
+    listeAlertesSecurite.unshift(al);
+    rendAlertesSecurite();
+    var mapProf = {};
+    profils.forEach(function (p) { mapProf[p.id] = p; });
+    var p = al.uid ? mapProf[al.uid] : null;
+    var nomC = p ? (nomPrenomTexte(p) || contact(p)) : (al.nom || "Un abonné");
+    afficherNotifSysteme("🛡️ Alerte Sécurité STI — " + nomC, (al.alerte || "Tentative suspecte") + " (" + (al.page || "site") + ")");
+    msg("🛡️ Alerte sécurité : " + nomC + " — " + (al.alerte || "Tentative bloquée"), "err");
+  }
+
+  function ouvrirModalSecurite() {
+    majUiConfigSecurite();
+    rendAlertesSecurite();
+    if (modalSecurite) modalSecurite.classList.add("visible");
+  }
+  function fermerModalSecurite() {
+    if (modalSecurite) modalSecurite.classList.remove("visible");
+  }
+  if (btnSecTop) btnSecTop.addEventListener("click", ouvrirModalSecurite);
+  if (btnSecCard) btnSecCard.addEventListener("click", ouvrirModalSecurite);
+  var btnFermerSec = document.getElementById("btn-fermer-securite");
+  var btnFermerSecX = document.getElementById("btn-fermer-securite-x");
+  if (btnFermerSec) btnFermerSec.addEventListener("click", fermerModalSecurite);
+  if (btnFermerSecX) btnFermerSecX.addEventListener("click", fermerModalSecurite);
+  if (modalSecurite) {
+    modalSecurite.addEventListener("click", function (e) {
+      if (e.target === modalSecurite) fermerModalSecurite();
+    });
+  }
+
+  if (btnSecVerrouiller) {
+    btnSecVerrouiller.addEventListener("click", function () {
+      var cible = selVerrouCible ? selVerrouCible.value : "*";
+      var pgAut = selPageAutorisee ? selPageAutorisee.value : "";
+      var motif = inpMotifVerrou ? inpMotifVerrou.value.trim() : "";
+      sauvegarderEtDiffuserConfigSecurite({
+        verrouActif: true,
+        verrouCible: cible,
+        pageAutorisee: pgAut,
+        motifVerrou: motif || "Épreuve ou contrôle en cours — l'accès aux cours est temporairement verrouillé par le professeur."
+      }, "🔒 Mode Examen / Verrouillage activé en direct (" + (cible === "*" ? "Toutes les classes" : cible) + ") !");
+    });
+  }
+
+  if (btnSecDeverrouiller) {
+    btnSecDeverrouiller.addEventListener("click", function () {
+      sauvegarderEtDiffuserConfigSecurite({
+        verrouActif: false
+      }, "🔓 Verrouillage désactivé : tous les écrans des élèves sont déverrouillés.");
+    });
+  }
+
+  [chkSessionUnique, chkEjectDevtools, chkAntiTricheOnglet].forEach(function (chk) {
+    if (!chk) return;
+    chk.addEventListener("change", function () {
+      sauvegarderEtDiffuserConfigSecurite({
+        sessionUnique: chkSessionUnique ? chkSessionUnique.checked : true,
+        ejectDevtools: chkEjectDevtools ? chkEjectDevtools.checked : true,
+        antiTricheOnglet: chkAntiTricheOnglet ? chkAntiTricheOnglet.checked : true
+      }, "🛡️ Réglages du Pack Sécurité Totale mis à jour en direct.");
+    });
+  });
+
+  if (btnSecPurgerAlertes) {
+    btnSecPurgerAlertes.addEventListener("click", function () {
+      listeAlertesSecurite = [];
+      rendAlertesSecurite();
+      sauvegarderEtDiffuserConfigSecurite({
+        purgeAlertesTs: Date.now()
+      }, "🗑️ Journal des alertes de sécurité effacé.");
+      sb.from("acces").delete().like("page", "SEC_ALERTE:%").then(function () {});
+    });
+  }
+
+  if (btnSecExportCsv) {
+    btnSecExportCsv.addEventListener("click", function () {
+      if (!listeAlertesSecurite.length) {
+        msg("ℹ️ Aucune alerte de sécurité à exporter.", "err");
+        return;
+      }
+      var mapProf = {};
+      profils.forEach(function (p) { mapProf[p.id] = p; });
+      var lignes = ['"Date";"Candidat";"Classe";"Alerte";"Details";"Page"'];
+      listeAlertesSecurite.forEach(function (al) {
+        var p = al.uid ? mapProf[al.uid] : null;
+        var nomC = p ? (nomPrenomTexte(p) || contact(p)) : (al.nom || al.uid || "—");
+        var clC = (p && p.classe) || al.classe || "—";
+        var cols = [fmtDate(al.ts), nomC, clC, al.alerte || "—", al.details || "—", al.page || "—"].map(function (v) {
+          return '"' + String(v).replace(/"/g, '""') + '"';
+        });
+        lignes.push(cols.join(";"));
+      });
+      var blob = new Blob(["\uFEFF" + lignes.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "STI_V2_alertes_securite.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      msg("📥 Journal de sécurité exporté en Excel (CSV).", "ok");
     });
   }
 })();

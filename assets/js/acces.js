@@ -162,6 +162,9 @@
   function appliquerVerrou4SI(classe, estAdmin) {
     estAdminGlobal = Boolean(estAdmin);
     currentClasse = classe || currentClasse || "";
+    if (typeof appliquerVerrouExamen === "function") {
+      try { appliquerVerrouExamen(); } catch (e) {}
+    }
     var autorise = estAutorise4SI(currentClasse, estAdminGlobal);
     if (document.documentElement) {
       document.documentElement.classList.toggle("sti-4si-autorise", autorise);
@@ -2475,6 +2478,8 @@
           var derniereAnnonce = null;
           var dernierCtrl = null;
           var dernierFlash = null;
+          var dernierSecCfg = null;
+          var dernierSessUnique = null;
           for (var i = 0; i < lignes.length; i++) {
             if (!lignes[i]) continue;
             try {
@@ -2487,6 +2492,10 @@
                   dernierCtrl = a;
                 } else if (a && a.type === "flash_q") {
                   dernierFlash = a;
+                } else if (a && a.type === "sec_config") {
+                  if (!dernierSecCfg || Number(a.ts || 0) >= Number(dernierSecCfg.ts || 0)) dernierSecCfg = a;
+                } else if (a && a.type === "session_unique" && a.uid === uid) {
+                  if (!dernierSessUnique || Number(a.ts || 0) >= Number(dernierSessUnique.ts || 0)) dernierSessUnique = a;
                 } else if (estAnnoncePourMoi(a)) {
                   derniereAnnonce = a;
                 }
@@ -2496,6 +2505,8 @@
           if (derniereAnnonce) afficherAnnonce(derniereAnnonce);
           if (dernierCtrl) afficherControleChrono(dernierCtrl);
           if (dernierFlash) afficherQuestionFlashLive(dernierFlash, uid);
+          if (dernierSecCfg) appliquerConfigSecurite(dernierSecCfg);
+          if (dernierSessUnique) verifierSessionUnique(dernierSessUnique);
         })
         .catch(function () {});
     }
@@ -2517,9 +2528,232 @@
         .on("broadcast", { event: "flash_q" }, function (p) {
           if (p && p.payload) afficherQuestionFlashLive(p.payload, uid);
         })
+        .on("broadcast", { event: "sec_config" }, function (p) {
+          if (p && p.payload) appliquerConfigSecurite(p.payload);
+        })
+        .on("broadcast", { event: "session_unique" }, function (p) {
+          if (p && p.payload) verifierSessionUnique(p.payload);
+        })
         .subscribe();
     } catch (e) {}
   }
+
+  /* ══════════════════════════════════════════════════════════
+     🛡️ PACK SÉCURITÉ TOTALE :
+     1) Mode Examen / Verrouillage d'accès par classe ou global
+     2) Anti-partage de compte (1 seule session simultanée par élève)
+     3) Éjection automatique après 3 tentatives F12 / Ctrl+U / DevTools
+     4) Anti-triche Quiz / Contrôle (détection sortie d'onglet Alt+Tab)
+     ══════════════════════════════════════════════════════════ */
+  var cfgSecurite = {
+    verrouActif: false,
+    verrouCible: "*",
+    pageAutorisee: "",
+    motifVerrou: "Épreuve ou contrôle en cours — l'accès aux cours est temporairement verrouillé par le professeur.",
+    ejectDevtools: true,
+    antiTricheOnglet: true,
+    sessionUnique: true,
+    ts: 0
+  };
+  try {
+    var secSauv = JSON.parse(localStorage.getItem("sti-sec-config") || "null");
+    if (secSauv && typeof secSauv === "object") cfgSecurite = Object.assign(cfgSecurite, secSauv);
+  } catch (e) {}
+
+  function envoyerAlerteSecurite(typeAlerte, details) {
+    if (estSessionAdminVerifiee() || window.origin === "null") return;
+    var cLoc = lireCacheSessionLocal() || {};
+    var uid = currentUid || cLoc.id || null;
+    var cl = currentClasse || cLoc.classe || "—";
+    var nomComplet = (((cLoc.user_metadata && cLoc.user_metadata.prenom) || "") + " " + ((cLoc.user_metadata && cLoc.user_metadata.nom) || "")).trim() || cLoc.email || "Abonné";
+    var payload = {
+      type: "sec_alerte",
+      id: "sa_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+      uid: uid,
+      nom: nomComplet,
+      classe: cl,
+      alerte: typeAlerte,
+      details: details || "",
+      page: chemin,
+      ts: new Date().toISOString()
+    };
+    if (uid && uid !== "offline-user") {
+      try {
+        sb.from("acces").insert({
+          user_id: uid,
+          page: "SEC_ALERTE:" + typeAlerte.slice(0, 40),
+          lieu: JSON.stringify(payload),
+          duree_sec: 0
+        }).then(function () {});
+      } catch (e) {}
+    }
+    try {
+      sb.channel("sti-diffusion").send({ type: "broadcast", event: "sec_alerte", payload: payload });
+    } catch (e) {}
+    fetch("https://ntfy.sh/" + CANAL_DIFFUSION, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }).catch(function () {});
+  }
+
+  function verifierSessionUnique(sig) {
+    if (!sig || !sig.uid || !sig.token) return;
+    if (estSessionAdminVerifiee()) return;
+    if (cfgSecurite.sessionUnique === false) return;
+    var cLoc = lireCacheSessionLocal() || {};
+    var monUid = currentUid || cLoc.id;
+    var maClasse = currentClasse || cLoc.classe || "";
+    if (!monUid || sig.uid !== monUid) return;
+    if (estClasseProfLabo(maClasse, cLoc.email)) return;
+    var monToken = "";
+    try { monToken = localStorage.getItem("sti-session-token") || cLoc.sessionToken || ""; } catch (e) {}
+    if (!monToken) {
+      try { localStorage.setItem("sti-session-token", sig.token); } catch (e) {}
+      return;
+    }
+    if (sig.token !== monToken && Number(sig.ts || 0) >= Number(cLoc.ts || 0) - 2000) {
+      envoyerAlerteSecurite("Partage de compte (double session)", "Ouverture simultanée détectée sur un autre appareil");
+      sortirImmediatement("#partage");
+    }
+  }
+
+  function estPageAutoriseePendantVerrou(pageAut) {
+    if (!pageAut) return false;
+    var pNorm = String(pageAut).trim().toLowerCase().replace(/^\.?\//, "");
+    var curPath = String(location.pathname || "").toLowerCase();
+    var curChem = String(chemin || "").toLowerCase();
+    return curPath.indexOf(pNorm) !== -1 || curChem === pNorm || curChem === pNorm.split("/").pop();
+  }
+
+  function estCibleParVerrou(cible, cl) {
+    if (!cible || cible === "*") return true;
+    var cNorm = String(cl || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
+    var tNorm = String(cible || "").trim().toUpperCase().replace(/[\s._\-]+/g, "");
+    if (tNorm === "3SI") return /^3(E|ÈME|EME)?SI/i.test(cNorm);
+    if (tNorm === "4SI") return /^4(E|ÈME|EME)?SI/i.test(cNorm);
+    return cNorm === tNorm;
+  }
+
+  function appliquerVerrouExamen() {
+    var exOv = document.getElementById("sti-overlay-verrou-examen");
+    if (estSessionAdminVerifiee()) {
+      if (exOv) exOv.remove();
+      return;
+    }
+    var cLoc = lireCacheSessionLocal() || {};
+    var maCl = currentClasse || cLoc.classe || "";
+    var bloque = Boolean(
+      cfgSecurite &&
+      cfgSecurite.verrouActif &&
+      estCibleParVerrou(cfgSecurite.verrouCible, maCl) &&
+      !estPageAutoriseePendantVerrou(cfgSecurite.pageAutorisee)
+    );
+    if (!bloque) {
+      if (exOv) exOv.remove();
+      return;
+    }
+    if (!exOv) {
+      exOv = document.createElement("div");
+      exOv.id = "sti-overlay-verrou-examen";
+      exOv.className = "sti-no-print";
+      exOv.style.cssText = "position:fixed;inset:0;z-index:2147483646;background:rgba(13,21,38,.96);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;";
+      (document.body || document.documentElement).appendChild(exOv);
+    }
+    var btnPageAut = "";
+    if (cfgSecurite.pageAutorisee) {
+      var urlCible = cfg.RACINE + String(cfgSecurite.pageAutorisee).replace(/^\.?\//, "");
+      btnPageAut =
+        '<a href="' + esc(urlCible) + '" style="display:inline-block;margin:6px;background:linear-gradient(120deg,#177245,#2ecc71);color:#fff;border:2px solid #23201a;border-radius:999px;padding:12px 24px;font-weight:900;font-size:14px;text-decoration:none;box-shadow:3px 3px 0 #23201a">📝 Ouvrir l\'épreuve autorisée</a>';
+    }
+    var cibleTxt = cfgSecurite.verrouCible === "*" ? "Toutes les classes" : cfgSecurite.verrouCible;
+    exOv.innerHTML =
+      '<div style="max-width:480px;width:100%;background:#fffdf7;color:#23201a;border:3px solid #23201a;border-radius:22px;padding:26px 24px;text-align:center;box-shadow:7px 7px 0 #f4511e">' +
+        '<div style="width:62px;height:62px;margin:0 auto 12px;border-radius:18px;border:2.5px solid #23201a;background:linear-gradient(135deg,#fde2e6,#f4511e);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #23201a">🔒</div>' +
+        '<h2 style="margin:0 0 8px;font-size:20px;font-weight:900;color:#23201a">Mode Examen / Accès Verrouillé</h2>' +
+        '<p style="font-size:14px;line-height:1.55;color:#5a5244;margin:0 0 14px;font-weight:700">' +
+          esc(cfgSecurite.motifVerrou || "L'accès à cette page est temporairement verrouillé par le professeur pendant la séance.") +
+        '</p>' +
+        '<div style="display:inline-block;background:#f3ead9;border:1.5px solid #23201a;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:900;margin-bottom:16px;color:#c0392b">' +
+          '🏫 Verrouillage actif pour : ' + esc(cibleTxt) +
+        '</div><br>' +
+        btnPageAut +
+        '<button type="button" id="sti-btn-verrou-out" style="display:inline-block;margin:6px;background:#fff;color:#c0392b;border:2px solid #23201a;border-radius:999px;padding:11px 20px;font-weight:900;font-size:13px;cursor:pointer;box-shadow:2px 2px 0 #23201a">🚪 Se déconnecter</button>' +
+      '</div>';
+    var bOutV = document.getElementById("sti-btn-verrou-out");
+    if (bOutV) {
+      bOutV.addEventListener("click", function () { sortirImmediatement("#deconnecte"); });
+    }
+  }
+
+  function appliquerConfigSecurite(nvCfg) {
+    if (!nvCfg || typeof nvCfg !== "object") return;
+    if (Number(nvCfg.ts || 0) < Number(cfgSecurite.ts || 0)) return;
+    cfgSecurite = Object.assign(cfgSecurite, nvCfg);
+    try { localStorage.setItem("sti-sec-config", JSON.stringify(cfgSecurite)); } catch (e) {}
+    appliquerVerrouExamen();
+  }
+
+  /* Charger la dernière configuration de sécurité depuis Supabase au démarrage */
+  (function chargerConfigSecuriteInitiale() {
+    appliquerVerrouExamen();
+    if (!navigator.onLine) return;
+    sb.from("acces").select("lieu,debut").eq("page", "SEC_CONFIG").order("debut", { ascending: false }).limit(1).then(function (r) {
+      if (r && r.data && r.data[0] && r.data[0].lieu) {
+        try {
+          var parsed = JSON.parse(r.data[0].lieu);
+          appliquerConfigSecurite(parsed);
+        } catch (e) {}
+      }
+    }).catch(function () {});
+  })();
+
+  /* Écoute des tentatives F12 / Ctrl+U / DevTools remontées par protection.js */
+  window.addEventListener("sti:tentative-securite", function (e) {
+    if (estSessionAdminVerifiee()) return;
+    var det = (e && e.detail) || {};
+    var motif = det.motif || "Tentative d'ouverture du code source / inspecteur";
+    var strikes = 1;
+    try {
+      strikes = (parseInt(sessionStorage.getItem("sti-sec-strikes") || "0", 10) || 0) + 1;
+      sessionStorage.setItem("sti-sec-strikes", String(strikes));
+    } catch (err) {}
+
+    if (cfgSecurite.ejectDevtools !== false && strikes >= 3) {
+      envoyerAlerteSecurite("Éjection auto (3/3 F12/DevTools)", motif);
+      try { sessionStorage.removeItem("sti-sec-strikes"); } catch (err) {}
+      sortirImmediatement("#securite");
+      return;
+    }
+    envoyerAlerteSecurite("Tentative F12 / Code source (" + strikes + "/3)", motif);
+    afficherToastSynchro("🛡️ Alerte sécurité (" + strikes + "/3) : tentative transmise au professeur. À 3/3 votre session sera fermée.");
+  });
+
+  /* Détection anti-triche : sortie d'onglet / réduction de fenêtre pendant un Quiz ou un Contrôle chronométré */
+  var nbSortiesOngletQuiz = 0;
+  var dernierBlurQuizTs = 0;
+  function estPageQuizOuControleActif() {
+    var p = String(location.pathname || "").toLowerCase();
+    if (p.indexOf("/quiz/") !== -1 || p.indexOf("bac-pratique.html") !== -1) return true;
+    if (document.getElementById("sti-banniere-ctrl")) return true;
+    if (document.getElementById("sti-modal-flash-eleve")) return true;
+    return false;
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (estSessionAdminVerifiee() || window.origin === "null") return;
+    if (cfgSecurite.antiTricheOnglet === false) return;
+    if (document.visibilityState === "hidden" && estPageQuizOuControleActif()) {
+      var now = Date.now();
+      if (now - dernierBlurQuizTs < 2500) return;
+      dernierBlurQuizTs = now;
+      nbSortiesOngletQuiz++;
+      envoyerAlerteSecurite(
+        "Sortie d'onglet pendant Quiz/Contrôle (#" + nbSortiesOngletQuiz + ")",
+        "Changement d'onglet ou réduction de fenêtre sur " + chemin
+      );
+    } else if (document.visibilityState === "visible" && nbSortiesOngletQuiz > 0 && estPageQuizOuControleActif()) {
+      afficherToastSynchro("👀 Anti-triche STI : sortie d'onglet #" + nbSortiesOngletQuiz + " détectée et signalée en direct au professeur.");
+    }
+  });
 
   /* ---------- Bouton flottant 💬 Messenger STI présent sur 100 % des pages (Élèves & Admin) ---------- */
   function estSessionAdminVerifiee() {

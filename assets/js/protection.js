@@ -163,9 +163,25 @@
     synchroniserDomGold();
   });
 
-  /* ─────────────────────────────────────────────
-     Toast d'avertissement (affiché même aux abonnés Gold en cas de tentative d'accès au code source)
-     ───────────────────────────────────────────── */
+  var dernierSignalTs = 0;
+  var devtoolsEtaitOuvert = false;
+  function signalerTentativeCodeSource(motif) {
+    if (estAdminStrict() || window.origin === "null") return;
+    var now = Date.now();
+    if (now - dernierSignalTs < 1200) return;
+    dernierSignalTs = now;
+    try {
+      var cibles = [window];
+      if (window.top && window.top !== window) cibles.push(window.top);
+      cibles.forEach(function (w) {
+        try {
+          w.dispatchEvent(new CustomEvent("sti:tentative-securite", {
+            detail: { motif: motif, page: (location.pathname || "").split("/").pop() || "index.html", ts: now }
+          }));
+        } catch (e) {}
+      });
+    } catch (e) {}
+  }
   var toastEl = null;
   var toastTimer = null;
   function toast(msg, forcerAffichage) {
@@ -244,6 +260,9 @@
       if (estRaccourciCodeSource) {
         e.preventDefault();
         e.stopPropagation();
+        if (k === "f12" || code === 123 || (mod && k === "u") || (mod && e.shiftKey) || (e.metaKey && e.altKey)) {
+          signalerTentativeCodeSource("Raccourci code source / inspecteur (" + (e.ctrlKey ? "Ctrl+" : "") + (e.shiftKey ? "Shift+" : "") + k.toUpperCase() + ")");
+        }
         toast(MSG_SOURCE_BLOQUE, true);
         return false;
       }
@@ -382,6 +401,10 @@
     var ouvert = w > 180 || h > 180;
 
     if (ouvert) {
+      if (!devtoolsEtaitOuvert) {
+        devtoolsEtaitOuvert = true;
+        signalerTentativeCodeSource("Ouverture du panneau d'inspection (DevTools)");
+      }
       var ov = ensureDevOverlay();
       if (ov) ov.classList.add("visible");
       if (document.documentElement) document.documentElement.classList.add("sti-devtools-open");
@@ -390,6 +413,7 @@
         console.log("%c\uD83D\uDEE1\uFE0F Accès au code source interdit \u00A9 STI V2.0 - A. Essouyah", "color:#f4511e;font-size:18px;font-weight:bold;");
       } catch (e) {}
     } else {
+      devtoolsEtaitOuvert = false;
       if (devOverlay) devOverlay.classList.remove("visible");
       if (document.documentElement) document.documentElement.classList.remove("sti-devtools-open");
     }
